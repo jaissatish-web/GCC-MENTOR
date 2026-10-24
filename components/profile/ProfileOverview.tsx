@@ -334,8 +334,10 @@ export function ScoreCards({
 
 export interface ProfileFacts {
   currentTitle: string | null
+  currentRoleUnconfirmed?: boolean
+  experienceIncomplete?: boolean
   years: number | null
-  gcc: { years: number; countries: string[]; roles: number }
+  gcc: { years: number; countries: string[]; roles: number; durationUnconfirmed?: boolean }
   location: string | null
   target: string | null
   availability: string | null
@@ -423,7 +425,7 @@ export function CareerSnapshot({
         <FactTile
           icon={BriefcaseIcon}
           badge="bg-teal-soft text-teal"
-          label="Current role"
+          label={facts.currentRoleUnconfirmed ? 'Latest recorded role' : 'Current role'}
           value={facts.currentTitle}
           onClick={() => onOpen({ sectionId: 'sec_work_experience' })}
         />
@@ -432,14 +434,14 @@ export function CareerSnapshot({
           badge="bg-teal-soft text-teal"
           label="Experience"
           value={facts.years !== null ? `${facts.years} year${facts.years === 1 ? '' : 's'}` : null}
-          note="Counted from your job dates"
+          note={facts.experienceIncomplete ? 'Confirmed dates only · update missing job dates' : 'Counted from your job dates'}
           onClick={() => onOpen({ sectionId: 'sec_work_experience' })}
         />
         <FactTile
           icon={GlobeAltIcon}
           badge="bg-teal-soft text-teal"
           label="Gulf experience"
-          value={facts.gcc.roles > 0 ? `${facts.gcc.years} year${facts.gcc.years === 1 ? '' : 's'}` : null}
+          value={facts.gcc.durationUnconfirmed && facts.gcc.years === 0 ? 'Confirm job dates' : facts.gcc.roles > 0 ? `${facts.gcc.years} year${facts.gcc.years === 1 ? '' : 's'}${facts.gcc.durationUnconfirmed ? ' confirmed' : ''}` : null}
           note={facts.gcc.roles > 0 ? facts.gcc.countries.join(', ') : 'No Gulf-based job found yet'}
           onClick={() => onOpen({ sectionId: 'sec_work_experience' })}
         />

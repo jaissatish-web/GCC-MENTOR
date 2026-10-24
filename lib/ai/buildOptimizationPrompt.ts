@@ -1,3 +1,4 @@
+import { employmentEndLabel } from '@/lib/employmentStatus'
 import { categoryFact } from '@/lib/profileCategories'
 /**
  * Optimization prompt builder — universal, profession-neutral (TASK-018,
@@ -162,13 +163,13 @@ function renderWorkExperienceEntry(
   // Its bullets were where cross-role leaks came from (2026-09-17).
   if (!rewritable && compactFixed) {
     return (
-      `- ${e.role} at ${e.company} (${formatDate(e.start_date)} – ${formatDate(e.end_date)})` +
+      `- ${e.role} at ${e.company} (${(e.start_date ? formatDate(e.start_date) : 'Start date not provided')} – ${employmentEndLabel(e, formatDate, formatDate(null))})` +
       '\n  [FIXED — context only, not in this call, do not include in output]'
     )
   }
   const header =
     `- [id: ${e.id}] ${e.role} at ${e.company} ` +
-    `(${formatDate(e.start_date)} – ${formatDate(e.end_date)})` +
+    `(${(e.start_date ? formatDate(e.start_date) : 'Start date not provided')} – ${employmentEndLabel(e, formatDate, formatDate(null))})` +
     (e.location ? `, ${e.location}` : '')
   const bullets = (e.highlights ?? []).map((h) => `  - ${h}`).join('\n')
   const desc = e.description ? `  Description: ${e.description}\n` : ''

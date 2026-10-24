@@ -1,3 +1,4 @@
+import { hasUnknownEmploymentEnd } from '@/lib/employmentStatus'
 import type { CareerProfileFull } from '@/types/careerProfile'
 
 /**
@@ -24,8 +25,8 @@ export function factSummary(
   const roles = [...(profile.work_experience ?? [])]
     .filter((r) => (r.role ?? '').trim() !== '')
     .sort((a, b) => {
-      const ae = a.end_date ?? '9999-12-31'
-      const be = b.end_date ?? '9999-12-31'
+      const ae = a.end_date ?? (hasUnknownEmploymentEnd(a) ? a.start_date ?? '' : '9999-12-31')
+      const be = b.end_date ?? (hasUnknownEmploymentEnd(b) ? b.start_date ?? '' : '9999-12-31')
       return be.localeCompare(ae) || (b.start_date ?? '').localeCompare(a.start_date ?? '')
     })
   const skillNames = (profile.skills ?? []).map((s) => (s.name ?? '').trim()).filter(Boolean)
@@ -41,14 +42,14 @@ export function factSummary(
     const lead = `${capitalise(latest.role.trim())}${years >= 2 ? ` with ${years}+ years of experience` : ''}`
     const company = (latest.company ?? '').trim()
     sentences.push(
-      company ? `${lead}${latest.end_date ? ', most recently at' : ', currently at'} ${company}.` : `${lead}.`,
+      company ? `${lead}${hasUnknownEmploymentEnd(latest) ? ', with a recorded role at' : latest.end_date ? ', most recently at' : ', currently at'} ${company}.` : `${lead}.`,
     )
     const earlier = roles
       .slice(1)
       .map((r) => (r.company ?? '').trim())
       .filter((c, i, all) => c && c !== company && all.indexOf(c) === i)
       .slice(0, 3)
-    if (earlier.length > 0) sentences.push(`Previous roles at ${joinList(earlier)}.`)
+    if (earlier.length > 0) sentences.push(`${roles.slice(1).some(hasUnknownEmploymentEnd) ? 'Additional recorded roles' : 'Previous roles'} at ${joinList(earlier)}.`)
   }
   const terms = provenTerms.filter((t, i, all) => t.trim() && all.findIndex((x) => x.toLowerCase() === t.toLowerCase()) === i).slice(0, 8)
   if (terms.length > 0) sentences.push(`Experience relevant to this role includes ${joinList(terms)}.`)
@@ -59,10 +60,11 @@ export function factSummary(
 }
 
 function experienceYears(roles: CareerProfileFull['work_experience']): number {
+  if (roles.some(hasUnknownEmploymentEnd)) return 0
   const now = Date.now()
   let earliest = Infinity
   for (const r of roles) {
-    const t = Date.parse(r.start_date)
+    const t = Date.parse(r.start_date ?? '')
     if (Number.isFinite(t) && t < earliest) earliest = t
   }
   if (!Number.isFinite(earliest) || earliest > now) return 0

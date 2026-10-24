@@ -1,3 +1,4 @@
+import { hasUnknownEmploymentEnd } from '@/lib/employmentStatus'
 import type { CareerProfileFull } from '@/types/careerProfile'
 
 /**
@@ -15,7 +16,7 @@ export function totalExperienceYears(profile: Pick<CareerProfileFull, 'work_expe
   }
   const spans: Array<[number, number]> = []
   for (const e of profile.work_experience ?? []) {
-    if (!e.start_date) continue
+    if (!e.start_date || hasUnknownEmploymentEnd(e)) continue
     const s = monthIndex(e.start_date)
     const end = monthIndex(e.end_date)
     if (s === null || end === null || end < s) continue
@@ -53,6 +54,8 @@ function mergedMonths(spans: Array<[number, number]>): number {
 }
 
 export interface GccExperience {
+  /** A recorded GCC role has an unanswered end-date/current-status question. */
+  durationUnconfirmed?: boolean
   /** Whole years in GCC-based roles, overlaps counted once. 0 when none. */
   years: number
   /** Countries, in the order they first appear in the work history. */
@@ -70,7 +73,7 @@ export interface GccExperience {
  * the stored value into what the user reads.
  */
 export function gccExperience(
-  work: ReadonlyArray<{ start_date?: string | null; end_date?: string | null; location?: string | null; gcc_country?: string | null }>,
+  work: ReadonlyArray<{ start_date?: string | null; end_date?: string | null; end_date_unconfirmed?: boolean; location?: string | null; gcc_country?: string | null }>,
   resolve: (location: string | null | undefined) => string | null,
   now: Date = new Date(),
 ): GccExperience {
@@ -83,16 +86,18 @@ export function gccExperience(
   const spans: Array<[number, number]> = []
   const countries: string[] = []
   let roles = 0
+  let durationUnconfirmed = false
   for (const w of work) {
     const country = (w.gcc_country && w.gcc_country.trim()) || resolve(w.location ?? null)
     if (!country) continue
     roles++
+    if (!w.start_date || hasUnknownEmploymentEnd(w)) durationUnconfirmed = true
     if (!countries.includes(country)) countries.push(country)
-    if (!w.start_date) continue
+    if (!w.start_date || hasUnknownEmploymentEnd(w)) continue
     const s = monthIndex(w.start_date)
     const e = monthIndex(w.end_date)
     if (s === null || e === null || e < s) continue
     spans.push([s, e])
   }
-  return { years: Math.floor(mergedMonths(spans) / 12), countries, roles }
+  return { years: Math.floor(mergedMonths(spans) / 12), countries, roles, ...(durationUnconfirmed ? { durationUnconfirmed: true } : {}) }
 }

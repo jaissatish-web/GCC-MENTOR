@@ -12,7 +12,7 @@ const clean = resumeReviewChecks(review,editor,()=>null)
 assert.equal(importReviewPlan(clean,{}).blocking.length,0,'fresher can proceed without fabricated jobs, skills or qualifications')
 assert.ok(importReviewPlan(clean,{}).later.some(c=>c.field==='skills'),'optional missing skills remain outstanding')
 const bad = resumeReviewChecks(review,{...editor,email:'invalid',work_experience:[{company:'',role:'Engineer',start_date:'',description:'',highlights:''}],skills:[{name:''}],certifications:[{name:'',issue_date:'',expiry_date:''}]},()=>null)
-for(const field of ['email','work_experience.0.company','work_experience.0.start_date','skills.0.name','certifications.0.name']) assert.ok(importReviewPlan(bad,{}).blocking.some(c=>c.field===field),field+' must be fixed before save')
+for(const field of ['email','work_experience.0.company','work_experience.0.start_date','skills.0.name','certifications.0.name']) assert.ok(importReviewPlan(bad,{}).blocking.some(c=>c.field===field),field+' remains in the essential issue grouping')
 const warning={id:'warning',field:'full_name',kind:'check' as const,label:'Name',before:'',after:'',reason:'Please verify extracted name'}
 const uncertain=resumeReviewChecks({...review,changes:[warning]},editor,()=>null)
 const flag=uncertain.find(c=>c.field==='full_name')!
@@ -37,4 +37,9 @@ const currentEditor={...editor,work_experience:[{company:'Example',role:'Enginee
 const currentCheck=resumeReviewChecks(review,currentEditor,()=>null).find(c=>c.field.endsWith('current_status'))!
 assert.ok(currentCheck,'missing end date needs explicit current status')
 assert.ok(!resumeReviewChecks({...review,currentRoles:[currentRoleFingerprint(currentEditor.work_experience[0])]},currentEditor,()=>null).some(c=>c.field.endsWith('current_status')),'explicit current role is reused without asking again')
+const deferPlan = importReviewPlan(resumeReviewChecks(review,{...editor,full_name:'',email:'',phone:'',work_experience:[{company:'',role:'Engineer',start_date:'',description:'',highlights:''}]},()=>null),{})
+assert.equal(deferPlan.invalid.length,0,'missing essential facts are safe to defer without verification or invented data')
+assert.ok(deferPlan.outstanding.some(c=>c.field==='full_name'),'deferred gaps remain visible')
+assert.ok(importReviewPlan(bad,{}).invalid.some(c=>c.field==='email'),'malformed supplied values must be corrected or cleared')
+assert.equal(importReviewPlan(uncertain,{}).invalid.length,0,'uncertain extraction may be deferred without marking it verified')
 console.log('PASS explicit import review: required vs optional, uncertain facts, changed-value invalidation, valid-data profile and Gulf scoring')

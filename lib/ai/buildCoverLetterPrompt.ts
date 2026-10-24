@@ -1,3 +1,4 @@
+import { employmentEndLabel } from '@/lib/employmentStatus'
 import { employmentStatusContext } from '@/lib/employmentStatus'
 import { categoryFact } from '@/lib/profileCategories'
 /**
@@ -141,7 +142,7 @@ function renderFixedIdentity(profile: CareerProfileFull): string {
 
 function renderWorkExperienceEntry(e: ProfileWorkExperience): string {
   const header =
-    `- ${e.role} at ${e.company} (${formatDate(e.start_date)} - ${formatDate(e.end_date)})` +
+    `- ${e.role} at ${e.company} (${(e.start_date ? formatDate(e.start_date) : 'Start date not provided')} - ${employmentEndLabel(e, formatDate, formatDate(null))})` +
     (e.location ? `, ${e.location}` : '')
   const bullets = (e.highlights ?? []).map((h) => `  - ${h}`).join('\n')
   const desc = e.description ? `  ${e.description}\n` : ''

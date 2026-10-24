@@ -1,7 +1,8 @@
+import { hasUnknownEmploymentEnd } from '@/lib/employmentStatus'
 /** Presentation order only: never reorder the editor or saved career history. */
-export function sortedWorkRoles<T extends { start_date: string; end_date: string }>(roles: readonly T[]): T[] {
+export function sortedWorkRoles<T extends { start_date: string; end_date: string; end_date_unconfirmed?: boolean }>(roles: readonly T[]): T[] {
   return roles.map((role, index) => ({ role, index })).sort((a, b) => {
-    const current = (r: T) => Boolean(r.start_date.trim() && !r.end_date.trim())
+    const current = (r: T) => Boolean(r.start_date.trim() && !r.end_date.trim() && !hasUnknownEmploymentEnd(r))
     return Number(current(b.role)) - Number(current(a.role)) || b.role.end_date.localeCompare(a.role.end_date) || b.role.start_date.localeCompare(a.role.start_date) || a.index - b.index
   }).map(item => item.role)
 }

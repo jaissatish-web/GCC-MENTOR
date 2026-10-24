@@ -1,3 +1,4 @@
+import { hasUnknownEmploymentEnd } from '@/lib/employmentStatus'
 /**
  * Newest first — the order every CV is built in (founder, 2026-10-02):
  * "latest on the top… and after that date wise it will go".
@@ -31,13 +32,13 @@ function newestFirst<T extends { sort_order: number }>(items: readonly T[], key:
 }
 
 /** Current roles first (latest start first), then by end date, then start date. */
-export function sortExperienceNewestFirst<T extends Pick<ProfileWorkExperience, 'start_date' | 'end_date' | 'sort_order'>>(items: readonly T[]): T[] {
+export function sortExperienceNewestFirst<T extends Pick<ProfileWorkExperience, 'start_date' | 'end_date' | 'sort_order'> & { end_date_unconfirmed?: boolean }>(items: readonly T[]): T[] {
   // A current role ends "today": '9999' sorts above every real end date.
   return newestFirst(items, (e) => {
     const start = day(e.start_date)
     const end = day(e.end_date)
     if (!start && !end) return null // no dates at all: end of the list, user's order
-    return `${end ?? (e.end_date ? '0000-00-00' : '9999-12-31')}|${start ?? '0000-00-00'}`
+    return `${end ?? (hasUnknownEmploymentEnd(e) ? start ?? '0000-00-00' : e.end_date ? '0000-00-00' : '9999-12-31')}|${start ?? '0000-00-00'}`
   })
 }
 

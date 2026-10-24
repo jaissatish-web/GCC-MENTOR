@@ -1,3 +1,4 @@
+import { validProfileEmail, validProfilePhone } from '@/lib/profileFieldValidity'
 import {contextFromProfile} from '@/lib/careerIntake/shared'
 import { validateCategoryEntries } from '@/lib/profileCategories'
 import { NextRequest, NextResponse } from 'next/server'
@@ -99,11 +100,11 @@ function optional(v: unknown, field: string, check: (x: unknown) => boolean): st
 
 /** Validate one CareerProfile (parent) record; returns offending field or null. */
 function validateProfile(p: Record<string, unknown>): string | null {
-  // Required (NOT NULL) fields — reject if missing or of the wrong type.
+  // Identity strings stay typed, but may be empty in an incomplete profile.
   const requiredString = (...fields: string[]): string | null => {
     for (const f of fields) {
       const v = p[f]
-      if (typeof v !== 'string' || v.trim() === '') return f
+      if (typeof v !== 'string') return f
     }
     return null
   }
@@ -111,10 +112,12 @@ function validateProfile(p: Record<string, unknown>): string | null {
   // target_job_title and target_industry are OPTIONAL since migration 042: a
   // resume does not state the job the user is aiming for, so an auto-save right
   // after extraction must not require them. They are stored as null when empty
-  // (see the parent build below). full_name / phone / email stay required — a
-  // profile with no way to identify or contact the person is not usable.
+  // (see the parent build below). Identity/contact gaps can now be saved as
+  // empty strings and remain visible in completeness; never invent values.
   const requiredStringErr = requiredString('full_name', 'phone', 'email')
   if (requiredStringErr) return requiredStringErr
+  if (typeof p.email === 'string' && p.email.trim() && !validProfileEmail(p.email)) return 'email'
+  if (typeof p.phone === 'string' && p.phone.trim() && !validProfilePhone(p.phone)) return 'phone'
 
   if (typeof p.currently_in_gulf !== 'boolean') return 'currently_in_gulf'
   // Optional (migration 030) — informational targeting context, same
@@ -194,43 +197,26 @@ function validateProfile(p: Record<string, unknown>): string | null {
   return null
 }
 
-/**
- * A date the database refuses to store as NULL must be readable HERE, not
- * discovered to be unreadable by Postgres.
- *
- * THE 500 THIS CLOSES (found end-to-end 2026-09-05). Three layers each behaved
- * reasonably and together produced a server error:
- *
- *   1. `requireString` accepts any non-empty string, so extraction returning
- *      `start_date: "January 2020"` — prose rather than ISO — passes validation.
- *   2. `normalizeProfileDate` cannot parse it and returns null, which is the
- *      right call: a date we cannot read is absent, and guessing would be worse.
- *   3. `profile_work_experience.start_date` is NOT NULL, so Postgres rejects the
- *      insert and the route answers 500 Internal Server Error.
- *
- * The user sees a server error immediately after waiting for their CV to be
- * read, and nothing tells them which job is missing a date. Extraction is
- * non-deterministic, so this fires intermittently on resumes that DO state
- * their dates.
- *
- * Validating the shape at the boundary turns it into a 400 that names the
- * field. It changes no storage behaviour: a value that reaches the database
- * still goes through exactly the same normaliser.
- */
+/** Missing start dates are supported by REVIEW-DEFER-001. A supplied date
+ * must still normalize to a real calendar date before the atomic save. */
 function requireStorableDate(value: unknown): boolean {
-  return normalizeProfileDate(value) === null
+  const normalized = normalizeProfileDate(value)
+  if (!normalized) return true
+  const date = new Date(normalized + 'T00:00:00Z')
+  return Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== normalized
 }
 
 function validateWorkExperience(list: unknown): string | null {
   if (!Array.isArray(list)) return 'work_experience'
   for (const item of list) {
     if (!isObject(item)) return 'work_experience'
-    if (requireString(item.company, 'company')) return 'work_experience.company'
-    if (requireString(item.role, 'role')) return 'work_experience.role'
-    if (requireString(item.start_date, 'start_date')) return 'work_experience.start_date'
-    // NOT NULL in the database, so it must be readable here — see above.
-    if (requireStorableDate(item.start_date)) return 'work_experience.start_date'
+    if (typeof item.company !== 'string') return 'work_experience.company'
+    if (typeof item.role !== 'string') return 'work_experience.role'
+    // Unknown dates remain null; supplied malformed dates still fail.
+    if (item.start_date != null && typeof item.start_date !== 'string') return 'work_experience.start_date'
+    if (typeof item.start_date === 'string' && item.start_date.trim() && requireStorableDate(item.start_date)) return 'work_experience.start_date'
     if (optional(item.end_date, 'end_date', (x) => typeof x === 'string')) return 'work_experience.end_date'
+    if (optional(item.end_date_unconfirmed, 'end_date_unconfirmed', x => typeof x === 'boolean')) return 'work_experience.end_date_unconfirmed'
     if (typeof item.sort_order !== 'number') return 'work_experience.sort_order'
     // migration 027 — null/absent = not GCC experience, otherwise must be a
     // real target_country_enum member, same set the DB column accepts.
@@ -245,7 +231,7 @@ function validateSkill(list: unknown): string | null {
   if (!Array.isArray(list)) return 'skills'
   for (const item of list) {
     if (!isObject(item)) return 'skills'
-    if (requireString(item.name, 'name')) return 'skills.name'
+    if (typeof item.name !== 'string') return 'skills.name'
     if (typeof item.sort_order !== 'number') return 'skills.sort_order'
   }
   return null
@@ -255,7 +241,7 @@ function validateCertification(list: unknown): string | null {
   if (!Array.isArray(list)) return 'certifications'
   for (const item of list) {
     if (!isObject(item)) return 'certifications'
-    if (requireString(item.name, 'name')) return 'certifications.name'
+    if (typeof item.name !== 'string') return 'certifications.name'
     if (optional(item.issuer, 'issuer', (x) => typeof x === 'string')) return 'certifications.issuer'
     if (optional(item.issue_date, 'issue_date', (x) => typeof x === 'string')) return 'certifications.issue_date'
     if (optional(item.expiry_date, 'expiry_date', (x) => typeof x === 'string')) return 'certifications.expiry_date'
@@ -268,7 +254,7 @@ function validateEducation(list: unknown): string | null {
   if (!Array.isArray(list)) return 'education'
   for (const item of list) {
     if (!isObject(item)) return 'education'
-    if (requireString(item.degree, 'degree')) return 'education.degree'
+    if (typeof item.degree !== 'string') return 'education.degree'
     // Institution is OPTIONAL (2026-08-18): resumes commonly list a degree and
     // year with no institution, and an auto-save right after extraction must not
     // fail on it. No migration needed — an empty string satisfies the column's

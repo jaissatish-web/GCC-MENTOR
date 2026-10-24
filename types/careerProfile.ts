@@ -148,8 +148,9 @@ export interface ProfileWorkExperience {
   profile_id: string
   company: string
   role: string
-  start_date: string // date
-  end_date: string | null // date; null = current role
+  start_date: string | null // date; null = not provided
+  end_date: string | null // date; null = current only when end_date_unconfirmed is false
+  end_date_unconfirmed?: boolean // true = user deferred current/end-date confirmation
   location: string | null
   description: string | null
   highlights: string[] | null

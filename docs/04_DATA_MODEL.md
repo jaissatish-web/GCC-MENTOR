@@ -335,3 +335,10 @@ row per user. Same import/setup/output/checklist shape, owner-only SELECT, no
 anonymous or direct authenticated writes. Service-role API writes follow session
 authentication and validation. User/profile-owner foreign keys both cascade;
 Settings profile deletion reaches this table. See `20_PROFESSIONAL_PROFILES.md`.
+
+
+## REVIEW-DEFER-001 — pending release, 24 October2026
+Migration071 drops only the NOT NULL constraint on profile_work_experience.start_date so unknown dates can stay null. Existing dates, table grants/RLS and atomic-save functions remain unchanged. Missing identity/contact strings and required child labels remain typed empty strings. Tested with disposable PostgreSQL and the actual profile PUT route; not applied to the production database. Apply migration before releasing the corresponding application change.
+
+
+24 October2026 release update: migration071 is applied to production and migration072 adds end_date_unconfirmed boolean NOT NULL DEFAULT false. Catalogue checks confirm the nullable start date, default-false unknown-status marker and enabled row security. Old rows retain their prior status semantics; new deferred current/end questions persist unknown explicitly. Application release is pending final PR34 checks.

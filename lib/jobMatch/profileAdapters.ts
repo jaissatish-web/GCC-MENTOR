@@ -1,3 +1,4 @@
+import { hasUnknownEmploymentEnd } from '@/lib/employmentStatus'
 import type { JobMatchProfileInput, JobMatchWorkExperienceInput } from './requirementMapping'
 import type { CareerProfileDraft, CareerProfileFull, TargetCountry } from '@/types/careerProfile'
 import { gccCountryFromLocation } from './gccLocation'
@@ -42,6 +43,7 @@ export function buildJobMatchProfileInputFromDraft(draft: CareerProfileDraft): J
       role: w.role ?? '',
       startDate: w.start_date ?? null,
       endDate: w.end_date ?? null,
+      endDateUnconfirmed: hasUnknownEmploymentEnd(w),
       description: w.description ?? null,
       highlights: w.highlights ?? [],
       ...resolveGccCountry(w.gcc_country ?? null, w.location ?? null),
@@ -64,6 +66,7 @@ export function buildJobMatchProfileInputFromFullProfile(profile: CareerProfileF
       role: w.role,
       startDate: w.start_date,
       endDate: w.end_date,
+      endDateUnconfirmed: hasUnknownEmploymentEnd(w),
       description: w.description,
       highlights: w.highlights ?? [],
       ...resolveGccCountry(w.gcc_country, w.location),

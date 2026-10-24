@@ -1,7 +1,7 @@
 import type { ReviewCheck } from './reviewChecks'
 
-/** Database-required fields and malformed supplied values cannot be skipped.
- * Missing optional career facts can be completed later, without invented values.
+/** Essential-check grouping retained for editor disclosure and issue summaries.
+ * The explicit defer/save action uses `invalid`, not this legacy grouping.
  */
 export function isBlockingImportCheck(check: ReviewCheck): boolean {
   if (check.status !== 'attention') return false
@@ -16,6 +16,10 @@ export function isBlockingImportCheck(check: ReviewCheck): boolean {
 export function importReviewPlan(checks: ReviewCheck[], confirmations: Record<string, string>) {
   const outstanding = checks.filter(check => check.status === 'attention' && !(check.confirmable && confirmations[check.id] === check.value))
   return {
+    outstanding,
+    // A missing fact can be deferred. A malformed supplied value must be
+    // corrected or cleared; skipping never confirms an uncertain extraction.
+    invalid: outstanding.filter(check => !check.confirmable && !!check.value.trim()),
     blocking: outstanding.filter(isBlockingImportCheck),
     later: outstanding.filter(check => !isBlockingImportCheck(check)),
     passed: checks.filter(check => check.status === 'passed' || (check.confirmable && confirmations[check.id] === check.value)).length,

@@ -1,3 +1,4 @@
+import { employmentStatusLabel, hasUnknownEmploymentEnd } from '@/lib/employmentStatus'
 import type {
   CareerProfileDraft,
   CareerProfileFull,
@@ -117,7 +118,7 @@ export function candidateFacts(
         company: mask(entry.company),
         start: entry.start_date,
         end: entry.end_date,
-        employmentStatus: entry.end_date ? 'ended — use past tense' : 'current role (no end date in profile)',
+        employmentStatus: employmentStatusLabel(entry),
         location: mask(entry.location),
         description: mask(entry.description),
         highlights: (entry.highlights ?? []).map(mask),
@@ -204,11 +205,12 @@ export function importConflicts(
         profileValue: date(saved.start_date),
         importedValue: date(entry.start),
       })
-    if (date(entry.end) !== date(saved.end_date))
+    const savedEnd = hasUnknownEmploymentEnd(saved) ? 'End date not provided' : date(saved.end_date)
+    if (date(entry.end) !== savedEnd)
       conflicts.push({
         id: `import-${index}-end`,
         label: 'End date differs',
-        profileValue: date(saved.end_date),
+        profileValue: savedEnd,
         importedValue: date(entry.end),
       })
   })

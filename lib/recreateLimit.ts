@@ -77,7 +77,7 @@ export async function getRecreationStatus(userId: string): Promise<RecreationSta
   const resetsOnLabel = reset.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', timeZone: 'UTC' })
 
   const [profile, paidResume, serviceCredit, optimizationCredit, counter] = await Promise.all([
-    supabase.from('career_profiles').select('full_name').eq('user_id', userId).maybeSingle(),
+    supabase.from('career_profiles').select('id').eq('user_id', userId).maybeSingle(),
     supabase.from('packages').select('id').eq('user_id', userId).eq('is_paid', true).limit(1),
     supabase.from('user_service_credits').select('id').eq('user_id', userId).limit(1),
     supabase.from('optimization_credits').select('id').eq('user_id', userId).limit(1),
@@ -108,7 +108,9 @@ export async function getRecreationStatus(userId: string): Promise<RecreationSta
     }
   }
 
-  const isRecreate = Boolean(String(profile.data?.full_name ?? '').trim())
+  // A deliberately incomplete profile is still saved. Its editable name must
+  // not turn subsequent model calls into unmetered first-profile imports.
+  const isRecreate = Boolean(profile.data?.id)
   const paid =
     (paidResume.data?.length ?? 0) > 0 ||
     (serviceCredit.data?.length ?? 0) > 0 ||

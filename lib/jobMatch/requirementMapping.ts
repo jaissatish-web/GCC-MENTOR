@@ -28,7 +28,8 @@ import { anySatisfiesRequirement } from './degreeEquivalence'
 export interface JobMatchWorkExperienceInput {
   role: string
   startDate: string | null
-  endDate: string | null // null = current/ongoing
+  endDate: string | null // null = current/ongoing unless explicitly unconfirmed
+  endDateUnconfirmed?: boolean
   description: string | null
   highlights: string[]
   gccCountry: TargetCountry | null
@@ -93,7 +94,7 @@ function computeExperienceYears(
   let relevantYears = 0
 
   for (const w of work) {
-    if (!w.startDate) continue
+    if (!w.startDate || w.endDateUnconfirmed && !w.endDate) continue
     const end = w.endDate ?? nowIso
     const duration = yearsBetween(w.startDate, end)
     totalYears += duration
@@ -144,7 +145,9 @@ function experienceLevelCategory(profile: JobMatchProfileInput, job: StructuredJ
     score,
     applicable: true,
     evidence: [
-      `${totalYears} total years of experience, ${relevantYears} years in roles matching this job's skills/responsibilities`,
+      profile.workExperience.some(role => role.endDateUnconfirmed && !role.endDate)
+        ? `Unconfirmed employment duration; ${totalYears} years from confirmed dates, ${relevantYears} confirmed years in roles matching this job's skills/responsibilities`
+        : `${totalYears} total years of experience, ${relevantYears} years in roles matching this job's skills/responsibilities`,
       `Job asks for ${required} years`,
     ],
     explanation: '',

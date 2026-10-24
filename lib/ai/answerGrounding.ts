@@ -1,3 +1,4 @@
+import { hasUnknownEmploymentEnd } from '@/lib/employmentStatus'
 import { categoryFact } from '@/lib/profileCategories'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { ResumeDocument } from '@/lib/resumeDocument'
@@ -58,9 +59,9 @@ export function derivedExperienceYears(profile: CareerProfileFull, now: Date = n
     out.add(String(Math.round(y)))
   }
   const jobs = profile.work_experience ?? []
-  for (const j of jobs) add(yearsBetween(j.start_date, j.end_date, now))
+  for (const j of jobs) if (!hasUnknownEmploymentEnd(j)) add(yearsBetween(j.start_date, j.end_date, now))
   const starts = jobs.map((j) => j.start_date).filter(Boolean).sort()
-  if (starts.length > 0) add(yearsBetween(starts[0], null, now))
+  if (starts.length > 0 && !jobs.some(hasUnknownEmploymentEnd)) add(yearsBetween(starts[0], null, now))
   return Array.from(out)
 }
 

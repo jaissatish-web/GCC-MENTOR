@@ -29,6 +29,7 @@ paused=true;assert.equal((await read(request())).status,503);paused=false
 const response=await read(request());assert.equal(response.status,200);const payload=await response.json();assert.ok(payload.intake.draft);assert.ok(payload.intake.report.review);assert.equal(reads,1);assert.equal(calls,1)
 const claimRequest=()=>new NextRequest('http://localhost/api/career-intake/claim',{method:'POST',body:JSON.stringify(payload.intake),headers:{'Content-Type':'application/json'}})
 user=null;assert.equal((await claim(claimRequest())).status,401);assert.equal(saves,0)
-user={id:'owner'};existing={full_name:'Saved Person'};assert.equal((await claim(claimRequest())).status,409);assert.equal(saves,0,'existing profiles cannot bypass monthly imports')
+user={id:'owner'};existing={id:'saved-profile',full_name:'Saved Person'};assert.equal((await claim(claimRequest())).status,409);assert.equal(saves,0,'existing profiles cannot bypass monthly imports')
+existing={id:'incomplete-profile',full_name:''};assert.equal((await claim(claimRequest())).status,409);assert.equal(saves,0,'incomplete saved profiles also retain quota/overwrite protection')
 existing=null;assert.equal((await claim(claimRequest())).status,200);assert.equal(saves,1);assert.equal(calls,1,'claim does not re-extract or call the model')
 console.log('PASS intake API: validation, pause, limits, one extraction, owner-authenticated first-profile claim, returning-user quota protection')

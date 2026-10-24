@@ -1,3 +1,4 @@
+import { employmentEndLabel } from '@/lib/employmentStatus'
 import { employmentStatusContext } from '@/lib/employmentStatus'
 import { categoryFact } from '@/lib/profileCategories'
 import { PROFILE_ONLY_SERVICE_RULE } from '@/lib/careerProfileServiceContext'
@@ -135,7 +136,7 @@ function renderProfile(profile: CareerProfileFull): string {
     .map((e) => {
       const bullets = (e.highlights ?? []).slice(0, 4).map((h) => `  - ${h}`).join('\n')
       return [
-        `- ${e.role} at ${e.company} (${formatDate(e.start_date)} - ${formatDate(e.end_date)})${e.location ? `, ${e.location}` : ''}`,
+        `- ${e.role} at ${e.company} (${(e.start_date ? formatDate(e.start_date) : 'Start date not provided')} - ${employmentEndLabel(e, formatDate, formatDate(null))})${e.location ? `, ${e.location}` : ''}`,
         e.description ? `  ${e.description}` : '',
         bullets,
       ]
@@ -267,6 +268,7 @@ export function gulfFactLine(profile: CareerProfileFull, now: Date = new Date())
   const gcc = gccExperience(profile.work_experience ?? [], (l) => gccCountryFromLocation(l)?.country ?? null, now)
   if (gcc.roles === 0) return 'Gulf (GCC) experience: none on the CV. Do not claim any.'
   const where = gcc.countries.map(countryName).join(', ')
+  if (gcc.durationUnconfirmed) return `Gulf (GCC) roles recorded in ${where}; some employment dates/current status are unconfirmed. Do not state a number of Gulf years.`
   return gcc.years > 0
     ? `Gulf (GCC) experience: ${gcc.years}+ years, in ${where}. Every other year was outside the Gulf.`
     : `Gulf (GCC) experience: under one year, in ${where}. Do not state a number of Gulf years.`

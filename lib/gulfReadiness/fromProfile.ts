@@ -1,3 +1,4 @@
+import { employmentEndLabel } from '@/lib/employmentStatus'
 import {calculatePreparation} from './preparation'
 import {contextFromProfile} from '@/lib/careerIntake/shared'
 import { profileTextPresent, validProfileEmail, validProfilePhone } from '@/lib/profileFieldValidity'
@@ -61,6 +62,7 @@ export interface ProfileScoringInput {
     role?: string | null
     start_date?: string | null
     end_date?: string | null
+    end_date_unconfirmed?: boolean
     location?: string | null
     description?: string | null
     highlights?: string[] | null
@@ -109,6 +111,7 @@ export function scoringInputFromProfile(p: CareerProfileFull): ProfileScoringInp
       role: w.role,
       start_date: w.start_date,
       end_date: w.end_date,
+      end_date_unconfirmed: w.end_date_unconfirmed,
       location: w.location,
       description: w.description,
       highlights: w.highlights,
@@ -159,7 +162,7 @@ export function profileToScoringText(p: ProfileScoringInput): string {
   if (work.length) {
     out.push('WORK EXPERIENCE')
     for (const w of work) {
-      out.push(line(w.role, w.company ? `— ${w.company}` : null, w.location, dateRange(w.start_date, w.end_date)))
+      out.push(line(w.role, w.company ? `— ${w.company}` : null, w.location, dateRange(w.start_date, w.end_date, w.end_date_unconfirmed)))
       if (w.description?.trim()) out.push(w.description.trim())
       for (const h of w.highlights ?? []) if (h?.trim()) out.push(`- ${h.trim()}`)
     }
@@ -192,9 +195,9 @@ export function profileToScoringText(p: ProfileScoringInput): string {
   return out.join('\n')
 }
 
-function dateRange(start?: string | null, end?: string | null): string {
+function dateRange(start?: string | null, end?: string | null, endUnconfirmed = false): string {
   const s = (start ?? '').slice(0, 7)
-  const e = end ? end.slice(0, 7) : 'Present'
+  const e = employmentEndLabel({end_date:end,end_date_unconfirmed:endUnconfirmed}, date => date.slice(0,7))
   return s ? `${s} - ${e}` : ''
 }
 
