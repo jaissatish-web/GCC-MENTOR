@@ -88,7 +88,7 @@ export function PageShell({
           {uses && uses.length > 0 ? <span className="sr-only">Uses your {uses.join(' · ')}</span> : null}
         </div>
         {actions ? (
-          <div className="flex min-w-0 max-w-full flex-col gap-2 sm:max-w-[50%] sm:flex-row sm:flex-wrap sm:items-center">{actions}</div>
+          <div className="workspace-heading-actions ui-action-row min-w-0 max-w-full">{actions}</div>
         ) : null}
       </header>
 

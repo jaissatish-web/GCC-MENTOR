@@ -6,23 +6,11 @@ import { PremiumNav } from '@/components/landing-v3/PremiumNav'
 import { LandingFooter } from '@/components/landing-v3/LandingFooter'
 import { DocumentOrbit, GccGlobe } from '@/components/landing-v3/lazy'
 import { InterviewDemo } from '@/components/landing-v3/InterviewDemo'
-import { PERSONAS } from '@/components/landing-v3/personas'
-import { profiles, services } from '@/components/landing-premium/data'
+import { services } from '@/components/landing-premium/data'
 import s from '@/components/landing-v3/premium.module.css'
 
-/**
- * GCC Mentor landing — Design B · “Navy & Gold Trust”.
- *
- * Visual language: navy #0B1F3A is identity/trust (hero gradient
- * 150deg #0B1F3A → #123049 → #1A3D63); gold #C9962E carries the ONE
- * primary CTA per screen with ink text #8A6114 (never white on gold);
- * white cards on light canvas #F4F6F8; muted secondary text #8FA3BC.
- * Visual layer only — seeds, services and destinations stay untouched.
- *
- * Data reuse: the professions row and sector strip are grounded in
- * PERSONAS (six fictional example sectors) and PROFESSION_EXAMPLES via
- * the `profiles` export (12 demonstrated sectors, blue-collar included).
- */
+/** White editorial landing: presentation-only, preserving service destinations,
+ * native disclosures, actual resume previews and the interactive GCC globe. */
 const TITLE = 'Gulf Career Preparation & Interview Coaching | GCC MENTOR'
 const DESCRIPTION =
   'One profile for job-specific resumes, cover letters and voice interview practice. Prepare for Gulf opportunities. Start with your free GCC readiness assessment.'
@@ -79,10 +67,9 @@ const HOW_IT_WORKS = [
 ] as const
 
 const STATS = [
-  ['9.9M+', 'Indians working in the GCC'],
   ['6', 'Gulf markets covered'],
   ['50+', 'ATS resume templates'],
-  ['0', 'invented facts, ever'],
+  ['1', 'Career Profile'],
 ] as const
 
 const icons = { readiness: Target, match: ClipboardCheck, cv: FileText, letter: Mail, qa: BookOpen, interview: Mic, templates: FileText, reports: FolderOpen }
@@ -99,21 +86,21 @@ const faq = [
 ] as const
 
 export default function Home() {
-  const personaSectors = [...new Set(PERSONAS.map(persona => persona.sector))].join(', ')
   return (
-    <div className={`${s.system} font-redesign-sans`}>
+    <div className={`${s.system} font-redesign-sans`} data-marketing="white">
       <PremiumNav anchors={anchors} />
       <AuthLinkCatcher />
       <main id="main-content" tabIndex={-1}>
-        {/* ── Hero · navy gradient, one gold primary, professions, trust ── */}
+        {/* One primary action, a real resume visual and concise product context. */}
         <section className={s.heroNavy} aria-labelledby="hero-title">
           <div className={s.heroInner}>
+            <div className={s.heroCopy}>
             <span className={s.kickerGold}>Your Gulf career preparation partner</span>
-            <h1 id="hero-title" className={s.heroTitle}>Serious about your next <span>Gulf career chapter?</span></h1>
-            <p className={s.heroSub}>A complete preparation room for every profession — ATS-optimized resume, tailored cover letter, interview practice and a free GCC readiness score. Built only from your real experience. Nothing invented, ever.</p>
+            <h1 id="hero-title" className={s.heroTitle}>Your next Gulf opportunity. <span>Better prepared.</span></h1>
+            <p className={s.heroSub}>One profile for your resume, applications and interview practice. Built around your real experience.</p>
             <div className={s.heroCtas}>
-              <Link href="/gulf-readiness-score" className={s.goldCta}>Check my free GCC Readiness <ArrowRight size={18} aria-hidden="true" /></Link>
-              <Link href="/templates" className={s.ghostCta}>Explore 50+ templates <ArrowUpRight size={16} aria-hidden="true" /></Link>
+              <Link href="/gulf-readiness-score" className={s.goldCta}>Check my readiness <ArrowRight size={18} aria-hidden="true" /></Link>
+              <Link href="/templates" className={s.ghostCta}>Explore templates <ArrowUpRight size={16} aria-hidden="true" /></Link>
             </div>
             <p className={s.freeNote}><Check size={15} aria-hidden="true" />See your score before signup.</p>
             <ul className={s.profRow} aria-label="Professions GCC Mentor prepares for">
@@ -132,6 +119,12 @@ export default function Home() {
                 </div>
               ))}
             </dl>
+            </div>
+            <div className={s.heroVisual}>
+              <div className={s.visualLabel}><strong>Your experience, well presented</strong><span>Real templates</span></div>
+              <DocumentOrbit />
+              <div className={s.visualFoot}><Link href="/templates">Find your resume style <ArrowRight size={16} aria-hidden="true" /></Link></div>
+            </div>
           </div>
         </section>
 
@@ -139,54 +132,28 @@ export default function Home() {
         <section aria-label="GCC career destinations" className={s.countryBand}>
           <div className={s.inner}>
             <div className={s.sectionHead}>
-              <span className={s.kickerGold}>Six Gulf markets</span>
-              <h2 className={s.sectionTitle}>One preparation plan, <span>six countries.</span></h2>
-              <p className={s.sectionLead}>Roles move between markets — your Career Profile and preparation move with them, ready for every GCC opening.</p>
+              <span className={s.kickerGold}>Prepared for all six Gulf markets</span>
             </div>
             <ul className={s.countryGrid}>
               {COUNTRIES.map(country => (
                 <li key={country.name} className={s.countryCard}>
                   <span className={s.countryFlag} aria-hidden="true">{country.flag}</span>
                   <b className={s.countryName}>{country.name}</b>
-                  <span className={s.countryReason}>{country.reason}</span>
                 </li>
               ))}
             </ul>
           </div>
         </section>
 
-        {/* ── Challenges · pain-point disclosure (CI contract: #challenges details) ── */}
-        <section id="challenges" className={`${s.section} ${s.softSection}`} aria-labelledby="challenges-title">
+        <section id="challenges" className={s.challenges} aria-labelledby="challenges-title">
           <div className={s.inner}>
-            <details className={s.faqItem} open={false}>
-              <summary><span><h2 id="challenges-title" style={{ display: 'inline' }}>Not getting shortlisted? <span className={s.kickerGold}>Struggling in interviews?</span></h2></span><span className={s.faqPlus} aria-hidden="true">+</span></summary>
-              <ul className={s.countryGrid} style={{ padding: '4px 16px 18px', listStyle: 'none', margin: 0 }}>
-                {CHALLENGES.map(challenge => (
-                  <li key={challenge} className={s.countryCard} style={{ cursor: 'default', gap: 8 }}>
-                    <span className={s.countryFlag} style={{ fontSize: 'var(--ui-helper-size)' }} aria-hidden="true">!</span>
-                    <span className={s.countryReason} style={{ fontSize: 'var(--ui-helper-size)', lineHeight: 'var(--lp-tight-line)' }}>{challenge}</span>
-                  </li>
-                ))}
-              </ul>
-              <p className={s.sectionLead} style={{ padding: '0 18px 16px' }}>Each of these has a preparation step inside GCC Mentor.</p>
+            <details className={s.faqItem}>
+              <summary><span id="challenges-title">Not getting shortlisted?</span><span className={s.faqPlus} aria-hidden="true">+</span></summary>
+              <ul className={s.challengeList}>{CHALLENGES.map(challenge => <li key={challenge}><span aria-hidden="true">!</span>{challenge}</li>)}</ul>
             </details>
-          </div>
-        </section>
-
-        {/* ── How it works · journey disclosure (CI contract: #how-it-works) ── */}
-        <section className={s.section} aria-label="How the preparation journey works">
-          <div className={s.inner}>
             <details id="how-it-works" className={s.faqItem}>
-              <summary><span className={s.sectionTitle} style={{ margin: 0 }}>How the journey works <span className={s.kickerGold}>· one profile, a plan for every opening</span></span><span className={s.faqPlus} aria-hidden="true">+</span></summary>
-              <div className={s.featureGrid} style={{ padding: '4px 16px 20px' }}>
-                {HOW_IT_WORKS.map(([step, detail]) => (
-                  <div key={step} className={s.featureCard} style={{ cursor: 'default' }}>
-                    <span className={s.featureIcon}><span aria-hidden="true">→</span></span>
-                    <h3>{step}</h3>
-                    <p>{detail}</p>
-                  </div>
-                ))}
-              </div>
+              <summary><span>How it works</span><span className={s.faqPlus} aria-hidden="true">+</span></summary>
+              <div className={s.journeyGrid}>{HOW_IT_WORKS.map(([step, detail], index) => <article key={step}><span>{index + 1}</span><h3>{step}</h3><p>{detail}</p></article>)}</div>
             </details>
           </div>
         </section>
@@ -197,7 +164,7 @@ export default function Home() {
             <div className={s.sectionHead}>
               <span className={s.kickerGold}>What you get</span>
               <h2 id="services-title" className={s.sectionTitle}>All the tools for <span>your next move</span></h2>
-              <p className={s.sectionLead}>One Career Profile. A plan for every opening. Example candidates already span {personaSectors.toLowerCase()} — one profile each.</p>
+              <p className={s.sectionLead}>Choose the preparation you need for your next application.</p>
             </div>
             <ul className={s.featureGrid}>
               {services.map(([name, description, href, key]) => {
@@ -214,7 +181,6 @@ export default function Home() {
                 )
               })}
             </ul>
-            <p className={s.sectorLine}>Prepared for professionals across <b>{profiles.length} example sectors</b>: {profiles.map(profile => profile.department).join(' · ')}</p>
           </div>
         </section>
 
@@ -222,12 +188,14 @@ export default function Home() {
         <section id="templates" className={s.section} aria-labelledby="templates-title">
           <div className={`${s.inner} ${s.splitSection}`}>
             <div className={s.sectionHead}>
-              <span className={s.kickerGold}>Real templates · your career story</span>
-              <h2 id="templates-title" className={s.sectionTitle}>50+ resume templates. <span>Your career, clearly presented.</span></h2>
-              <p className={s.sectionLead}>Choose a single-column ATS layout or a professional recruiter-ready design.</p>
+              <span className={s.kickerGold}>Your resume, your style</span>
+              <h2 id="templates-title" className={s.sectionTitle}>A resume that <span>represents you.</span></h2>
+              <p className={s.sectionLead}>Explore 50+ designs using the same Career Profile.</p>
               <Link href="/templates" className={s.textLink}>Explore all templates <ArrowRight size={16} aria-hidden="true" /></Link>
             </div>
-            <DocumentOrbit />
+            <div className={s.templateChoices}>
+              {[['ATS layouts', 'Clear structure for online applications.'], ['Professional designs', 'A polished presentation of your experience.'], ['Photo options', 'Choose a design that suits your application.']].map(([title, detail]) => <Link href="/templates" className={s.templateChoice} key={title}><FileText size={28} aria-hidden="true" /><div><strong>{title}</strong><span>{detail}</span></div><span aria-hidden="true">→</span></Link>)}
+            </div>
           </div>
         </section>
 
@@ -235,9 +203,9 @@ export default function Home() {
         <section id="interview" className={`${s.section} ${s.softSection}`} aria-labelledby="interview-title">
           <div className={`${s.inner} ${s.splitSection}`}>
             <div className={s.sectionHead}>
-              <span className={s.kickerGold}>Job-specific questions · practical coaching</span>
+              <span className={s.kickerGold}>Practise with purpose</span>
               <h2 id="interview-title" className={s.sectionTitle}>Practise your interview. <span>Know what to improve.</span></h2>
-              <p className={s.sectionLead}>Prepare relevant examples, review incomplete answers and learn a better structure for your next attempt.</p>
+              <p className={s.sectionLead}>Practise relevant questions. See what worked and what to improve.</p>
             </div>
             <InterviewDemo />
           </div>
@@ -247,9 +215,7 @@ export default function Home() {
         <section id="markets" className={s.section} aria-label="Explore the six Gulf markets">
           <div className={s.inner}>
             <div className={`${s.sectionHead} ${s.sectionHeadCenter}`}>
-              <span className={s.kickerGold}>Where preparation meets opportunity</span>
-              <h2 className={s.sectionTitle}>Six Gulf markets. <span>One Career Profile.</span></h2>
-              <p className={s.sectionLead}>From Riyadh to Manama — roles, employers and location guidance across all six GCC countries.</p>
+              <span className={s.kickerGold}>Explore your next destination</span>
             </div>
             <GccGlobe compact />
           </div>
@@ -262,13 +228,13 @@ export default function Home() {
               <div className={s.founderColumn}>
                 <span className={s.kickerGold}>Built from practical industry experience</span>
                 <h2 id="about-title" className={s.navyTitle}>Gulf experience. <br />A practical preparation approach.</h2>
-                <p className={s.navyLead}>GCC Mentor brings practical industry experience to a guided career-preparation workspace — helping professionals present their real experience and prepare with purpose.</p>
+                <p className={s.navyLead}>A practical approach to presenting your experience and preparing for Gulf opportunities.</p>
                 <div className={s.founderBox}>
                   <span className={s.monogram} aria-hidden="true">SKJ</span>
                   <div>
                     <h3>Satish Kumar Jaiswal</h3>
                     <span className={s.founderRole}>Founder, GCC Mentor</span>
-                    <p>Approximately 15 years in instrumentation, commissioning and Gulf EPC/industrial projects. Built around practical application preparation and clear, experience-based interview answers.</p>
+                    <p>Approximately 15 years in instrumentation, commissioning and Gulf EPC projects.</p>
                     <a href="https://www.linkedin.com/in/jaissatish/" target="_blank" rel="noopener noreferrer" className={s.founderLink}>Connect on LinkedIn <ArrowUpRight size={15} aria-hidden="true" /></a>
                   </div>
                 </div>
@@ -279,7 +245,7 @@ export default function Home() {
                   <div>
                     <span className={s.accessTag}>Before signup</span>
                     <h3>Free GCC Readiness</h3>
-                    <p>Use your resume and career answers to understand your preparation gaps.</p>
+                    <p>Understand your preparation gaps.</p>
                     <Link href="/gulf-readiness-score" className={s.btnNavyOutline}>Check my free readiness <ArrowRight size={14} aria-hidden="true" /></Link>
                   </div>
                 </article>
@@ -288,7 +254,7 @@ export default function Home() {
                   <div>
                     <span className={s.accessTag}>With an account</span>
                     <h3>Career Preparation</h3>
-                    <p>Prepare applications, use templates and practise interviews with your available service access.</p>
+                    <p>Prepare your applications and practise interviews.</p>
                     <Link href="/signup" className={s.btnNavyOutline}>Create my account <ArrowRight size={14} aria-hidden="true" /></Link>
                   </div>
                 </article>
@@ -297,7 +263,7 @@ export default function Home() {
                   <div>
                     <span className={s.accessTag}>Your service access</span>
                     <h3>Your Available Services</h3>
-                    <p>See which tools you can use and how many preparations are available. Have an access code? Redeem it in Settings.</p>
+                    <p>View your available tools or redeem an access code.</p>
                     <Link href="/settings" className={s.textLink}>See my available services <ArrowRight size={14} aria-hidden="true" /></Link>
                   </div>
                 </article>
@@ -312,7 +278,6 @@ export default function Home() {
             <div className={s.sectionHead}>
               <span className={s.kickerGold}>Know what to expect</span>
               <h2 id="faq-title" className={s.sectionTitle}>Your questions, <span>answered.</span></h2>
-              <p className={s.sectionLead}>Preparation guidance, grounded in your real experience.</p>
             </div>
             <div className={s.faqList}>
               {faq.map(([question, answer], index) => (
@@ -330,8 +295,8 @@ export default function Home() {
           <div className={s.inner}>
             <span className={s.kickerGold}>Your next Gulf chapter</span>
             <h2 id="final-title" className={s.finalTitle}>Start preparing for your next <br />Gulf opportunity today.</h2>
-            <p className={s.finalLead}>Understand your readiness, prepare job-specific applications and practise interviews — all in one place.</p>
-            <Link href="/gulf-readiness-score" className={s.whiteCta}>Check my free GCC Readiness <ArrowRight size={18} aria-hidden="true" /></Link>
+            <p className={s.finalLead}>Start with your free readiness check. Build from there.</p>
+            <Link href="/gulf-readiness-score" className={s.whiteCta}>Check my readiness <ArrowRight size={18} aria-hidden="true" /></Link>
             <small className={s.finalSmall}>Your real experience · Guided preparation · Employment is not guaranteed</small>
           </div>
         </section>

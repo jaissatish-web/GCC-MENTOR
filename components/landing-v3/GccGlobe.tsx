@@ -182,21 +182,21 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
 
       // Atmosphere glow + ocean disc.
       const glow = ctx.createRadialGradient(c, cy, R * 0.95, c, cy, R * 1.1)
-      glow.addColorStop(0, 'rgba(80,170,255,0.3)')
-      glow.addColorStop(1, 'rgba(80,170,255,0)')
+      glow.addColorStop(0, 'rgba(21,128,83,0.08)')
+      glow.addColorStop(1, 'rgba(21,128,83,0)')
       ctx.fillStyle = glow
       ctx.beginPath()
       ctx.arc(c, cy, R * 1.1, 0, Math.PI * 2)
       ctx.fill()
       const ocean = ctx.createRadialGradient(c - R * 0.3, cy - R * 0.45, R * 0.1, c, cy, R)
-      ocean.addColorStop(0, '#12467a')
-      ocean.addColorStop(0.6, '#0a2c52')
-      ocean.addColorStop(1, '#061c38')
+      ocean.addColorStop(0, '#f5f8f5')
+      ocean.addColorStop(0.6, '#edf4ee')
+      ocean.addColorStop(1, '#e0ece2')
       ctx.fillStyle = ocean
       ctx.beginPath()
       ctx.arc(c, cy, R, 0, Math.PI * 2)
       ctx.fill()
-      ctx.strokeStyle = 'rgba(120,200,255,0.35)'
+      ctx.strokeStyle = 'rgba(21,128,83,0.18)'
       ctx.lineWidth = 1 * dpr
       ctx.stroke()
 
@@ -215,7 +215,7 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
       }
       const alphas = [0.28, 0.45, 0.62, 0.8, 0.95]
       for (let b = 0; b < 5; b++) {
-        ctx.fillStyle = `rgba(110,200,255,${alphas[b]})`
+        ctx.fillStyle = `rgba(21,108,67,${alphas[b]})`
         ctx.fill(buckets[b])
       }
 
@@ -228,7 +228,7 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
         const cycle = Math.floor((t + period - start) / period)
         const p = reduced ? 1 : (((t + period - start) % period) / FLIGHT_MS)
         const dim = f && f !== fl.to ? 0.18 : 1
-        const color = fl.move ? '140,230,255' : '232,177,92'
+        const color = fl.move ? '21,128,83' : '155,105,29'
         const head = Math.min(1, p)
         const nHead = Math.floor(head * ARC_STEPS)
         const fade = p > 1 ? Math.max(0, 1 - (p - 1) * (FLIGHT_MS / 1600)) : 1
@@ -306,12 +306,12 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
         const v = toV(o.lat, o.lng)
         const [sx, sy, z, front] = project(v[0], v[1], v[2], R, c, cy)
         if (!front || z < 0.05) continue
-        ctx.fillStyle = `rgba(160,220,255,${0.5 + 0.5 * z})`
+        ctx.fillStyle = `rgba(40,112,72,${0.5 + 0.5 * z})`
         ctx.beginPath()
         ctx.arc(sx, sy, 2.2 * dpr, 0, Math.PI * 2)
         ctx.fill()
         if (LABELLED_ORIGINS.has(key) && z > 0.25) {
-          ctx.fillStyle = `rgba(190,225,255,${0.35 + 0.5 * z})`
+          ctx.fillStyle = `rgba(40,112,72,${0.35 + 0.5 * z})`
           ctx.fillText(o.name, sx + 5 * dpr, sy)
         }
       }
@@ -348,13 +348,13 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
         ctx.moveTo(sx, sy)
         ctx.lineTo(px, py)
         ctx.stroke()
-        ctx.fillStyle = on ? 'rgba(232,177,92,0.98)' : `rgba(6,28,56,${0.85 * dim + 0.1})`
+        ctx.fillStyle = on ? 'rgba(232,177,92,0.98)' : `rgba(243,248,243,${0.85 * dim + 0.1})`
         ctx.strokeStyle = `rgba(255,214,140,${0.7 * dim})`
         ctx.beginPath()
         ctx.roundRect(px - w / 2, py - h / 2, w, h, h / 2)
         ctx.fill()
         ctx.stroke()
-        ctx.fillStyle = on ? '#14181C' : `rgba(255,236,200,${dim})`
+        ctx.fillStyle = on ? '#14181C' : `rgba(75,82,74,${dim})`
         ctx.textAlign = 'center'
         ctx.fillText(label, px, py + 0.5 * dpr)
         ctx.textAlign = 'start'
@@ -422,7 +422,7 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
 
   return (
     <div className={cn("relative overflow-hidden rounded-[20px] border border-line bg-white p-4 sm:p-6", compact ? "lg:p-6" : "lg:p-10")}>
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_70%_at_78%_50%,rgba(31,90,138,0.10),transparent_70%)]" aria-hidden="true" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_70%_at_78%_50%,rgba(21,128,83,0.04),transparent_70%)]" aria-hidden="true" />
       <div className="relative grid grid-cols-[minmax(0,1fr)] items-center gap-3 lg:grid-cols-[0.8fr_1.2fr] lg:gap-8">
         <div className="order-2 lg:order-1">
           <span className="font-semibold type-caption uppercase tracking-[0.08em] text-teal">Six Gulf markets</span>
@@ -466,8 +466,8 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
               </>
             ) : arrival && arrivalTo ? (
               <>
-                <div className="font-semibold flex items-center gap-2 type-caption uppercase tracking-[0.08em] text-blue">
-                  <span className="size-1.5 animate-glow-pulse rounded-full bg-blue" aria-hidden="true" />
+                <div className="font-semibold flex items-center gap-2 type-caption uppercase tracking-[0.08em] text-teal">
+                  <span className="size-1.5 animate-glow-pulse rounded-full bg-teal" aria-hidden="true" />
                   Gulf career paths
                 </div>
                 <div className="mt-1 text-[15px] font-semibold text-ink">

@@ -206,7 +206,7 @@ function CoverLetterScreen() {
       icon={EnvelopeIcon}
       eyebrow={stageEyebrow('apply')}
       title="Cover Letter"
-      subtitle={isRaw ? 'Introduce your experience using your saved profile. No job description needed.' : 'A letter for the Gulf job you are applying for, in your preferred tone.'}
+      subtitle={isRaw ? 'A letter from your saved Career Profile.' : 'A focused letter for your next application.'}
       uses={isRaw ? ['Profile Resume', 'Saved Career Profile'] : ['Optimized Resume', 'Job You’re Applying For', 'Career Profile']}
     >
 
@@ -217,7 +217,7 @@ function CoverLetterScreen() {
         ) : (
           <div className="flex flex-col gap-4">
             <label className="flex flex-col gap-1.5">
-              <span className="field-label">Which resume is this letter for?</span>
+              <span className="field-label">Choose your resume</span>
               <select
                 value={selectedId ?? ''}
                 onChange={(e) => {
@@ -261,13 +261,13 @@ function CoverLetterScreen() {
       {letters.length > 0 ? (
         <section aria-label="Saved cover letters" className="mt-6 flex flex-col gap-4">
           <SavedWorkHeading title="Your saved cover letters" count={letters.length}>
-            Review, edit or download your letters. Save changes to keep your edits for next time.
+            Edit, save or download your letters.
           </SavedWorkHeading>
           {letters.map((letter, index) => (
             <details key={letter.id} open={index === 0} className="group rounded-card border border-line bg-white">
-              <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 p-4 type-label font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B1F3A] sm:px-6 [&::-webkit-details-marker]:hidden">
+              <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 p-4 type-label font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:px-6 [&::-webkit-details-marker]:hidden">
                               <span className="min-w-0 break-words">{index === 0 ? 'Latest letter' : `Letter ${letters.length - index}`} · {letter.target_job_title}</span>
-                              <span className="shrink-0 text-[#0B1F3A] group-open:hidden">Open</span><span className="hidden shrink-0 text-[#0B1F3A] group-open:inline">Close</span>
+                              <span className="shrink-0 text-teal group-open:hidden">Open</span><span className="hidden shrink-0 text-teal group-open:inline">Close</span>
               </summary>
               <div className="cover-letter-result flex min-w-0 flex-col gap-3 border-t border-line p-3 sm:p-6">
               <div className="flex flex-col gap-1">
@@ -277,7 +277,7 @@ function CoverLetterScreen() {
                     {letter.target_company ? ` · ${letter.target_company}` : ''}
                   </p>
                   {letter.tone ? (
-                    <span className="rounded-full bg-[#E7EEF8] px-2 py-0.5 type-caption font-semibold uppercase tracking-wide text-[#0B1F3A]">
+                    <span className="rounded-full bg-teal-soft px-2 py-0.5 type-caption font-semibold uppercase tracking-wide text-teal">
                       {TONE_OPTIONS.find((o) => o.value === letter.tone)?.label ?? letter.tone}
                     </span>
                   ) : null}
@@ -293,13 +293,13 @@ function CoverLetterScreen() {
                 company={letter.target_company}
                 onChange={(text) => setEdits((prev) => ({ ...prev, [letter.id]: text }))}
               />
-              <div className="ui-action-group">
+              <div className="ui-action-row ui-action-group">
                 <Button
                                   type="button"
                                   onClick={() => void saveLetter(letter)}
                                   disabled={!isDirty(letter) || savingId === letter.id}
                                   busy={savingId === letter.id}
-                                  className="border-[#C9962E] bg-[#C9962E] text-[#14181C] hover:bg-[#E8B54A] hover:text-[#7A5310]"
+                                  className="w-full sm:w-auto"
                                 >
                   {savedId === letter.id ? 'Saved' : 'Save changes'}
                 </Button>
@@ -322,7 +322,7 @@ function CoverLetterScreen() {
 
       {selectedSummary && !detailError && !detailLoading ? (
         <ServiceOptions key={selectedId} title={letters.length ? 'Write another cover letter' : 'Write your first cover letter'}
-          description={`Choose your tone. The ${SAVED_PER_PACKAGE} newest letters are kept for this ${isRaw ? 'resume' : 'job'}.`}
+          description={`Up to ${SAVED_PER_PACKAGE} recent letters saved per ${isRaw ? 'resume' : 'job'}.`}
           hasSaved={letters.length > 0} busy={generating} hasError={Boolean(genError)}>
             <fieldset className="flex flex-col gap-1.5">
               <legend className="field-label mb-1.5">Tone</legend>
@@ -336,18 +336,18 @@ function CoverLetterScreen() {
                       aria-pressed={active}
                       onClick={() => setTone(opt.value)}
                       title={opt.description}
+                      aria-label={`${opt.label}: ${opt.description}`}
                       className={cn(
-                                              'flex min-h-11 min-w-0 flex-col items-start gap-0.5 rounded-ctl border px-3 py-2 text-left [overflow-wrap:anywhere] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B1F3A] focus-visible:ring-offset-2',
+                                              'flex min-h-12 min-w-0 items-center justify-center rounded-ctl border px-3 py-3 text-center [overflow-wrap:anywhere] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2',
                                               // The chosen tone must look chosen from across the room.
                                               active
-                                                ? 'border-2 border-[#0B1F3A] bg-[#E7EEF8]'
-                                                : 'border-field-line bg-field hover:border-[#0B1F3A]',
+                                                ? 'border-teal bg-teal-soft ring-1 ring-teal'
+                                                : 'border-field-line bg-field hover:border-teal',
                                             )}
                                           >
-                                            <span className={cn('type-helper font-semibold', active ? 'text-[#0B1F3A]' : 'text-ink')}>
+                                            <span className={cn('type-helper font-semibold', active ? 'text-teal' : 'text-ink')}>
                         {opt.label}
                       </span>
-                      <span className="type-caption leading-snug text-ink-muted">{opt.description}</span>
                     </button>
                   )
                 })}
@@ -375,7 +375,7 @@ function CoverLetterScreen() {
 
             {selectedSummary ? (
               // Stacked on a phone: side by side, the target line was squeezed.
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+              <div className="ui-action-row sm:justify-end">
                 <Button
                                   type="button"
                                   variant="primary"
@@ -383,7 +383,7 @@ function CoverLetterScreen() {
                                   disabled={!canGenerate}
                                   busy={generating}
                                   busyLabel="Writing…"
-                                  className="border-[#C9962E] bg-[#C9962E] text-[#14181C] hover:bg-[#E8B54A] hover:text-[#7A5310]"
+                                  className="w-full sm:w-auto"
                                 >
                   {CTA.writeCoverLetter}
                 </Button>
@@ -396,7 +396,7 @@ function CoverLetterScreen() {
         <NextStep
           className="mt-6"
           title="Prepare for the interview"
-          body={isRaw ? 'Prepare for interviews in your field with answers drawn from your saved Career Profile.' : 'Get likely questions for this job with answers drawn from the same resume, so what you say matches what you sent.'}
+          body={isRaw ? 'Practise with answers drawn from your Career Profile.' : 'Practise job-specific answers from this resume.'}
           href={`/interview-qa?package=${encodeURIComponent(selectedId)}`}
           cta={CTA.prepareInterviewQa}
           secondary={{ href: `/package/${encodeURIComponent(selectedId)}`, label: isRaw ? 'See your resume' : CTA.viewOptimizedCv }}
@@ -405,7 +405,7 @@ function CoverLetterScreen() {
 
       {/* Grounding notice */}
       <p className="mt-6 text-center type-helper text-ink-muted">
-        {isRaw ? 'Written only from your saved Career Profile. No job description or AI resume optimization is used.' : "Written from this job's saved resume (once built) and your Career Profile — nothing that is in neither."}
+        {isRaw ? 'Based only on your saved Career Profile.' : 'Based only on your saved resume and Career Profile.'}
       </p>
     </PageShell>
   )

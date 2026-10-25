@@ -3260,3 +3260,6 @@ Satish authorized autonomous internal UI implementation, testing, protected merg
 
 
 25 October 2026 — Satish authorized fixing the resume-confirmation category metadata save failure. Normalize category-level metadata consistently before save, preserve candidate facts/private visibility, and retain strict API validation; no schema or unrelated changes.
+
+
+25 October2026 — WHITE-WORKSPACE-001 approved: white background/no-blue comprehensive presentation refresh, concise copy and aligned mobile/desktop controls. Expert design decisions and main release authorized; backend/auth/scoring/prompts/templates protected. Specification: WHITE_WORKSPACE_2026-10-25.md. Implementation and verification pending.

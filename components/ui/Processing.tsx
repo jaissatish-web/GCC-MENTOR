@@ -91,23 +91,23 @@ function useRotation(count: number, ms: number = NOTE_MS): number {
  */
 const ART = {
   light: {
-    track: 'rgba(11,31,56,0.14)',
+    track: 'rgba(24,28,27,0.14)',
     comet1: '201,150,46', // gold
-    comet2: '27,56,103', // navy bright
+    comet2: '6,104,71', // emerald action
     comet3: '201,150,46',
     particle: '#C9962E',
-    dial: 'rgba(11,31,56,0.22)',
-    halo: 'radial-gradient(circle, rgba(27,56,103,0.16) 0%, rgba(201,150,46,0.10) 38%, rgba(255,255,255,0) 70%)',
-    ripple: 'rgba(27,56,103,0.35)',
+    dial: 'rgba(24,28,27,0.22)',
+    halo: 'radial-gradient(circle, rgba(6,104,71,0.16) 0%, rgba(201,150,46,0.10) 38%, rgba(255,255,255,0) 70%)',
+    ripple: 'rgba(6,104,71,0.35)',
   },
   dark: {
     track: 'rgba(255,255,255,0.08)',
     comet1: '233,199,122', // light gold
-    comet2: '132,166,204', // navy-sky
+    comet2: '160,205,180', // soft emerald
     comet3: '233,199,122',
     particle: '#E9C77A',
     dial: 'rgba(255,255,255,0.18)',
-    halo: 'radial-gradient(circle, rgba(132,166,204,0.22) 0%, rgba(233,199,122,0.14) 38%, rgba(0,0,0,0) 70%)',
+    halo: 'radial-gradient(circle, rgba(160,205,180,0.22) 0%, rgba(233,199,122,0.14) 38%, rgba(0,0,0,0) 70%)',
     ripple: 'rgba(233,199,122,0.45)',
   },
 } as const
@@ -219,7 +219,7 @@ export function ProcessingOrbit({
         className="absolute inset-[35%] overflow-hidden rounded-full animate-breathe motion-reduce:animate-none"
         style={{
           background: 'radial-gradient(circle at 32% 26%, #1E3A5C 0%, #0F2542 58%, #060F1D 100%)',
-          boxShadow: tone === 'dark' ? '0 0 22px 2px rgba(233,199,122,0.35), inset 0 1px 1px rgba(255,255,255,0.35)' : '0 6px 18px -4px rgba(11,31,56,0.45), inset 0 1px 1px rgba(255,255,255,0.35)',
+          boxShadow: tone === 'dark' ? '0 0 22px 2px rgba(233,199,122,0.35), inset 0 1px 1px rgba(255,255,255,0.35)' : '0 6px 18px -4px rgba(24,28,27,0.45), inset 0 1px 1px rgba(255,255,255,0.35)',
         }}
       >
         <div

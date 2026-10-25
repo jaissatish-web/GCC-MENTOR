@@ -1,49 +1,41 @@
-# Career Studio design QA
-
-24 October2026. Implementation: rebuilt Next.js source in PR33. No actionable P0/P1/P2 findings remain in the reviewed presentation scope.
-
-## Source and captured states
-Source visual truth: `design-reference/career-studio/approved-direction.png` (1254×1254 generated direction board). This is an approved concept board, not a pixel-exact device specification: its five phone panels have different aspect ratios. Comparison crops remove the board surround; all phone source crops are rescaled proportionally to390px wide, alongside actual390×844 CSSpx screenshots at deviceScaleFactor1. No stretching or device chrome is added. Home source crop252×601 becomes390×930; lower phone crops273×530 become390×757. Height differences remain visible rather than being hidden. The desktop source crop909×597 is scaled proportionally to1440px wide; actual desktop is1440×1024 at1× density. The board's stated16px body and48px controls govern actual CSS sizes; enlarged board text is not treated as reliable font metadata.
-
-Fictional saved state: Maya Thomas, Project Engineer/UAE, one saved resume, active interview with3/10 saved answers, completed practice76 and eligible previous72. Sample mock scores/counts/dates are illustrative; real engines compute the fixture's Profile completeness and Gulf preparation100. Empty/error/pending-import/base-resume/enlarged text states are captured separately.
-
-Full-view combined comparison inputs, opened and inspected:
-- `design-reference/career-studio/compare-home.webp`
-- `design-reference/career-studio/compare-profile.webp`
-- `design-reference/career-studio/compare-resume.webp`
-- `design-reference/career-studio/compare-interview.webp`
-- `design-reference/career-studio/compare-report.webp`
-- `design-reference/career-studio/compare-desktop.webp`
-
-Focused combined control comparison: `design-reference/career-studio/compare-controls.webp`. It checks nav text/icon alignment and primary CTA proportions. Individual full-resolution actual captures are `home-390.webp`, `profile-390.webp`, `resume-390.webp`, `interview-390.webp`, `report-390.webp`, `contact-390.webp` and their1440px counterparts in the same directory. Responsive test results: `results.json`.
-
-## Comparison history and resolved findings
-1. [P2] Phone Profile was too tall and descriptive text inherited button-semibold weight. Evidence:`compare-profile-before.webp`; Gulf preferences/additional sections fell below the first viewport. Fix: phone summary row padding12px, tighter identity/header rhythm, two-line descriptions with full content in the editor, central regular-weight supporting copy. Re-captured at390×844 and compared in `compare-profile.webp`; all five section headings and the additional-sections action are visible before the nav.
-2. [P2] Report supporting copy inherited-semibold weight and the next-practice action previously followed the entire explorer. Evidence:`compare-report-before.webp` (copy) and earlier source inspection (action position). Fix: regular supporting weight, compact mobile score/feedback spacing, primary Practise again inside the overview action group, paired with Review answers. Re-captured same saved state at390×844 and compared in `compare-report.webp`; both actions fit above the fold, all report sections remain available. Share label stays on one line.
-3. Integration corrections before the final comparison: removed inherited50px bottom-nav label width (Resumes now one line at320/390); set shared phone gutter16px; explicitly sized CTA SVGs18px; made unavailable progress indeterminate rather than a real zero. Current control comparison and320/390/768/1440 checks validate these.
-
-## Fidelity surfaces
-- Fonts/typography: existing bundled Inter,16px internal body/input,24px phone and28px desktop H1. Central roles supply14px labels/helpers and restrained500/600 emphasis; supporting Profile/report copy uses400. Generated source has no font metadata, so exact typeface identity is not asserted. Source/actual heading hierarchy and control wrapping were reviewed in combined images. Document font/style boundaries pass independently.
-- Spacing/layout: light224px desktop rail,80px tablet rail,56px phone header,16/32px page gutters,48px primary controls,8px radii. Home reorders readiness/context/action/saved rows on phones and uses two columns on desktop. Profile summary/focused editing, flat service rows, local tabs and focused interview remove repeated card/header layers. No horizontal page overflow at320/390/768/1440 or doubled Home text.
-- Colors/tokens: warm nearwhite, charcoal, ocean teal, amber attention and blue information, configured centrally and scoped to internal UI. Source gradients/shadows are deliberately simplified to flat controls and light dividers for clarity. Public colors and document styling retain their separate contracts.
-- Images/icons: existing candidate photos render when saved; the no-photo fixture exposes the actual upload control instead of shipping the mock portrait. Resume workspace thumbnail uses the real document/template renderer. Home has a library document icon because the existing summary API has no document snapshot; it does not fabricate a resume image. Standard existing Heroicons/Lucide replace no custom product imagery. No generated assets or example people are runtime fallbacks.
-- Copy/content: labels describe actual existing services. Distinct Profile completeness/Gulf preparation scores are preserved. No invented timestamps, per-question evidence links, mock achievements or auto-save promise. Introductory explanations remain disclosed where possible.
-
-## Intentional differences from the concept
-- Four existing resume tabs (Overview/Improve/Design/Tracker) remain rather than inventing the mock's three-tab model; all existing controls and base-resume paths survive.
-- Source home timestamps, item counts, readiness labels/numbers and feedback examples are replaced by real available data. Generic improvement links are used when the account has no grounded summary feedback.
-- Report feedback links open the correct existing sections, not invented question3/5/7 associations. Comparison only appears when the unchanged eligibility model supplies a previous score.
-- Question4 means three saved answers; source's question3 label alongside three saved answers is not copied. Submit remains explicit; the mock's automatic-save caption is removed.
-- Report actions share one phone row instead of two full-width rows, keeping score/priorities/next action in the viewport. Header preserves the service menu rather than substituting a nonfunctional sample avatar.
-
-## Browser verification
-Current compiled production pages and the real dynamic workspace component were served via a local fictional-data harness, opened in the cloud browser. These are real hydrated components, not screenshots used as UI. Cloud captures: `cloud-home.jpg`, `cloud-profile.jpg`, `cloud-report.jpg` at1363×936 surrounding a390×844 iframe; `cloud-desktop.jpg` at1363×936 directly. The desktop capture follows a successful answer submission, so saved progress is4/10 there. The wrapper and classic-scrollbar normalization are test-only. The dynamic workspace harness substitutes Next navigation/server footer/auth adapters; it does not certify published legal content or production auth.
-
-Primary interactions: Home Continue practice opens the saved run; typing and Submit advances Question4→5; report Review answers opens question cards; Profile edit→back preserves the changed name and explicit Save succeeds through the versioned existing payload. Native checks also cover service links, all four viewport widths, actual WhatsApp choices, drawer keyboard/focus/account navigation without writes, empty/error/pending-import/base-resume and doubled text. Application console errors:none in native checks and the observed cloud app load. Cloud extension metadata errors were excluded by extension URL.
-
-## Checks and limits
-Local production build (including lint/type validity) passes. Repository suite77/77 passes. Career Studio29 responsive/state checks pass with zero external calls/runtime errors. Shared UI/public-document isolation passes; mobile typography, CTA interactions, navigation and intake checks pass. Test harness accepts the existing beforeunload prompt only when leaving fictional cases; it never changes the production guard. Required CI and exact Vercel release status are separate gates recorded in PR33/release notes. Signed-in production saves, AI generation quality and microphone behavior were not certified by these fictional tests.
-
-Implementation checklist: source checkpointed; protected-directory diff empty; comparisons opened; P2 fixes re-captured; app interactions/console checked; final required CI must pass before merge. P3 follow-up: summaries may show additional entry counts beside section titles; not needed to use any flow.
+# White workspace design QA — 25 October 2026
 
 final result: passed
+
+## Reference and scope
+Source visual direction: white editorial desktop study exec-177fbe3f-e971-43ad-8123-a54ffd8120c5.png and mobile study exec-be9de0e9-5fbd-48fd-b84b-11e9b2c17258.png, generated in this conversation. Durable combined comparisons: design-reference/white-workspace/desktop-comparison.jpg and mobile-comparison.jpg. These are palette/layout references; mock data, invented charts and changed workflow labels are not production requirements. The founder requested expert visual refurbishment while preserving backend and current service behavior.
+
+## Browser evidence
+Cloud browser opened the built application at terminal.local:4173 with existing local-only fictional APIs. Direct inspected desktop viewport1363x936 CSS px, density1. Mobile uses a390x844 CSS iframe, content cropped from the exact browser screenshot without changing scale. Source mobile853x1844 pixels normalized to390x844 for the combined comparison; desktop1487x1058 and actual1363x936 compared as proportional thumbnails. Different candidate/state/content are intentional; this is not a claim of pixel-identical mock recreation.
+
+Accepted screenshots: design-reference/white-workspace/landing-desktop.jpg, landing-mobile.jpg, dashboard-desktop.jpg, dashboard-mobile.jpg, profile-controls.jpg and interview-report.jpg. Full-view side-by-side comparisons were opened and visually inspected. The full-size profile-controls and interview-report captures provided focused readable checks of labels, buttons, bars and form geometry; no precision asset crop was needed for the text/line-icon design.
+
+## Findings and iteration history
+1. P1 original desktop hero had an empty right side and weak headline hierarchy. Replaced with balanced copy/real resume orbit; centralized distinct marketing H1/H2 roles. Final loaded screenshot shows10 real template faces and working template destination.
+2. P1 navy backgrounds and blue informational/service colours conflicted with the approved direction. Shared public/internal tokens now white/charcoal/emerald, neutral information, amber attention/red errors; scoped legacy bridges protect documents. Live local computed body background255255255, no desktop overflow.
+3. P2 first pass preserved a beige body utility. Root body now bg-white; recapture white-landing-final.jpg confirms white.
+4. P2 raw landing typography declarations were rejected by source regression. Replaced with central role tokens; focused typography check passed.
+5. P2 lazy hero visual initially left an empty frame during load. Added explicit accessible loading status at the same reserved height; loaded template composition stays unchanged.
+6. P3 duplicate separators in continuation area simplified to a single bottom boundary.
+
+## Required fidelity surfaces
+- Typography: existing Inter,16px body/inputs,14px help,24/28px compact app H1 and36–60px marketing display. Readable hierarchy/line lengths, no clipped landing controls at390 or desktop1363.
+- Layout: white base, thin neutral dividers, grouped data rows, consistent8px controls, aligned mobile full-width actions; desktop has deliberate contextual side column. Existing navigation and data ordering retained.
+- Colour: charcoal text, emerald primary, amber/red statuses and restrained plum keyword highlighting. No blue UI intended; authored resume template colours remain protected by scope.
+- Assets: existing real resume renderer/orbit and globe kept; generated mocks are not shipped as candidate UI/data. Existing line icon library retained.
+- Copy: repeated explanations shortened, labels remain descriptive, important prerequisite/error/privacy and truthful-grounding guidance preserved.
+
+## Interactions and runtime
+Observed initial and loaded landing/dashboard, phone landing/dashboard, Profile summary → Contact details, Same as phone → Different number → Same as phone, interview report → Review answers, and landing Interview section navigation. All selected controls responded with expected DOM. Browser console reviewed: extension-origin metadata errors only; no application-origin errors observed. No real customer account, generation request or external write used.
+
+## Verification limits
+Automated required CI covers320/390/768/1440 reflow, save/version and interview interactions, CTA alignment, PDF compatibility and document isolation. Local full80 checks/typecheck/lint and production build passed, with final focused source checks after presentation-only refinements. Main merge/production status must be read from the release record. Live signed-in customer persistence and external AI/provider/auth behavior are not certified by fictional UI fixtures.
+
+## Acceptance
+No actionable P0/P1/P2 visual issue remains in inspected representative screens. Exact screenshot text/layout differs from illustrative studies to preserve real product behavior. Remaining P3: future optional brand-mark refinement; no rebrand authorized.
+
+CI follow-up: P2 at1280px and200% text: header action overflowed by32px. Header/action/navigation groups now wrap and the readiness label can wrap while its icon keeps its size. No overflow assertion was removed. Final enlarged-text rerun required before main merge.
+
+CI reflow rerun passed normal and200% marketing layouts. A new white-surface assertion then found the generic ui-surface role was transparent over its white parent. The role now explicitly paints white; status callouts retain their own semantic surfaces. Required scope/control tests pending.
+
+Post-fix verification: CI40191520596 passed the complete marketing reflow test at360/390/430/1280/1366/1440, normal and200% text, including collapsed/expanded disclosures. Screenshot evidence extracted from its typography artifact: design-reference/white-workspace/enlarged-landing.png (1280x900 crop of1280x9395 full-page200% capture). Sticky header position in full-page capture is not used as a pixel-fidelity claim. Local final build and actual production-CSS Clear Path checks passed at320/390/768/1440 after explicit white ui-surface paint; token propagation, field/card whites and authored document isolation pass. Known P2 findings are resolved. Remaining CI functional/profile/interview checks gate publication independently of this visual-QA result. Local standalone CTA browser was detached before navigation; no local pass claimed for that script.

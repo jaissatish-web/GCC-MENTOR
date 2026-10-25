@@ -119,3 +119,13 @@ PROFILE-CATEGORY-SAVE-001 local completion — 25 October 2026: application comm
 
 
 PROFILE-CATEGORY-SAVE-001 release authorization — 25 October 2026: Satish explicitly instructs publishing completed fixes to main and checking the main website, without asking again. The earlier publication blocker is resolved for this fix. Proceed through protected-main CI/PR merge and Vercel production verification, with no protection bypass. Local verification remains typecheck/lint/build and80/80 checks; actual release evidence follows in the merge record.
+
+
+25 October2026 — WHITE-WORKSPACE-001 approved: white background/no-blue comprehensive presentation refresh, concise copy and aligned mobile/desktop controls. Expert design decisions and main release authorized; backend/auth/scoring/prompts/templates protected. Specification: WHITE_WORKSPACE_2026-10-25.md. Implementation and verification pending.
+
+
+WHITE-WORKSPACE-001 implemented in checkpoint faeafa7; visual QA and verification follow-up recorded in root design-qa.md. White landing and internal semantic palette, readable marketing hierarchy, aligned shared CTA rows, white auth/professional shells and shorter service copy are integrated. No diff in app/api,lib,types,supabase,components/templates or components/resume. Local80/80 checks passed after typography correction; final built artifact includes white body and accessible lazy-preview status. Cloud-browser representative mobile/desktop profile/report interactions passed. Local standalone Chromium installation was unavailable; comprehensive responsive/PDF scripts remain required CI before main merge. Publication/main release explicitly authorized by founder; no new approval required.
+
+WHITE-WORKSPACE-001 CI follow-up: full80/build/PDF passed, responsive gate caught32px landing overflow at1280px with200% text. Header nav/actions now wrap, with wrapping CTA text and nonshrinking icon. Reflow assertions retained; design QA temporarily blocked pending rerun.
+
+WHITE-WORKSPACE-001 final visual QA passed: enlarged-text reflow corrected and verified by CI; actual production-CSS token/layout/document-isolation checks passed locally at320/390/768/1440, with white fields and content surfaces. Required full CI on the final source still gates main release. See design-qa.md.
