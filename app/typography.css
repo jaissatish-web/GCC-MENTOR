@@ -299,3 +299,6 @@ body :is(.cover-letter-email-body,.profile-copy-text,.qa-answer-text) :is(p,li,d
   --ui-lead-size: 1.125rem;
   --ui-heading-tracking: -.035em;
 }
+
+/* Footer labels keep utility hierarchy within the marketing display scope. */
+[data-marketing="white"] footer { --ui-h2-size:var(--ui-label-size); --ui-heading-line:var(--ui-label-line); }
