@@ -1,6 +1,6 @@
 # White workspace design QA — 25 October 2026
 
-final result: passed
+final result: blocked
 
 ## Reference and scope
 Source visual direction: white editorial desktop study exec-177fbe3f-e971-43ad-8123-a54ffd8120c5.png and mobile study exec-be9de0e9-5fbd-48fd-b84b-11e9b2c17258.png, generated in this conversation. Durable combined comparisons: design-reference/white-workspace/desktop-comparison.jpg and mobile-comparison.jpg. These are palette/layout references; mock data, invented charts and changed workflow labels are not production requirements. The founder requested expert visual refurbishment while preserving backend and current service behavior.
@@ -33,3 +33,5 @@ Automated required CI covers320/390/768/1440 reflow, save/version and interview 
 
 ## Acceptance
 No actionable P0/P1/P2 visual issue remains in inspected representative screens. Exact screenshot text/layout differs from illustrative studies to preserve real product behavior. Remaining P3: future optional brand-mark refinement; no rebrand authorized.
+
+CI follow-up: P2 at1280px and200% text: header action overflowed by32px. Header/action/navigation groups now wrap and the readiness label can wrap while its icon keeps its size. No overflow assertion was removed. Final enlarged-text rerun required before main merge.
