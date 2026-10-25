@@ -171,7 +171,7 @@ function InterviewQaScreen() {
       icon={QuestionMarkCircleIcon}
       eyebrow={stageEyebrow('apply')}
       title="Interview Q&A"
-      subtitle={isRaw ? 'Practise up to 25 questions from your profile. No job description needed.' : 'Practise for the Gulf job you are applying for, using your own experience.'}
+      subtitle={isRaw ? 'Practise questions based on your Career Profile.' : 'Job-specific practice, grounded in your experience.'}
       uses={isRaw ? ['Profile Resume', 'Saved Career Profile'] : ['Optimized Resume', 'Job You’re Applying For', 'Career Profile']}
     >
       <Card tone="light" className="qa-setup-panel">
@@ -183,7 +183,7 @@ function InterviewQaScreen() {
             icon={QuestionMarkCircleIcon}
             className="border-0 bg-transparent"
             title="Build an optimized resume first"
-            body="The questions and answers are based on the final resume for the job you are applying for, so build that resume before preparing interview answers."
+            body="Prepare an optimized resume for this job before generating its interview Q&A."
             action={
               <Link href="/optimize/target" className={cn(buttonVariants({ variant: 'primary' }), 'type-label')}>
                 {CTA.optimizeCv}
@@ -237,7 +237,7 @@ function InterviewQaScreen() {
             ) : null}
             {questionSet ? (
               <p className="type-helper leading-relaxed text-ink-muted">
-                A new set is saved alongside your earlier ones. The {SAVED_PER_PACKAGE} newest are kept for each {isRaw ? 'resume' : 'job'}.
+                Up to {SAVED_PER_PACKAGE} recent sets saved per {isRaw ? 'resume' : 'job'}.
               </p>
             ) : null}
           </div>
@@ -275,7 +275,7 @@ function InterviewQaScreen() {
           <div className="qa-practice-guide flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="type-helper leading-relaxed text-ink-soft">
               <strong className="qa-guide-title">How to practise</strong>
-              Read each question and answer it out loud first, then tap <strong>Show sample answer</strong> to compare.{' '}
+              Answer out loud, then choose <strong>Show sample answer</strong> to compare.{' '}
               <mark className="rounded bg-gold-soft px-1 text-ink">[Highlighted parts]</mark> are for your own real example.
             </p>
             <button
@@ -317,7 +317,7 @@ function InterviewQaScreen() {
 
       {selectedSummary && !detailError && !detailLoading ? (
         <ServiceOptions key={selectedId} title={questionSet ? 'Prepare another Q&A set' : 'Prepare your first Q&A set'}
-          description="Create a fresh set from this resume. Your saved sets remain available above."
+          description="Prepare a new set. Earlier sets stay available above."
           hasSaved={Boolean(questionSet)} busy={generating} hasError={Boolean(genError)}>
             {genError ? (
               <p role="alert" className="rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-3 type-helper text-alert">
@@ -344,7 +344,7 @@ function InterviewQaScreen() {
                   <>{questionSet ? <span>Saved {new Date(questionSet.generated_at).toLocaleString()}</span> : null}</>
                 ) : null}
               </div>
-              <div className="qa-primary-actions ui-action-group">
+              <div className="qa-primary-actions ui-action-row ui-action-group">
                 <Button
                   type="button"
                   variant="primary"
@@ -365,7 +365,7 @@ function InterviewQaScreen() {
         <NextStep
           className="mt-6"
           title="Practise your answers"
-          body={isRaw ? 'Practise interview questions in your professional field and get a saved feedback report.' : 'Answer written interview questions for this job one at a time, and get a saved feedback report.'}
+          body="Answer one question at a time and get a saved feedback report."
           href={`/mock-interview?package=${encodeURIComponent(selectedId)}`}
           cta={CTA.startMockInterview}
           secondary={{ href: `/package/${encodeURIComponent(selectedId)}`, label: isRaw ? 'See your resume' : CTA.viewOptimizedCv }}
@@ -373,7 +373,7 @@ function InterviewQaScreen() {
       ) : null}
 
       <p className="mt-6 text-center type-helper text-ink-muted">
-        {isRaw ? 'Answers use only your saved Career Profile. Unsupported numbers are removed before you see them.' : "Answers are written from this job's saved resume and your Career Profile. Any answer stating a number that is in neither is removed before you see it."}
+        {isRaw ? 'Based on your Career Profile. Unsupported numbers are removed.' : 'Based on your saved resume and Career Profile. Unsupported numbers are removed.'}
       </p>
     </PageShell>
   )

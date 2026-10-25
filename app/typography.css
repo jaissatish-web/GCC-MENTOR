@@ -1,4 +1,4 @@
-/* UNIVERSAL TYPOGRAPHY — How it works popup is the reference.
+/* UNIVERSAL TYPOGRAPHY — readable white workspace; marketing uses display roles.
    Change text settings here only. Document output is isolated below. */
 :root {
   --ui-font: var(--font-inter, Inter), ui-sans-serif, system-ui, sans-serif;
@@ -6,10 +6,10 @@
   --ui-weight-label: 500;
   --ui-weight-heading: 600;
   --ui-weight-title: 700;
-  --ui-title-size: var(--ui-section-size);
+  --ui-title-size: 1.5rem;
   --ui-section-size: 1.25rem;
   --ui-card-title-size: 1rem;
-  --ui-body-size: 0.9375rem;
+  --ui-body-size: 1rem;
   /* Popup paragraphs are the reference for all explanatory and reading copy. */
   --ui-description-size: var(--ui-body-size);
   --ui-reading-size: var(--ui-body-size);
@@ -30,9 +30,9 @@
   /* Existing consumers resolve to the same roles, never separate scales. */
   --ui-mono-font: var(--ui-font);
   --ui-demo-caption-size: var(--ui-caption-size);
-  --ui-hero-size: var(--ui-title-size);
+  --ui-hero-size: clamp(2.25rem, 4.4vw, 3.75rem);
   --ui-hero-line: var(--ui-heading-line);
-  --ui-marketing-size: var(--ui-section-size);
+  --ui-marketing-size: clamp(1.5rem, 2.8vw, 2.25rem);
   --ui-lead-size: var(--ui-body-size);
   --ui-lead-line: var(--ui-body-line);
   --ui-profile-font: var(--ui-font);
@@ -117,7 +117,7 @@ body :is(.type-label,p.type-label,span.type-label):not(:where([data-document-pre
 body :is(.type-helper,p.type-helper,span.type-helper):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-helper-size) !important; font-weight: var(--ui-weight-regular) !important; line-height: var(--ui-body-line) !important; }
 body :is(.type-caption,p.type-caption,span.type-caption):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-caption-size) !important; font-weight: var(--ui-weight-regular) !important; line-height: var(--ui-label-line) !important; }
 body :is(.type-button,p.type-button,span.type-button):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-button-size) !important; font-weight: var(--ui-weight-heading) !important; line-height: var(--ui-label-line) !important; }
-body :is(.type-hero,p.type-hero,span.type-hero):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-title-size) !important; font-weight: var(--ui-weight-heading) !important; line-height: var(--ui-heading-line) !important; }
+body :is(.type-hero,p.type-hero,span.type-hero):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-hero-size) !important; font-weight: var(--ui-weight-heading) !important; line-height: var(--ui-hero-line) !important; }
 body :is(.type-marketing-title,p.type-marketing-title,span.type-marketing-title):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-section-size) !important; font-weight: var(--ui-weight-heading) !important; line-height: var(--ui-heading-line) !important; }
 body :is(.type-lead,p.type-lead,span.type-lead):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-lead-size) !important; font-weight: var(--ui-weight-regular) !important; line-height: var(--ui-body-line) !important; }
 body :is(.type-stat,p.type-stat,span.type-stat):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-stat-size) !important; font-weight: var(--ui-weight-heading) !important; line-height: var(--ui-heading-line) !important; }
@@ -289,3 +289,13 @@ body :is(.cover-letter-email-body,.profile-copy-text,.qa-answer-text) :is(p,li,d
 /* Summary and feedback copy use reading weight; headings and actions retain their roles. */
 .app-type.internal-ui.career-studio .studio-profile-row-detail,
 .app-type.internal-ui.career-studio .studio-feedback-row > span > span:not(.studio-feedback-action) { font-weight: var(--ui-weight-regular) !important; }
+
+/* Marketing has a distinct display hierarchy; internal work screens keep their compact scale. */
+[data-marketing="white"] {
+  --ui-h1-size: var(--ui-hero-size);
+  --ui-h2-size: var(--ui-marketing-size);
+  --ui-h3-size: 1.125rem;
+  --ui-heading-line: 1.15;
+  --ui-lead-size: 1.125rem;
+  --ui-heading-tracking: -.035em;
+}

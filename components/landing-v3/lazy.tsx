@@ -1,6 +1,7 @@
 'use client'
 
 import dynamic from 'next/dynamic'
+import { LoaderCircle } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 /**
@@ -10,9 +11,13 @@ import { useEffect, useRef, useState } from 'react'
  * data gets the hero first. Each placeholder reserves the component's height, so
  * nothing jumps when it arrives.
  */
+function OrbitLoading() {
+  return <div className="flex h-[350px] items-center justify-center gap-2 text-ink-muted md:h-[480px]" role="status"><LoaderCircle className="size-5 animate-spin motion-reduce:animate-none" aria-hidden="true" /><span className="type-helper">Loading resume designs…</span></div>
+}
+
 const LoadedDocumentOrbit = dynamic(() => import('./DocumentOrbit').then((m) => m.DocumentOrbit), {
   ssr: false,
-  loading: () => <div className="h-[350px] md:h-[480px]" aria-hidden="true" />,
+  loading: () => <OrbitLoading />,
 })
 
 const LoadedGccGlobe = dynamic(() => import('./GccGlobe').then((m) => m.GccGlobe), {
@@ -35,7 +40,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
     return () => observer.disconnect()
   }, [])
   return <div ref={ref} className={(className ?? '') + ' min-h-[350px] md:min-h-[480px]'}>
-    {ready ? <LoadedDocumentOrbit /> : <div className="h-[350px] md:h-[480px]" aria-hidden="true" />}
+    {ready ? <LoadedDocumentOrbit /> : <OrbitLoading />}
   </div>
 }
 

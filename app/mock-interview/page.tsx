@@ -271,7 +271,7 @@ function MockInterviewScreen() {
   }
 
   if ((searchParams.get('room') === '1' || (requestedRunId && run?.status !== 'completed')) && selectedId && run?.input_mode === 'voice') {
-    return <div className="fixed inset-0 z-[60] flex flex-col overflow-hidden bg-[#f5f7f5] font-redesign-sans">
+    return <div className="fixed inset-0 z-[60] flex flex-col overflow-hidden bg-white font-redesign-sans">
       <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-line bg-white px-4 sm:h-16 sm:px-7">
         <Link href={`/mock-interview?package=${encodeURIComponent(selectedId)}`} className="shrink-0 text-sm font-semibold text-teal hover:underline">← Exit room</Link>
         <span className="min-w-0 truncate text-right text-xs font-semibold text-ink sm:text-sm">{run.target_job_title}</span>
@@ -320,7 +320,7 @@ function MockInterviewScreen() {
       eyebrow={stageEyebrow('apply')}
       title="Prepare your mock interview"
       className="mock-interview-page"
-      subtitle={isRaw ? 'Practise from your saved profile and leave with a clear improvement plan.' : 'Practise your answers. Leave with a clear improvement plan.'}
+      subtitle="Practise, get feedback and improve your next answer."
       uses={isRaw ? ['Profile Resume', 'Saved Career Profile'] : ['Optimized Resume', 'Job You’re Applying For', 'Career Profile']}
     >
       <Card tone="light" className="p-4 sm:p-6">
@@ -332,13 +332,13 @@ function MockInterviewScreen() {
             icon={ChatBubbleLeftRightIcon}
             className="border-0 bg-transparent"
             title="Build an optimized resume first"
-            body="The mock interview uses the final resume and job description, so create that package first."
+            body="Prepare an optimized resume for this job before starting its mock interview."
             action={<Link href="/optimize/target" className={buttonVariants({ variant: 'primary' })}>{CTA.optimizeCv}</Link>}
           />
         ) : (
           <div className="flex flex-col gap-5">
             <label className="flex flex-col gap-1.5">
-              <span className="field-label">Which resume are you practising from?</span>
+              <span className="field-label">Choose your resume</span>
               {/* Locked while a request is running, so a reply can never land on a different job. */}
               <select
                 value={selectedId ?? ''}
@@ -363,11 +363,11 @@ function MockInterviewScreen() {
               <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-teal [&::-webkit-details-marker]:hidden"><span className="flex items-center gap-2"><Mic size={18} aria-hidden="true" />Start a new practice</span><ChevronRight size={18} className="group-open:rotate-90" aria-hidden="true" /></summary>
               <div className="mt-4 flex flex-col gap-5">
             <fieldset className="space-y-3">
-              <legend className="type-card">How would you like to practise?</legend>
+              <legend className="type-card">Practice mode</legend>
               <div className="interview-answer-methods grid grid-cols-1 gap-3 min-[360px]:grid-cols-2">
-                {([{ value: 'voice', label: 'Voice interview', body: 'Speak your answers' }, { value: 'text', label: 'Type answers', body: 'Write at your own pace' }] as const).map(option => <button key={option.value} type="button" aria-pressed={inputMode === option.value} onClick={() => setInputMode(option.value)} className={cn('min-h-14 rounded-xl border p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2', inputMode === option.value ? 'border-teal bg-teal-soft text-teal' : 'border-line bg-white text-ink hover:border-teal/60')}><span className="interview-method-icon" aria-hidden="true">{option.value === 'voice' ? <Mic size={24} /> : <MessageSquare size={24} />}</span><span className="block type-label">{option.label}</span><span className="mt-1 block type-helper text-ink-muted">{option.body}</span></button>)}
+                {([{ value: 'voice', label: 'Voice interview', body: 'Speak your answers' }, { value: 'text', label: 'Type answers', body: 'Write at your own pace' }] as const).map(option => <button key={option.value} type="button" aria-pressed={inputMode === option.value} onClick={() => setInputMode(option.value)} className={cn('min-h-14 rounded-xl border p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2', inputMode === option.value ? 'border-teal bg-teal-soft text-teal' : 'border-line bg-white text-ink hover:border-teal/60')}><span className="interview-method-icon" aria-hidden="true">{option.value === 'voice' ? <Mic size={24} /> : <MessageSquare size={24} />}</span><span className="block type-label">{option.label}</span></button>)}
               </div>
-              <p className="field-hint">Voice practice uses your microphone. Your answers are saved for review; this is not a live video call.</p>
+              <p className="field-hint">Voice practice uses your microphone and saves answers for review. No live video call.</p>
             </fieldset>
             {inputMode === 'voice' ? <InterviewerPicker value={interviewerId} onChange={setInterviewerId} disabled={busy !== null} /> : null}
             <label className="flex flex-col gap-1.5">
@@ -375,7 +375,6 @@ function MockInterviewScreen() {
               <select value={mode} onChange={(e) => setMode(e.target.value as MockInterviewMode)} className="field">
                 {MODES.map((opt) => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
               </select>
-              <span className="field-hint">{MODES.find(opt => opt.value === mode)?.body}</span>
             </label>
 
             <div className="grid gap-3 sm:grid-cols-2">
@@ -414,13 +413,13 @@ function MockInterviewScreen() {
               />
             ) : null}
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="ui-action-row sm:justify-between">
               <p className="type-helper text-ink-muted">
                 {detailLoading && !detail
                   ? (isRaw ? 'Loading your Profile Resume…' : 'Loading this job…')
                   : run
-                    ? 'Your saved interview remains in your history below.'
-                    : 'No mock interview yet for this package.'}
+                    ? 'Your earlier attempts stay in history.'
+                    : 'Your first practice starts here.'}
               </p>
               <Button type="button" variant="primary" onClick={() => void start()} disabled={!selectedId || busy !== null || !detail || (inputMode === 'voice' && voiceReady !== true)} busy={busy === 'start'} busyLabel="Starting…">
                 {CTA.startMockInterview}
@@ -444,7 +443,7 @@ function MockInterviewScreen() {
 
       {requestedRunId && detail && !run && !detailLoading ? <p role="alert" className="text-ink-muted">This interview is no longer available for the selected resume. Choose a saved attempt below.</p> : null}
       {detail && selectedId && (detail.mock_interview_runs?.length ?? 0) > 0 ? <section className="interview-history space-y-4" aria-label="Saved mock interviews">
-        <div><h2 className="type-section">Your interview history</h2><p className="mt-1 text-sm text-ink-muted type-helper">All saved attempts for this resume. Open any interview to view its questions and report.</p></div>
+        <div><h2 className="type-section">Your interview history</h2><p className="mt-1 text-sm text-ink-muted type-helper">Open an attempt to review your questions and feedback.</p></div>
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {orderedAttempts(detail.mock_interview_runs ?? []).map((attempt, index) => <li key={attempt.id}>
             <Link href={`/mock-interview?package=${encodeURIComponent(selectedId)}&run=${encodeURIComponent(attempt.id)}${attempt.status !== 'completed' ? (attempt.input_mode === 'voice' ? '&room=1' : '#interview-report') : ''}`} className="group ui-card flex h-full min-w-0 flex-col gap-3 rounded-card border border-line bg-white p-4 transition-colors hover:border-teal hover:bg-teal-soft/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">
@@ -461,7 +460,7 @@ function MockInterviewScreen() {
         <NextStep
           className="mt-6"
           title={isRaw ? 'Keep preparing in your field' : 'Apply, then keep track'}
-          body={isRaw ? 'Your profile-based practice is saved in your Resume Library. Return any time to review or practise again.' : 'Your resume, letter and preparation for this job are ready. When you apply, set its stage in your Resume Library so you always know where each application stands.'}
+          body={isRaw ? 'Your practice is saved in your Resume Library.' : 'Track your application and revisit your preparation in Resume Library.'}
           href="/dashboard/library"
           cta="Open my Resume Library"
           secondary={{ href: `/package/${encodeURIComponent(selectedId)}`, label: isRaw ? 'See your resume' : CTA.viewOptimizedCv }}

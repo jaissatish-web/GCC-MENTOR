@@ -133,7 +133,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body
-        className={`${inter.variable} ${instrumentSerif.variable} ${jakarta.variable} ${plexMono.variable} font-redesign-sans bg-canvas text-ink antialiased`}
+        className={`${inter.variable} ${instrumentSerif.variable} ${jakarta.variable} ${plexMono.variable} font-redesign-sans bg-white text-ink antialiased`}
       >
         {children}
       </body>

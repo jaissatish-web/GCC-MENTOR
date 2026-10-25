@@ -1,0 +1,16 @@
+# White workspace redesign — 25 October 2026
+
+Approved by Satish: comprehensively refurbish the landing page and internal application presentation to white backgrounds, charcoal readable text, emerald primary actions and purposeful amber/red status; never blue/navy/cyan. Shorten redundant option explanations, align CTAs and fields, create polished responsive mobile/laptop compositions. Use expert judgment and publish verified work to main; no repeated publication confirmation. This supersedes the old navy/gold visual specification.
+
+Visual direction: clean white editorial workspace with light dividers and grouped rows, mobile full-width controls, spacious but purposeful desktop columns. Image studies are references only, not specifications for new features, invented user metrics or score changes. Existing sidebar/rail/mobile navigation destinations and all services remain accessible. No fake candidate data on production screens.
+
+Scope: centralized semantic colors/typography/spacing; shared buttons and field presentation; app shell/Career Studio; white split marketing hero using existing real resume visual; landing/nav/footer; auth shell presentation only; professional-profile introductions; concise service-page copy and action alignment. Existing real resume orbit and GCC globe, service handlers/destinations and important prerequisite/error/privacy help are preserved.
+
+Protected: app/api, lib, types, database/auth configuration, login/reset actions, all data/state/service/AI/scoring/credits/import/save/export behavior, resume/template typography and exported document styling. No backend or migration changes.
+
+Acceptance: white top-level surfaces on public and internal routes; no authored blue UI outside protected resume documents; meaningful headings/body/labels with central scale; 44–48px targets; aligned button groups; no horizontal overflow at320/390/768/1440; no clipped options; keyboard focus and contrast; reduced motion; complete existing services and controls. Validate representative empty/populated/error/mobile states with synthetic local fixtures and distinguish those from signed-in production. Verify template isolation and unchanged protected files; typecheck/lint/build/full suite and required CI precede main release.
+
+Status: approved, implementation starting. Root owns global tokens, typography, Button and integration; bounded agents own landing, shared shell/auth/professional presentation and seven service screens.
+
+
+WHITE-WORKSPACE-001 implemented in checkpoint faeafa7; visual QA and verification follow-up recorded in root design-qa.md. White landing and internal semantic palette, readable marketing hierarchy, aligned shared CTA rows, white auth/professional shells and shorter service copy are integrated. No diff in app/api,lib,types,supabase,components/templates or components/resume. Local80/80 checks passed after typography correction; final built artifact includes white body and accessible lazy-preview status. Cloud-browser representative mobile/desktop profile/report interactions passed. Local standalone Chromium installation was unavailable; comprehensive responsive/PDF scripts remain required CI before main merge. Publication/main release explicitly authorized by founder; no new approval required.

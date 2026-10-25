@@ -132,7 +132,7 @@ export default async function SettingsPage({
       <PageContainer>
         <PageHeader
           title="Settings"
-          description="Your account, your access, and control over your data."
+          description="Account, services and data controls."
         />
 
         {/* Tabs — real links, so each section is bookmarkable and keyboard-navigable */}
@@ -169,7 +169,7 @@ export default async function SettingsPage({
           {tab === 'account' && (
             <SectionCard
               title="Account"
-              helper="Your name comes from your Career Profile — edit it there and it updates everywhere."
+              helper="Update your name in Career Profile."
               actions={
                 <Link
                   href="/profile"
@@ -190,7 +190,7 @@ export default async function SettingsPage({
           {tab === 'email' && (
             <SectionCard
               title="Email"
-              helper="Where you sign in and where account messages go."
+              helper="Your sign-in and account email."
             >
               <div className="flex flex-col">
                 <Row label="Email address" value={user.email ?? '—'} />
@@ -214,7 +214,7 @@ export default async function SettingsPage({
           {tab === 'package' && (
             <SectionCard
               title="Current Package"
-              helper="One-off services, not a subscription — so what you hold is service credits."
+              helper="Your available service credits. No subscription."
             >
               {Object.keys(availableByService).length > 0 ? (
                 <ul className="flex flex-col gap-2.5">

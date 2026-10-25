@@ -2,18 +2,17 @@ import Link from 'next/link'
 import { FileCheck2, Globe2, ShieldCheck } from 'lucide-react'
 
 const POINTS = [
-  { icon: FileCheck2, title: 'ATS-ready for every job', body: 'A resume and cover letter tailored to each vacancy.' },
-  { icon: ShieldCheck, title: 'Never invents experience', body: 'Written only from your own Career Profile.' },
-  { icon: Globe2, title: 'All six GCC countries', body: 'Saudi Arabia, UAE, Qatar, Oman, Kuwait, Bahrain.' },
+  { icon: FileCheck2, title: 'Job-specific preparation' },
+  { icon: ShieldCheck, title: 'Only your real experience' },
+  { icon: Globe2, title: 'All six GCC countries' },
 ] as const
 
 /**
  * AUTH SHELL — sign in, sign up, forgot password, set new password
  * (redesigned 2026-09-30 to match landing v3).
  *
- * Same brand as the home page: the teal "G" mark and wordmark, Inter
- * throughout, bold sans headings, gold for the one action. Desktop splits into
- * a teal brand panel (why GCC MENTOR) and the form; phones get the form first,
+ * White surfaces and the shared semantic palette match the workspace.
+ * Desktop places a concise introduction beside the form; phones get the form first,
  * with a short line of reassurance under it — nobody should scroll past
  * marketing to reach a password box.
  *
@@ -34,9 +33,9 @@ export function AuthShell({
   children: React.ReactNode
 }) {
   return (
-    <div className="auth-shell app-type flex min-h-dvh flex-col bg-canvas font-redesign-sans text-ink">
-      <header className="border-b border-line/80 bg-canvas/90">
-        <div className="mx-auto flex h-16 w-full max-w-[1120px] items-center justify-between gap-3 px-4 sm:px-6">
+    <div className="auth-shell app-type flex min-h-dvh flex-col bg-white font-redesign-sans text-ink">
+      <header className="border-b border-line bg-white">
+        <div className="mx-auto flex min-h-16 w-full max-w-[1120px] items-center justify-between gap-3 px-4 py-2 sm:px-6">
           <Link href="/" className="flex shrink-0 items-center gap-2 rounded-ctl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2">
             <span className="grid size-9 place-items-center rounded-ctl bg-teal text-[16px] font-bold text-white">G</span>
             <span className="text-[15px] font-bold tracking-[-0.01em] text-ink max-[359px]:sr-only sm:text-[16px]">GCC <span className="text-teal">MENTOR</span></span>
@@ -55,33 +54,28 @@ export function AuthShell({
         </div>
       </header>
 
-      <main className="page-gutter mx-auto grid w-full max-w-[1120px] flex-1 items-center gap-8 py-6 sm:py-12 lg:grid-cols-[1fr_minmax(0,460px)] lg:gap-14 lg:py-16">
+      <main className="auth-main page-gutter mx-auto grid w-full max-w-[1120px] flex-1 items-center gap-8 py-8 sm:py-12 lg:grid-cols-[1fr_minmax(0,460px)] lg:gap-16 lg:py-16">
         {/* Brand panel — desktop only */}
-        <aside className="relative hidden overflow-hidden rounded-[28px] bg-teal p-10 text-white lg:flex lg:min-h-[560px] lg:flex-col">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_60%_at_85%_0%,rgba(201,150,46,0.28),transparent_70%)]" aria-hidden="true" />
-          <p className="relative text-[12px] font-semibold uppercase tracking-[0.1em] text-gold-soft type-caption">Built by a 15-year Gulf EPC &amp; PMC professional</p>
-          <p className="relative mt-4 text-[34px] font-bold leading-[1.12] tracking-[-0.03em]">{panelTitle}</p>
-          <p className="relative mt-3 max-w-[420px] text-[16px] leading-relaxed text-white/80">{panelBody}</p>
-          <ul className="relative mt-auto space-y-3 pt-10">
-            {POINTS.map(({ icon: Icon, title, body }) => (
-              <li key={title} className="flex gap-3 rounded-[16px] bg-white/[0.08] p-3.5 ring-1 ring-white/10">
-                <span className="grid size-9 shrink-0 place-items-center rounded-[10px] bg-gold text-ink">
-                  <Icon className="size-[18px]" aria-hidden="true" />
-                </span>
-                <span className="leading-snug">
-                  <b className="block text-[15px] font-semibold">{title}</b>
-                  <span className="text-[13.5px] text-white/75">{body}</span>
-                </span>
+        <aside className="auth-story hidden min-w-0 lg:block">
+          <p className="type-label font-semibold text-teal">PREPARE WITH CONFIDENCE</p>
+          <p className="auth-story-title type-title mt-4 text-ink">{panelTitle}</p>
+          <p className="mt-5 max-w-[42ch] type-body text-ink-soft">{panelBody}</p>
+          <ul className="mt-8 grid gap-4 border-t border-line pt-6">
+            {POINTS.map(({ icon: Icon, title }) => (
+              <li key={title} className="flex items-center gap-3 type-label text-ink-soft">
+                <Icon className="size-5 shrink-0 text-teal" aria-hidden="true" />
+                <span>{title}</span>
               </li>
             ))}
           </ul>
+          <p className="mt-8 type-helper text-ink-muted">Built from 15 years of Gulf industry experience.</p>
         </aside>
 
         {/* Form column */}
-        <div className="mx-auto w-full max-w-[460px]">
+        <div className="auth-form-column mx-auto w-full max-w-[460px]">
           {children}
           {/* Phones: one line of reassurance under the form, not a panel above it. */}
-          <ul className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-1.5 text-[13px] text-ink-muted lg:hidden" aria-label="Why GCC MENTOR">
+          <ul className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-2 type-helper text-ink-muted lg:hidden" aria-label="Why GCC MENTOR">
             {POINTS.map(({ icon: Icon, title }) => (
               <li key={title} className="flex items-center gap-1.5">
                 <Icon className="size-4 text-teal" aria-hidden="true" /> {title}
@@ -106,7 +100,7 @@ export function AuthShell({
 /** The white form card. Its title is the page's only <h1>. */
 export function AuthCard({ title, subtitle, children }: { title: string; subtitle?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <section className="ui-surface rounded-card border border-line bg-white p-4 sm:rounded-[22px] sm:p-8">
+    <section className="auth-form-surface bg-white">
       <h1 className="type-title text-ink">{title}</h1>
       {subtitle ? <p className="mt-2 type-lead leading-relaxed text-ink-soft">{subtitle}</p> : null}
       <div className="mt-6">{children}</div>

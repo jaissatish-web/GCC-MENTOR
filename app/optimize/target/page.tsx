@@ -213,7 +213,7 @@ function TargetScreen() {
           </p>
           <h1 className="type-title text-ink">First, your Career Profile</h1>
           <p className="type-body text-ink-soft">
-            Upload your resume to build your profile. We use your saved experience to tailor each application.
+            Upload your resume first. Your saved experience powers each application.
           </p>
           <div className="mt-3 flex flex-col gap-2.5">
             <Link href="/profile?import=upload" className={buttonVariants({ variant: 'primary' })}>
@@ -239,7 +239,7 @@ function TargetScreen() {
         title="Add Job Details"
         subtitle={
           <>
-            Paste the job description to prepare your resume, letter and interview practice.
+            Add a job title. Include the advert for a closer match.
           </>
         }
       />
@@ -247,7 +247,7 @@ function TargetScreen() {
       {/* What the optimized CV is built from — the two inputs, side by side,
           so the user sees the profile is already in hand and only the job is
           asked for here. */}
-      <div className="grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-1.5 rounded-card border border-line bg-white p-3 text-center shadow-m-1 sm:gap-3 sm:p-4">
+      <div className="grid grid-cols-[1fr_auto_1fr_auto_1fr] items-center gap-1.5 border-b border-line bg-white py-4 text-center sm:gap-3">
         <InputChip label="Career Profile" state={loadError ? 'unknown' : 'ready'} />
         <span aria-hidden="true" className="text-[16px] font-semibold text-ink-muted">+</span>
         <InputChip label={NAMES.targetJob} state={canContinue ? 'ready' : 'needed'} />
@@ -288,7 +288,7 @@ function TargetScreen() {
             <p className="mt-0.5 type-helper text-ink-muted">
               Replacing removes the old one — its resume, cover letters and stage — once the new one is created.
             </p>
-            <div className="mt-2 flex flex-wrap gap-2">
+            <div className="ui-action-row mt-3">
               <button
                 type="button"
                 onClick={() => {
@@ -342,12 +342,12 @@ function TargetScreen() {
               Best results
             </span>
           </div>
-          <div className="flex flex-col gap-2.5 rounded-card border border-dashed border-teal p-4">
+          <div className="flex flex-col gap-2.5">
             <div className="type-helper font-medium leading-snug text-ink">
-              Paste the job advert for the most accurate ATS score
+              Paste the job advert
             </div>
             <p className="type-helper leading-snug text-ink-muted">
-              We match your resume to its exact requirements. Without it, we work from the job title and the score is an estimate.
+              Without an advert, matching uses the job title and the score is an estimate.
             </p>
             <textarea
               id="f_job_description"
@@ -367,9 +367,9 @@ function TargetScreen() {
             no checkout yet, so a sentence about paying is a promise about a
             step that does not exist. What IS true is the preview. */}
         <p className="text-center type-helper leading-snug text-ink-muted">
-          Next you choose how strongly to optimize. Your ATS score before and after is shown with the result.
+          Next: choose your optimization level.
         </p>
-        <Button variant="progress" className="w-full" disabled={!canContinue} onClick={onContinue}>
+        <Button variant="primary" className="w-full" disabled={!canContinue} onClick={onContinue}>
           {CTA.chooseLevel}
         </Button>
         {!canContinue ? (

@@ -68,7 +68,7 @@ function Colored({ text, source, re, added }: { text: string; source: string | n
             key={`${i}-${j}`}
             className={cn(
               p.added && 'rounded-[3px] bg-ok-soft text-ink',
-              k.kw && !added?.has(k.t.toLowerCase()) && 'rounded-[3px] bg-[#DCEAF7] font-semibold text-sec-status',
+              k.kw && !added?.has(k.t.toLowerCase()) && 'rounded-[3px] ui-keyword font-semibold',
               k.kw && added?.has(k.t.toLowerCase()) && 'rounded-[3px] bg-gold-soft font-semibold text-gold-ink',
             )}
           >
@@ -257,7 +257,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
         {/* Legend */}
         <div className="flex flex-wrap gap-2 rounded-card border border-line bg-white p-3 text-[12.5px]">
           <span className="rounded-[4px] bg-ok-soft px-2 py-1 text-ink">Green · reworded from your profile</span>
-          <span className="rounded-[4px] bg-[#DCEAF7] px-2 py-1 font-semibold text-sec-status">Blue · job description keyword</span>
+          <span className="rounded-[4px] bg-[#E8F4EC] px-2 py-1 font-semibold text-sec-status">Highlighted · job description keyword</span>
           <span className="rounded-[4px] border border-gold/60 bg-gold-soft px-2 py-1 text-ink">
             Yellow · unverified suggestion — select only if true for you
           </span>
@@ -296,7 +296,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
                   key={k.id}
                   className={cn(
                     'inline-flex min-h-11 items-center gap-0.5 rounded-full border pl-3 text-[13px]',
-                    isKeyword ? 'border-sec-status/40 bg-[#DCEAF7] font-semibold text-sec-status' : 'border-line bg-white text-ink',
+                    isKeyword ? 'border-line ui-keyword font-semibold' : 'border-line bg-white text-ink',
                   )}
                 >
                   {k.name}
