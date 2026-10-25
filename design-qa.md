@@ -35,3 +35,5 @@ Automated required CI covers320/390/768/1440 reflow, save/version and interview 
 No actionable P0/P1/P2 visual issue remains in inspected representative screens. Exact screenshot text/layout differs from illustrative studies to preserve real product behavior. Remaining P3: future optional brand-mark refinement; no rebrand authorized.
 
 CI follow-up: P2 at1280px and200% text: header action overflowed by32px. Header/action/navigation groups now wrap and the readiness label can wrap while its icon keeps its size. No overflow assertion was removed. Final enlarged-text rerun required before main merge.
+
+CI reflow rerun passed normal and200% marketing layouts. A new white-surface assertion then found the generic ui-surface role was transparent over its white parent. The role now explicitly paints white; status callouts retain their own semantic surfaces. Required scope/control tests pending.

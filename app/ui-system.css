@@ -923,6 +923,7 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
 .app-type.internal-ui :is(.ui-card,.ui-surface.p-4,.ui-surface.p-5,.ui-surface.p-6,.rounded-card.p-4,.rounded-card.p-5,.rounded-card.p-6,.library-resume-card):not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,[data-typography="document"],[data-typography="document"] *,.actual-template-orbit-face,.actual-template-orbit-face *)) {
   padding: var(--ui-card-padding);
 }
+.app-type.internal-ui .ui-surface:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,[data-typography="document"],[data-typography="document"] *,.actual-template-orbit-face,.actual-template-orbit-face *)) { background-color:var(--ui-surface); }
 .app-type.internal-ui .workspace-heading {
   gap: var(--ui-space-4);
   padding-bottom: var(--ui-space-5);
