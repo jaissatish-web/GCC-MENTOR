@@ -163,8 +163,11 @@ try {
       assert.ok(!metrics.clipped, `Clipped landing title at ${width}`)
       assert.equal(metrics.weight, '600')
       assert.ok(metrics.font.includes('Inter'), `Inter is not applied: ${metrics.font}`)
-      assert.equal(metrics.size, 24 * (enlarged ? 2 : 1), 'Hero uses the approved title scale')
-      assert.equal(metrics.sectionSize, 18 * (enlarged ? 2 : 1), 'Section uses the approved section scale')
+      const textScale = enlarged ? 2 : 1
+      const expectedHero = Math.max(36 * textScale, Math.min(width * .044, 60 * textScale))
+      const expectedSection = Math.max(24 * textScale, Math.min(width * .028, 36 * textScale))
+      assert.ok(Math.abs(metrics.size - expectedHero) < .02, 'Marketing hero uses its responsive display scale')
+      assert.ok(Math.abs(metrics.sectionSize - expectedSection) < .02, 'Marketing sections use their responsive display scale')
       await page.screenshot({ path: `artifacts/typography/landing-${width}${enlarged ? '-enlarged' : ''}.png`, fullPage: true })
       for (const selector of ['#challenges details', '#how-it-works']) {
         assert.equal(await page.$eval(selector, el => el.open), false, 'Landing disclosures start collapsed')
