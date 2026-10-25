@@ -1,6 +1,6 @@
 # White workspace design QA — 25 October 2026
 
-final result: blocked
+final result: passed
 
 ## Reference and scope
 Source visual direction: white editorial desktop study exec-177fbe3f-e971-43ad-8123-a54ffd8120c5.png and mobile study exec-be9de0e9-5fbd-48fd-b84b-11e9b2c17258.png, generated in this conversation. Durable combined comparisons: design-reference/white-workspace/desktop-comparison.jpg and mobile-comparison.jpg. These are palette/layout references; mock data, invented charts and changed workflow labels are not production requirements. The founder requested expert visual refurbishment while preserving backend and current service behavior.
@@ -37,3 +37,5 @@ No actionable P0/P1/P2 visual issue remains in inspected representative screens.
 CI follow-up: P2 at1280px and200% text: header action overflowed by32px. Header/action/navigation groups now wrap and the readiness label can wrap while its icon keeps its size. No overflow assertion was removed. Final enlarged-text rerun required before main merge.
 
 CI reflow rerun passed normal and200% marketing layouts. A new white-surface assertion then found the generic ui-surface role was transparent over its white parent. The role now explicitly paints white; status callouts retain their own semantic surfaces. Required scope/control tests pending.
+
+Post-fix verification: CI40191520596 passed the complete marketing reflow test at360/390/430/1280/1366/1440, normal and200% text, including collapsed/expanded disclosures. Screenshot evidence extracted from its typography artifact: design-reference/white-workspace/enlarged-landing.png (1280x900 crop of1280x9395 full-page200% capture). Sticky header position in full-page capture is not used as a pixel-fidelity claim. Local final build and actual production-CSS Clear Path checks passed at320/390/768/1440 after explicit white ui-surface paint; token propagation, field/card whites and authored document isolation pass. Known P2 findings are resolved. Remaining CI functional/profile/interview checks gate publication independently of this visual-QA result. Local standalone CTA browser was detached before navigation; no local pass claimed for that script.
