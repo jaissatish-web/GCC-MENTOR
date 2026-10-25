@@ -32,19 +32,30 @@ export function suggestedCategory(label: string): string {
 }
 
 export function organizeCategoryEntries<T extends { label?: string; value?: string } & CategoryMetadata>(rows: T[], id: () => string): Array<T & CategoryMetadata> {
-  const categories = new Map<string, { id: string; order: number; position: CategoryPosition; visible: boolean }>()
-  // Existing category identity and order win when a re-upload adds an entry.
-  for (const row of rows) if (row.category_id && row.category_name) {
-    categories.set(row.category_name.trim().toLowerCase(), { id: row.category_id, order: row.category_order ?? categories.size, position: row.category_position ?? 'end', visible: row.show_on_resume !== false })
+  type Category = { id: string; name: string; order: number; position: CategoryPosition; visible: boolean }
+  const categories = new Map<string, Category>()
+  const identities = new Map<string, Category>()
+  // Seed saved groups before imported rows: existing identity/settings win.
+  // Metadata belongs to the group, not to each individual resume item.
+  for (const row of rows) if (row.category_id && row.category_name?.trim()) {
+    const name = row.category_name.trim()
+    const key = name.toLowerCase()
+    let category = identities.get(row.category_id) ?? categories.get(key)
+    if (!category) category = { id: row.category_id, name, order: row.category_order ?? categories.size,
+      position: row.category_position ?? 'end', visible: row.show_on_resume !== false }
+    // In a conflicting legacy group, never expose an explicitly hidden item.
+    if (row.show_on_resume === false) category.visible = false
+    identities.set(row.category_id, category)
+    categories.set(key, category)
   }
   let nextOrder = Math.max(-1, ...Array.from(categories.values()).map(c => c.order)) + 1
   return rows.map(row => {
     const name = row.category_name?.trim() || suggestedCategory(row.label ?? '')
     const key = name.toLowerCase()
-    let category = categories.get(key)
-    if (!category) { category = { id: id(), order: nextOrder++, position: row.category_position ?? 'end', visible: row.show_on_resume !== false }; categories.set(key, category) }
-    return { ...row, category_id: row.category_id || category.id, category_name: name,
-      category_order: row.category_id ? (row.category_order ?? category.order) : category.order, category_position: category.position,
+    let category = (row.category_id ? identities.get(row.category_id) : undefined) ?? categories.get(key)
+    if (!category) { category = { id: id(), name, order: nextOrder++, position: row.category_position ?? 'end', visible: row.show_on_resume !== false }; categories.set(key, category) }
+    return { ...row, category_id: category.id, category_name: category.name,
+      category_order: category.order, category_position: category.position,
       level: row.level ?? '', show_on_resume: category.visible }
   })
 }

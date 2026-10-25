@@ -572,7 +572,7 @@ function buildPutBody(e: EditorData): Record<string, unknown> {
     return row
   })
 
-  const additional_information = e.additional_information.map((a, i) => {
+  const additional_information = organizeCategoryEntries(e.additional_information, () => crypto.randomUUID()).map((a, i) => {
     const row: Record<string, unknown> = { label: a.label, value: a.value, sort_order: i, category_id: a.category_id ?? null, category_name: a.category_name ?? null, category_order: a.category_order ?? 0, category_position: a.category_position ?? 'end', level: a.level || null, show_on_resume: a.show_on_resume !== false }
     if (typeof a.id === 'string' && a.id !== '') row.id = a.id
     return row

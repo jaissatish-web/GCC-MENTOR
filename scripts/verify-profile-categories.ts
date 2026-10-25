@@ -53,6 +53,35 @@ async function main() {
   assert.equal(reupload[1].show_on_resume,false)
   assert.equal(validateCategoryEntries(reupload),null)
   assert.equal(validateCategoryEntries(organized),null)
+  // Resume headings can differ in case/spacing; shared IDs must still save.
+  const fresh = organizeCategoryEntries([
+    {label:'English',value:'Fluent',category_name:'Languages',sort_order:0},
+    {label:'Hindi',value:'Native',category_name:' languages ',sort_order:1},
+  ],uuid)
+  assert.equal(validateCategoryEntries(fresh),null)
+  assert.equal(fresh[1].category_name,'Languages')
+  const conflicting = [
+    {...fresh[0],category_order:4,category_position:'after_skills' as const,show_on_resume:false},
+    {...fresh[1],category_name:'LANGUAGES',category_order:7,category_position:'end' as const,show_on_resume:true},
+  ]
+  assert.equal(validateCategoryEntries(conflicting),'additional_information.category_metadata')
+  const snapshot=JSON.stringify(conflicting)
+  const repaired=organizeCategoryEntries(conflicting,uuid)
+  assert.equal(validateCategoryEntries(repaired),null)
+  assert.equal(JSON.stringify(conflicting),snapshot,'organizer must not mutate draft')
+  assert.deepEqual(repaired.map(r=>[r.label,r.value,r.sort_order]),conflicting.map(r=>[r.label,r.value,r.sort_order]))
+  assert.equal(repaired[1].category_id,fresh[0].category_id)
+  assert.equal(repaired[1].category_order,4)
+  assert.equal(repaired[1].category_position,'after_skills')
+  assert.equal(repaired[1].show_on_resume,false)
+  assert.deepEqual(organizeCategoryEntries(repaired,uuid),repaired,'normalization is stable on reload/save')
+  const privateRows=organizeCategoryEntries([
+    {label:'Career stage',value:'Fresher',category_name:'Preparation details (private)',show_on_resume:false},
+    {label:'Passport preparation',value:'No passport yet',category_name:'Preparation details (private)',show_on_resume:false},
+  ],uuid)
+  assert.equal(validateCategoryEntries(privateRows),null)
+  assert.ok(privateRows.every(r=>!r.show_on_resume && categoryFact(r)===''))
+
   assert.ok(validateCategoryEntries([{...organized[0],category_id:'not-a-uuid'}]))
   assert.ok(validateCategoryEntries([{...organized[0],level:[]}]))
   assert.ok(validateCategoryEntries([{...organized[0],category_position:'before_password'}]))
