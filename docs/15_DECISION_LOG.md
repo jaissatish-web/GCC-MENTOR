@@ -3257,3 +3257,6 @@ Satish authorized autonomous internal UI implementation, testing, protected merg
 
 
 24 October 2026 — REVIEW-DEFER-001: Satish requests red resume-import issues and a red warning after acknowledgement/Create Profile, with explicit skip/create and later completion. Missing essential facts become completeness warnings rather than forced invented answers. Malformed supplied values remain separately actionable. No design rollback requested in this task.
+
+
+25 October 2026 — Satish authorized fixing the resume-confirmation category metadata save failure. Normalize category-level metadata consistently before save, preserve candidate facts/private visibility, and retain strict API validation; no schema or unrelated changes.

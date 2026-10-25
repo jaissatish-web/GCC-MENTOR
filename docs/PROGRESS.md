@@ -102,3 +102,20 @@ REVIEW-DEFER-001 database release step — 24 October2026: live client configura
 
 
 Final review correction: a Gulf role with a missing start date now marks duration unconfirmed even if its end date is supplied, so no short-duration/zero-experience claim is inferred. Employment gaps are withheld while an undated or unresolved role could cover them. Known complete timelines retain their original gap calculation. Added missing-start/possible-gap-cover regressions; focused employment tests, typecheck and lint pass. Both production migrations071/072 are applied and catalogue-verified; final application CI/main merge/deployment remain pending.
+
+
+## PROFILE-CATEGORY-SAVE-001 — 25 October 2026 (Riyadh)
+Approved by Satish, not implemented at this record: fix confirmed resume review failing with `additional_information.category_metadata`. Category organization must emit one consistent name, order, position and visibility per category identity, reuse existing category settings when adding imported entries, preserve item facts/IDs/levels and private hidden entries, and normalize again at the client save boundary. Keep strict server validation, atomic storage, auth, scoring, templates and database schema unchanged.
+
+Acceptance: reproduce mixed-case/same-ID category metadata conflicts, verify organized fresh/re-uploaded categories pass validation, preserve existing category identity and hidden private settings, and save/reload the normalized rows through the actual profile route and disposable database. Affected files: lib/profileCategories.ts, app/profile/page.tsx, focused category/save regressions. Run typecheck/lint/build and repository checks; report live verification separately.
+
+
+PROFILE-CATEGORY-SAVE-001 implementation: category organization now uses a canonical group name/order/position/visibility and reuses saved group IDs. Conflicting hidden flags remain hidden. The save payload is normalized again, covering reviewed/edited drafts. Candidate item IDs, labels, values, levels and row ordering are retained. Strict API category validation remains unchanged.
+
+Verified locally so far: typecheck/lint, category/extraction/re-upload/template regressions (378 template/position cases), and the real profile PUT route with disposable PostgreSQL: original metadata 400 reproduced, normalized payload saves/reloads both facts with correct category metadata and owner isolation. Full suite/build and protected-main CI/release pending; no authenticated production save claimed.
+
+
+PROFILE-CATEGORY-SAVE-001 local completion — 25 October 2026: application commit bcd4dda. Typecheck, lint, all 80/80 repository checks and production build passed. Regression reproduces the original category_metadata error and verifies repaired entries through the actual route and disposable atomic database save/reload. Publication of fix/profile-category-save to jaissatish-web/GCC-MENTOR was rejected by automatic approval review: the user authorized fixing the issue but the reviewer requires explicit authorization for public GitHub publication/feature-branch push. No workaround attempted; no PR/main merge/deployment performed. Live website remains unchanged. Next: obtain explicit authorization to push this concrete fix to that repository, complete required CI, merge to main, remove temporary branch and verify Vercel production alias.
+
+
+PROFILE-CATEGORY-SAVE-001 release authorization — 25 October 2026: Satish explicitly instructs publishing completed fixes to main and checking the main website, without asking again. The earlier publication blocker is resolved for this fix. Proceed through protected-main CI/PR merge and Vercel production verification, with no protection bypass. Local verification remains typecheck/lint/build and80/80 checks; actual release evidence follows in the merge record.
