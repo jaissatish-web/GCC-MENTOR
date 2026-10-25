@@ -1,3 +1,7 @@
+# Current direction — reference typography, 25 October 2026
+
+SOFT-INDIGO-001 adopts the selected SkillDrift reference with existing bundled Inter. Current scale remains central in app/typography.css: page headings24/28px with800 weight; sections18/20px600; body16px400 at1.625 line; controls16px; helper14px; caption12px. Auth title26px800, desktop story40px800, field labels15px700. Marketing retains its responsive display scale with800 headline emphasis. Only headings receive stronger weight; body stays regular. Auth-specific roles are still configured centrally. Resume/template typography is protected. See [SOFT_INDIGO_2026-10-25.md](SOFT_INDIGO_2026-10-25.md). Earlier sections below are dated context.
+
 # Clear Path internal typography — 24 October 2026
 
 Current internal configuration is the `.app-type.internal-ui` block in `app/typography.css`. It overrides the preserved public baseline below. AppShell and opted-in internal portals use it; public landing/menu and authored documents do not.

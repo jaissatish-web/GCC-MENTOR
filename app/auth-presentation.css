@@ -1,0 +1,96 @@
+/* SkillDrift-inspired authentication presentation. Form/action behaviour is unchanged. */
+.auth-shell.app-type {
+  background: var(--ui-canvas);
+  color: var(--ui-ink);
+}
+.auth-header,
+.auth-footer {
+  background: var(--ui-surface);
+}
+.auth-header {
+  border-bottom: 1px solid var(--ui-line);
+}
+.auth-header-content {
+  max-width: 1440px;
+}
+.auth-main {
+  grid-template-columns: minmax(0, 1fr);
+}
+.auth-form-column {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 32px 20px 40px;
+}
+.auth-form-content,
+.auth-form-surface {
+  min-width: 0;
+}
+.auth-form-surface {
+  background: transparent;
+}
+.auth-form-surface :is(input, select, textarea, .field) {
+  border-radius: var(--ui-control-radius);
+}
+.auth-form-surface .ui-button {
+  width: 100%;
+  border-radius: var(--ui-control-radius);
+}
+.auth-story-content {
+  width: 100%;
+  max-width: 560px;
+  margin-inline: auto;
+}
+.auth-point-icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--ui-line);
+  border-radius: var(--ui-control-radius);
+  background: var(--ui-surface);
+}
+.auth-story-points {
+  padding-top: 24px;
+  border-top: 1px solid var(--ui-line);
+}
+@media (max-width: 359px) {
+  .auth-form-column {
+    padding-inline: 16px;
+  }
+}
+@media (min-width: 1024px) {
+  .auth-main {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  }
+  .auth-story {
+    align-items: center;
+    padding: 56px 40px;
+    background: var(--ui-brand-soft);
+    border-right: 1px solid var(--ui-line);
+  }
+  .auth-form-column {
+    align-items: center;
+    padding: 56px 32px;
+  }
+  .auth-form-surface {
+    padding: 32px;
+    border: 1px solid var(--ui-line);
+    border-radius: 24px;
+    background: var(--ui-surface);
+    box-shadow: 0 1px 3px rgb(43 38 64 / .035);
+  }
+  .auth-header-content {
+    padding-inline: 40px;
+  }
+}
+@media (min-width: 1280px) {
+  .auth-story {
+    padding-inline: 64px;
+  }
+  .auth-header-content {
+    padding-inline: 64px;
+  }
+}

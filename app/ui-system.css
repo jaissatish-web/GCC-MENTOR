@@ -1,26 +1,26 @@
-/* WHITE WORKSPACE — 25 October 2026. White surfaces, charcoal type, emerald actions.
+/* SOFT INDIGO — 25 October 2026. Near-white surfaces, plum type, indigo actions.
    SINGLE UI CONFIGURATION. Edit tokens here; do not add page-specific type scales.
    Code-owned only: no public settings, database storage or user preference UI. */
 :root {
   --ui-page-gutter: 16px;
   --ui-card-padding: 16px;
-  --ui-card-radius: 10px;
-  --ui-card-shadow: none;
+  --ui-card-radius: 24px;
+  --ui-card-shadow: 0 1px 2px rgb(43 38 64 / .04);
   --ui-keyword-rgb: 112 69 111;
   --ui-keyword-soft-rgb: 247 240 247;
-  --ui-info-rgb: 69 81 73;
-  --ui-info-soft-rgb: 244 247 245;
+  --ui-info-rgb: 79 70 163;
+  --ui-info-soft-rgb: 242 241 253;
   /* Semantic palette: RGB triplets allow shared opacity utilities. */
-  --ui-canvas-rgb: 255 255 255;
-  --ui-surface-rgb: 255 255 255;
-  --ui-ink-rgb: 24 28 27;
-  --ui-ink-soft-rgb: 68 77 72;
-  --ui-ink-muted-rgb: 91 101 95;
-  --ui-brand-rgb: 6 104 71;
-  --ui-brand-hover-rgb: 4 81 55;
-  --ui-brand-soft-rgb: 237 247 241;
-  --ui-line-rgb: 229 234 231;
-  --ui-line-strong-rgb: 140 154 145;
+  --ui-canvas-rgb: 249 248 251;
+  --ui-surface-rgb: 252 252 253;
+  --ui-ink-rgb: 43 38 64;
+  --ui-ink-soft-rgb: 88 82 122;
+  --ui-ink-muted-rgb: 100 94 128;
+  --ui-brand-rgb: 91 96 241;
+  --ui-brand-hover-rgb: 74 78 211;
+  --ui-brand-soft-rgb: 238 242 255;
+  --ui-line-rgb: 226 224 235;
+  --ui-line-strong-rgb: 163 158 182;
   --ui-accent-rgb: 210 145 18;
   --ui-accent-ink-rgb: 133 80 5;
   --ui-accent-soft-rgb: 255 247 230;
@@ -31,6 +31,7 @@
   --ui-canvas: rgb(var(--ui-canvas-rgb));
   --ui-surface: rgb(var(--ui-surface-rgb));
   --ui-ink: rgb(var(--ui-ink-rgb));
+  --ui-ink-soft: rgb(var(--ui-ink-soft-rgb));
   --ui-muted: rgb(var(--ui-ink-muted-rgb));
   --ui-brand: rgb(var(--ui-brand-rgb));
   --ui-brand-hover: rgb(var(--ui-brand-hover-rgb));
@@ -42,10 +43,10 @@
   --ui-hero-gradient: var(--ui-surface);
   --ui-hero-label: var(--ui-brand);
   --ui-hero-copy: var(--ui-ink-soft);
-  --ui-control-radius: 8px;
+  --ui-control-radius: 12px;
   --ui-hero-radius: 16px;
   --ui-control-height: 48px;
-  --ui-field-border: rgb(var(--ui-line-strong-rgb));
+  --ui-field-border: var(--ui-line);
   --ui-page-width: 980px;
   --ui-wide-width: 1120px;
   --ui-form-width: 760px;
@@ -220,7 +221,7 @@ body :is(.rounded-card, .rounded-card-lg):is(.p-4, .p-5, .p-6):not(:where([data-
 
 /* Gulf workspace identity. These classes style application chrome only.
    Document fonts, template copy and export layouts remain isolated. */
-.gulf-context { display:flex; align-items:center; gap:8px; color:var(--ui-brand); font-size:var(--ui-label-size); font-weight:var(--ui-weight-label); line-height:var(--ui-body-line); }
+.gulf-context { display:flex; align-items:center; gap:8px; color:var(--ui-brand-hover); font-size:var(--ui-label-size); font-weight:var(--ui-weight-label); line-height:var(--ui-body-line); }
 .workspace-heading { border-bottom:1px solid var(--ui-line); padding-bottom:var(--ui-section-gap); }
 .workspace-next { position:relative; isolation:isolate; background:var(--ui-brand); }
 .workspace-next::after { content:none; }
@@ -242,7 +243,7 @@ body :is(.rounded-card, .rounded-card-lg):is(.p-4, .p-5, .p-6):not(:where([data-
 
 .app-type .workspace-heading p:is(.type-body,.type-helper) { font-size:var(--ui-body-size); line-height:var(--ui-body-line); }
 .app-type .workspace-heading :is(.workspace-heading-link,.journey-guide-trigger) {
-  color:var(--ui-brand);
+  color:var(--ui-brand-hover);
   border:1px solid var(--ui-line);
   background:var(--ui-surface);
   padding-inline:12px;
@@ -252,8 +253,8 @@ body :is(.rounded-card, .rounded-card-lg):is(.p-4, .p-5, .p-6):not(:where([data-
 .app-type main > .workspace-heading.page-gutter,
 .app-type .workspace-profile-heading { margin-inline:var(--ui-page-gutter); }
 .app-type .workspace-next { background:var(--ui-hero-gradient); }
-.app-type .field { background:var(--ui-surface); border-color:var(--ui-field-border); border-radius:var(--ui-control-radius); }
-.app-type .field:hover:not(:disabled) { border-color:var(--ui-brand); }
+.app-type .field { background:var(--ui-canvas); border-color:var(--ui-field-border); border-radius:var(--ui-control-radius); }
+.app-type .field:hover:not(:disabled) { border-color:var(--ui-brand-hover); }
 /* Daily-use app typography: one scale for Home, Profile, forms and reports.
    Keep inputs at 16px; CV/document previews retain their explicit exclusions. */
 .app-type { font-size:var(--ui-body-size); line-height:var(--ui-body-line); }
@@ -339,7 +340,7 @@ body :is(.rounded-card, .rounded-card-lg):is(.p-4, .p-5, .p-6):not(:where([data-
 .ui-alert-info { border-color:transparent; background:transparent; padding-inline:0; }
 .ui-hero { border-radius:var(--ui-hero-radius); background:var(--ui-hero-background); }
 .ui-hero-title { font-size:var(--ui-hero-size); line-height:var(--ui-hero-line); letter-spacing:var(--ui-heading-tracking); font-weight:var(--ui-weight-title); }
-.ui-nav-home { background:var(--ui-brand-soft); color:var(--ui-brand); }
+.ui-nav-home { background:var(--ui-brand-soft); color:var(--ui-brand-hover); }
 .ui-nav-profile { background:var(--ui-nav-profile-bg); color:var(--ui-nav-profile-ink); }
 .ui-nav-library { background:var(--ui-nav-library-bg); color:var(--ui-nav-library-ink); }
 .ui-nav-templates { background:var(--ui-nav-templates-bg); color:var(--ui-nav-templates-ink); }
@@ -453,9 +454,9 @@ body .text-ink-soft:not(:where([data-document-preview], [data-document-preview] 
 body .text-ink-muted:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-ink-muted-rgb) / 1); }
 body .text-ink-muted\/70:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-ink-muted-rgb) / 0.7); }
 body .hover\:text-teal:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-brand-rgb) / 1); }
-body .text-teal:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-brand-rgb) / 1); }
+body .text-teal:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-brand-hover-rgb) / 1); }
 body .text-teal-bright:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-brand-hover-rgb) / 1); }
-body .text-teal-dark:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-brand-rgb) / 1); }
+body .text-teal-dark:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-brand-hover-rgb) / 1); }
 body .text-teal-soft:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-brand-soft-rgb) / 1); }
 body .text-teal-soft\/80:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-brand-soft-rgb) / 0.8); }
 body .text-line:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-line-rgb) / 1); }
@@ -759,7 +760,7 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
 .app-type .service-feature-card h3.type-body { font-size:var(--ui-card-title-size); }
 .app-type .service-feature-card p { line-height:var(--ui-body-line); }
 .app-type .ui-button { font-weight:var(--ui-weight-heading); }
-.app-type .field:focus { border-color:var(--ui-brand); box-shadow:0 0 0 3px rgb(var(--ui-brand-rgb) / .1); }
+.app-type .field:focus { border-color:var(--ui-brand-hover); box-shadow:0 0 0 3px rgb(var(--ui-brand-rgb) / .1); }
 .app-type :is(input,textarea,select):disabled { cursor:not-allowed; }
 .app-type .workspace-flow-steps { gap:12px; }
 .app-type .workspace-flow-steps li[aria-current="step"] { font-weight:var(--ui-weight-heading); }
@@ -795,7 +796,7 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
 }
 .app-type .tool-tile-title { font-size:var(--ui-body-size); font-weight:var(--ui-weight-heading); line-height:var(--ui-body-line); overflow-wrap:break-word; }
 .app-type .tool-tile:hover .tool-tile-box { border-color:var(--service-ink); box-shadow:0 4px 16px rgb(var(--ui-ink-rgb) / .07); }
-.app-type .template-preview-action { border-color:var(--ui-brand); background:#fff; color:var(--ui-brand); }
+.app-type .template-preview-action { border-color:var(--ui-brand-hover); background:#fff; color:var(--ui-brand-hover); }
 @media (prefers-reduced-motion:reduce) { .app-type .tool-tile-box { transition:none; } }
 
 /* Email preview: one reading inset instead of a card inside a padded field. */
@@ -817,9 +818,8 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
   .cover-letter-email-body, .cover-letter-email-editor { padding:16px 12px; }
 }
 
-/* Clear Path internal configuration (24 October 2026).
-   Public/root values above are the frozen landing baseline. AppShell and its
-   explicitly opted-in portals use this one configuration; documents do not. */
+/* Shared internal layout scope. Public and internal palette values intentionally
+   follow the selected soft-indigo system; authored documents remain isolated. */
 .app-type.internal-ui {
   --ui-space-1: 4px;
   --ui-space-2: 8px;
@@ -844,20 +844,20 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
   --ui-document-width: 1240px;
   --ui-control-height: 48px;
   --ui-control-padding-y: 10px;
-  --ui-control-radius: 8px;
-  --ui-card-radius: 10px;
-  --ui-card-shadow: none;
+  --ui-control-radius: 12px;
+  --ui-card-radius: 24px;
+  --ui-card-shadow: 0 1px 2px rgb(43 38 64 / .04);
   --ui-card-hover-shadow: 0 3px 12px rgb(20 33 43 / .05);
-  --ui-canvas-rgb: 255 255 255;
-  --ui-surface-rgb: 255 255 255;
-  --ui-ink-rgb: 24 28 27;
-  --ui-ink-soft-rgb: 68 77 72;
-  --ui-ink-muted-rgb: 91 101 95;
-  --ui-brand-rgb: 6 104 71;
-  --ui-brand-hover-rgb: 4 81 55;
-  --ui-brand-soft-rgb: 237 247 241;
-  --ui-line-rgb: 229 234 231;
-  --ui-line-strong-rgb: 140 154 145;
+  --ui-canvas-rgb: 249 248 251;
+  --ui-surface-rgb: 252 252 253;
+  --ui-ink-rgb: 43 38 64;
+  --ui-ink-soft-rgb: 88 82 122;
+  --ui-ink-muted-rgb: 100 94 128;
+  --ui-brand-rgb: 91 96 241;
+  --ui-brand-hover-rgb: 74 78 211;
+  --ui-brand-soft-rgb: 238 242 255;
+  --ui-line-rgb: 226 224 235;
+  --ui-line-strong-rgb: 163 158 182;
   --ui-accent-rgb: 210 145 18;
   --ui-accent-ink-rgb: 133 80 5;
   --ui-accent-soft-rgb: 255 247 230;
@@ -865,8 +865,8 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
   --ui-success-soft-rgb: 236 247 239;
   --ui-error-rgb: 181 47 53;
   --ui-error-soft-rgb: 255 240 240;
-  --ui-info-rgb: 69 81 73;
-  --ui-info-soft-rgb: 244 247 245;
+  --ui-info-rgb: 79 70 163;
+  --ui-info-soft-rgb: 242 241 253;
   /* Rebind composed aliases at the internal scope, so changing an RGB token
      also updates existing consumers of the composed color. */
   --ui-canvas: rgb(var(--ui-canvas-rgb));
@@ -879,7 +879,7 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
   --ui-brand-soft: rgb(var(--ui-brand-soft-rgb));
   --ui-line: rgb(var(--ui-line-rgb));
   --ui-line-strong: rgb(var(--ui-line-strong-rgb));
-  --ui-field-border: var(--ui-line-strong);
+  --ui-field-border: var(--ui-line);
   --ui-hero-background: var(--ui-brand);
   --ui-hero-gradient: var(--ui-brand);
   --ui-hero-label: var(--ui-inverse);
@@ -946,13 +946,13 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
 .app-type.internal-ui .ui-button.bg-gold { background:var(--ui-brand); color:var(--ui-inverse); }
 .app-type.internal-ui .ui-button.bg-gold:hover { background:var(--ui-brand-hover); color:var(--ui-inverse); transform:none; }
 .app-type.internal-ui .ui-button.bg-white { background:var(--ui-surface); }
-.app-type.internal-ui .ui-button:is(.text-navy-deep,.text-gold-ink) { color:var(--ui-brand); }
+.app-type.internal-ui .ui-button:is(.text-navy-deep,.text-gold-ink) { color:var(--ui-brand-hover); }
 .app-type.internal-ui :is(input,select,textarea).field:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,[data-typography="document"],[data-typography="document"] *,.actual-template-orbit-face,.actual-template-orbit-face *)) {
   min-height:var(--ui-control-height);
   padding:var(--ui-space-3);
   border:1px solid var(--ui-field-border);
   border-radius:var(--ui-control-radius);
-  background:var(--ui-surface);
+  background:var(--ui-canvas);
   color:var(--ui-ink);
 }
 .app-type.internal-ui textarea.field { min-height:140px; }
@@ -964,7 +964,7 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
 }
 .app-type.internal-ui .library-resume-card { border:1px solid var(--ui-line); }
 .app-type.internal-ui .library-resume-card[data-resume-kind="career-profile"] { border:1px solid var(--ui-brand); background:var(--ui-surface); }
-.app-type.internal-ui .library-resume-card:is(:hover,:focus-within) { border-color:var(--ui-brand); box-shadow:var(--ui-card-hover-shadow); }
+.app-type.internal-ui .library-resume-card:is(:hover,:focus-within) { border-color:var(--ui-brand-hover); box-shadow:var(--ui-card-hover-shadow); }
 .app-type.internal-ui .interview-qa-page :is(.qa-setup-panel,.qa-question-card) { border-color:var(--ui-line); border-radius:var(--ui-card-radius); box-shadow:none; }
 .app-type.internal-ui .interview-qa-page .qa-question-header { background:var(--ui-brand-soft); border-color:var(--ui-line); }
 .app-type.internal-ui .interview-qa-page .qa-answer-panel { background:rgb(var(--ui-info-soft-rgb)); border-color:var(--ui-line); }
@@ -975,7 +975,7 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
 .app-type.internal-ui .professional-introduction .professional-hero-copy { padding:var(--ui-card-padding); }
 .app-type.internal-ui .services-drawer-content { padding-bottom:max(var(--ui-space-6),env(safe-area-inset-bottom)); }
 .app-type.internal-ui .services-drawer-content :is(a,button) { min-height:var(--ui-control-height); border-radius:var(--ui-control-radius); }
-.app-type.internal-ui .services-drawer-content a[aria-current="page"] { background:var(--ui-brand-soft); color:var(--ui-brand); }
+.app-type.internal-ui .services-drawer-content a[aria-current="page"] { background:var(--ui-brand-soft); color:var(--ui-brand-hover); }
 /* The desktop/tablet rail uses the same green anchor as the selected target.
    These descendants are navigation chrome, never document content. */
 .app-type.internal-ui .workspace-navigation { background:var(--ui-brand); border-color:rgb(255 255 255 / .15); }
@@ -1074,14 +1074,14 @@ body [class~="bg-navy-tint"]:not(:where([data-document-preview],[data-document-p
 body [class~="border-navy-tint"]:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { border-color:rgb(var(--ui-brand-rgb) / 1); }
 body [class~="hover:bg-navy-tint"]:hover:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { background-color:rgb(var(--ui-brand-soft-rgb) / 1); }
 body [class~="hover:border-navy-deep"]:hover:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { border-color:rgb(var(--ui-brand-rgb) / 1); }
-body [class~="hover:text-navy-deep"]:hover:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { color:rgb(var(--ui-brand-rgb) / 1); }
+body [class~="hover:text-navy-deep"]:hover:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { color:rgb(var(--ui-brand-hover-rgb) / 1); }
 body [class~="ring-navy-deep"]:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { --tw-ring-color:rgb(var(--ui-brand-rgb) / 1); }
-body [class~="text-blue"]:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { color:rgb(var(--ui-brand-rgb) / 1); }
-body [class~="text-navy-deep"]:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { color:rgb(var(--ui-brand-rgb) / 1); }
+body [class~="text-blue"]:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { color:rgb(var(--ui-brand-hover-rgb) / 1); }
+body [class~="text-navy-deep"]:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { color:rgb(var(--ui-brand-hover-rgb) / 1); }
 
 .ui-keyword { background:rgb(var(--ui-keyword-soft-rgb)); color:rgb(var(--ui-keyword-rgb)); }
-body [class~="text-sec-status"]:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { color:var(--ui-brand); }
-body [class~="text-info"]:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { color:var(--ui-brand); }
-body [class~="text-sky"]:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { color:var(--ui-brand); }
-body [class~="text-bp-navy"]:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { color:var(--ui-brand); }
-body [class~="text-bp-navy-ink"]:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { color:var(--ui-brand); }
+body [class~="text-sec-status"]:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { color:var(--ui-brand-hover); }
+body [class~="text-info"]:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { color:var(--ui-brand-hover); }
+body [class~="text-sky"]:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { color:var(--ui-brand-hover); }
+body [class~="text-bp-navy"]:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { color:var(--ui-brand-hover); }
+body [class~="text-bp-navy-ink"]:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { color:var(--ui-brand-hover); }
