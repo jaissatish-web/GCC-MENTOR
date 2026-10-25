@@ -3263,3 +3263,6 @@ Satish authorized autonomous internal UI implementation, testing, protected merg
 
 
 25 October2026 — WHITE-WORKSPACE-001 approved: white background/no-blue comprehensive presentation refresh, concise copy and aligned mobile/desktop controls. Expert design decisions and main release authorized; backend/auth/scoring/prompts/templates protected. Specification: WHITE_WORKSPACE_2026-10-25.md. Implementation and verification pending.
+
+
+25 October 2026 — Satish approves SkillDrift-inspired Inter/soft-indigo/lavender/near-white UI and rounded controls across GCC Mentor, superseding the earlier emerald/no-blue presentation. Preserve service logic, authentication and resume/template output. See SOFT_INDIGO_2026-10-25.md.

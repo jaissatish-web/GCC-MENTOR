@@ -4,6 +4,7 @@
 @import "./mobile-design.css";
 @import "./desktop-design.css";
 @import "./career-studio.css";
+@import "./auth-presentation.css";
 
 @tailwind base;
 @tailwind components;
@@ -447,28 +448,4 @@
 @keyframes professional-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 @media (prefers-reduced-motion: reduce) { .professional-story-card { animation: none; } }
 
-/* Design B (navy + gold): the legacy mobile/desktop sheets re-declare the
-   semantic tokens with the previous teal-era values at their breakpoints.
-   They load before everything below, so re-asserting the navy tokens here
-   (unlayered, later in the cascade) keeps one palette at every width.
-   Their type-scale overrides are left untouched. */
-:root {
-  --ui-canvas-rgb: 244 246 248;
-  --ui-ink-rgb: 20 36 61;
-  --ui-ink-soft-rgb: 82 99 121;
-  --ui-ink-muted-rgb: 97 107 118;
-  --ui-brand-rgb: 11 31 58;
-  --ui-brand-hover-rgb: 18 48 79;
-  --ui-brand-soft-rgb: 228 234 242;
-  --ui-line-rgb: 225 231 239;
-  --ui-line-strong-rgb: 195 206 219;
-  --ui-accent-rgb: 201 150 46;
-  --ui-accent-ink-rgb: 138 97 20;
-  --ui-accent-soft-rgb: 247 239 221;
-  --ui-success-rgb: 44 110 73;
-  --ui-error-rgb: 163 53 40;
-  --ui-error-soft-rgb: 248 230 226;
-}
-/* Navy rail: desktop-design.css forces `background:white` on the workspace
-   navigation at >=768px; this later override keeps the sidebar navy. */
-.app-type .workspace-navigation { background: var(--ui-brand); border-color: rgb(255 255 255 / 0.1); }
+/* Palette and shared navigation colours are owned by ui-system.css. */

@@ -81,10 +81,10 @@ try {
       })
       assert.ok(result.scroll <= width + 1, `Overflow at ${width}, enlarged=${enlarged}: ${JSON.stringify(result)}`)
       const scale = enlarged ? 2 : 1
-      assert.equal(result.titleSize, `${24 * scale}px`)
-      assert.equal(result.weight, '600')
+      assert.equal(result.titleSize, `${26 * scale}px`)
+      assert.equal(result.weight, '800')
       assert.equal(result.inputSize, `${16 * scale}px`)
-      assert.equal(result.bodySize, `${(width<768?15:16) * scale}px`)
+      assert.equal(result.bodySize, `${16 * scale}px`)
       assert.ok(result.buttonHeight >= 44)
       await page.$eval('details', element => { element.open = true })
       const choices = await page.evaluate(() => ({
@@ -135,7 +135,7 @@ try {
       captionSize: style('.caption-example').fontSize}
   })
   assert.deepEqual(configured, {title:'27px', section:'19px', body:'18px', family:'Arial',
-    radius:'9px', padding:'16px', documentTitle:'21px', documentWeight:'700', documentFamily:'Georgia', documentBody:'11px', utilitySize:'18px', utilityWeight:'400', captionSize:'13px'})
+    radius:'9px', padding:'16px', documentTitle:'21px', documentWeight:'700', documentFamily:'Georgia', documentBody:'11px', utilitySize:'18px', utilityWeight:'400', captionSize:'14px'})
   // Real public landing markup, production CSS and bundled Inter, without API calls.
   const publicMarkup = landing.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
     .replace(/<link\b[^>]*>/gi, '')
@@ -161,7 +161,7 @@ try {
       if (metrics.scroll > width + 1) await page.screenshot({path:'artifacts/typography/landing-overflow.png',fullPage:false})
       assert.ok(metrics.scroll <= width + 1, `Landing overflow at ${width}, enlarged=${enlarged}: ${JSON.stringify(metrics)}`)
       assert.ok(!metrics.clipped, `Clipped landing title at ${width}`)
-      assert.equal(metrics.weight, '600')
+      assert.equal(metrics.weight, '800')
       assert.ok(metrics.font.includes('Inter'), `Inter is not applied: ${metrics.font}`)
       const textScale = enlarged ? 2 : 1
       const expectedHero = Math.max(36 * textScale, Math.min(width * .044, 60 * textScale))

@@ -129,3 +129,9 @@ WHITE-WORKSPACE-001 implemented in checkpoint faeafa7; visual QA and verificatio
 WHITE-WORKSPACE-001 CI follow-up: full80/build/PDF passed, responsive gate caught32px landing overflow at1280px with200% text. Header nav/actions now wrap, with wrapping CTA text and nonshrinking icon. Reflow assertions retained; design QA temporarily blocked pending rerun.
 
 WHITE-WORKSPACE-001 final visual QA passed: enlarged-text reflow corrected and verified by CI; actual production-CSS token/layout/document-isolation checks passed locally at320/390/768/1440, with white fields and content surfaces. Required full CI on the final source still gates main release. See design-qa.md.
+
+
+25 October 2026 — SOFT-INDIGO-001 approved, not implemented: Satish selected SkillDrift sign-in typography, colours, theme and buttons for GCC Mentor. This supersedes previous no-blue/emerald presentation decisions. Spec: SOFT_INDIGO_2026-10-25.md. Presentation only; backend/auth/scoring/documents protected. Verify mobile/desktop and required CI before authorised main release.
+
+
+SOFT-INDIGO-001 implemented and visual QA passed: centralised Inter/indigo/plum/lavender system,12px controls,24px grouped cards, responsive auth shell and consistent landing/workspace/professional presentation. Removed conflicting legacy globals/responsive palette/type blocks. Mobile report inset issue corrected without weakening above-fold assertion. Local typecheck/lint/all80 checks/build, mobile/enlarged reflow, scoped controls/document isolation, Career Studio29 checks, CTA and universal typography checks passed. Reference/comparison/browser evidence in design-reference/soft-indigo and design-qa.md. Protected backend/auth/document directories unchanged. Required CI/main/Vercel release pending; user again explicitly instructs completion and main publication.

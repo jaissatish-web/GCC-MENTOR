@@ -1,3 +1,7 @@
+# Current direction — soft indigo, 25 October 2026
+
+Satish selected the SkillDrift sign-in theme, superseding the prior emerald/no-blue direction. Current implementation is being updated through SOFT-INDIGO-001; see [SOFT_INDIGO_2026-10-25.md](SOFT_INDIGO_2026-10-25.md). Central app tokens: indigo#5B60F1, plum#2B2640, secondary#58527A, near-white#FCFCFD, lavender#EEF2FF, border#E2E0EB. Controls12px, grouped cards24px, restrained shadow. Status red/amber/green and authored resume colours remain independent. Historical specifications below do not override this new approval.
+
 ## Internal Clear Path configuration — 24 October 2026
 The `.app-type.internal-ui` configuration in `app/ui-system.css` is the current internal application palette/layout source. Existing public values below remain the landing baseline. Brand #134F3C, ivory canvas #FAFAF7, white surfaces, blue informational cues, semantic success/warning/error states. No name/logo rebrand. Mobile gutters20px (16px below360), tablet32px, large desktop40px; body and form widths remain task appropriate. Typography is owned only by typography.css. Internal opt-in also scopes service drawer/library/guide portals; public SideSheet defaults do not opt in. See CLEAR_PATH_ROLLOUT.md for evidence and limitations.
 

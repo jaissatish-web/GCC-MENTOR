@@ -1,7 +1,7 @@
-/* Career Studio presentation. Typography lives in typography.css; tokens in ui-system.css. */
+/* Soft indigo Career Studio. Typography lives in typography.css; tokens in ui-system.css. */
 .app-type.internal-ui.career-studio {
   align-items: flex-start;
-  background: var(--ui-surface);
+  background: var(--ui-canvas);
 }
 
 .app-type.internal-ui.career-studio .studio-main-column {
@@ -46,6 +46,7 @@
 }
 
 .app-type.internal-ui.career-studio .studio-account-link {
+  border-radius: var(--ui-control-radius);
   width: 44px;
   height: 44px;
   display: grid;
@@ -87,8 +88,9 @@
 }
 
 .app-type.internal-ui.career-studio .studio-bottom-nav a[aria-current=page] {
-  color: var(--ui-brand);
-  box-shadow: inset 0 3px 0 var(--ui-brand);
+  color: var(--ui-brand-hover);
+  background: var(--ui-brand-soft);
+  border-radius: var(--ui-control-radius);
 }
 
 .app-type.internal-ui.career-studio .studio-page {
@@ -138,6 +140,11 @@
 .app-type.internal-ui.career-studio .studio-readiness {
   order: 0;
   min-width: 0;
+  padding: var(--ui-space-5);
+  border: 1px solid var(--ui-line);
+  border-radius: var(--ui-card-radius);
+  background: var(--ui-surface);
+  box-shadow: var(--ui-card-shadow);
 }
 
 .app-type.internal-ui.career-studio .studio-next-improvements {
@@ -171,7 +178,7 @@
   height: 60px;
   -o-object-fit: cover;
   object-fit: cover;
-  border-radius: 6px;
+  border-radius: var(--ui-control-radius);
 }
 
 .app-type.internal-ui.career-studio .studio-resume-context>span {
@@ -246,7 +253,7 @@
   padding: var(--ui-space-2) var(--ui-space-3);
   margin-top: var(--ui-space-3);
   width: 100%;
-  border-radius: 4px;
+  border-radius: var(--ui-control-radius);
   background: rgb(var(--ui-accent-soft-rgb));
   color: rgb(var(--ui-accent-ink-rgb));
   text-align: left;
@@ -287,9 +294,11 @@
   display: flex;
   flex-direction: column;
   gap: var(--ui-space-4);
-  padding: var(--ui-space-5) 0;
-  border-bottom: 1px solid var(--ui-line);
+  padding: var(--ui-space-5);
+  border: 1px solid var(--ui-line);
+  border-radius: var(--ui-card-radius);
   background: var(--ui-surface);
+  box-shadow: var(--ui-card-shadow);
 }
 
 .app-type.internal-ui.career-studio .studio-continue-heading {
@@ -330,6 +339,11 @@
 .app-type.internal-ui.career-studio .studio-saved-work {
   order: 3;
   min-width: 0;
+  padding: var(--ui-space-5);
+  border: 1px solid var(--ui-line);
+  border-radius: var(--ui-card-radius);
+  background: var(--ui-surface);
+  box-shadow: var(--ui-card-shadow);
 }
 
 .app-type.internal-ui.career-studio .studio-saved-work>h2 {
@@ -373,7 +387,8 @@
   flex-wrap: wrap;
   padding: var(--ui-space-3);
   border: 1px solid var(--ui-line);
-  border-radius: 6px;
+  border-radius: var(--ui-control-radius);
+  background: var(--ui-surface);
 }
 
 .app-type.internal-ui.career-studio .studio-notice button {
@@ -690,7 +705,7 @@
     overscroll-behavior: contain;
     flex: 0 0 80px;
     padding: var(--ui-space-6) var(--ui-space-3);
-    background: var(--ui-surface);
+    background: var(--ui-brand-soft);
     border-right: 1px solid var(--ui-line);
   }
   .app-type.internal-ui.career-studio .studio-brand {
@@ -728,7 +743,7 @@
     flex-shrink: 0;
   }
   .app-type.internal-ui.career-studio .studio-sidebar a:hover, .app-type.internal-ui.career-studio .studio-sidebar a[aria-current=page] {
-    background: var(--ui-brand-soft);
+    background: var(--ui-surface);
     color: var(--ui-brand);
   }
   .app-type.internal-ui.career-studio .studio-sidebar-bottom {
@@ -837,7 +852,7 @@
     height: 14px;
   }
   .app-type.internal-ui.career-studio .studio-continue {
-    padding: var(--ui-space-6) 0;
+    padding: var(--ui-space-6);
   }
   .app-type.internal-ui.career-studio .studio-continue .ui-button {
     align-self: flex-end;
@@ -952,7 +967,11 @@
 }
 
 .app-type.internal-ui.career-studio .studio-report-overview {
-  padding: 0;
+  padding: var(--ui-space-4);
+  border: 1px solid var(--ui-line);
+  border-radius: var(--ui-card-radius);
+  background: var(--ui-surface);
+  box-shadow: var(--ui-card-shadow);
 }
 
 .app-type.internal-ui.career-studio .studio-report-result {
@@ -1132,7 +1151,7 @@
     padding: var(--ui-space-3) 0;
   }
   .app-type.internal-ui.career-studio .studio-continue {
-    padding: var(--ui-space-4) 0;
+    padding: var(--ui-space-4);
     gap: var(--ui-space-3);
   }
   .app-type.internal-ui.career-studio .studio-work-row {
@@ -1223,6 +1242,14 @@
 
 .app-type.internal-ui.career-studio .studio-report-heading button { white-space: nowrap; }
 
+/* A framed report gets one inset; retain room for its next action on phones. */
+@media (max-width: 767px) {
+  .app-type.internal-ui.career-studio .studio-report-overview { padding: var(--ui-space-3); }
+  .app-type.internal-ui.career-studio .studio-report-heading { padding-top: 0; gap: var(--ui-space-2); }
+  .app-type.internal-ui.career-studio .studio-report-result { padding-block: var(--ui-space-3); }
+  .app-type.internal-ui.career-studio .studio-feedback-row { gap: var(--ui-space-2); }
+}
+
 @media (max-width: 767px) {
   .app-type.internal-ui.career-studio .studio-profile-summary .studio-page-heading { margin-bottom: var(--ui-space-4); }
   .app-type.internal-ui.career-studio .studio-profile-identity { padding-block: var(--ui-space-2) var(--ui-space-3); }
@@ -1230,7 +1257,7 @@
   .app-type.internal-ui.career-studio .studio-profile-row-details { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
 }
 
-/* White workspace: shared action groups keep labels and controls on a common grid. */
+/* Shared action groups keep labels and controls on a common grid. */
 .app-type.internal-ui.career-studio .workspace-heading-actions {
   width: 100%;
   align-self: stretch;
@@ -1255,23 +1282,11 @@
 .app-type.internal-ui.career-studio .studio-section-actions > :is(button,a) {
   min-width: 0;
 }
-.auth-shell .auth-form-surface {
-  padding: var(--ui-space-2) 0;
-}
-.auth-shell .auth-story-title {
-  max-width: 20ch;
-}
 @media (min-width: 640px) {
   .app-type.internal-ui.career-studio .workspace-heading-actions {
     width: auto;
     max-width: min(100%, 34rem);
     align-self: flex-end;
     justify-content: flex-end;
-  }
-}
-@media (min-width: 1024px) {
-  .auth-shell .auth-form-column {
-    border-left: 1px solid var(--ui-line);
-    padding-left: var(--ui-space-8);
   }
 }

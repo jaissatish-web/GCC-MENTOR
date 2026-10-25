@@ -28,7 +28,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        /** Primary and progress actions share the emerald action role. */
+        /** Primary and progress actions share the indigo action role. */
         primary: 'bg-teal font-semibold text-white hover:bg-teal-bright',
         purchase: 'bg-teal font-semibold text-white hover:bg-teal-bright',
         progress: 'border border-teal/30 bg-white font-semibold text-teal hover:bg-teal-soft',
