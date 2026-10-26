@@ -159,3 +159,7 @@ SKILLPILOT-BRAND-001 status: implementation is on review branch `codex/skillpilo
 
 ## DARK-CONTRAST-001 — 26 October 2026
 Approved: fix dark text on navy UI, specifically login email/password labels and shared profile/dashboard controls. Apply light foregrounds to shared labels, values, helper text and legacy dark text utilities; handle browser autofill. Exclude document/template and LinkedIn paper previews. Preserve backend/navigation and semantic status colors. CSS implementation and CI verification pending.
+
+
+## DARK-CONTRAST-002 — 26 October 2026
+Approved: extend the contrast correction to all SaaS box/page headers and legacy navy text roles. Use explicit light foregrounds on headings and their child text, disclosures, table headers and definition labels; preserve status colors, buttons and authored document previews. Shared CSS only; required CI and deployment pending.
