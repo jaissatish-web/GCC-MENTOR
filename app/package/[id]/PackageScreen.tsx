@@ -587,7 +587,7 @@ function PackageScreenInner({ id }: { id: string }) {
      * Below `lg` nothing changes: a phone keeps one natural page scroll, because
      * nested scroll areas on a touch screen are how you lose the user.
      */
-    <main className={cn("studio-resume-workspace mx-auto flex min-h-dvh w-full max-w-[1400px] flex-col bg-canvas font-redesign-sans", tab === 'design' && 'pb-40 lg:pb-0')}>
+    <main className={cn("studio-resume-workspace mx-auto flex min-h-dvh w-full max-w-[1400px] flex-col bg-canvas font-redesign-sans")}>
       {/* ONE HEADER ROW (TASK-160, founder-directed).
           This was five stacked rows — back arrow, "Unlocked & saved to Library"
           badge, title, name field, then the action toolbar below — each one full
@@ -631,91 +631,16 @@ function PackageScreenInner({ id }: { id: string }) {
             may wrap INSIDE its button. Buttons never wrap by default, so "Review
             and edit changes" ran out past its half-width cell. From `sm` up the
             row is unchanged. */}
-        <details className="studio-workspace-actions" open={tab === 'design'}><summary>Resume actions</summary>
-        <div className="grid grid-cols-2 items-stretch gap-2 sm:flex sm:flex-wrap sm:items-center lg:ml-auto lg:justify-end [&>a]:justify-center [&>a]:text-center">
-          {!isRaw ? <StageSelect className="col-span-2 w-full sm:w-auto" value={pkg.status} onChange={(next) => void saveStage(next)} /> : null}
-          {stageState ? <span className="col-span-2 type-caption text-alert">{stageState}</span> : null}
-          {downloadBlocked ? (
-            <>
-              {changesDirty || styleBusy ? (
-                <button
-                  type="button"
-                  disabled={styleBusy}
-                  onClick={() => void saveChanges()}
-                  className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'col-span-2 sm:col-auto disabled:cursor-not-allowed disabled:opacity-50', tab === 'design' && 'editor-desktop-action')}
-                >
-                  {styleBusy ? 'Saving…' : 'Save changes'}
-                </button>
-              ) : null}
-              <button
-                type="button"
-                disabled
-                aria-describedby="resume-save-status"
-                className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'col-span-2 cursor-not-allowed opacity-50 sm:col-auto', tab === 'design' && 'editor-desktop-action')}
-              >
-                {CTA.downloadPdf}
-              </button>
-            </>
-          ) : (
-            <a
-              href={pdfUrl}
-              onClick={() => setDownloaded(true)}
-              className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'col-span-2 sm:col-auto', tab === 'design' && 'editor-desktop-action')}
-            >
-              {CTA.downloadPdf}
-            </a>
-          )}
-          {/* EDIT ALWAYS OPENS THE SAME EDITOR NOW (2026-08-19, second pass).
-              An earlier version sent a never-optimized resume to
-              /optimize/generate first, reasoning it had no wording "of its
-              own" to edit yet. The founder's answer: clicking Edit must open
-              the editor, not spend a model call. It does not need to — the
-              editor already derives its starting text the same way the resume
-              itself renders (user_edited ?? generated ?? the profile's own,
-              lib/resumeDocument.ts), and a hand edit saves the same way either
-              case. So there is no branch left: every resume, optimized or not,
-              goes straight to /package/[id]/edit.
-              This deliberately does NOT open /optimize/preview/[id], which is
-              the diff viewer ("here's what the optimizer changed") for a
-              resume that HAS been optimized; that screen keeps its own job and
-              its own route. */}
-          <Link
-            href={isRaw ? '/profile?view=details' : `/package/${encodeURIComponent(id)}/edit`}
-            className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'whitespace-normal leading-tight', isFree && 'col-span-2 sm:col-auto')}
-          >
-            {isRaw ? 'Edit Career Profile' : CTA.editCv}
-          </Link>
-          {/* THE DIFF, REACHABLE AGAIN (2026-09-12). Generation lands here, on
-              the finished CV, so /optimize/preview — every changed line beside
-              the original, the product's "nothing invented" made visible — had
-              no link anywhere. Only for a resume the model actually wrote:
-              otherwise there is no change to show. */}
-          {!isFree ? (
-            <Link
-              href={`/optimize/preview/${encodeURIComponent(id)}`}
-              className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'whitespace-normal leading-tight')}
-            >
-              {CTA.seeChanges}
-            </Link>
-          ) : null}
-          {changesDirty ? (
-            <button
-              type="button"
-              disabled={styleBusy}
-              onClick={undoChanges}
-              className={buttonVariants({ variant: 'secondary', size: 'sm' })}
-            >
-              Undo changes
-            </button>
-          ) : null}
-          {downloadBlocked || styleMsg ? (
-            <span id="resume-save-status" role="status" className={cn("col-span-2 type-caption text-ink-muted", tab === 'design' && 'editor-desktop-action')}>
-              {styleBusy ? 'Saving changes — PDF download is temporarily disabled.'
-                : changesDirty ? `${styleMsg && styleMsg !== 'Changes saved.' ? `${styleMsg} ` : ''}Save changes to enable PDF download.`
-                : styleMsg}
-            </span>
-          ) : null}
-        </div></details>
+        <div className="studio-workspace-actions resume-top-actions" aria-label="Resume actions">
+          {!isRaw ? <StageSelect className="resume-action-stage" value={pkg.status} onChange={(next) => void saveStage(next)} /> : null}
+          {stageState ? <span className="resume-action-status type-caption text-alert">{stageState}</span> : null}
+          <Link href={isRaw ? '/profile?view=details' : `/package/${encodeURIComponent(id)}/edit`} className={cn(buttonVariants({variant:'secondary',size:'sm'}),'whitespace-normal leading-tight')}>{isRaw ? 'Edit Career Profile' : CTA.editCv}</Link>
+          <button type="button" disabled={!changesDirty || styleBusy} onClick={undoChanges} className={buttonVariants({variant:'secondary',size:'sm'})}>Undo changes</button>
+          <button type="button" disabled={!changesDirty || styleBusy} onClick={() => void saveChanges()} className={buttonVariants({variant:'primary',size:'sm'})}>{styleBusy ? 'Saving…' : 'Save changes'}</button>
+          {downloadBlocked ? <button type="button" disabled aria-describedby="resume-save-status" className={buttonVariants({variant:'secondary',size:'sm'})}>{CTA.downloadPdf}</button> : <a href={pdfUrl} onClick={() => setDownloaded(true)} className={buttonVariants({variant:'primary',size:'sm'})}>{CTA.downloadPdf}</a>}
+          {!isFree ? <Link href={`/optimize/preview/${encodeURIComponent(id)}`} className={buttonVariants({variant:'secondary',size:'sm'})}>{CTA.seeChanges}</Link> : null}
+          {downloadBlocked || styleMsg ? <span id="resume-save-status" role="status" className="resume-action-status type-caption text-ink-muted">{styleBusy ? 'Saving changes…' : changesDirty ? styleMsg && styleMsg !== 'Changes saved.' ? styleMsg : 'Save changes to enable PDF download.' : styleMsg}</span> : null}
+        </div>
       </div>
 
       {/* NOT BUILT YET (2026-09-11). Founder report: a job whose CV build had
@@ -1097,13 +1022,6 @@ function PackageScreenInner({ id }: { id: string }) {
 
         {tab === 'design' ? (
         <>
-        <div className="editor-action-dock fixed inset-x-3 z-20 rounded-card border border-line bg-white/95 p-3 shadow-m-3 backdrop-blur-md md:left-[76px] lg:hidden" aria-label="Save and download resume">
-          <div className="flex gap-2">
-            {changesDirty || styleBusy ? <button type="button" disabled={styleBusy} onClick={() => void saveChanges()} className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'min-w-0 flex-1')}>{styleBusy ? 'Saving…' : 'Save changes'}</button> : null}
-            {downloadBlocked ? <button type="button" disabled aria-describedby="resume-save-status" className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'min-w-0 flex-1')}>{CTA.downloadPdf}</button> : <a href={pdfUrl} onClick={() => setDownloaded(true)} className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'min-w-0 flex-1')}>{CTA.downloadPdf}</a>}
-          </div>
-          {downloadBlocked || styleMsg ? <p role="status" className="mt-2 type-helper text-ink-muted">{styleBusy ? 'Saving changes…' : changesDirty ? styleMsg && styleMsg !== 'Changes saved.' ? styleMsg : 'Save changes to enable PDF download.' : styleMsg}</p> : null}
-        </div>
         {/* TEMPLATES LEFT, DOCUMENT CENTRED (TASK-146, founder-directed).
             The templates used to hide behind a "Change template" toggle that
             pushed a four-across grid above the resume, so choosing a design
