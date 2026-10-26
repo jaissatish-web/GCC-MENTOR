@@ -480,7 +480,6 @@
 .app-type.internal-ui.career-studio .studio-profile-edit {
   display: inline-flex;
   align-items: center;
-  min-height: 24px;
   color: var(--ui-brand);
   flex-shrink: 0;
 }
@@ -1234,7 +1233,6 @@
 
 /* The next step and answer review belong together in the report's first view. */
 @media (max-width: 767px) {
-  .app-type.internal-ui.career-studio .studio-report-result { padding-block: var(--ui-space-4); }
   .app-type.internal-ui.career-studio .studio-feedback-row { padding-block: var(--ui-space-3); }
   .app-type.internal-ui.career-studio .studio-report-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--ui-space-2); }
   .app-type.internal-ui.career-studio .studio-report-actions > .ui-button { width: 100%; justify-content: center; padding-inline: var(--ui-space-2); }
@@ -1262,9 +1260,7 @@
   width: 100%;
   align-self: stretch;
 }
-.app-type.internal-ui.career-studio .studio-primary-nav a[aria-current=page] {
-  font-weight: var(--ui-weight-heading);
-}
+/* Navigation typography, including active weight, is owned by typography.css. */
 .app-type.internal-ui.career-studio .studio-text-link,
 .app-type.internal-ui.career-studio .studio-profile-edit {
   border-radius: var(--ui-control-radius);

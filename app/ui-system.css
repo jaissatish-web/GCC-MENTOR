@@ -86,11 +86,6 @@
     --ui-card-padding: 24px;
   }
 }
-@media (min-width: 1024px) {
-  :root {
-  }
-}
-@media (max-width: 359px) { :root { } }
 
 /* Base role consumers. app/typography.css owns the scale and enforces semantic
    roles over legacy utility and module overrides. Resume documents are isolated. */
@@ -125,47 +120,38 @@ body :is(input, textarea, select, .field):not(:where([data-document-preview], [d
 
 body .type-title:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-title-size);
-  font-weight: var(--ui-weight-title);
   line-height: var(--ui-heading-line);
 }
 body .type-section:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-section-size);
-  font-weight: var(--ui-weight-heading);
   line-height: var(--ui-heading-line);
 }
 body .type-card:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-card-title-size);
-  font-weight: var(--ui-weight-heading);
   line-height: var(--ui-heading-line);
 }
 body .type-body:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-body-size);
-  font-weight: var(--ui-weight-regular);
   line-height: var(--ui-body-line);
 }
 body .type-label:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-label-size);
-  font-weight: var(--ui-weight-label);
   line-height: var(--ui-label-line);
 }
 body .type-helper:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-helper-size);
-  font-weight: var(--ui-weight-regular);
   line-height: var(--ui-body-line);
 }
 body .type-caption:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-caption-size);
-  font-weight: var(--ui-weight-regular);
   line-height: var(--ui-label-line);
 }
 body .type-button:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-button-size);
-  font-weight: var(--ui-weight-heading);
   line-height: var(--ui-label-line);
 }
 body .type-hero:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
   font-size: var(--ui-hero-size);
-  font-weight: var(--ui-weight-title);
   line-height: var(--ui-hero-line);
   letter-spacing: var(--ui-heading-tracking);
   text-wrap: balance;
@@ -252,7 +238,6 @@ body :is(.rounded-card, .rounded-card-lg):is(.p-4, .p-5, .p-6):not(:where([data-
 .app-type .workspace-heading :is(button,a):focus-visible { outline:2px solid var(--ui-brand); outline-offset:3px; }
 .app-type main > .workspace-heading.page-gutter,
 .app-type .workspace-profile-heading { margin-inline:var(--ui-page-gutter); }
-.app-type .workspace-next { background:var(--ui-hero-gradient); }
 .app-type .field { background:var(--ui-canvas); border-color:var(--ui-field-border); border-radius:var(--ui-control-radius); }
 .app-type .field:hover:not(:disabled) { border-color:var(--ui-brand-hover); }
 /* Daily-use app typography: one scale for Home, Profile, forms and reports.
@@ -286,7 +271,6 @@ body :is(.rounded-card, .rounded-card-lg):is(.p-4, .p-5, .p-6):not(:where([data-
 .ui-context-bar { background:var(--ui-surface); }
 @media(max-width:639px) {
   .app-type { --ui-page-gutter:12px; --ui-page-top:24px; --ui-page-gap:24px; }
-  .app-type .workspace-heading { padding-bottom:12px; }
   .app-type .type-title { text-wrap:balance; }
   .app-type .ui-context-bar { gap:4px; padding:8px 14px; }
   .app-type .ui-context-bar > label { width:100%; flex-basis:100%; font-size:var(--ui-helper-size); }
@@ -539,8 +523,7 @@ body .from-teal:not(:where([data-document-preview], [data-document-preview] *, #
 body .from-teal\/25:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { --tw-gradient-from: rgb(var(--ui-brand-rgb) / 0.25); }
 body .to-teal:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { --tw-gradient-to: rgb(var(--ui-brand-rgb) / 1); }
 body .via-teal:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { --tw-gradient-stops: var(--tw-gradient-from), rgb(var(--ui-brand-rgb) / 1), var(--tw-gradient-to, rgb(255 255 255 / 0)); }
-/* Ring focus colours bridge to the same navy tokens: Tailwind's own ring-teal
-   would otherwise keep the config's teal green on every focus ring. */
+/* Focus rings use the current shared palette rather than legacy utility colours. */
 body .ring-teal:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { --tw-ring-color: rgb(var(--ui-brand-rgb) / 1); }
 body .ring-teal\/30:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { --tw-ring-color: rgb(var(--ui-brand-rgb) / 0.3); }
 body .focus-visible\:ring-teal:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { --tw-ring-color: rgb(var(--ui-brand-rgb) / 1); }
@@ -743,12 +726,11 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
   .app-type .field { font-size: var(--ui-body-size); }
 }
 
-/* Emerald remains the action colour; service accents guide recognition. */
+/* Shared palette tokens own action colours and service accents. */
 .app-type .workspace-heading .gulf-context { color:var(--service-ink,var(--ui-brand)); }
 .app-type .service-feature-card { border-top:3px solid var(--service-ink,var(--ui-brand)); }
-.app-type .service-feature-card:hover { border-color:var(--service-ink,var(--ui-brand)); }
 .app-type .service-feature-card > span:last-child { color:var(--service-ink,var(--ui-brand)); }
-.app-type .service-feature-card h3.type-body { font-size:var(--ui-body-size); font-weight:var(--ui-weight-heading); line-height:var(--ui-body-line); }
+.app-type .service-feature-card h3.type-body { font-weight:var(--ui-weight-heading); line-height:var(--ui-body-line); }
 
 /* Approved full-site brand: service cues support a calm, readable workspace. */
 .app-type .workspace-heading { padding-bottom:24px; gap:16px; }
@@ -976,7 +958,7 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
 .app-type.internal-ui .services-drawer-content { padding-bottom:max(var(--ui-space-6),env(safe-area-inset-bottom)); }
 .app-type.internal-ui .services-drawer-content :is(a,button) { min-height:var(--ui-control-height); border-radius:var(--ui-control-radius); }
 .app-type.internal-ui .services-drawer-content a[aria-current="page"] { background:var(--ui-brand-soft); color:var(--ui-brand-hover); }
-/* The desktop/tablet rail uses the same green anchor as the selected target.
+/* The desktop/tablet rail uses the current brand tokens.
    These descendants are navigation chrome, never document content. */
 .app-type.internal-ui .workspace-navigation { background:var(--ui-brand); border-color:rgb(255 255 255 / .15); }
 .app-type.internal-ui .workspace-navigation :is(a,button) { color:var(--ui-inverse); border-radius:var(--ui-control-radius); }
@@ -1067,7 +1049,7 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
   .ui-action-row > :is(button,a,.ui-action-item) { width:100%; }
 }
 
-/* Retained utility names use the white-workspace palette outside document boundaries. */
+/* Retained utility names use the current shared palette outside document boundaries. */
 body [class~="bg-blue"]:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { background-color:rgb(var(--ui-brand-rgb) / 1); }
 body [class~="bg-blue-soft"]:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { background-color:rgb(var(--ui-brand-soft-rgb) / 1); }
 body [class~="bg-navy-tint"]:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { background-color:rgb(var(--ui-brand-soft-rgb) / 1); }

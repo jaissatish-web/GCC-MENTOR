@@ -1,0 +1,28 @@
+# CSS-CLEANUP-001 — preserve the current design
+
+26 October 2026 (Riyadh). Baseline main b511608e70e86993ba9741b56e814b8d17963938. Status: implemented and locally verified. Protected-main CI/release record governs publication. Satish asked to clean CSS and keep the current version only after the source audit found16 authored CSS files,8 global/8 module,266 important declarations, unused launch.module.css and accumulated overrides.
+
+## Contract
+Keep the current effective indigo appearance and all existing interactions. This is cleanup, not a redesign or a change to current computed values: navigation weight500, internal header padding20px, textarea minimum140px and report padding12px are baseline behavior, even where older declarations request other values. Keep authored resume/document styles unchanged.
+
+Remove the unimported landing-v3/launch.module.css. Consolidate mobile-design.css and desktop-design.css into responsive.css, factoring genuinely identical rules while preserving import position, specificity, source order, fractional breakpoint coverage and local shorthand dependencies. Remove declarations that are provably superseded in the same selector/context (respect importance and fallback validity), and obsolete earlier visual patches from active CSS. Preserve module isolation; do not merge unrelated page modules into global styles. Keep important declarations that are still needed for centralized typography, document exclusions or utility overrides; do not strip them wholesale. Remove empty media/rule blocks and obsolete styling comments when safe.
+
+Owners: ui-system.css shared palette/layout/controls; typography.css application typography; responsive.css actual device adaptations; career-studio/auth/professional CSS scoped layouts; modules local component styling. Prefer deleting a dead override to adding another competing rule.
+
+## Protected scope
+No changes to application behavior, API, auth, database, scoring, prompts, quotas, candidate facts, dependencies or resume templates. Do not delete old Git branches or other repository history as part of this CSS-only request. Existing unrelated workspace files remain untouched.
+
+## Acceptance and verification
+Compare baseline and cleaned CSS on the same representative DOM and real static landing, dashboard, profile and report UI, at mobile/tablet/desktop widths including767/767.5/768 boundaries and enlarged text. Preserve computed typography, layout, colours, controls, interactive states and document boundaries. Review source diff, run typecheck/lint/full80 checks/build and affected browser regressions. Baseline compiled CSS/static assets saved in scratch css-baseline-b511608 before editing. Report exact removals, limits and release state separately. Main requires checks, so use one temporary delivery branch, merge only after required CI and remove that branch afterward.
+
+## Implemented result
+14 authored CSS files remain:7 global (including globals.css) and7 isolated component modules. Removed unimported launch.module.css and replaced the two device stylesheets with responsive.css. Factored11 identical responsive rules (25 declarations) once without changing breakpoint coverage/source order. Removed201 superseded declarations within the same selector/conditions or under the equivalent stronger .page.page selector, plus the obsolete active-nav font-weight overridden by centralized typography. Removed empty rules/media and updated stale colour comments. Source CSS declarations fell10,289→8,438 (1,851 removed including1,624 in the unused file); source CSS size458,854→approximately399,400 bytes. This is source cleanup, not a claim of59KB less network traffic: the unused stylesheet was never bundled. Current remaining261 important declarations include199 required centralized typography enforcements; they were not stripped blindly.
+
+Updated existing theme/guide tests to inspect the actual active landing consumers and responsive filename. Added reusable verify-css-cleanup.mjs to capture a built baseline before cleanup and compare identical DOM against new compiled CSS after build. No runtime TSX/API/schema/auth/scoring/prompt/template changes.
+
+## Verification evidence
+Typecheck/lint clean; production build and80/80 regression/database checks passed. Existing mobile/enlarged text, scoped UI/document isolation, Career Studio29 and full preview save/retry/concurrency/responsive tests passed. Before/after72/72 real-page comparisons passed for landing, public readiness, dashboard, profile summary, expanded editor and imported review, at320/390/768/1440px with normal, hover/keyboard focus and200% text states. All standard computed styles, geometry, selected pseudo properties and viewport PNG bytes are identical.2590 DOM elements represented per viewport/state;104 used module selectors retained, none lost. Animations/transitions were frozen identically to make comparison deterministic. Results: artifacts/css-cleanup/results.json (selfCheck:false); paired screenshots inspected. These are fictional local APIs/representative Chromium cases, not a signed-in production persistence test or every possible browser/page combination.
+
+Responsive factoring separately matched192 fixture elements including pseudo styles over14 width/text cases (2688 comparisons). Requested767.5px iframe media was rounded to768 by Chromium; the original fractional gap is preserved structurally by the exact (max-width:767px), (min-width:768px) union. Do not claim a measured fractional media viewport.
+
+Next: required protected-main checks, merge and verify the exact production deployment, then remove the temporary delivery branch. The release PR is the authoritative merge/check record; this source checkpoint precedes publication.

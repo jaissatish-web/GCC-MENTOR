@@ -21,7 +21,7 @@ Source inspected: main `d5455475d1ceac6ce735850cc3926ebf3804bf90`, 22 October 20
 | Preparation services | Cover letters, Q&A, text mock and recorded-voice code exist. Voice availability depends on server/provider/storage setup | `app/api/packages/[id]/`, `RECORDED_VOICE_INTERVIEW.md` |
 | Professional profiles | LinkedIn and NaukriGulf import/generation services exist; users apply outputs externally themselves | `app/api/linkedin/`, `app/api/naukrigulf/`, `19_LINKEDIN_OPTIMIZATION.md`, `20_PROFESSIONAL_PROFILES.md` |
 | Typography | `app/typography.css` is the current shared application type configuration; document boundaries preserve resume fonts | `app/globals.css`, `TYPOGRAPHY_SYSTEM.md` |
-| Brand/layout | Shared UI tokens plus mobile/desktop styles are imported. Current brand specification is emerald-led | `app/ui-system.css`, `app/mobile-design.css`, `app/desktop-design.css`, `BRAND_SYSTEM.md` |
+| Brand/layout | Current soft-indigo tokens and isolated page modules; consolidated responsive stylesheet. CSS-CLEANUP-001 preserves the current appearance and is locally verified; release record governs publication. | `app/ui-system.css`, `app/responsive.css`, `BRAND_SYSTEM.md`, `CSS_CLEANUP_2026-10-26.md` |
 | Access and quotas | Auth and abuse controls (pause, rate, concurrency) are active. Commercial credit/bundle helpers exist but their consumption helpers have no generation-route consumers in this review; do not describe paid credits as enforced. | `lib/ai/serviceGuard.ts`, `lib/entitlements.ts`, individual API routes |
 | Database | Numbered migrations are repository evidence, not proof they were applied to the live database. Old table counts/catalogue claims are dated | `supabase/migrations/`, `04_DATA_MODEL.md` |
 
