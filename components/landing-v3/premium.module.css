@@ -50,7 +50,7 @@
 .system .menuNav>a:hover { background: var(--lp-soft); color: var(--lp-brand); }
 .system .menuNav>a:last-child { margin-top: 6px; justify-content: center; background: var(--lp-brand); color: #fff; }
 
-.heroNavy { position: relative; padding-block: clamp(28px, 4vw, 56px) 32px; background: var(--lp-soft); }
+.heroNavy { position: relative; padding-block: clamp(24px, 3vw, 40px) 28px; background: var(--ui-canvas); }
 .heroInner { display: grid; gap: 28px; align-items: center; }
 .heroCopy,.heroVisual { min-width: 0; }
 .kickerGold { display: inline-flex; align-items: center; gap: 8px; color: var(--ui-brand-hover); font-size: var(--ui-caption-size); font-weight: var(--ui-weight-heading); letter-spacing: var(--ui-tracking); text-transform: uppercase; line-height: var(--ui-body-line); }
