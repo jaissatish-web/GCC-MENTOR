@@ -31,4 +31,4 @@ Visual-only update to shared public and authenticated presentation styles and th
 
 ## Implementation status
 
-Approved; code implementation and verification pending. Prior compact indigo UI remains the baseline until this update is implemented.
+Implementation on `codex/skillpilot-brand-001`: shared palette and responsive presentation styles updated across the public landing, workspace, professional profiles, preparation explorer and How it works guide. The PR preview and phone/desktop visual verification are pending. Service logic and resume document styles were not intentionally changed.
