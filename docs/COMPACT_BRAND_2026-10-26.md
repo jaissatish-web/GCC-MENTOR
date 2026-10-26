@@ -17,4 +17,5 @@ Implemented in eight presentation CSS files. One root palette now reaches landin
 
 Verification: full80/80 regression suite, clean native-directory production build (including typecheck/lint),29 Career Studio responsive/state interactions, production CSS mobile and200% text reflow, shared role/token propagation and public/internal consistency, document isolation, universal typography, and actual profile CTA/phone selections at320/390/768/1440 passed. The mounted-workspace build compiled/generated pages but failed export-directory cleanup with ENOTEMPTY; the same final source built successfully in a clean native directory. Prior screenshots of real fictional workspace components were inspected at phone/desktop; public static-layout screenshots omit dynamic images/globe and are not proof of their runtime rendering. Public production baseline was inspected in cloud browser; authenticated production flows remain unverified.
 
-Publication pending protected-main checks/release. These local tests do not establish a live deployment.
+Published to main on 26 October 2026 as commit b2b243fd9a1b57d5610102d0bc9a4695dce08a13 after explicit founder authorization. Local checks do not establish a live deployment; remote CI and Vercel status should be checked separately.
+
