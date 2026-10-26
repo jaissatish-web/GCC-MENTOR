@@ -167,3 +167,7 @@ Approved: extend the contrast correction to all SaaS box/page headers and legacy
 
 ## RESUME-TOP-ACTIONS-001 — 26 October 2026
 Approved: replace floating mobile Save/Download dock with top actions ordered Edit Career Profile, Undo changes, Save, Download. Two equal columns on phones; preserve save/download prerequisites and handlers. Fix settings toolbar contrast and pair light text with navy/blue surfaces, dark blue text with explicit light UI surfaces, excluding authored documents. Implementation/CI pending.
+
+
+## PERSONAL-HOME-001 — 26 October 2026
+Approved dashboard presentation: sun/greeting, actual name and target job title; existing readiness, separate saved usage counts, visible interview performance, quick resume/profile actions and upcoming events. Remove full tools entry from dashboard header; keep services in unchanged navigation. Reuse existing APIs, counters, next-action decisions and progress/events components. No fabricated activity or score changes.
