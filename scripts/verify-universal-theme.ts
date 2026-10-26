@@ -15,7 +15,7 @@ const typography = parse(readFileSync('app/typography.css', 'utf8'))
 const declared = new Set<string>()
 const unresolved: string[] = []
 for (const sheet of [theme, typography]) sheet.walkDecls(d => { if(d.prop.startsWith('--ui-')) declared.add(d.prop) })
-for(const source of ['app/ui-system.css','app/typography.css','components/landing-v3/launch.module.css']) {
+for(const source of ['app/ui-system.css','app/typography.css','components/landing-premium/premium.module.css','components/landing-v3/premium.module.css']) {
   const sheet=parse(readFileSync(source,'utf8'))
   sheet.walkDecls(d=>{for(const match of d.value.matchAll(/var\((--ui-[\w-]+)/g)) { if(!declared.has(match[1])) unresolved.push(`${match[1]} in ${source}`) }})
 }

@@ -3269,3 +3269,6 @@ Satish authorized autonomous internal UI implementation, testing, protected merg
 
 
 25 October 2026 — SINGLE-EDITOR-001: Satish approves single Career Profile edit location. Consolidate manual/section/import editing, photo and resume visibility inside one editor; other surfaces link there. Preserve merge/replace review, optional data deferral, existing APIs and job-specific resume independence.
+
+
+26 October 2026 — Satish approves CSS-CLEANUP-001: remove unused/obsolete competing CSS and retain the currently rendered design. This does not authorize a redesign or service/document changes.

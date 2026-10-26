@@ -1,8 +1,7 @@
-/* Approved option two. Mobile presentation only; document renderers own their styles.
-   Values live here so every workflow shares the same palette and rhythm. */
-@media (max-width: 767px) {
-  /* Palette and typography are owned by ui-system.css and typography.css. */
-  .app-type { --ui-page-gutter:20px; --ui-card-padding:16px; --ui-page-top:24px; --ui-page-gap:24px; }
+/* Responsive application presentation. Shared rules retain the original media
+   union, including the fractional gap between 767px and 768px. Palette/type
+   tokens remain in ui-system.css and typography.css. */
+@media (max-width: 767px), (min-width: 768px) {
   .app-type .workspace-heading { padding-bottom:0; gap:16px; }
   .app-type .workspace-heading h1 .ui-service-icon { display:none; }
   .app-type .workspace-heading .gulf-context { color:var(--ui-muted); }
@@ -18,6 +17,13 @@
   .app-type .field[aria-invalid="true"] { border-color:rgb(var(--ui-error-rgb)); }
   .app-type .ui-button { border-radius:var(--ui-control-radius); box-shadow:none; min-height:48px; }
   .app-type .ui-button:hover { box-shadow:none; }
+}
+
+/* Mobile layout adaptations. Shared palette/type remain owned by their token
+   files; authored document renderers retain their independent styles. */
+@media (max-width: 767px) {
+  /* Palette and typography are owned by ui-system.css and typography.css. */
+  .app-type { --ui-page-gutter:20px; --ui-card-padding:16px; --ui-page-top:24px; --ui-page-gap:24px; }
   .app-type [data-mobile-header] { background:white; border-color:transparent; backdrop-filter:none; }
   [data-mobile-header] > div { height:60px; padding-inline:20px; }
   [data-mobile-header] .mobile-brand-mark { display:none; }
@@ -99,3 +105,30 @@
  .interview-history>ul>li>a>div:first-child>span:first-child { width:28px; height:28px; }
  .interview-history>ul>li>a>span:last-child { padding-top:4px; border-top:0; }
 }
+
+/* Desktop adaptation of the approved mobile system. Document styling is excluded. */
+@media (min-width:768px) {
+  /* Palette and typography are owned by ui-system.css and typography.css. */
+  .app-type { --ui-page-gutter:32px; --ui-card-padding:16px; --ui-page-top:32px; --ui-page-gap:24px; }
+  .app-type .workspace-navigation { border-color:var(--ui-line); background:white; }
+  .app-type .workspace-navigation a { border-radius:var(--ui-control-radius); }
+  .app-type [data-mobile-header] { background:white; border-color:var(--ui-line); backdrop-filter:none; }
+  [data-mobile-header]>div { height:68px; }
+  .app-type .interview-score-summary { padding:24px; background:var(--ui-brand-soft); border-radius:var(--ui-card-radius); }
+  .app-type .interview-report-overview { box-shadow:none; }
+  .app-type .library-resume-card { border:1px solid var(--ui-line); box-shadow:none; }
+  .app-type [data-resume-kind="career-profile"] { border-top:3px solid rgb(var(--ui-accent-rgb)); }
+  .app-type [data-resume-kind="optimized"] { border-top:3px solid var(--ui-brand); }
+  .app-type .interview-answer-methods>button { border-radius:var(--ui-control-radius); box-shadow:none; }
+  .app-type .interviewer-selection button { border-radius:var(--ui-card-radius); box-shadow:none; }
+}
+/* Portalled drawer uses the same tokens as the workspace. */
+[data-side-sheet] [role="dialog"] { background:white; }
+[data-side-sheet] .services-drawer-content { padding-bottom:max(24px,env(safe-area-inset-bottom)); overscroll-behavior:contain; }
+[data-side-sheet] .services-drawer-content a,[data-side-sheet] .services-drawer-content button { min-height:48px; box-shadow:none; }
+[data-side-sheet] .services-drawer-content a[aria-current="page"] { background:var(--ui-brand-soft); }
+.services-account-link { display:flex; align-items:center; gap:12px; padding:12px; border-radius:var(--ui-control-radius); color:var(--ui-ink); font-size:var(--ui-label-size); }
+.services-account-link svg { flex-shrink:0; color:var(--ui-brand); }
+.services-account-link:hover { background:var(--ui-brand-soft); }
+.services-account-link:focus-visible { outline:2px solid var(--ui-brand); outline-offset:2px; }
+.services-delete-link,.services-delete-link svg { color:rgb(var(--ui-error-rgb)); }

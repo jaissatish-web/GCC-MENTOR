@@ -1,3 +1,7 @@
+## CSS cleanup — 26 October 2026
+
+CSS-CLEANUP-001 is implemented and locally verified; release is governed by its protected-main PR. The current effective design is preserved while obsolete/duplicate rules are removed and responsive styling is consolidated. See [CSS_CLEANUP_2026-10-26.md](CSS_CLEANUP_2026-10-26.md).
+
 # Current direction — soft indigo, 25 October 2026
 
 Satish selected the SkillDrift sign-in theme, superseding the prior emerald/no-blue direction. Current implementation is being updated through SOFT-INDIGO-001; see [SOFT_INDIGO_2026-10-25.md](SOFT_INDIGO_2026-10-25.md). Central app tokens: indigo#5B60F1, plum#2B2640, secondary#58527A, near-white#FCFCFD, lavender#EEF2FF, border#E2E0EB. Controls12px, grouped cards24px, restrained shadow. Status red/amber/green and authored resume colours remain independent. Historical specifications below do not override this new approval.

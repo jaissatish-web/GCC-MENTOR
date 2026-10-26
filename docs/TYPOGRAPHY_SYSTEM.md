@@ -1,3 +1,7 @@
+## CSS ownership cleanup — 26 October 2026
+
+CSS-CLEANUP-001 preserves the current computed typography. typography.css remains the sole type-scale owner; necessary important rules and document exclusions remain. Obsolete competing module/global declarations are removed and mobile/desktop layouts use responsive.css. See [CSS_CLEANUP_2026-10-26.md](CSS_CLEANUP_2026-10-26.md) for exact equivalence evidence and release status.
+
 # Current direction — reference typography, 25 October 2026
 
 SOFT-INDIGO-001 adopts the selected SkillDrift reference with existing bundled Inter. Current scale remains central in app/typography.css: page headings24/28px with800 weight; sections18/20px600; body16px400 at1.625 line; controls16px; helper14px; caption12px. Auth title26px800, desktop story40px800, field labels15px700. Marketing retains its responsive display scale with800 headline emphasis. Only headings receive stronger weight; body stays regular. Auth-specific roles are still configured centrally. Resume/template typography is protected. See [SOFT_INDIGO_2026-10-25.md](SOFT_INDIGO_2026-10-25.md). Earlier sections below are dated context.

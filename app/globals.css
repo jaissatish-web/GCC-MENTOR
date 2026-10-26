@@ -1,8 +1,7 @@
 @import "./ui-system.css";
 @import "./professional-profiles.css";
 @import "./typography.css";
-@import "./mobile-design.css";
-@import "./desktop-design.css";
+@import "./responsive.css";
 @import "./career-studio.css";
 @import "./auth-presentation.css";
 
