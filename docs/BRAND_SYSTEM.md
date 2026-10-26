@@ -1,3 +1,7 @@
+# Compact shared brand — 26 October 2026
+
+COMPACT-BRAND-001 replaces duplicate public/internal palette literals with one root configuration: indigo#4F46E5 (hover#4338CA), slate#202536, secondary#4B5365, muted#62697A, white surfaces, canvas#F8F9FC, borders#E1E4EC. Cards16px/control10px radii,44px minimum controls,16/20px card insets. Status colours and authored documents remain independent. Implemented/local verification complete; protected-main release pending. See COMPACT_BRAND_2026-10-26.md. Earlier specifications below are historical.
+
 ## CSS cleanup — 26 October 2026
 
 CSS-CLEANUP-001 is implemented and locally verified; release is governed by its protected-main PR. The current effective design is preserved while obsolete/duplicate rules are removed and responsive styling is consolidated. See [CSS_CLEANUP_2026-10-26.md](CSS_CLEANUP_2026-10-26.md).

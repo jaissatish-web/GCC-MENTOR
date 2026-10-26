@@ -1,3 +1,7 @@
+# Compact shared typography — 26 October 2026
+
+COMPACT-BRAND-001 uses Inter, body15px/1.55, helper/label/button14px, captions12px, inputs16px/1.5; page headings22px mobile/26px desktop at700, section headings18/20px at600, cards16px at600. Landing hero30–48px and sections22–30px. Root typography.css owns the scale; internal levels consume aliases instead of duplicating values. Documents are isolated. Implemented and locally checked; release pending. See COMPACT_BRAND_2026-10-26.md. Earlier sections below retain historical rationale.
+
 ## CSS ownership cleanup — 26 October 2026
 
 CSS-CLEANUP-001 preserves the current computed typography. typography.css remains the sole type-scale owner; necessary important rules and document exclusions remain. Obsolete competing module/global declarations are removed and mobile/desktop layouts use responsive.css. See [CSS_CLEANUP_2026-10-26.md](CSS_CLEANUP_2026-10-26.md) for exact equivalence evidence and release status.

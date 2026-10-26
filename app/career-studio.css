@@ -20,7 +20,7 @@
   position: sticky;
   top: 0;
   z-index: 30;
-  min-height: 64px;
+  min-height: 56px;
   display: flex;
   align-items: center;
   gap: var(--ui-space-4);
@@ -97,24 +97,26 @@
   width: 100%;
   max-width: var(--ui-page-width);
   margin: 0 auto;
-  padding: var(--ui-space-6) var(--ui-page-gutter) var(--ui-space-8);
+  padding: var(--ui-page-top) var(--ui-page-gutter) var(--ui-space-8);
 }
 
 .app-type.internal-ui.career-studio .studio-page-heading {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--ui-space-4);
-  margin-bottom: var(--ui-space-6);
+  margin-bottom: var(--ui-section-gap);
 }
 
 .app-type.internal-ui.career-studio .studio-page-heading h1 {
+  min-width: 0;
   margin: 0;
 }
 
 .app-type.internal-ui.career-studio .studio-text-link {
   display: inline-flex;
-  min-height: 44px;
+  min-height: var(--ui-control-height);
   align-items: center;
   gap: 6px;
   color: var(--ui-brand);
@@ -130,7 +132,7 @@
 .app-type.internal-ui.career-studio .studio-home-grid {
   display: flex;
   flex-direction: column;
-  gap: var(--ui-space-6);
+  gap: var(--ui-page-gap);
 }
 
 .app-type.internal-ui.career-studio .studio-home-context {
@@ -140,7 +142,7 @@
 .app-type.internal-ui.career-studio .studio-readiness {
   order: 0;
   min-width: 0;
-  padding: var(--ui-space-5);
+  padding: var(--ui-card-padding);
   border: 1px solid var(--ui-line);
   border-radius: var(--ui-card-radius);
   background: var(--ui-surface);
@@ -249,7 +251,7 @@
   display: flex;
   align-items: center;
   gap: var(--ui-space-2);
-  min-height: 44px;
+  min-height: var(--ui-control-height);
   padding: var(--ui-space-2) var(--ui-space-3);
   margin-top: var(--ui-space-3);
   width: 100%;
@@ -274,7 +276,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--ui-space-3);
-  min-height: 44px;
+  min-height: var(--ui-control-height);
   color: var(--ui-muted);
 }
 
@@ -331,7 +333,7 @@
 }
 
 .app-type.internal-ui.career-studio .studio-inline-links a {
-  min-height: 44px;
+  min-height: var(--ui-control-height);
   display: inline-flex;
   align-items: center;
 }
@@ -393,7 +395,7 @@
 
 .app-type.internal-ui.career-studio .studio-notice button {
   color: var(--ui-brand);
-  min-height: 44px;
+  min-height: var(--ui-control-height);
 }
 
 .app-type.internal-ui.career-studio .studio-notice>svg {
@@ -414,7 +416,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 48px;
+  min-height: var(--ui-control-height);
   cursor: pointer;
 }
 
@@ -523,8 +525,8 @@
 }
 
 .app-type.internal-ui.career-studio .studio-focused-editor {
-  max-width: 744px;
-  padding: var(--ui-space-6) var(--ui-page-gutter);
+  max-width: var(--ui-form-width);
+  padding: var(--ui-page-top) var(--ui-page-gutter);
 }
 
 .app-type.internal-ui.career-studio .studio-focused-editor .workspace-profile-heading {
@@ -543,7 +545,7 @@
 .app-type.internal-ui.career-studio .studio-profile-editor-section {
   display: flex;
   flex-direction: column;
-  gap: var(--ui-space-5);
+  gap: var(--ui-section-gap);
 }
 
 .app-type.internal-ui.career-studio .studio-section-actions {
@@ -556,7 +558,7 @@
 
 .app-type.internal-ui.career-studio .studio-resume-workspace {
   max-width: var(--ui-page-width);
-  padding: var(--ui-space-6) var(--ui-page-gutter);
+  padding: var(--ui-page-top) var(--ui-page-gutter);
 }
 
 .app-type.internal-ui.career-studio .studio-workspace-heading {
@@ -584,7 +586,7 @@
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  min-height: 48px;
+  min-height: var(--ui-control-height);
   gap: 6px;
   padding: var(--ui-space-2) 0;
   border-bottom: 2px solid transparent;
@@ -604,7 +606,7 @@
 }
 
 .app-type.internal-ui.career-studio .studio-workspace-actions>summary {
-  min-height: 44px;
+  min-height: var(--ui-control-height);
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -653,8 +655,8 @@
   display: flex;
   align-items: center;
   gap: var(--ui-space-3);
-  min-height: 72px;
-  padding-block: var(--ui-space-4);
+  min-height: 64px;
+  padding-block: var(--ui-space-3);
   border-bottom: 1px solid var(--ui-line);
 }
 
@@ -684,7 +686,7 @@
   display: flex;
   align-items: center;
   cursor: pointer;
-  min-height: 48px;
+  min-height: var(--ui-control-height);
   color: var(--ui-brand);
 }
 
@@ -733,7 +735,7 @@
     display: flex;
     align-items: center;
     gap: var(--ui-space-3);
-    min-height: 48px;
+    min-height: var(--ui-control-height);
     padding: var(--ui-space-3);
   }
   .app-type.internal-ui.career-studio .studio-sidebar a svg {
@@ -764,12 +766,12 @@
     display: inline;
   }
   .app-type.internal-ui.career-studio .studio-page {
-    padding-top: var(--ui-space-8);
+    padding-top: var(--ui-page-top);
   }
   .app-type.internal-ui.career-studio .studio-profile-layout {
     display: grid;
     grid-template-columns: minmax(0,1fr) 240px;
-    gap: var(--ui-space-8);
+    gap: var(--ui-page-gap);
   }
   .app-type.internal-ui.career-studio .studio-profile-aside {
     border-top: 0;
@@ -799,7 +801,7 @@
   .app-type.internal-ui.career-studio .studio-home-grid {
     display: grid;
     grid-template-columns: minmax(0,1fr) 280px;
-    gap: var(--ui-space-8);
+    gap: var(--ui-page-gap);
     align-items: start;
   }
   .app-type.internal-ui.career-studio .studio-home-work {
@@ -851,7 +853,7 @@
     height: 14px;
   }
   .app-type.internal-ui.career-studio .studio-continue {
-    padding: var(--ui-space-6);
+    padding: var(--ui-card-padding);
   }
   .app-type.internal-ui.career-studio .studio-continue .ui-button {
     align-self: flex-end;
@@ -886,7 +888,7 @@
 }
 
 .app-type.internal-ui.career-studio .studio-focus-topbar {
-  min-height: 64px;
+  min-height: 56px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -900,12 +902,12 @@
 }
 
 .app-type.internal-ui.career-studio .studio-focus-body {
-  max-width: 744px;
+  max-width: var(--ui-form-width);
   margin: auto;
-  padding: var(--ui-space-8) var(--ui-page-gutter);
+  padding: var(--ui-page-top) var(--ui-page-gutter);
   display: flex;
   flex-direction: column;
-  gap: var(--ui-space-6);
+  gap: var(--ui-page-gap);
 }
 
 .app-type.internal-ui.career-studio .studio-focus-context p {
@@ -940,7 +942,7 @@
 }
 
 .app-type.internal-ui.career-studio :is(.studio-finish-options, .studio-saved-answers)>summary {
-  min-height: 44px;
+  min-height: var(--ui-control-height);
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -1091,7 +1093,7 @@
 }
 
 .app-type.internal-ui.career-studio .studio-contact-extras>summary {
-  min-height: 48px;
+  min-height: var(--ui-control-height);
   display: flex;
   align-items: center;
   color: var(--ui-brand);
@@ -1144,7 +1146,7 @@
     gap: var(--ui-space-4);
   }
   .app-type.internal-ui.career-studio .studio-home .studio-gulf-link {
-    min-height: 36px;
+    min-height: var(--ui-control-height);
   }
   .app-type.internal-ui.career-studio .studio-resume-context {
     padding: var(--ui-space-3) 0;
@@ -1196,6 +1198,7 @@
 
 .app-type.internal-ui.career-studio .studio-report-heading {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--ui-space-4);
@@ -1238,7 +1241,7 @@
   .app-type.internal-ui.career-studio .studio-report-actions > .ui-button { width: 100%; justify-content: center; padding-inline: var(--ui-space-2); }
 }
 
-.app-type.internal-ui.career-studio .studio-report-heading button { white-space: nowrap; }
+.app-type.internal-ui.career-studio .studio-report-heading > * { min-width: 0; max-width: 100%; }
 
 /* A framed report gets one inset; retain room for its next action on phones. */
 @media (max-width: 767px) {
@@ -1273,7 +1276,7 @@
   outline-offset: 3px;
 }
 .app-type.internal-ui.career-studio .studio-profile-edit {
-  min-height: 44px;
+  min-height: var(--ui-control-height);
 }
 .app-type.internal-ui.career-studio .studio-section-actions > :is(button,a) {
   min-width: 0;
