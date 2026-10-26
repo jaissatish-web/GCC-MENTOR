@@ -163,3 +163,7 @@ Approved: fix dark text on navy UI, specifically login email/password labels and
 
 ## DARK-CONTRAST-002 — 26 October 2026
 Approved: extend the contrast correction to all SaaS box/page headers and legacy navy text roles. Use explicit light foregrounds on headings and their child text, disclosures, table headers and definition labels; preserve status colors, buttons and authored document previews. Shared CSS only; required CI and deployment pending.
+
+
+## RESUME-TOP-ACTIONS-001 — 26 October 2026
+Approved: replace floating mobile Save/Download dock with top actions ordered Edit Career Profile, Undo changes, Save, Download. Two equal columns on phones; preserve save/download prerequisites and handlers. Fix settings toolbar contrast and pair light text with navy/blue surfaces, dark blue text with explicit light UI surfaces, excluding authored documents. Implementation/CI pending.
