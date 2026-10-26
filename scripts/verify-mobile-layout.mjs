@@ -164,7 +164,7 @@ try {
       assert.equal(metrics.weight, '700')
       assert.ok(metrics.font.includes('Inter'), `Inter is not applied: ${metrics.font}`)
       const textScale = enlarged ? 2 : 1
-      const expectedHero = Math.max(30 * textScale, Math.min(width * .036, 48 * textScale))
+      const expectedHero = Math.max(26 * textScale, Math.min(width * .028, 40 * textScale))
       const expectedSection = Math.max(22 * textScale, Math.min(width * .024, 30 * textScale))
       assert.ok(Math.abs(metrics.size - expectedHero) < .02, 'Marketing hero uses its responsive display scale')
       assert.ok(Math.abs(metrics.sectionSize - expectedSection) < .02, 'Marketing sections use their responsive display scale')
