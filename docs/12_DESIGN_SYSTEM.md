@@ -1,3 +1,9 @@
+# Current visual approval — 26 October 2026
+
+The active approved direction is **SKILLPILOT-BRAND-001**, which replaces the compact indigo palette with a navy, blue and cyan presentation across the public site and SaaS. See [the approved scope and acceptance criteria](SKILLPILOT_BRAND_2026-10-26.md). Preserve service behavior and resume/template output. Historical palette sections below explain earlier choices and do not override this dated approval.
+
+---
+
 # DESIGN SYSTEM — one visual language, no per-page invention
 
 > **2026-10-22 status:** Current application typography is owned by app/typography.css (TYPOGRAPHY_SYSTEM.md); brand colors by BRAND_SYSTEM.md/shared UI tokens. Historical campaign styles below are not permission to replace the current design or resume typography.

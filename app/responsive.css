@@ -23,13 +23,13 @@
    files; authored document renderers retain their independent styles. */
 @media (max-width: 767px) {
   /* Palette and typography are owned by ui-system.css and typography.css. */
-  .app-type [data-mobile-header] { background:white; border-color:transparent; backdrop-filter:none; }
+  .app-type [data-mobile-header] { background:var(--ui-surface); border-color:transparent; backdrop-filter:none; }
   [data-mobile-header] > div { min-height:56px; height:auto; padding-inline:var(--ui-page-gutter); }
   [data-mobile-header] .mobile-brand-mark { display:none; }
   [data-mobile-header] .mobile-wordmark { padding:0; margin:0; }
   [data-mobile-header] .mobile-wordmark > span:last-child > span:first-child { color:var(--ui-brand); font-size:var(--ui-input-size)!important; line-height:var(--ui-heading-line); }
   [data-mobile-header] .mobile-brand-caption { margin-top:2px; font-size:var(--ui-helper-size)!important; }
-  [data-mobile-navigation] { padding-top:6px; background:white; backdrop-filter:none; }
+  [data-mobile-navigation] { padding-top:6px; background:var(--ui-surface); backdrop-filter:none; }
   body [data-mobile-navigation] a { min-height:54px; font-size:var(--ui-helper-size)!important; border-radius:0; background:transparent; gap:2px; }
   [data-mobile-navigation] a > span { width:50px; height:28px; border-radius:999px; }
   [data-mobile-navigation] a[aria-current="page"] > span { background:var(--ui-brand-soft); }
@@ -37,10 +37,10 @@
   .app-type .library-resume-card { padding:var(--ui-card-padding); border:1px solid var(--ui-line); }
   .app-type [data-resume-kind="career-profile"] { border-top:3px solid rgb(var(--ui-accent-rgb)); }
   .app-type [data-resume-kind="optimized"] { border-top:3px solid var(--ui-brand); }
-  .auth-shell { background:white; }
+  .auth-shell { background:var(--ui-surface); }
   .auth-shell > main { align-items:start; padding-top:32px; }
   .auth-shell .ui-surface { padding:0; border:0; }
-  .auth-shell > header { background:white; }
+  .auth-shell > header { background:var(--ui-surface); }
   .auth-shell form .ui-button { width:100%; }
   .mock-interview-page > .ui-surface:first-of-type { padding:0; border:0; background:transparent; }
   .mock-interview-page fieldset { padding-top:16px; border-top:1px solid var(--ui-line); }
@@ -61,7 +61,7 @@
 .professional-mobile-start { display:none; }
 @media(max-width:767px){
   .professional-mobile-start { display:flex; justify-content:space-between; width:100%; border-radius:var(--ui-control-radius); min-height:var(--ui-control-height); }
-  .professional-introduction .professional-hero { background:white; border:1px solid var(--ui-line); border-radius:var(--ui-card-radius); }
+  .professional-introduction .professional-hero { background:var(--ui-surface); border:1px solid var(--ui-line); border-radius:var(--ui-card-radius); }
   .professional-introduction .professional-hero-figure { max-height:200px; overflow:hidden; }
   .professional-introduction .professional-hero-copy { padding:var(--ui-card-padding); }
   .professional-introduction .professional-kicker { color:var(--ui-muted); }
@@ -88,7 +88,7 @@
  .mobile-readiness-summary { padding-bottom:20px; border-bottom:1px solid var(--ui-line); }
 }
 @media(max-width:767px){
- .mobile-tools-page>section:first-child>div:last-child { display:flex; flex-direction:column; gap:0; background:white; border-radius:var(--ui-card-radius); padding-inline:16px; border:1px solid var(--ui-line); }
+ .mobile-tools-page>section:first-child>div:last-child { display:flex; flex-direction:column; gap:0; background:var(--ui-surface); border-radius:var(--ui-card-radius); padding-inline:16px; border:1px solid var(--ui-line); }
  .mobile-tools-page .tool-tile { padding-block:16px; border-bottom:1px solid var(--ui-line); }
  .mobile-tools-page .tool-tile:last-child { border-bottom:0; }
  .mobile-tools-page .tool-tile-box { flex-direction:row; align-items:center; justify-content:flex-start; min-height:44px; gap:12px; border:0; padding:0; background:transparent; box-shadow:none; }
@@ -106,9 +106,9 @@
 /* Desktop adaptation of the approved mobile system. Document styling is excluded. */
 @media (min-width:768px) {
   /* Palette and typography are owned by ui-system.css and typography.css. */
-  .app-type .workspace-navigation { border-color:var(--ui-line); background:white; }
+  .app-type .workspace-navigation { border-color:var(--ui-line); background:var(--ui-surface); }
   .app-type .workspace-navigation a { border-radius:var(--ui-control-radius); }
-  .app-type [data-mobile-header] { background:white; border-color:var(--ui-line); backdrop-filter:none; }
+  .app-type [data-mobile-header] { background:var(--ui-surface); border-color:var(--ui-line); backdrop-filter:none; }
   [data-mobile-header]>div { min-height:56px; height:auto; }
   .app-type .interview-score-summary { padding:var(--ui-card-padding); background:var(--ui-brand-soft); border-radius:var(--ui-card-radius); }
   .app-type .interview-report-overview { box-shadow:none; }
@@ -119,7 +119,7 @@
   .app-type .interviewer-selection button { border-radius:var(--ui-card-radius); box-shadow:none; }
 }
 /* Portalled drawer uses the same tokens as the workspace. */
-[data-side-sheet] [role="dialog"] { background:white; }
+[data-side-sheet] [role="dialog"] { background:var(--ui-surface); }
 [data-side-sheet] .services-drawer-content { padding-bottom:max(24px,env(safe-area-inset-bottom)); overscroll-behavior:contain; }
 [data-side-sheet] .services-drawer-content a,[data-side-sheet] .services-drawer-content button { min-height:var(--ui-control-height); box-shadow:none; }
 [data-side-sheet] .services-drawer-content a[aria-current="page"] { background:var(--ui-brand-soft); }
