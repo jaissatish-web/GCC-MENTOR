@@ -2,6 +2,10 @@
    SINGLE UI CONFIGURATION. Edit tokens here; do not add page-specific type scales.
    Code-owned only: no public settings, database storage or user preference UI. */
 :root {
+  --ui-info: rgb(var(--ui-info-rgb));
+  --ui-accent-ink: rgb(var(--ui-accent-ink-rgb));
+  --ui-accent: rgb(var(--ui-accent-rgb));
+  --ui-error: rgb(var(--ui-error-rgb));
   --ui-page-gutter: 16px;
   --ui-card-padding: 16px;
   --ui-card-radius: 16px;
