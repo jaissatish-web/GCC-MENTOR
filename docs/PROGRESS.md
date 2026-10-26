@@ -148,3 +148,7 @@ CSS-CLEANUP-001 implemented and locally verified:16→14 authored CSS files; unu
 COMPACT-BRAND-001 implemented and locally verified: one root palette/type system, smaller text/actions, compact shared spacing/radii, wrapping headers and aligned controls across landing/auth/workspace/professional pages. Final clean production build including typecheck/lint passed;80/80 regression checks passed;29 Studio cases, mobile/enlarged reflow, shared token/document isolation, universal typography and actual CTA/phone interactions passed. All runtime fixtures use fictional APIs. No protected backend/template directory changes. Main publication and live verification remain pending; see COMPACT_BRAND_2026-10-26.md.
 
 COMPACT-BRAND-001 implementation and local verification are complete. PR #40 targets protected main; required CI and merge are pending. The production deployment has not been updated or verified.
+
+
+## 26 October 2026 — SKILLPILOT-BRAND-001 approved, implementation pending
+Satish asks to adapt SkillPilot's typography, boxes, header, visuals and text/CTA alignment across public and signed-in GCC Mentor, using its navy/blue/cyan palette. Requirements and protected scope: [SKILLPILOT_BRAND_2026-10-26.md](SKILLPILOT_BRAND_2026-10-26.md). Visual-only. Preserve APIs, auth, services, scores, prompts, payment/data flows and resume/document styles. Next: update shared palette, typography and layout consumers, inspect diff and verify phone/desktop screens. Do not call it live until deployment is confirmed.
