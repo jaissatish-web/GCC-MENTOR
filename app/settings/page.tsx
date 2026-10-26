@@ -172,7 +172,7 @@ export default async function SettingsPage({
               helper="Update your name in Career Profile."
               actions={
                 <Link
-                  href="/profile"
+                  href="/profile?view=details"
                   className="flex min-h-11 items-center rounded-ctl border border-line-strong px-4 type-helper font-semibold text-ink transition-colors hover:bg-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
                 >
                   Edit Career Profile

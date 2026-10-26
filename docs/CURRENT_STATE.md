@@ -1,3 +1,7 @@
+## Career Profile consolidation — 25 October 2026
+
+SINGLE-EDITOR-001 is implemented and locally verified, release pending. Career Profile summary/reports are read-only; Edit Career Profile opens the sole full editor. All14 logical blocks, resume-import review, photo and resume visibility share that editor and one Cancel/Save changes bar. Dashboard, readiness, settings, optimizer skill/certificate gaps and preview photo controls link into it. Imported facts require acknowledgement and permit explicit deferral of missing information; malformed supplied values require correction. Photo requests occur during Save, after the existing profile PUT; errors distinguish any saved details from a failed photo. Existing backend APIs/schema/scoring/auth/templates are unchanged. See [CAREER_PROFILE_BLOCKS.md](CAREER_PROFILE_BLOCKS.md) and [PROGRESS.md](PROGRESS.md) for current evidence and release status; older editor descriptions below are historical.
+
 # Current implementation baseline
 
 Source inspected: main `d5455475d1ceac6ce735850cc3926ebf3804bf90`, 22 October 2026; application code is unchanged from `81fdcf1`. This is a source-based handoff, not a new production certification. Consult the actual code when extending a domain; older reports retain only their dated evidence.

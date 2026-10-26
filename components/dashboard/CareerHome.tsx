@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
-import { ArrowRightIcon, ChevronDownIcon, ChevronRightIcon, Cog6ToothIcon, DocumentTextIcon, EnvelopeIcon, InformationCircleIcon, PencilSquareIcon, UserCircleIcon, RectangleStackIcon, ChatBubbleLeftRightIcon, MicrophoneIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline'
+import { ArrowRightIcon, ChevronDownIcon, ChevronRightIcon, DocumentTextIcon, EnvelopeIcon, InformationCircleIcon, PencilSquareIcon, UserCircleIcon, RectangleStackIcon, ChatBubbleLeftRightIcon, MicrophoneIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline'
 import { CareerProfileResumeButton } from '@/components/resume/CareerProfileResumeButton'
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { GulfReadinessResult } from '@/lib/gulfReadiness/types'
@@ -61,22 +61,21 @@ export function HomeProfile({ profile, loading, error, missingLabels = [], score
     {!error ? <p className={styles.startLabel}>Start here · Step 1</p> : null}
     {heading}
     <p className={styles.intro}>{error ? 'Your profile could not be loaded. Your saved work has not been changed.' : 'Start with your resume or enter your career details. This profile becomes the source for every new job-specific resume.'}</p>
-    {error ? <button type="button" className={styles.action} onClick={() => window.location.reload()}>Try again <ArrowRightIcon aria-hidden="true" className="size-4" /></button> : <div className={styles.foundationActions}><Link className={buttonVariants({ variant: 'primary' })} href="/profile?import=upload">Create Career Profile</Link><div className="flex flex-wrap gap-x-5"><Link className={styles.action} href="/profile?import=paste">Paste resume</Link><Link className={styles.action} href="/profile?view=details">Enter details</Link></div></div>}
+    {error ? <button type="button" className={styles.action} onClick={() => window.location.reload()}>Try again <ArrowRightIcon aria-hidden="true" className="size-4" /></button> : <div className={styles.foundationActions}><Link className={buttonVariants({ variant: 'primary' })} href="/profile?view=details">Create Career Profile</Link></div>}
     <ProfileWorkflow />
   </section>
   const initials = (profile.full_name || '').trim().split(/\s+/).filter(Boolean).slice(0, 2).map(n => n[0]).join('') || 'Me'
   const profileScore = score ?? profile.readiness_score ?? 0
   return <section aria-labelledby="home-profile-heading" className={styles.profile}>
     <div className={styles.foundationIdentity}>
-      <Link href="/profile?view=details" aria-label="Edit your Career Profile" className={styles.avatar}>
+      <div className={styles.avatar}>
         {profile.photo_url ? <Image src={profile.photo_url} alt="" width={96} height={96} unoptimized className="h-full w-full object-cover" /> : <span aria-hidden="true">{initials}</span>}
-      </Link>
+      </div>
       <div className={styles.identityCopy}>{heading}<div className={styles.identityText}>{profile.full_name || 'Your saved profile'}</div></div>
-      <Link href="/profile?view=details" className={styles.editLink}><PencilSquareIcon aria-hidden="true" className="size-4" /><span>Edit</span></Link>
     </div>
     <HomeScores profile={profile} score={profileScore} missing={missingLabels.length} gulf={gulf} loading={false} error={false} />
     <div className={styles.profileControls}>
-      <Link href="/profile?view=completeness" className={styles.action} aria-label={missingLabels.length ? `Complete Career Profile · ${missingLabels.length} ${missingLabels.length === 1 ? 'item' : 'items'} left` : 'Review Career Profile'}><DocumentTextIcon aria-hidden="true" className="size-5 shrink-0" />{missingLabels.length ? 'Complete profile' : 'Review profile'}<ArrowRightIcon aria-hidden="true" className="size-4 shrink-0" /></Link>
+      <Link href="/profile?view=details" className={styles.action}><PencilSquareIcon aria-hidden="true" className="size-5 shrink-0" />Edit Career Profile<ArrowRightIcon aria-hidden="true" className="size-4 shrink-0" /></Link>
       <button type="button" className={styles.profileToggle} aria-expanded={showDetails} aria-controls="home-profile-details" onClick={() => setShowDetails(value => !value)}><InformationCircleIcon aria-hidden="true" className="size-4 shrink-0" /><span>How your profile is used</span><ChevronDownIcon aria-hidden="true" className={`${styles.disclosureChevron} ${showDetails ? styles.rotated : ''}`} /></button>
     </div>
     <div id="home-profile-details" className={styles.profileDetails} hidden={!showDetails}>
@@ -87,7 +86,7 @@ export function HomeProfile({ profile, loading, error, missingLabels = [], score
       <Link href="/optimize/target" className={styles.action}>Optimize Resume for a Job <ArrowRightIcon aria-hidden="true" className="size-4 shrink-0" /></Link>
       <ProfileWorkflow />
       <p className={styles.profileNote}>Your profile stays saved for future jobs. Updating it does not rewrite previously saved optimized resumes.</p>
-      <div aria-label="Profile actions" className={styles.footer}><CareerProfileResumeButton showHint={false} /><Link href="/profile?view=settings" className={styles.action}><Cog6ToothIcon aria-hidden="true" className="size-4" /> Profile settings</Link></div>
+      <div aria-label="Profile actions" className={styles.footer}><CareerProfileResumeButton showHint={false} /></div>
     </div>
   </section>
 }

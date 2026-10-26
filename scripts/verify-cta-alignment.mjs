@@ -70,7 +70,9 @@ const browser = await puppeteer.launch({ executablePath: process.env.CHROME_PATH
 
 mkdirSync('artifacts/cta-alignment',{recursive:true})
 try {
+ let discardPrompts=0
  const page=await browser.newPage();await page.setRequestInterception(true)
+ page.on('dialog',dialog=>{assert.equal(dialog.type(),'beforeunload','Only the expected unsaved-profile navigation guard may prompt');discardPrompts++;void dialog.accept()})
  page.on('request',r=>r.url().startsWith(origin)||r.url().startsWith('data:')?r.continue():r.abort())
  for(const width of [320,390,768,1440]) {
   await page.setViewport({width,height:844});await page.goto(origin+'/profile?view=details',{waitUntil:'networkidle0'})
@@ -102,4 +104,5 @@ try {
   }
   console.log('PASS actual profile WhatsApp selections and phone menu '+width)
  }
+ assert.ok(discardPrompts>=3,'Navigation away from each unsaved profile must require confirmation')
 } finally {await browser.close();await new Promise(r=>server.close(r))}

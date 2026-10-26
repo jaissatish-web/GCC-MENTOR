@@ -22,7 +22,6 @@ import type { ResumeDocument } from '@/lib/resumeDocument'
 import { resolvePackageResumeDocument } from '@/lib/packageResumeDocument'
 import { ResumeDocumentView } from '@/components/resume/ResumeDocumentView'
 import { TemplatePicker } from '@/components/resume/TemplatePicker'
-import { PhotoUpload } from '@/components/profile/PhotoUpload'
 import {
   ACCENT_OPTIONS,
   FONT_OPTIONS,
@@ -198,7 +197,6 @@ function PackageScreenInner({ id }: { id: string }) {
     requestedTemplate ? getTemplate(requestedTemplate).id : null,
   )
   const saveInFlight = useRef(false)
-  const [photoBusy, setPhotoBusy] = useState(false)
   /**
    * Style is edited live and saved explicitly (TASK-152).
    *
@@ -461,7 +459,7 @@ function PackageScreenInner({ id }: { id: string }) {
   const activeTemplateId = draftTemplate ?? savedTemplateId
   const isTrying = activeTemplateId !== savedTemplateId
   const changesDirty = styleDirty || isTrying
-  const downloadBlocked = changesDirty || styleBusy || photoBusy
+  const downloadBlocked = changesDirty || styleBusy
   const undoChanges = () => {
     setDraftTemplate(savedTemplateId)
     setDraftStyle(savedStyle)
@@ -642,7 +640,7 @@ function PackageScreenInner({ id }: { id: string }) {
               {changesDirty || styleBusy ? (
                 <button
                   type="button"
-                  disabled={styleBusy || photoBusy}
+                  disabled={styleBusy}
                   onClick={() => void saveChanges()}
                   className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'col-span-2 sm:col-auto disabled:cursor-not-allowed disabled:opacity-50', tab === 'design' && 'editor-desktop-action')}
                 >
@@ -713,7 +711,6 @@ function PackageScreenInner({ id }: { id: string }) {
           {downloadBlocked || styleMsg ? (
             <span id="resume-save-status" role="status" className={cn("col-span-2 type-caption text-ink-muted", tab === 'design' && 'editor-desktop-action')}>
               {styleBusy ? 'Saving changes — PDF download is temporarily disabled.'
-                : photoBusy ? 'Saving your photo — PDF download is temporarily disabled.'
                 : changesDirty ? `${styleMsg && styleMsg !== 'Changes saved.' ? `${styleMsg} ` : ''}Save changes to enable PDF download.`
                 : styleMsg}
             </span>
@@ -1102,10 +1099,10 @@ function PackageScreenInner({ id }: { id: string }) {
         <>
         <div className="editor-action-dock fixed inset-x-3 z-20 rounded-card border border-line bg-white/95 p-3 shadow-m-3 backdrop-blur-md md:left-[76px] lg:hidden" aria-label="Save and download resume">
           <div className="flex gap-2">
-            {changesDirty || styleBusy ? <button type="button" disabled={styleBusy || photoBusy} onClick={() => void saveChanges()} className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'min-w-0 flex-1')}>{styleBusy ? 'Saving…' : 'Save changes'}</button> : null}
+            {changesDirty || styleBusy ? <button type="button" disabled={styleBusy} onClick={() => void saveChanges()} className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'min-w-0 flex-1')}>{styleBusy ? 'Saving…' : 'Save changes'}</button> : null}
             {downloadBlocked ? <button type="button" disabled aria-describedby="resume-save-status" className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'min-w-0 flex-1')}>{CTA.downloadPdf}</button> : <a href={pdfUrl} onClick={() => setDownloaded(true)} className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'min-w-0 flex-1')}>{CTA.downloadPdf}</a>}
           </div>
-          {downloadBlocked || styleMsg ? <p role="status" className="mt-2 type-helper text-ink-muted">{styleBusy ? 'Saving changes…' : photoBusy ? 'Saving your photo…' : changesDirty ? styleMsg && styleMsg !== 'Changes saved.' ? styleMsg : 'Save changes to enable PDF download.' : styleMsg}</p> : null}
+          {downloadBlocked || styleMsg ? <p role="status" className="mt-2 type-helper text-ink-muted">{styleBusy ? 'Saving changes…' : changesDirty ? styleMsg && styleMsg !== 'Changes saved.' ? styleMsg : 'Save changes to enable PDF download.' : styleMsg}</p> : null}
         </div>
         {/* TEMPLATES LEFT, DOCUMENT CENTRED (TASK-146, founder-directed).
             The templates used to hide behind a "Change template" toggle that
@@ -1372,13 +1369,12 @@ function PackageScreenInner({ id }: { id: string }) {
                       </p>
                     </div>
                     <div className="mt-3">
-                      <PhotoUpload
-                        photoUrl={profile.photo_url ?? null}
-                        allowRemove={false}
-                        onBusyChange={setPhotoBusy}
-                        onChange={(photoUrl) => setProfile((current) => current ? { ...current, photo_url: photoUrl } : current)}
-                      />
-                      <p className="mt-2 text-sm text-ink-muted type-helper">Uploads save immediately to Career Profile. Show photo is a setting for this resume only.</p>
+                      {profile.photo_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={profile.photo_url} alt="Your saved Career Profile photo" className="mb-3 h-24 w-20 rounded-ctl border border-line object-cover" />
+                      ) : <p className="mb-3 type-helper text-ink-muted">No Career Profile photo added.</p>}
+                      <Link href="/profile?view=details&open=sec_identity" className={buttonVariants({ variant: 'secondary', size: 'sm' })}>Update photo in Career Profile</Link>
+                      <p className="mt-2 text-sm text-ink-muted type-helper">Change your photo in Career Profile. Show photo is a setting for this resume only.</p>
                     </div>
                     {!allowsPhoto ? (
                       <p className="mt-2 text-sm text-ink-muted type-helper">{getTemplate(activeTemplateId).name} does not show photos. Choose a photo-supported template to include yours.</p>

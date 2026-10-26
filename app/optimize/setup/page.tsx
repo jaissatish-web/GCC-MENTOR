@@ -4,7 +4,7 @@ import { PageSkeleton } from '@/components/ui/Skeleton'
 import { useRouter } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button, buttonVariants } from '@/components/ui/Button'
-import { CheckIcon } from '@heroicons/react/24/outline'
+import Link from 'next/link'
 import { ProcessingOrbit, ProcessingSteps } from '@/components/ui/Processing'
 import { setupNotes } from '@/lib/processingNotes'
 import { Card } from '@/components/ui/Card'
@@ -110,7 +110,7 @@ const LEVELS: ReadonlyArray<{
     changes: [
       'Every activity rewritten in the job’s own language',
       'Offers additional duties for your review; none is assumed',
-      'Asks which of the job’s tools and skills you really have, and adds them',
+      'Highlights missing tools and skills to review in Career Profile',
     ],
     explain:
       'The strongest rewrite, in the job description’s own words, plus points for every duty of the job that is typical of your field. Be ready to talk about every line in an interview.',
@@ -125,7 +125,7 @@ interface JobCheck {
   before: number
   expected: Record<OptimizationLevel, number>
   askCertifications: Array<{ term: string; importance: 'must' | 'nice'; gain: number }>
-  /** High's tick-list: tools, standards, skills the job lists that the profile does not show. */
+  /** Tools, standards and skills to review in the single Career Profile editor. */
   askSkills?: Array<{ term: string; importance: 'must' | 'nice'; gain: number }>
   /** High's best score if the user has every skill and certificate the job asks for. */
   highIfConfirmed?: number
@@ -143,7 +143,6 @@ function SetupScreen() {
   const [expOn, setExpOn] = useState<Record<string, boolean>>({})
   const [level, setLevel] = useState<OptimizationLevel>('moderate')
   const [levelSelected, setLevelSelected] = useState(false)
-  const [skillsPending, setSkillsPending] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -213,9 +212,8 @@ function SetupScreen() {
   // CHECK THIS JOB (optimizer v3, 2026-10-02). One analysis, cached and reused
   // by the build — so it runs while the user reads the levels and the build
   // then only writes. Optimization waits for a successful check and a level choice.
-  // checkRun goes up when the user adds a certificate here: the check runs again
-  // (no model call — lib/optimizer/v3/service.ts regroups the cached analysis)
-  // and optimization stays disabled until the updated scores are ready.
+  // Retry reruns the check. Returning after editing Career Profile reloads it
+  // and checks the saved facts using the same cached-analysis service.
   useEffect(() => {
     if (!draft || !profileId || lastCheck.current === checkRun) return
     lastCheck.current = checkRun
@@ -266,7 +264,7 @@ function SetupScreen() {
   const checkReady = checkState === 'done' && check !== null
   const needsAgreement = levelSelected && level !== 'easy' && !consented
   const onSubmit = useCallback(async () => {
-    if (!draft || !profileId || !checkReady || !levelSelected || skillsPending || submitting || nothingSelected || (needsAgreement && !agreed)) return
+    if (!draft || !profileId || !checkReady || !levelSelected || submitting || nothingSelected || (needsAgreement && !agreed)) return
     setError(null)
     setSubmitting(true)
     try {
@@ -322,7 +320,7 @@ function SetupScreen() {
       setError('Network error. Please check your connection and try again.')
       setSubmitting(false)
     }
-  }, [draft, profileId, checkReady, levelSelected, skillsPending, submitting, nothingSelected, hasJobDescription, summaryOn, selectedIds, level, router, buildSteps, needsAgreement, agreed])
+  }, [draft, profileId, checkReady, levelSelected, submitting, nothingSelected, hasJobDescription, summaryOn, selectedIds, level, router, buildSteps, needsAgreement, agreed])
 
   if (!draft) {
     return (
@@ -412,7 +410,7 @@ function SetupScreen() {
         </Card>
 
         {/* 1b. Job check — field match, honest scores, certificates to ask about */}
-        <JobCheckCard state={checkState} check={check} title={draft.target_job_title} onPasteAdvert={() => router.push('/optimize/target')} onCertificateAdded={() => setCheckRun((n) => n + 1)} />
+        <JobCheckCard state={checkState} check={check} title={draft.target_job_title} onPasteAdvert={() => router.push('/optimize/target')} />
 
         {checkState === 'error' ? (
           <Alert variant="danger">
@@ -466,7 +464,7 @@ function SetupScreen() {
                     </span>
                     {l.value === 'high' && check?.highIfConfirmed && check.highIfConfirmed > check.expected.high ? (
                       <span className="-mt-1 type-caption font-semibold text-gold-ink">
-                        estimated {check.highIfConfirmed} if you confirm the required skills
+                        estimated {check.highIfConfirmed} if your Career Profile supports all requirements
                       </span>
                     ) : null}
                     <ul className="flex flex-col gap-1.5">
@@ -483,11 +481,9 @@ function SetupScreen() {
             </div>
             {levelSelected ? <Alert variant={level === 'easy' ? 'info' : 'warning'}>{levelInfo.explain}</Alert> : null}
 
-            {/* HIGH's tick-list (founder, 2026-10-02): the job's tools, standards and
-                skills the profile does not show — the user ticks what is true, it
-                goes on the Career Profile, and High can then use it. */}
+            {/* Missing skills are reviewed in the single Career Profile editor. */}
             {levelSelected && level === 'high' && check?.askSkills?.length ? (
-              <HighSkillsChecklist items={check.askSkills} upTo={check.highIfConfirmed ?? check.expected.high} onPendingChange={setSkillsPending} onAdded={() => setCheckRun((n) => n + 1)} />
+              <ProfileSkillsGaps items={check.askSkills} upTo={check.highIfConfirmed ?? check.expected.high} />
             ) : null}
 
             {/* Parts to rewrite — all by default, adjustable. */}
@@ -546,13 +542,12 @@ function SetupScreen() {
           {!checkReady
             ? checkState === 'error' ? 'Retry ATS checking to continue.' : 'Checking ATS compatibility — optimization unlocks when your results are ready.'
             : !levelSelected ? 'Review your ATS results, then choose Easy, Moderate or High and confirm any relevant suggestions.'
-            : skillsPending ? 'Save your selected skills before optimizing your resume.'
             : 'Review your selected level and suggestions, then optimize your resume when you are ready.'}
         </p>
         <Button
           variant="purchase"
           className="w-full"
-          disabled={!checkReady || !levelSelected || skillsPending || submitting || !profileId || nothingSelected || (needsAgreement && !agreed)}
+          disabled={!checkReady || !levelSelected || submitting || !profileId || nothingSelected || (needsAgreement && !agreed)}
           onClick={onSubmit}
         >
           {CTA.optimizeCv}
@@ -568,8 +563,7 @@ function SetupScreen() {
  * the profile does not show: never added for the user, offered to add to the
  * Career Profile if they really hold them.
  */
-function JobCheckCard({ state, check, title, onPasteAdvert, onCertificateAdded }: { state: 'idle' | 'loading' | 'done' | 'error'; check: JobCheck | null; title: string; onPasteAdvert: () => void; onCertificateAdded: () => void }) {
-  const [added, setAdded] = useState<string[]>([])
+function JobCheckCard({ state, check, title, onPasteAdvert }: { state: 'idle' | 'loading' | 'done' | 'error'; check: JobCheck | null; title: string; onPasteAdvert: () => void }) {
   const [showAdvert, setShowAdvert] = useState(false)
   if (state === 'idle' || state === 'error') return null
   if (state === 'loading' || !check) {
@@ -625,34 +619,14 @@ function JobCheckCard({ state, check, title, onPasteAdvert, onCertificateAdded }
           ) : null}
         </div>
       ) : null}
-      {check.askCertifications.length || added.length ? (
+      {check.askCertifications.length ? (
         <div className="flex flex-col gap-2 rounded-ctl border border-line bg-white p-3">
-          {check.askCertifications.length ? (
-            <>
-              <p className="type-helper font-semibold text-ink">This job asks for certificates your profile does not show</p>
-              <p className="type-helper leading-snug text-ink-muted">
-                We never add certificates for you. If you really hold one, tell us here — it goes on your Career Profile and raises your score.
-              </p>
-              <ul className="flex flex-col divide-y divide-line">
-                {check.askCertifications.map((c) => (
-                  <CertAsk
-                    key={c.term}
-                    cert={c}
-                    onAdded={(name) => {
-                      setAdded((a) => [...a, name])
-                      onCertificateAdded()
-                    }}
-                  />
-                ))}
-              </ul>
-            </>
-          ) : null}
-          {added.length ? (
-            <p className="flex items-start gap-1.5 type-helper font-semibold text-ok">
-              <CheckIcon aria-hidden className="mt-0.5 size-4 shrink-0" strokeWidth={2.5} />
-              Added to your Career Profile: {added.join(', ')}. Your scores above include it, and your resume will list it.
-            </p>
-          ) : null}
+          <p className="type-helper font-semibold text-ink">This job asks for certificates your profile does not show</p>
+          <p className="type-helper leading-snug text-ink-muted">If you hold any of these, add the correct details in Career Profile. Save there, then return to this job to check your updated match.</p>
+          <ul className="flex flex-col divide-y divide-line">
+            {check.askCertifications.map(cert => <li key={cert.term} className="flex flex-wrap items-center justify-between gap-2 py-2 type-helper"><span className="text-ink">{cert.term}{cert.importance === 'must' ? <span className="ml-1.5 type-caption font-semibold text-alert">required</span> : null}</span></li>)}
+          </ul>
+          <Link href="/profile?view=details&open=sec_certifications" className={buttonVariants({ variant: 'secondary', size: 'sm' })}>Update Career Profile</Link>
         </div>
       ) : null}
     </Card>
@@ -692,176 +666,15 @@ export default function OptimizeSetupPage() {
   )
 }
 
-/**
- * One certificate the job asks for: "Yes, I have it" opens three fields and
- * saves it to the Career Profile (POST /api/profile/certifications). The name
- * starts as the job's own wording, because the ATS looks for those words.
- * The user states it — nothing is added without this click.
- */
-function CertAsk({ cert, onAdded }: { cert: { term: string; importance: 'must' | 'nice'; gain: number }; onAdded: (name: string) => void }) {
-  const [open, setOpen] = useState(false)
-  const [name, setName] = useState(cert.term)
-  const [issuer, setIssuer] = useState('')
-  const [year, setYear] = useState('')
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const field = 'min-h-11 w-full rounded-ctl border border-line-strong bg-white px-3 type-label text-ink focus:border-teal focus:outline-none'
-
-  const save = async () => {
-    setSaving(true)
-    setError(null)
-    try {
-      const res = await fetch('/api/profile/certifications', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, issuer, year: year.trim() || null }),
-      })
-      const body = await res.json().catch(() => ({}))
-      if (!res.ok && body?.code !== 'DUPLICATE') {
-        setError((body?.error as string) ?? 'Could not save it. Please try again.')
-        return
-      }
-      onAdded(name.trim())
-    } catch {
-      setError('Network error. Please try again.')
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  return (
-    <li className="flex flex-col gap-2 py-2">
-      <div className="flex flex-wrap items-center justify-between gap-2 type-helper">
-        <span className="text-ink">
-          {cert.term}
-          {cert.importance === 'must' ? <span className="ml-1.5 type-caption font-semibold text-alert">required</span> : null}
-        </span>
-        <span className="flex items-center gap-3">
-          {cert.gain > 0 ? <span className="font-mono type-caption font-semibold text-teal">+{cert.gain} point{cert.gain === 1 ? '' : 's'}</span> : null}
-          {!open ? (
-            <button type="button" onClick={() => setOpen(true)} className="min-h-9 rounded-ctl border border-teal/40 px-3 type-helper font-semibold text-teal hover:bg-teal-soft">
-              Yes, I have it
-            </button>
-          ) : null}
-        </span>
-      </div>
-      {open ? (
-        <div className="flex flex-col gap-2 rounded-ctl bg-canvas p-3">
-          <label className="flex flex-col gap-1 type-caption font-semibold text-ink-soft">
-            Certificate name — keep the job’s words so the ATS finds it
-            <input value={name} onChange={(e) => setName(e.target.value)} className={field} maxLength={200} />
-          </label>
-          <div className="grid gap-2 sm:grid-cols-[1fr_120px]">
-            <label className="flex flex-col gap-1 type-caption font-semibold text-ink-soft">
-              Issued by (optional)
-              <input value={issuer} onChange={(e) => setIssuer(e.target.value)} className={field} maxLength={200} placeholder="e.g. PMI, USGBC, RTA" />
-            </label>
-            <label className="flex flex-col gap-1 type-caption font-semibold text-ink-soft">
-              Year (optional)
-              <input value={year} onChange={(e) => setYear(e.target.value.replace(/D/g, '').slice(0, 4))} className={field} inputMode="numeric" placeholder="2021" />
-            </label>
-          </div>
-          {error ? <p className="type-helper text-alert">{error}</p> : null}
-          <div className="ui-action-group">
-            <button type="button" onClick={() => void save()} disabled={saving || name.trim().length < 2} className={buttonVariants({ variant: 'primary', size: 'sm' })}>
-              {saving ? 'Saving…' : 'I hold this — add it to my profile'}
-            </button>
-            <button type="button" onClick={() => setOpen(false)} className={buttonVariants({ variant: 'secondary', size: 'sm' })}>
-              Cancel
-            </button>
-          </div>
-        </div>
-      ) : null}
-    </li>
-  )
-}
-
-/**
- * High's tick-list: "This job also asks for these — tick the ones you really
- * have." Ticked items are saved to the Career Profile's Skills
- * (POST /api/profile/skills) and the job check runs again (no model call), so
- * the scores update at once. Nothing is added without a tick.
- */
-function HighSkillsChecklist({ items, upTo, onAdded, onPendingChange }: { items: Array<{ term: string; importance: 'must' | 'nice'; gain: number }>; upTo: number; onAdded: () => void; onPendingChange: (pending: boolean) => void }) {
-  const [ticked, setTicked] = useState<string[]>([])
-  const [saving, setSaving] = useState(false)
-  const [added, setAdded] = useState<string[]>([])
-  const [error, setError] = useState<string | null>(null)
-  const open = items.filter((i) => !added.includes(i.term))
-
-  useEffect(() => {
-    onPendingChange(saving || ticked.length > 0)
-    return () => onPendingChange(false)
-  }, [saving, ticked.length, onPendingChange])
-
-  const save = async () => {
-    setSaving(true)
-    setError(null)
-    try {
-      const res = await fetch('/api/profile/skills', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ names: ticked }) })
-      const body = await res.json().catch(() => ({}))
-      if (!res.ok) {
-        setError((body?.error as string) ?? 'Could not save them. Please try again.')
-        return
-      }
-      setAdded((a) => [...a, ...ticked])
-      setTicked([])
-      onAdded()
-    } catch {
-      setError('Network error. Please try again.')
-    } finally {
-      setSaving(false)
-    }
-  }
-
-  return (
-    <Card tone="light" className="flex flex-col gap-3 border-2 border-gold/40 bg-gold-soft/40 p-4">
-      <div className="flex flex-col gap-1">
-        <p className="type-label font-semibold text-ink">This job also asks for these — tick the ones you really have</p>
-        <p className="type-helper leading-snug text-ink-soft">
-          They are not on your Career Profile yet, so we cannot write them for you. Tick only what you really use or know — an
-          interviewer may ask about any of them. Each one goes on your profile’s Skills and into this resume. High can reach up to {upTo}.
-        </p>
-      </div>
-      {open.length ? (
-        <ul className="grid gap-1.5 sm:grid-cols-2">
-          {open.map((i) => {
-            const on = ticked.includes(i.term)
-            return (
-              <li key={i.term}>
-                <label className={cn('flex min-h-11 cursor-pointer items-center gap-2.5 rounded-ctl border bg-white px-3 py-2 type-helper', on ? 'border-teal' : 'border-line')}>
-                  <input
-                    type="checkbox"
-                    checked={on}
-                    onChange={() => setTicked((t) => (on ? t.filter((x) => x !== i.term) : [...t, i.term]))}
-                    className="size-4 shrink-0 accent-teal"
-                  />
-                  <span className="min-w-0 flex-1 text-ink">
-                    {i.term}
-                    {i.importance === 'must' ? <span className="ml-1.5 text-[11.5px] font-semibold text-alert">required</span> : null}
-                  </span>
-                  {i.gain > 0 ? <span className="font-mono text-[11.5px] font-semibold text-teal">+{i.gain}</span> : null}
-                </label>
-              </li>
-            )
-          })}
-        </ul>
-      ) : null}
-      {added.length ? (
-        <p className="flex items-start gap-1.5 type-helper font-semibold text-ok">
-          <CheckIcon aria-hidden className="mt-0.5 size-4 shrink-0" strokeWidth={2.5} />
-          Added to your Career Profile: {added.join(', ')}. The scores above include them.
-        </p>
-      ) : null}
-      {error ? <p className="type-helper text-alert">{error}</p> : null}
-      {open.length ? (
-        <div className="flex flex-wrap items-center gap-3">
-          <button type="button" onClick={() => void save()} disabled={saving || !ticked.length} className={buttonVariants({ variant: 'primary', size: 'sm' })}>
-            {saving ? 'Saving…' : ticked.length ? `I have ${ticked.length === 1 ? 'this' : 'these ' + ticked.length} — add to my profile` : 'Tick what you have'}
-          </button>
-          <span className="type-caption text-ink-muted">Or skip — High still works with what your profile already shows.</span>
-        </div>
-      ) : null}
-    </Card>
-  )
+/** Read-only job gaps; career facts can only be edited in Career Profile. */
+function ProfileSkillsGaps({ items, upTo }: { items: Array<{ term: string; importance: 'must' | 'nice'; gain: number }>; upTo: number }) {
+  return <Card tone="light" className="flex flex-col gap-3 border-2 border-gold/40 bg-gold-soft/40 p-4">
+    <div className="flex flex-col gap-1">
+      <p className="type-label font-semibold text-ink">Skills this job asks for</p>
+      <p className="type-helper leading-snug text-ink-soft">These are not recorded in your Career Profile. If you have them, add only the skills you really use or know in Career Profile. Save there, then return to this job to check your updated match. High may reach up to {upTo} if all requirements are supported.</p>
+    </div>
+    <ul className="grid gap-1.5 sm:grid-cols-2">{items.map(item => <li key={item.term} className="min-h-11 rounded-ctl border border-line bg-white px-3 py-2 type-helper text-ink">{item.term}{item.importance === 'must' ? <span className="ml-1.5 type-caption font-semibold text-alert">required</span> : null}</li>)}</ul>
+    <Link href="/profile?view=details&open=sec_skills" className={buttonVariants({ variant: 'secondary', size: 'sm' })}>Update Career Profile</Link>
+    <p className="type-caption text-ink-muted">You can also continue with the facts already saved in your profile.</p>
+  </Card>
 }
