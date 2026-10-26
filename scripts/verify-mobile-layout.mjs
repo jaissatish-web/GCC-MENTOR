@@ -81,10 +81,10 @@ try {
       })
       assert.ok(result.scroll <= width + 1, `Overflow at ${width}, enlarged=${enlarged}: ${JSON.stringify(result)}`)
       const scale = enlarged ? 2 : 1
-      assert.equal(result.titleSize, `${26 * scale}px`)
-      assert.equal(result.weight, '800')
+      assert.equal(result.titleSize, `${(width >= 768 ? 26 : 22) * scale}px`)
+      assert.equal(result.weight, '700')
       assert.equal(result.inputSize, `${16 * scale}px`)
-      assert.equal(result.bodySize, `${16 * scale}px`)
+      assert.equal(result.bodySize, `${15 * scale}px`)
       assert.ok(result.buttonHeight >= 44)
       await page.$eval('details', element => { element.open = true })
       const choices = await page.evaluate(() => ({
@@ -135,7 +135,7 @@ try {
       captionSize: style('.caption-example').fontSize}
   })
   assert.deepEqual(configured, {title:'27px', section:'19px', body:'18px', family:'Arial',
-    radius:'9px', padding:'16px', documentTitle:'21px', documentWeight:'700', documentFamily:'Georgia', documentBody:'11px', utilitySize:'18px', utilityWeight:'400', captionSize:'14px'})
+    radius:'9px', padding:'21px', documentTitle:'21px', documentWeight:'700', documentFamily:'Georgia', documentBody:'11px', utilitySize:'18px', utilityWeight:'400', captionSize:'14px'})
   // Real public landing markup, production CSS and bundled Inter, without API calls.
   const publicMarkup = landing.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
     .replace(/<link\b[^>]*>/gi, '')
@@ -161,11 +161,11 @@ try {
       if (metrics.scroll > width + 1) await page.screenshot({path:'artifacts/typography/landing-overflow.png',fullPage:false})
       assert.ok(metrics.scroll <= width + 1, `Landing overflow at ${width}, enlarged=${enlarged}: ${JSON.stringify(metrics)}`)
       assert.ok(!metrics.clipped, `Clipped landing title at ${width}`)
-      assert.equal(metrics.weight, '800')
+      assert.equal(metrics.weight, '700')
       assert.ok(metrics.font.includes('Inter'), `Inter is not applied: ${metrics.font}`)
       const textScale = enlarged ? 2 : 1
-      const expectedHero = Math.max(36 * textScale, Math.min(width * .044, 60 * textScale))
-      const expectedSection = Math.max(24 * textScale, Math.min(width * .028, 36 * textScale))
+      const expectedHero = Math.max(30 * textScale, Math.min(width * .036, 48 * textScale))
+      const expectedSection = Math.max(22 * textScale, Math.min(width * .024, 30 * textScale))
       assert.ok(Math.abs(metrics.size - expectedHero) < .02, 'Marketing hero uses its responsive display scale')
       assert.ok(Math.abs(metrics.sectionSize - expectedSection) < .02, 'Marketing sections use their responsive display scale')
       await page.screenshot({ path: `artifacts/typography/landing-${width}${enlarged ? '-enlarged' : ''}.png`, fullPage: true })

@@ -1,6 +1,6 @@
 /* Soft indigo professional workspaces share central type, field and surface tokens. */
 .professional-panel { padding:var(--ui-card-padding); border:1px solid var(--ui-line); border-radius:var(--ui-card-radius); background:var(--ui-surface); box-shadow:var(--ui-card-shadow); }
-.professional-primary,.professional-secondary { display:inline-flex; min-width:0; min-height:48px; align-items:center; justify-content:center; gap:8px; padding:12px 20px; border:1px solid var(--ui-brand); border-radius:var(--ui-control-radius); font-size:var(--ui-button-size); font-weight:var(--ui-weight-heading); line-height:var(--ui-body-line); text-align:center; text-decoration:none; overflow-wrap:anywhere; }
+.professional-primary,.professional-secondary { display:inline-flex; min-width:0; min-height:var(--ui-control-height); align-items:center; justify-content:center; gap:8px; padding:var(--ui-control-padding-y) 16px; border:1px solid var(--ui-brand); border-radius:var(--ui-control-radius); font-size:var(--ui-button-size); font-weight:var(--ui-weight-heading); line-height:var(--ui-body-line); text-align:center; text-decoration:none; overflow-wrap:anywhere; }
 .professional-primary { color:var(--ui-inverse); background:var(--ui-brand); }
 .professional-primary:hover { background:var(--ui-brand-hover); }
 .professional-secondary { border-color:var(--ui-line-strong); color:var(--ui-ink); background:var(--ui-surface); }

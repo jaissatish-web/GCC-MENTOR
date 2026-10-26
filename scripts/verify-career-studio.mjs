@@ -32,7 +32,7 @@ try {
     await go('/__scenario?state=saved');await go('/dashboard')
     await page.waitForFunction(()=>document.querySelector('.studio-continue')?.textContent.includes('3 of 10'))
     const home=await page.evaluate(()=>({height:document.querySelector('.studio-continue .ui-button').getBoundingClientRect().height,body:getComputedStyle(document.querySelector('.studio-home')).fontSize,nav:[...document.querySelectorAll('[data-mobile-navigation] a')].map(a=>a.textContent.trim()),rail:getComputedStyle(document.querySelector('.studio-sidebar')).width}))
-    assert.equal(home.body,'16px');assert.ok(home.height>=48&&home.height<=56,'CTA sizing');assert.deepEqual(home.nav,['Home','Resumes','Practice','Profile']);if(width>=1024)assert.equal(home.rail,'224px')
+    assert.equal(home.body,'15px');assert.ok(home.height>=44&&home.height<=52,'CTA sizing');assert.deepEqual(home.nav,['Home','Resumes','Practice','Profile']);if(width>=1024)assert.equal(home.rail,'224px')
     if(width<768)assert.equal(await page.$$eval('[data-mobile-navigation] a > span',els=>els.every(el=>el.getBoundingClientRect().height<25)),true,'Navigation labels fit one line')
     await reflow('Home '+width);await shot('home-'+width)
     await go('/profile');await page.waitForSelector('.studio-profile-summary');assert.equal(await page.$('#f_phone_number'),null,'Summary must not render full editor')

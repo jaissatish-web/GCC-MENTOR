@@ -17,7 +17,7 @@ const css = files.map(f => readFileSync(f.replace('/_next/', '.next/'), 'utf8').
 const baselineCss = process.env.CLEAR_PATH_BASELINE_CSS ? readFileSync(process.env.CLEAR_PATH_BASELINE_CSS, 'utf8') : null
 const fontClass = /<body class="([^"]+)"/.exec(landing)?.[1] || ''
 const documentMarkup = `<div data-document-preview style="font-family:Georgia;font-size:11px;color:#27313a;background:#fefdfc;padding:7px;border:1px solid #987654;border-radius:3px"><div id="resume-render" style="font-family:Georgia"><h1 style="font-family:Georgia;font-size:21px;font-weight:700;line-height:1.2;letter-spacing:.2px">Document heading</h1><p style="font-family:Georgia;font-size:11px;font-weight:400;line-height:1.4">Document body</p><button style="height:20px;padding:1px;border-radius:2px">Document control</button></div></div><div class="actual-template-orbit-face"><p style="font-family:Georgia;font-size:9px">Orbit document</p></div>`
-const roles = `<main class="ui-page page-gutter ui-page-default"><h1 style="font-size:64px;font-weight:900">Page <span class="text-xs">heading</span></h1><h2 class="text-4xl">Section heading</h2><h3 class="text-xs">Third heading</h3><h4>Fourth heading</h4><h5>Fifth heading</h5><h6>Sixth heading</h6><p class="type-body">Existing career information remains readable.</p><p class="type-helper">Supporting guidance</p><label>Target role<input class="field w-full"></label><button class="ui-button">Continue</button><section class="ui-card ui-surface rounded-card">Card content</section>${documentMarkup}</main>`
+const roles = `<main class="ui-page page-gutter ui-page-default"><h1 style="font-size:64px;font-weight:900">Page <span class="text-xs">heading</span></h1><h2 class="text-4xl">Section heading</h2><h3 class="text-xs">Third heading</h3><h4>Fourth heading</h4><h5>Fifth heading</h5><h6>Sixth heading</h6><p class="type-body">Existing career information remains readable.</p><p class="type-helper">Supporting guidance</p><label>Target role<input class="field w-full"></label><button class="ui-button min-h-12">Continue</button><section class="ui-card ui-surface rounded-card">Card content</section>${documentMarkup}</main>`
 const markup = `<section id="public" class="app-type">${roles}</section><section id="internal" class="app-type internal-ui">${roles}</section><section id="public-portal" class="app-type" data-side-sheet><div role="dialog"><h2>Public menu</h2><p>Public copy</p></div></section><section id="internal-portal" class="app-type internal-ui" data-side-sheet><div role="dialog"><h2>Services</h2><p>Internal copy</p></div></section>`
 const browser = await puppeteer.launch({executablePath:process.env.CHROME_PATH || await chromium.executablePath(),headless:true,pipe:true,args:['--no-sandbox','--disable-dev-shm-usage','--disable-gpu','--no-zygote','--single-process']})
 const records=[]
@@ -43,16 +43,25 @@ try {
   await page.setContent(`<html><head><style>${css}</style></head><body class="${fontClass}">${markup}</body></html>`)
   await page.evaluate(()=>document.fonts.ready)
   const before=await read()
-  assert.deepEqual(before.internal.headings.map(h=>h.size),width>=768?['28px','20px','16px','15px','14px','13px']:['24px','18px','16px','15px','14px','13px'],`Internal H1–H6 at ${width}`)
-  assert.deepEqual(before.internal.headings.map(h=>h.weight),['800','600','600','600','600','600'])
-  assert.equal(before.internal.body.size,'16px')
+  assert.equal(before.internal.palette,before.public.palette,'One palette across public and internal UI')
+  assert.equal(before.internal.button.size,'14px')
+  assert.equal(before.internal.button.minHeight,'44px')
+  assert.equal(before.public.button.minHeight,before.internal.button.minHeight,'Public and internal CTA sizing matches')
+  assert.equal(before.public.field.background,before.internal.field.background,'Public and internal input surfaces match')
+  await page.evaluate(()=>document.documentElement.style.setProperty('--ui-brand-rgb','31 72 123'))
+  const propagated=await read()
+  assert.equal(propagated.internal.palette,'31 72 123','Root palette reaches internal screens')
+  await page.evaluate(()=>document.documentElement.style.removeProperty('--ui-brand-rgb'))
+  assert.deepEqual(before.internal.headings.map(h=>h.size),width>=768?['26px','20px','16px','15px','14px','13px']:['22px','18px','16px','15px','14px','13px'],`Internal H1–H6 at ${width}`)
+  assert.deepEqual(before.internal.headings.map(h=>h.weight),['700','600','600','600','600','600'])
+  assert.equal(before.internal.body.size,'15px')
   assert.equal(before.internal.helper.size,'14px')
   assert.equal(before.internal.field.size,'16px')
   assert.equal(before.internalPortal.size,width>=768?'20px':'18px')
-  assert.equal(before.publicPortal.size,width>=640?'22px':'20px')
-  assert.equal(before.internal.palette,'91 96 241')
-  assert.equal(before.internal.field.background,'rgb(249, 248, 251)','Editable fields use the pale reference surface')
-  assert.equal(before.internal.card.background,'rgb(252, 252, 253)','Content surfaces use near-white reference')
+  assert.equal(before.publicPortal.size,width>=768?'20px':'18px')
+  assert.equal(before.internal.palette,'79 70 229')
+  assert.equal(before.internal.field.background,'rgb(255, 255, 255)','Editable fields use the shared white surface')
+  assert.equal(before.internal.card.background,'rgb(255, 255, 255)','Content surfaces use the shared white surface')
   assert.equal(before.internal.page.padding.split(' ')[1],width>=768?'32px':'16px')
   assert.equal(before.overflow,false,`Fixture overflow at ${width}`)
   assert.deepEqual(before.internal.document,before.public.document,`Internal scope must not change authored document styles at ${width}`)

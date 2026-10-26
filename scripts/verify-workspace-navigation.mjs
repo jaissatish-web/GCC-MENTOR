@@ -70,7 +70,7 @@ try {
     await page.evaluate(()=>document.fonts.ready)
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`Dashboard overflow ${width}`)
     const title=await page.$eval('h1',el=>({size:getComputedStyle(el).fontSize,internal:!!el.closest('.internal-ui')}))
-    assert.equal(title.size,title.internal&&width>=768?'28px':'24px')
+    assert.equal(title.size,width>=768?'26px':'22px')
     await page.screenshot({path:`docs/desktop-redesign/dashboard-${width}.webp`,type:'webp',fullPage:true})
     await page.click('[data-mobile-header] button[aria-label="All services"]')
     await page.waitForSelector('[role="dialog"]')

@@ -5,12 +5,12 @@
   --ui-weight-regular: 400;
   --ui-weight-label: 500;
   --ui-weight-heading: 600;
-  --ui-weight-title: 800;
-  --ui-title-size: 1.625rem;
-  --ui-section-size: 1.25rem;
+  --ui-weight-title: 700;
+  --ui-title-size: 1.375rem;
+  --ui-section-size: 1.125rem;
   --ui-mobile-section-size: var(--ui-section-size);
   --ui-card-title-size: 1rem;
-  --ui-body-size: 1rem;
+  --ui-body-size: .9375rem;
   /* Popup paragraphs are the reference for all explanatory and reading copy. */
   --ui-description-size: var(--ui-body-size);
   --ui-reading-size: var(--ui-body-size);
@@ -18,22 +18,23 @@
   --ui-helper-size: 0.875rem;
   --ui-caption-size: 0.75rem;
   --ui-input-size: 1rem;
-  --ui-button-size: 1rem;
+  --ui-input-line: 1.5;
+  --ui-button-size: .875rem;
   --ui-stat-size: 1.5rem;
-  --ui-body-line: 1.625;
-  --ui-heading-line: 1.25;
+  --ui-body-line: 1.55;
+  --ui-heading-line: 1.3;
   --ui-brand-line: 1.25;
   --ui-label-line: 1.4;
   --ui-heading-tracking: -0.015em;
   --ui-tracking: 0;
-  --ui-nav-action-measure: clamp(160px, 14vw, 220px);
+  --ui-nav-action-measure: 18rem;
   --ui-brand-caption-measure: min(18ch, 14vw);
   /* Existing consumers resolve to the same roles, never separate scales. */
   --ui-mono-font: var(--ui-font);
   --ui-demo-caption-size: var(--ui-caption-size);
-  --ui-hero-size: clamp(2.25rem, 4.4vw, 3.75rem);
+  --ui-hero-size: clamp(1.875rem, 3.6vw, 3rem);
   --ui-hero-line: var(--ui-heading-line);
-  --ui-marketing-size: clamp(1.5rem, 2.8vw, 2.25rem);
+  --ui-marketing-size: clamp(1.375rem, 2.4vw, 1.875rem);
   --ui-lead-size: var(--ui-body-size);
   --ui-lead-line: var(--ui-body-line);
   --ui-profile-font: var(--ui-font);
@@ -41,11 +42,10 @@
   --ui-profile-section-size: var(--ui-section-size);
   --ui-profile-name-size: var(--ui-section-size);
 }
-@media (min-width: 640px) {
+@media (min-width: 768px) {
   :root {
-    --ui-section-size: 1.375rem;
-    --ui-card-title-size: 1.125rem;
-    --ui-body-size: 1rem;
+    --ui-title-size: 1.625rem;
+    --ui-section-size: 1.25rem;
     --ui-stat-size: 1.75rem;
   }
 }
@@ -106,7 +106,7 @@ body :is(.font-medium):not(:where([data-document-preview], [data-document-previe
 body :is(.font-semibold,.font-bold,.font-extrabold,.font-black):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-weight: var(--ui-weight-heading) !important; }
 body :is(p,p[class],li,li[class],blockquote,blockquote[class],dd,dd[class]):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-body-size) !important; font-weight: var(--ui-weight-regular) !important; line-height: var(--ui-body-line) !important; }
 body :is(label,label[class],legend,legend[class],dt,dt[class]):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-label-size) !important; font-weight: var(--ui-weight-label) !important; line-height: var(--ui-label-line) !important; }
-body :is(input,input[class],textarea,textarea[class],select,select[class]):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-input-size) !important; font-weight: var(--ui-weight-regular) !important; line-height: var(--ui-body-line) !important; }
+body :is(input,input[class],textarea,textarea[class],select,select[class]):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-input-size) !important; font-weight: var(--ui-weight-regular) !important; line-height: var(--ui-input-line) !important; }
 body :is(button, [role="button"], .ui-button, .professional-primary, .professional-secondary):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-button-size) !important; font-weight: var(--ui-weight-heading) !important; line-height: var(--ui-label-line) !important; }
 body :is(strong,b):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-weight: var(--ui-weight-heading) !important; }
 body small:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-caption-size) !important; line-height: var(--ui-label-line) !important; }
@@ -159,42 +159,20 @@ body :is(.type-description,p.type-description,span.type-description):not(:where(
 body :is(.type-longform,p.type-longform,span.type-longform):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-reading-size) !important; font-weight: var(--ui-weight-regular) !important; line-height: var(--ui-body-line) !important; }
 body :is(.cover-letter-email-body,.profile-copy-text,.qa-answer-text) :is(p,li,div,span):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--ui-reading-size) !important; line-height: var(--ui-body-line) !important; }
 
-/* Clear Path: internal app and opted-in portals only. Public/root values above
-   are retained byte-for-byte in behavior; documents keep their own type. */
+/* Internal semantic heading levels consume the same root scale as public
+   utility screens. One owner prevents mobile/public/workspace drift. */
 .app-type.internal-ui {
-  /* Rebind aliases here: inherited custom properties resolve at their owner. */
   --ui-description-size: var(--ui-body-size);
   --ui-reading-size: var(--ui-body-size);
   --ui-lead-size: var(--ui-body-size);
-  --ui-hero-size: var(--ui-h1-size);
-  --ui-marketing-size: var(--ui-h2-size);
-  --ui-h1-size: 1.5rem;
-  --ui-h2-size: 1.125rem;
-  --ui-h3-size: 1rem;
+  --ui-hero-size: var(--ui-title-size);
+  --ui-marketing-size: var(--ui-section-size);
+  --ui-h1-size: var(--ui-title-size);
+  --ui-h2-size: var(--ui-section-size);
+  --ui-h3-size: var(--ui-card-title-size);
   --ui-h4-size: .9375rem;
   --ui-h5-size: .875rem;
   --ui-h6-size: .8125rem;
-  --ui-title-size: var(--ui-h1-size);
-  --ui-section-size: var(--ui-h2-size);
-  --ui-card-title-size: var(--ui-h3-size);
-  --ui-body-size: 1rem;
-  --ui-helper-size: .875rem;
-  --ui-label-size: .875rem;
-  --ui-caption-size: .75rem;
-  --ui-input-size: 1rem;
-  --ui-button-size: 1rem;
-  --ui-weight-title: 800;
-  --ui-body-line: 1.625;
-  --ui-heading-line: 1.3;
-  --ui-heading-tracking: -.025em;
-  --ui-input-line: 1.5;
-}
-@media (min-width: 768px) {
-  .app-type.internal-ui {
-    --ui-h1-size: 1.75rem;
-    --ui-h2-size: 1.25rem;
-    --ui-body-size: 1rem;
-  }
 }
 
 /* Semantic form roles outrank generic paragraph styling inside the app. */
@@ -295,18 +273,18 @@ body :is(.cover-letter-email-body,.profile-copy-text,.qa-answer-text) :is(p,li,d
 [data-marketing="white"] {
   --ui-h1-size: var(--ui-hero-size);
   --ui-h2-size: var(--ui-marketing-size);
-  --ui-h3-size: 1.125rem;
+  --ui-h3-size: var(--ui-card-title-size);
   --ui-heading-line: 1.15;
-  --ui-lead-size: 1.125rem;
-  --ui-heading-tracking: -.035em;
+  --ui-lead-size: var(--ui-body-size);
+  --ui-heading-tracking: -.025em;
 }
 
 /* Footer labels keep utility hierarchy within the marketing display scope. */
 [data-marketing="white"] footer { --ui-h2-size:var(--ui-label-size); --ui-heading-line:var(--ui-label-line); }
 
 /* Selected SkillDrift reference: auth display and form roles, configured here only. */
-.auth-shell { --ui-title-size:1.625rem; --ui-heading-line:1.25; --ui-lead-size:.875rem; }
-body .auth-shell .auth-story-title { font-size:2.5rem !important; line-height:1.12 !important; font-weight:var(--ui-weight-title) !important; letter-spacing:-.025em !important; }
-body .auth-shell .auth-form-surface > h1 { font-size:1.625rem !important; font-weight:var(--ui-weight-title) !important; letter-spacing:-.025em !important; }
+.auth-shell { --ui-lead-size:var(--ui-helper-size); }
+body .auth-shell .auth-story-title { font-size:clamp(1.875rem, 3vw, 2.25rem) !important; line-height:1.12 !important; font-weight:var(--ui-weight-title) !important; letter-spacing:-.025em !important; }
+body .auth-shell .auth-form-surface > h1 { font-size:var(--ui-title-size) !important; font-weight:var(--ui-weight-title) !important; letter-spacing:-.025em !important; }
 body .auth-shell .auth-form-surface > p { font-size:var(--ui-helper-size) !important; }
-body .auth-shell label { font-size:.9375rem !important; font-weight:700 !important; }
+body .auth-shell label { font-size:var(--ui-label-size) !important; font-weight:var(--ui-weight-label) !important; }

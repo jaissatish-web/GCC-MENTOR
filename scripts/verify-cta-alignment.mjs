@@ -82,7 +82,7 @@ try {
   const typeRoles=await page.evaluate(()=>({label:getComputedStyle(document.querySelector('#whatsapp-choice-label')).fontSize,phone:getComputedStyle(document.querySelector('label[for="f_phone_number"]')).fontSize,hint:getComputedStyle(document.querySelector('.field-hint')).fontSize,helper:getComputedStyle(document.querySelector('.internal-ui')).getPropertyValue('--ui-helper-size').trim()}))
   assert.equal(typeRoles.label,typeRoles.phone,'Paragraph and label field headings must match')
   let before=await group();assert.equal(before.length,3)
-  assert.ok(before.every(b=>b.width===before[0].width&&b.x===before[0].x&&b.height>=46&&b.height===before[0].height&&b.align==='left'&&b.border==='solid'),JSON.stringify(before))
+  assert.ok(before.every(b=>b.width===before[0].width&&b.x===before[0].x&&b.height>=44&&b.height===before[0].height&&b.align==='left'&&b.border==='solid'),JSON.stringify(before))
   assert.ok(before.every(b=>b.pressed==='false'),'Empty saved number must not imply a declaration')
   await page.click('.ui-choice-button:nth-child(1)');assert.equal((await group())[0].pressed,'true')
   await page.waitForFunction(()=>{const buttons=document.querySelectorAll('.ui-choice-button');return getComputedStyle(buttons[0]).borderColor!==getComputedStyle(buttons[1]).borderColor})
@@ -98,7 +98,7 @@ try {
   await page.screenshot({path:'artifacts/cta-alignment/profile-'+width+'.png'})
   if(width===320) {
    await page.evaluate(()=>document.documentElement.style.fontSize='32px');
-   const enlarged=await group();assert.ok(enlarged.every(b=>b.width===enlarged[0].width&&b.height>=46));
+   const enlarged=await group();assert.ok(enlarged.every(b=>b.width===enlarged[0].width&&b.height>=44));
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1),false)
    await (await page.$('.ui-choice-group')).screenshot({path:'artifacts/cta-alignment/profile-320-enlarged.png'})
   }
