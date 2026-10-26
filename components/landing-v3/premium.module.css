@@ -1,4 +1,4 @@
-/* Soft indigo marketing surface, selected from the SkillDrift reference. Shared scale and document boundaries are
+/* SkillPilot-inspired navy marketing surface, using the shared type and document boundaries. Shared scale and document boundaries are
    owned by app/typography.css; these rules only compose the public landing. */
 .system {
   --lp-brand: var(--ui-brand);
@@ -56,7 +56,7 @@
 .kickerGold { display: inline-flex; align-items: center; gap: 8px; color: var(--ui-brand-hover); font-size: var(--ui-caption-size); font-weight: var(--ui-weight-heading); letter-spacing: var(--ui-tracking); text-transform: uppercase; line-height: var(--ui-body-line); }
 .kickerGold::before { content: ''; width: 6px; height: 6px; flex: none; border-radius: 50%; background: currentColor; }
 .heroTitle { margin: 12px 0 16px; color: var(--lp-ink); max-width: 17ch; text-wrap: balance; }
-.heroTitle span { color: var(--lp-brand); }
+.heroTitle span { background:linear-gradient(90deg,#b7d2ff 0%,#22d3ee 100%); color:transparent; background-clip:text; -webkit-background-clip:text; }
 .heroSub { max-width: 44ch; margin: 0; color: var(--lp-muted); font-size: var(--ui-body-size); line-height: var(--ui-body-line); }
 .heroCtas { display: flex; flex-direction: column; gap: var(--ui-control-gap); align-items: stretch; margin-top: 20px; }
 .goldCta,.ghostCta,.whiteCta,.btnNavyOutline { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: var(--ui-control-height); padding: var(--ui-control-padding-y) 16px; border: 1px solid transparent; border-radius: var(--ui-control-radius); font-size: var(--ui-helper-size); line-height: var(--ui-body-line); font-weight: var(--ui-weight-heading); text-align: center; text-decoration: none; }
