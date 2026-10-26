@@ -155,3 +155,7 @@ Satish asks to adapt SkillPilot's typography, boxes, header, visuals and text/CT
 
 
 SKILLPILOT-BRAND-001 status: implementation is on review branch `codex/skillpilot-brand-001`; PR #42 is open. No tests or local build were run. No Vercel preview exists: the create-preview request was rejected by automatic approval review because it would send/build repository source on the connected Vercel project without separate explicit authorization. Phone/desktop visual verification and production release remain pending. Ask Satish to explicitly authorize the Vercel preview before continuing with that action.
+
+
+## DARK-CONTRAST-001 — 26 October 2026
+Approved: fix dark text on navy UI, specifically login email/password labels and shared profile/dashboard controls. Apply light foregrounds to shared labels, values, helper text and legacy dark text utilities; handle browser autofill. Exclude document/template and LinkedIn paper previews. Preserve backend/navigation and semantic status colors. CSS implementation and CI verification pending.
