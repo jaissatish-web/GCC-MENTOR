@@ -1304,3 +1304,9 @@
 .app-type.internal-ui.career-studio .studio-home .studio-work-count { width:100%; color:var(--ui-ink); font-size:var(--ui-stat-size); font-weight:var(--ui-weight-title); }
 .studio-performance-section { margin-block:20px; padding:var(--ui-card-padding); border:1px solid var(--ui-line); border-radius:var(--ui-card-radius); background:var(--ui-surface); }
 .studio-performance-section > h2 { margin:0 0 12px; }
+
+/* Enlarged text must reflow within the personal dashboard, without cropping. */
+.app-type.internal-ui.career-studio .studio-home :is(header,section,aside,div,a,button) { min-width:0; }
+.app-type.internal-ui.career-studio .studio-home :is(h1,h2,h3,p,span,a,button) { overflow-wrap:anywhere; }
+.app-type.internal-ui.career-studio .studio-home-quick-actions > * { max-width:100%; }
+@media(max-width:400px) { .studio-personal-hero { flex-wrap:wrap; } .studio-personal-hero > div { flex-basis:calc(100% - 56px); } .studio-home-avatar { margin-left:52px; } }
