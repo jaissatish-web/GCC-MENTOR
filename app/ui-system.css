@@ -676,13 +676,13 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
 .app-type .interview-qa-page .qa-question-body { display: flex; flex-direction: column; gap: 12px; padding: 12px; }
 .app-type .interview-qa-page .qa-panel-label { display: flex; align-items: center; gap: 6px; margin: 0 0 7px; font-size: var(--ui-helper-size); font-weight: var(--ui-weight-title); line-height: var(--ui-body-line); }
 .app-type .interview-qa-page :is(.qa-why-panel,.qa-answer-panel,.qa-basis-panel,.qa-followup-panel) { min-width: 0; border: 1px solid; border-radius: 10px; padding: 12px; }
-.app-type .interview-qa-page .qa-why-panel { border-color: #ddc78f; border-left-width: 3px; background: #fff8e8; color: #685020; }
+.app-type .interview-qa-page .qa-why-panel { border-color: rgb(var(--ui-accent-rgb)); border-left-width: 3px; background: rgb(var(--ui-accent-soft-rgb)); color: rgb(var(--ui-accent-ink-rgb)); }
 .app-type .interview-qa-page .qa-answer-panel { border-width: 1px; border-color: var(--ui-line); background: var(--ui-surface); color: var(--ui-ink); }
 .app-type .interview-qa-page .qa-basis-panel { border-color: var(--ui-line); background: var(--ui-canvas); color: var(--ui-muted); }
 .app-type .interview-qa-page .qa-followup-panel { border-color: var(--ui-line); border-left-width: 3px; background: var(--ui-canvas); color: var(--ui-muted); }
 .app-type .interview-qa-page :is(.qa-why-panel,.qa-basis-panel,.qa-followup-panel) > p { font-size: var(--ui-helper-size); font-weight: var(--ui-weight-regular); line-height: var(--ui-body-line); color: rgb(var(--ui-ink-soft-rgb)); overflow-wrap: anywhere; }
 .app-type .interview-qa-page .qa-answer-text { margin: 0; font-family: var(--ui-font); font-size: var(--ui-body-size); font-weight: var(--ui-weight-regular); line-height: var(--ui-body-line); color: var(--ui-ink); overflow-wrap: anywhere; }
-.app-type .interview-qa-page .qa-answer-text mark { background: #ffedb5; color: #493713; padding: 1px 3px; border-radius: 3px; }
+.app-type .interview-qa-page .qa-answer-text mark { background: rgb(var(--ui-accent-soft-rgb)); color: rgb(var(--ui-accent-ink-rgb)); padding: 1px 3px; border-radius: 3px; }
 .app-type .interview-qa-page .qa-answer-toggle {
   display: inline-flex;
   align-items: center;
@@ -762,7 +762,7 @@ body .type-button:not(:where([data-document-preview], [data-document-preview] *,
 
 /* Library foundation and compact service counts use shape and text as well as colour. */
 .app-type .library-resume-card[data-resume-kind="career-profile"] {
-  border-color: #d4b76f;
+  border-color: rgb(var(--ui-accent-rgb));
   border-top-color: rgb(var(--ui-accent-ink-rgb));
 }
 .app-type .library-resume-card[data-resume-kind="career-profile"]:is(:hover,:focus-within) {
