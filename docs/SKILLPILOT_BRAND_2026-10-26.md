@@ -31,4 +31,4 @@ Visual-only update to shared public and authenticated presentation styles and th
 
 ## Implementation status
 
-Implementation on `codex/skillpilot-brand-001`: shared palette and responsive presentation styles updated across the public landing, workspace, professional profiles, preparation explorer and How it works guide. The PR preview and phone/desktop visual verification are pending. Service logic and resume document styles were not intentionally changed.
+Implementation on `codex/skillpilot-brand-001`: shared palette and responsive presentation styles updated across the public landing, workspace, professional profiles, preparation explorer and How it works guide. PR #42 is open. The Vercel preview and phone/desktop visual verification are pending; the preview deployment request was rejected by automatic approval review because it would send and build repository code on the external Vercel project without separate explicit authorization. Service logic and resume document styles were not intentionally changed.
