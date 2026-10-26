@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
-import { ArrowRightIcon, ChevronRightIcon, ChatBubbleLeftRightIcon, DocumentTextIcon, EnvelopeIcon, ExclamationTriangleIcon, QuestionMarkCircleIcon, UserCircleIcon } from '@heroicons/react/24/outline'
+import { ArrowRightIcon, ChevronRightIcon, ChatBubbleLeftRightIcon, DocumentTextIcon, EnvelopeIcon, ExclamationTriangleIcon, QuestionMarkCircleIcon, UserCircleIcon, SunIcon } from '@heroicons/react/24/outline'
 import { buttonVariants } from '@/components/ui/Button'
 import { HowItWorks } from '@/components/journey/HowItWorks'
 import { HomeUpcomingDates } from '@/components/dashboard/HomeFollowThrough'
@@ -50,7 +50,15 @@ export function WorkspaceHome(p: Props) {
     { label: 'Mock interviews', href: '/mock-interview', count: p.overview?.mock_interview_count, Icon: ChatBubbleLeftRightIcon },
   ]
   return <main className="studio-page studio-home">
-    <header className="studio-page-heading"><h1>Your workspace</h1><Link href="/dashboard/tools" className="studio-text-link">All tools<ChevronRightIcon aria-hidden="true" /></Link></header>
+    <header className="studio-personal-hero">
+      <SunIcon className="studio-greeting-sun" aria-hidden="true" />
+      <div><p className="type-helper text-ink-soft">Your next opportunity starts here</p><h1>{p.profile?.full_name || 'Your career workspace'}</h1><p>{p.profile?.target_job_title || 'Build your Career Profile'}</p></div>
+      {p.profile?.photo_url ? <Image src={p.profile.photo_url} width={64} height={64} unoptimized alt="" className="studio-home-avatar" /> : null}
+    </header>
+    <div className="studio-home-quick-actions" aria-label="Quick actions">
+      <Link href="/dashboard/library" className={buttonVariants({variant:'primary',size:'sm'})}><DocumentTextIcon aria-hidden="true" className="size-5" />My resumes</Link>
+      <Link href="/profile?view=details" className={buttonVariants({variant:'secondary',size:'sm'})}><UserCircleIcon aria-hidden="true" className="size-5" />Update Career Profile</Link>
+    </div>
     <div className="studio-home-grid">
       <aside className="studio-home-context" aria-label="Your profile and next steps">
         <section className="studio-readiness">
@@ -70,13 +78,14 @@ export function WorkspaceHome(p: Props) {
           {p.ready && !ongoing && p.nextAction.state === 'no_profile' ? <div className="studio-inline-links"><Link href="/profile?import=paste">Paste resume</Link><Link href="/profile?view=details">Enter details</Link></div> : null}
         </section>
         {!p.overviewError && (p.overview?.mock_in_progress_count ?? 0) > 0 && !ongoing ? <Link href="/mock-interview" className="studio-notice">{p.overview!.mock_in_progress_count} saved interviews in progress<ArrowRightIcon aria-hidden="true" /></Link> : null}
-        <section className="studio-saved-work" aria-busy={p.overviewLoading}><h2>Your saved work</h2>{p.overviewError ? <div role="alert" className="studio-notice">Saved totals unavailable. <button type="button" onClick={p.onRetryOverview}>Try again</button></div> : null}
-          <div className="studio-work-table">{work.map(row => <Link key={row.href} href={row.href} className="studio-work-row"><row.Icon aria-hidden="true" /><span className="studio-work-label">{row.label}</span><span className="studio-work-count">{p.overviewLoading ? 'Loading…' : p.overviewError || row.count === undefined ? 'Unavailable' : `${row.count} saved`}</span><span className="studio-row-open">Open<ArrowRightIcon aria-hidden="true" /></span></Link>)}</div>
+        <section className="studio-saved-work" aria-busy={p.overviewLoading}><h2>Your preparation in numbers</h2>{p.overviewError ? <div role="alert" className="studio-notice">Saved totals unavailable. <button type="button" onClick={p.onRetryOverview}>Try again</button></div> : null}
+          <div className="studio-work-table">{work.map(row => <Link key={row.href} href={row.href} className="studio-work-row"><row.Icon aria-hidden="true" /><span className="studio-work-label">{row.label}</span><span className="studio-work-count">{p.overviewLoading ? '…' : p.overviewError || row.count === undefined ? '—' : row.count}</span></Link>)}</div>
         </section>
       </div>
     </div>
+    
+    <section className="studio-performance-section" aria-label="My interview performance"><h2>My interview performance</h2><InterviewProgressOverview /></section>
     <HomeUpcomingDates packages={p.packages} now={p.now} loading={!p.packagesLoaded} error={p.packagesError} onRetry={retry} />
-    <details className="studio-progress-disclosure"><summary>Interview progress<ChevronRightIcon aria-hidden="true" /></summary><InterviewProgressOverview /></details>
     <div className="studio-home-help"><HowItWorks /></div>
   </main>
 }

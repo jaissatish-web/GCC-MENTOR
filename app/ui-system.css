@@ -2,6 +2,7 @@
    SINGLE UI CONFIGURATION. Edit tokens here; do not add page-specific type scales.
    Code-owned only: no public settings, database storage or user preference UI. */
 :root {
+  --ui-inverse-rgb: 255 255 255;
   --ui-info: rgb(var(--ui-info-rgb));
   --ui-accent-ink: rgb(var(--ui-accent-ink-rgb));
   --ui-accent: rgb(var(--ui-accent-rgb));
@@ -289,7 +290,7 @@ body .ui-button:not(:where([data-document-preview], [data-document-preview] *, #
   .app-type .ui-goal-card { padding:14px; }
 }
 .app-type .workspace-navigation { background:var(--ui-brand); }
-.editor-mobile-toolbar { position:sticky; top:56px; z-index:20; background:rgba(255,255,255,.96); backdrop-filter:blur(12px); }
+.editor-mobile-toolbar { position:sticky; top:56px; z-index:20; background:rgb(var(--ui-surface-rgb) / .96); backdrop-filter:blur(12px); }
 @media(min-width:1024px) { .editor-mobile-toolbar { display:none; } }
 .editor-settings-panel { padding:0; border:1px solid var(--ui-line); border-radius:var(--ui-card-radius); background:var(--ui-surface); color:inherit; }
 .editor-settings-scroll { padding:20px; }
@@ -432,16 +433,16 @@ body .bg-alert-soft\/50:not(:where([data-document-preview], [data-document-previ
 body .bg-alert-soft\/60:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-error-soft-rgb) / 0.6); }
 body .hover\:bg-alert-soft:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { background-color:rgb(var(--ui-error-soft-rgb) / 1); }
 body .text-canvas:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-canvas-rgb) / 1); }
-body .hover\:text-white:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-surface-rgb) / 1); }
-body .text-white:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-surface-rgb) / 1); }
-body .text-white\/45:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-surface-rgb) / 0.45); }
-body .text-white\/55:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-surface-rgb) / 0.55); }
-body .text-white\/60:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-surface-rgb) / 0.6); }
-body .text-white\/70:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-surface-rgb) / 0.7); }
-body .text-white\/75:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-surface-rgb) / 0.75); }
-body .text-white\/80:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-surface-rgb) / 0.8); }
-body .text-white\/85:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-surface-rgb) / 0.85); }
-body .text-white\/90:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-surface-rgb) / 0.9); }
+body .hover\:text-white:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-inverse-rgb) / 1); }
+body .text-white:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-inverse-rgb) / 1); }
+body .text-white\/45:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-inverse-rgb) / 0.45); }
+body .text-white\/55:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-inverse-rgb) / 0.55); }
+body .text-white\/60:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-inverse-rgb) / 0.6); }
+body .text-white\/70:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-inverse-rgb) / 0.7); }
+body .text-white\/75:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-inverse-rgb) / 0.75); }
+body .text-white\/80:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-inverse-rgb) / 0.8); }
+body .text-white\/85:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-inverse-rgb) / 0.85); }
+body .text-white\/90:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-inverse-rgb) / 0.9); }
 body .hover\:text-ink:hover:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-ink-rgb) / 1); }
 body .text-ink:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-ink-rgb) / 1); }
 body .text-ink\/55:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) { color:rgb(var(--ui-ink-rgb) / 0.55); }
@@ -1120,3 +1121,12 @@ body .app-type .text-bp-navy:not(:where([data-document-preview],[data-document-p
 body .app-type .text-bp-navy-ink:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)),
 body .app-type .text-forest:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)),
 body .app-type .text-charcoal:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { color:var(--ui-ink)!important; }
+
+/* Resume actions stay in normal flow, leaving the document unobscured. */
+.app-type .resume-top-actions { display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; width:100%; min-width:0; }
+.app-type .resume-top-actions > :is(a,button) { width:100%; min-width:0; min-height:44px; white-space:normal; text-align:center; justify-content:center; }
+.app-type .resume-top-actions .resume-action-status,.app-type .resume-top-actions .resume-action-stage { grid-column:1/-1; }
+@media(min-width:768px) { .app-type .resume-top-actions { grid-template-columns:repeat(4,minmax(0,1fr)); } }
+body .app-type .editor-mobile-toolbar:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { background:var(--ui-surface)!important; color:var(--ui-ink)!important; }
+body .app-type .editor-mobile-toolbar button:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { color:rgb(var(--ui-accent-rgb))!important; }
+body .app-type .editor-settings-panel:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { background:var(--ui-surface)!important; color:var(--ui-ink)!important; }
