@@ -21,6 +21,7 @@ try {
     fixture.document = require('./lib/resumeDocument').buildResumeDocument({
       profile: fixture.profile, optimizedContent: fixture.optimizedContent, skillsOrder: fixture.skillsOrder
     });
+    fixture.templateNames = Object.values(require('./lib/templates').TEMPLATES).map(template => template.name);
     console.log(JSON.stringify(fixture));
   `], { cwd: root, encoding: 'utf8' })
   assert.equal(fixtureResult.status, 0, fixtureResult.stderr)
@@ -65,7 +66,7 @@ try {
   await page.setViewport({ width: 1440, height: 960 })
   const errors = []
   page.on('pageerror', (e) => errors.push(e.message))
-  let profile, pkg, writes, failSave, pendingSave, releaseSave, pendingPhoto, releasePhoto
+  let profile, pkg, writes, failSave, pendingSave, releaseSave, profileWrites
   const reset = (raw = true) => {
     profile = structuredClone(fixture.profile)
     profile.photo_url = null
@@ -75,7 +76,7 @@ try {
       optimized_content: raw ? null : fixture.optimizedContent, skills_order: fixture.skillsOrder,
       field_visibility_snapshot: { ...profile.field_visibility, photo: true },
       target_job_title: 'Commissioning Engineer', target_country: 'saudi_arabia', optimization_level: 'high' }
-    writes = []; failSave = false; pendingSave = false; pendingPhoto = false
+    writes = []; profileWrites = []; failSave = false; pendingSave = false
   }
   await page.setRequestInterception(true)
   page.on('request', async (request) => {
@@ -86,9 +87,8 @@ try {
       if (url.pathname === '/' || url.pathname.startsWith('/package/')) return request.respond({ status: 200, contentType: 'text/html', body: '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><div class="app-type" id="root"></div><script src="/fixture.js"></script></body></html>'.replace('</head>', `<style>${css}</style></head>`).replace('<body>', `<body class="${bodyClass}">`) })
       if (url.pathname === '/fixture.js') return request.respond({ status: 200, contentType: 'application/javascript', body: readFileSync(join(scratch, 'fixture.js')) })
       if (url.pathname === '/api/profile/photo') {
-        if (pendingPhoto) await new Promise((done) => { releasePhoto = done })
-        profile.photo_url = '/photo.jpg'
-        return json(200, { photoUrl: profile.photo_url })
+        profileWrites.push(request.method())
+        return json(405, {error:'Career Profile can only be edited in its editor.'})
       }
       if (url.pathname === '/api/profile') return json(200, profile)
       if (url.pathname === '/api/packages/preview-fixture') {
@@ -131,16 +131,15 @@ try {
     reset(raw); await load(); await blocked(false)
     const snapshot = JSON.stringify(pkg.document_snapshot)
     const names = await page.$$eval('[aria-label="Resume templates"] > button', buttons => buttons.map(button => button.getAttribute('aria-label').split(' — ')[0]))
-    assert.equal(names.length, 53, 'Every template stays available to every profession')
-    assert.equal(new Set(names).size, 50, 'Template names remain distinct')
-    assert.ok(names.every(name => /^(Gulf|GCC) /.test(name)), 'Every template has a neutral Gulf name')
+    assert.deepEqual([...names].sort(), [...fixture.templateNames].sort(), 'Every registered template stays available to every profession')
+    assert.equal(new Set(names).size, fixture.templateNames.length, 'Template names remain distinct')
     assert.equal(await page.$('[aria-label="Filter templates by field"]'), null, 'No profession filter implies a restriction')
     await page.click('[aria-controls="text-style-panel"]')
     await click('Large'); await blocked(true)
     await click('Helvetica'); await page.click('button[aria-label="Navy"]'); await click('Dark')
     await blocked(true)
     assert.equal(writes.length, 0, 'Changing style does not save silently')
-    await page.click('[aria-label^="Gulf Classic —"]'); await blocked(true)
+    await page.click('[aria-label^="Gulf Premium —"]'); await blocked(true)
     assert.equal(writes.length, 0, 'Changing template does not save silently')
     failSave = true
     await click('Save changes')
@@ -159,7 +158,7 @@ try {
     await click('Save changes'); await blocked(false)
     assert.equal(pkg.name, 'My resume', 'Saving design never renames a resume')
     assert.ok(writes.every(update => !Object.hasOwn(update, 'name')), 'Workspace never writes the library name')
-    assert.equal(pkg.template_id, 'ats_classic')
+    assert.equal(pkg.template_id, 'gulf_premium')
     assert.equal(writes.at(-1).styleOverrides.size, 'compact')
     assert.equal(writes.at(-1).styleOverrides.accent, 'navy')
     assert.equal(writes.at(-1).styleOverrides.font, 'sans')
@@ -179,32 +178,35 @@ try {
     await click('Undo changes'); await blocked(false)
     console.log(`PASS ${raw ? 'Career Profile' : 'optimized'} preview: styles, template, name, failure, retry, pending save, concurrent edit, reset, undo, gallery and reload`)
   }
-  reset(); await load(); pendingPhoto = true
+  reset(); await load()
   assert.equal(await page.$eval('[aria-controls="photo-settings-panel"]', el => el.getAttribute('aria-expanded')), 'false')
   assert.equal(await page.$eval('#photo-settings-panel', el => el.hidden), true, 'Photo controls start collapsed')
   await page.click('[aria-controls="photo-settings-panel"]')
   assert.equal(await page.$eval('#photo-settings-panel', el => el.hidden), false, 'Photo controls expand')
-  await (await page.$('[aria-label="Choose profile photo"]')).uploadFile(join(root, 'public/sample/sample-headshot.jpg'))
+  assert.equal(await page.$('[aria-label="Choose profile photo"]'), null, 'Resume preview cannot upload profile photos')
+  assert.equal(await page.$eval('#photo-settings-panel a', el => el.getAttribute('href')), '/profile?view=details&open=sec_identity', 'Photo edits open the canonical Career Profile editor')
+  const showPhotoBefore = await page.$eval('#photo-settings-panel input[type="checkbox"]', el => el.checked)
+  await page.click('#photo-settings-panel input[type="checkbox"]')
   await blocked(true)
-  await page.click('[aria-controls="photo-settings-panel"]')
-  assert.equal(await page.$eval('#photo-settings-panel', el => el.hidden), true, 'Photo controls collapse during upload without interrupting it')
-  releasePhoto(); pendingPhoto = false
-  await blocked(false)
-  assert.equal(writes.length, 0, 'Photo keeps its existing immediate Career Profile save')
+  await click('Save changes'); await blocked(false)
+  assert.equal(pkg.style_overrides.showPhoto, showPhotoBefore ? false : undefined, 'Photo visibility still saves only on this resume')
+  assert.deepEqual(profileWrites, [], 'Resume preview makes no Career Profile writes')
+  console.log('PASS preview photo: read-only profile photo, canonical edit link, per-resume visibility save')
   mkdirSync('artifacts/preview-settings', { recursive: true })
   for (const width of [320, 390, 768, 1440]) {
+    console.log(`CHECK preview controls ${width}px`)
     reset(); await page.setViewport({ width, height: 960 }); await load()
     if (width < 1024) {
       assert.equal(await page.$eval('.editor-settings-panel', el => el.open), false, 'Mobile opens on the document, not the settings')
       await click('Templates')
       await page.waitForFunction(() => document.querySelector('.editor-settings-panel').open)
-      assert.equal(await page.$$eval('[aria-label="Resume templates"] > button', buttons => buttons.length), 50)
+      assert.equal(await page.$$eval('[aria-label="Resume templates"] > button', buttons => buttons.length), fixture.templateNames.length)
       await page.click('[aria-label^="Gulf Premium —"]'); await blocked(true)
       await page.keyboard.press('Escape')
       await page.waitForFunction(() => !document.querySelector('.editor-settings-panel').open)
       assert.equal(await page.evaluate(() => document.activeElement.textContent.trim()), 'Templates', 'Escape returns focus to the design control')
       await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight))
-      assert.ok(await page.$eval('[aria-label="Save and download CV"]', el => { const rect = el.getBoundingClientRect(); return rect.top >= 0 && rect.bottom <= innerHeight }), 'Save/download remain visible after scrolling the CV')
+      assert.ok(await page.$eval('[aria-label="Save and download resume"]', el => { const rect = el.getBoundingClientRect(); return rect.top >= 0 && rect.bottom <= innerHeight }), 'Save/download remain visible after scrolling the CV')
       await click('Save changes'); await blocked(false)
       await click('Text')
       await page.waitForFunction(() => document.querySelector('.editor-settings-panel').open)
@@ -217,16 +219,8 @@ try {
       assert.equal(await page.$eval('#photo-settings-panel', el => el.hidden), false)
       await page.keyboard.press('Tab')
       assert.ok(await page.evaluate(() => document.querySelector('.editor-settings-panel').contains(document.activeElement)), 'Sheet keeps keyboard focus inside')
-      if (width === 390) {
-        pendingPhoto = true
-        await (await page.$('[aria-label="Choose profile photo"]')).uploadFile(join(root, 'public/sample/sample-headshot.jpg'))
-        await blocked(true)
-        await click('Back to preview')
-        releasePhoto(); pendingPhoto = false
-        await blocked(false)
-        await click('Photo')
-        await page.waitForFunction(() => document.querySelector('.editor-settings-panel').open)
-      }
+      assert.equal(await page.$('[aria-label="Choose profile photo"]'), null, 'No alternate photo editor on mobile')
+      assert.equal(await page.$eval('#photo-settings-panel a', el => el.getAttribute('href')), '/profile?view=details&open=sec_identity')
       await page.screenshot({ path: `artifacts/preview-settings/settings-${width}.png`, fullPage: false })
       await click('Back to preview')
       await page.waitForFunction(() => !document.querySelector('.editor-settings-panel').open)
@@ -240,13 +234,15 @@ try {
       await page.click('[aria-controls="photo-settings-panel"]')
       await page.screenshot({ path: `artifacts/preview-settings/settings-${width}.png`, fullPage: false })
     }
+    if (width < 1024) { await click('Templates'); await page.waitForFunction(() => document.querySelector('.editor-settings-panel').open) }
     await page.click('[aria-label^="Gulf Classic —"]'); await blocked(true)
+    if (width < 1024) { await click('Back to preview'); await page.waitForFunction(() => !document.querySelector('.editor-settings-panel').open) }
     if (css) assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `No overflow at ${width}px`)
     await click('Save changes'); await blocked(false)
   }
   assert.deepEqual(errors, [])
   console.log(`PASS responsive save/download controls at 320, 390, 768 and 1440px${css ? ' with production CSS' : ' (build first to also check CSS overflow)'}`)
-  console.log('PASS photo upload disables PDF while saving; no browser errors or real API calls')
+  console.log('PASS single Career Profile photo edit destination; no browser errors or real API calls')
 } finally {
   if (browser) await browser.close()
   rmSync(scratch, { recursive: true, force: true })

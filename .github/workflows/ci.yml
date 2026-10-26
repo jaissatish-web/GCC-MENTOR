@@ -61,15 +61,15 @@ jobs:
           CHROME_PATH="$(node --input-type=module -e "import puppeteer from 'puppeteer'; console.log(await puppeteer.executablePath())")" npm run test:clear-path
           CHROME_PATH="$(node --input-type=module -e "import puppeteer from 'puppeteer'; console.log(await puppeteer.executablePath())")" npm run test:cta
           CHROME_PATH="$(node --input-type=module -e "import puppeteer from 'puppeteer'; console.log(await puppeteer.executablePath())")" npm run test:studio
-      - name: Verify deferred resume-review warning and skip actions
+      - name: Verify single profile editor, cancel, import review and staged photos
         run: |
           CHROME_PATH="$(node --input-type=module -e "import puppeteer from 'puppeteer'; console.log(await puppeteer.executablePath())")" npm run test:review
       - name: Save resume-review screenshots
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: resume-review-screenshots
-          path: artifacts/deferred-review
+          name: single-profile-editor-screenshots
+          path: artifacts/single-profile-editor
           if-no-files-found: ignore
       - name: Verify desktop and mobile services navigation
         run: |

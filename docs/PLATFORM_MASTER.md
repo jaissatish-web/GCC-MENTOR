@@ -1,3 +1,7 @@
+## Career Profile consolidation — 25 October 2026
+
+SINGLE-EDITOR-001 is implemented and locally verified, release pending. Career Profile summary/reports are read-only; Edit Career Profile opens the sole full editor. All14 logical blocks, resume-import review, photo and resume visibility share that editor and one Cancel/Save changes bar. Dashboard, readiness, settings, optimizer skill/certificate gaps and preview photo controls link into it. Imported facts require acknowledgement and permit explicit deferral of missing information; malformed supplied values require correction. Photo requests occur during Save, after the existing profile PUT; errors distinguish any saved details from a failed photo. Existing backend APIs/schema/scoring/auth/templates are unchanged. See [CAREER_PROFILE_BLOCKS.md](CAREER_PROFILE_BLOCKS.md) and [PROGRESS.md](PROGRESS.md) for current evidence and release status; older editor descriptions below are historical.
+
 # GCC Mentor — how the current platform works
 
 Updated 22 October 2026. Owner: Satish. This is the founder-readable guide to the application currently on main. Read it with [PROJECT_PLAN.md](PROJECT_PLAN.md), [CURRENT_STATE.md](CURRENT_STATE.md) and [PROGRESS.md](PROGRESS.md).

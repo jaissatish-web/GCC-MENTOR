@@ -1,14 +1,19 @@
 'use client'
 
+import Image from 'next/image'
 import { ChevronRightIcon } from '@heroicons/react/24/outline'
 
 import { validProfileEmail, validProfilePhone } from '@/lib/profileFieldValidity'
 import { rebaseImportField } from '@/lib/resumeParse/reviewPlan'
 import { INTAKE_KEY, contextFromProfile } from '@/lib/careerIntake/shared'
-import { ResumeReviewPage } from '@/components/profile/ResumeReviewPage'
+import { ResumeImportFindings } from '@/components/profile/ResumeImportFindings'
+import { ProfilePhotoDraft } from '@/components/profile/ProfilePhotoDraft'
+import { resumeReviewChecks } from '@/lib/resumeParse/reviewChecks'
+import { importReviewPlan } from '@/lib/resumeParse/reviewPlan'
+import { currentImportValue, applyImportChange } from '@/lib/resumeParse/reviewEditor'
 import { WorkExperienceItem } from '@/components/profile/WorkExperienceItem'
 import { sortedWorkRoles } from '@/lib/profileWorkNavigation'
-import type { ImportReview } from '@/lib/resumeParse/importReview'
+import { currentRoleFingerprint, type ImportReview } from '@/lib/resumeParse/importReview'
 import { organizeCategoryEntries, type CategoryMetadata } from '@/lib/profileCategories'
 import { ProfileBlockCategories, focusProfileBlockCategory } from '@/components/profile/ProfileBlockCategories'
 import { PROFILE_BLOCKS } from '@/lib/careerProfileBlocks'
@@ -31,14 +36,9 @@ import { Input } from '@/components/ui/Input'
 import { Card } from '@/components/ui/Card'
 import ReadinessRing from '@/components/ui/ReadinessRing'
 import { Toggle } from '@/components/ui/Toggle'
-import { PhotoUpload } from '@/components/profile/PhotoUpload'
 import { ResumeImport } from '@/components/profile/ResumeImport'
 import { TypicalDuties } from '@/components/profile/TypicalDuties'
 import {
-  CareerSnapshot,
-  SaveBar,
-  ScoreCards,
-  SettingsCard,
   StatusChip,
   ViewHeader,
   type SectionStatus,
@@ -46,8 +46,8 @@ import {
 } from '@/components/profile/ProfileOverview'
 import { CompletenessView, type SectionBlock } from '@/components/profile/CompletenessView'
 import { GulfReadinessView } from '@/components/profile/GulfReadinessView'
-import { CvVisibilitySettings, visibilitySummary } from '@/components/profile/CvVisibilitySettings'
-import { gccExperience, totalExperienceYears } from '@/lib/experienceYears'
+import { CvVisibilitySettings } from '@/components/profile/CvVisibilitySettings'
+import { totalExperienceYears } from '@/lib/experienceYears'
 import { gccCountryFromLocation } from '@/lib/jobMatch/gccLocation'
 import { cn } from '@/lib/utils'
 import { GULF_COUNTRIES } from '@/lib/utils'
@@ -85,76 +85,23 @@ function hasSavedProfileContent(saved: CareerProfileFull | null): boolean {
   return !!saved?.id
 }
 
-/**
- * THE SCREENS OF THIS PAGE (founder brief 2026-10-04: "the profile page looks
- * very messy — segregate it").
- *
- *   overview      photo + completeness header, what this page is, the two
- *                 score cards, profile settings, career at a glance
- *   details       the full profile — the nine-section editor
- *   completeness  Profile complete, part by part, and what is missing
- *   readiness     Gulf Readiness — paperwork, profile fixes, apply
- *   settings      what appears on the CV (was /profile/visibility)
- *
- * ONE PAGE, ONE EDITOR STATE. Each screen is `?view=` on this same route,
- * switched with the native history API (Next keeps useSearchParams in step and
- * nothing remounts), so an edit typed in one screen is still there in the next
- * and one Save writes it all. Separate routes would have unmounted the editor
- * between screens — the data loss of docs/14_OPEN_ITEMS.md B5.
- *
- * Old links keep landing: `?improve=gulf` → readiness, `?improve=strength` →
- * completeness, `?open=<section>` → details with that section open.
- */
-type ProfileView = 'summary' | 'overview' | 'details' | 'completeness' | 'readiness' | 'settings'
-const PROFILE_VIEWS: readonly ProfileView[] = ['summary', 'overview', 'details', 'completeness', 'readiness', 'settings']
+/** Career Profile summary/reports are read-only. All edit links open details.
+ * Legacy overview/settings URLs resolve to that same canonical editor. */
+type ProfileView = 'summary' | 'details' | 'completeness' | 'readiness'
+const PROFILE_VIEWS: readonly ProfileView[] = ['summary', 'details', 'completeness', 'readiness']
 const MAIN_CLASS = 'ui-page-default mx-auto flex min-h-dvh w-full flex-col bg-canvas'
 
 function viewFromParams(params: { get: (key: string) => string | null }): ProfileView {
   const v = params.get('view')
+  if (v === 'overview' || v === 'settings') return 'details'
   if (v && (PROFILE_VIEWS as readonly string[]).includes(v)) return v as ProfileView
   const improve = params.get('improve')
   if (improve === 'gulf') return 'readiness'
   if (improve === 'strength') return 'completeness'
   if (params.get('open')) return 'details'
   // The summary is the default; import links retain explicit review/replace.
-  return params.get('import') ? 'overview' : 'summary'
+  return params.get('import') ? 'details' : 'summary'
 }
-
-/**
- * Career Profile review screen — screen 04 (TASK-024), route /profile.
- *
- * One editor UI serving all three onboarding paths (docs/CAREER_PROFILE.md §4).
- * Converged with a single full-object PUT — there is no separate "confirmed"
- * flag in the schema; "Save & exit" and "Confirm profile" both write the same
- * full CareerProfile and differ only in where they navigate afterwards.
- *
- * READINESS HEADER: the ring is the header, not a widget (docs/USER_FLOW.md
- * Step 4). "Finish these to reach 100" items come straight from
- * calculateReadiness().missing (TASK-014, approved) — each taps to and focuses
- * its field INLINE on this same screen, never a route to another page.
- *
- * DATA FLOW (per founder/CTO resolved contract):
- *   1. On mount, if sessionStorage[CAREER_PROFILE_DRAFT_KEY] (TASK-023 handoff)
- *      is present, pre-fill the editor from it and clear the key.
- *   2. Otherwise (no draft) we still load any previously-saved profile via
- *      GET /api/profile so "edit existing" works — a returning user must not
- *      see an empty editor, or their next full-object PUT would silently wipe
- *      their saved data. A 404 (start-from-scratch, never saved) → empty editor.
- *   3. NOTHING is written on page load. Only the two footer buttons PUT, and
- *      they always PUT the FULL profile object (Unplanned #7 contract): both
- *      call the same save; "Save & exit" → /dashboard, "Confirm profile" →
- *      /optimize/target.
- *
- * PHOTO STUB (contract point 5): screen 04 shows "Upload photo" / "Take one
- * now", but NO code in this repo creates a Supabase Storage object (confirmed
- * in TASK-037) and there is no POST /api/profile/photo route yet. The card is
- * built per the mockup, but the two buttons are a DISABLED "coming soon" stub —
- * they must never fire a network call. Whoever builds photo upload later must
- * wire the real upload + Supabase Storage object here, and must thread cleanup
- * into components/settings/DeleteDataSection.tsx (the same gap TASK-037
- * flagged): photo_url lives on career_profiles but the binary object it points
- * to lives in Storage.
- */
 
 // ---------------------------------------------------------------------------
 // Editable row shapes (client-side editor state). Each row carries a client
@@ -417,7 +364,7 @@ function fromDraft(d: CareerProfileDraft): EditorData {
     email: str(d.email),
     linkedin_url: str(d.linkedin_url),
     professional_summary: str(d.professional_summary),
-    work_experience: (d.work_experience ?? []).map(ws),
+    work_experience: (d.work_experience ?? []).map(row => { const job = ws(row); return { ...job, end_date_unconfirmed: !job.end_date && !/\b(present|current|ongoing|to date)\b/i.test(String(row.end_date ?? '')) } }),
     skills: (d.skills ?? []).map(sk),
     certifications: (d.certifications ?? []).map(ce),
     education: (d.education ?? []).map(ed),
@@ -739,11 +686,7 @@ function CardSection({
   accent,
   status,
   children,
-  hidden = false,
-  focused = false,
 }: {
-  hidden?: boolean
-  focused?: boolean
   id?: string
   step: number
   title: string
@@ -760,8 +703,6 @@ function CardSection({
   accent?: { text: string; chip: string; rule: string }
   children: React.ReactNode
 }) {
-  if (hidden) return null
-  if (focused) return <section id={id} className="studio-profile-editor-section">{action ? <div className="studio-section-actions">{action}</div> : null}{children}</section>
   const panelId = `${id ?? `step-${step}`}-panel`
   const done = status ? status === 'complete' : typeof total === 'number' && total > 0 && (earned ?? 0) >= total
   return (
@@ -995,16 +936,17 @@ function ProfileScreen() {
   // matching panel opens on arrival. Absent → the import row shows just its buttons.
   const importParam = searchParams.get('import')
   const initialImportMode = importParam === 'upload' ? 'upload' : importParam === 'paste' ? 'paste' : 'idle'
-  const view = viewFromParams(searchParams)
+  const requestedView = viewFromParams(searchParams)
+  const [showImport, setShowImport] = useState(Boolean(importParam))
 
   // ---- Moving between the screens (see PROFILE_VIEWS) -----------------------
   // pushState, not router.push: Next syncs useSearchParams with the native
   // history API without a server round trip, and the editor stays mounted.
   const showView = useCallback(
     (next: ProfileView) => {
-      if (next !== view) window.history.pushState(null, '', `/profile?view=${next}`)
+      if (next !== requestedView) window.history.pushState(null, '', `/profile?view=${next}`)
     },
-    [view],
+    [requestedView],
   )
 
   const [editor, setEditor] = useState<EditorData | null>(null)
@@ -1012,8 +954,21 @@ function ProfileScreen() {
   const [dutiesAdded, setDutiesAdded] = useState<ReadonlySet<string>>(() => new Set())
   const [loaded, setLoaded] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
-  // Newly extracted data stays in a dedicated review until explicit confirmation.
+  // Imported facts use this same editor and require explicit review acknowledgement.
   const [reviewingImport, setReviewingImport] = useState(false)
+  const view = reviewingImport ? 'details' : requestedView
+  const [importConfirmed, setImportConfirmed] = useState(false)
+  const [showImportIssues, setShowImportIssues] = useState(false)
+  const importIssueRef = useRef<HTMLElement>(null)
+  const [photoChange, setPhotoChange] = useState<File | null | undefined>(undefined)
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
+  const savedSnapshotRef = useRef<EditorData | null>(null)
+  useEffect(() => {
+    if (!(photoChange instanceof File)) { setPhotoPreview(null); return }
+    const url = URL.createObjectURL(photoChange)
+    setPhotoPreview(url)
+    return () => URL.revokeObjectURL(url)
+  }, [photoChange])
   const [submitting, setSubmitting] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   // Computed employment gaps from GET /api/profile (TASK-067). Read-only,
@@ -1026,6 +981,11 @@ function ProfileScreen() {
   // (lib/resumeParse, 2026-10-01). Empty = nothing to show.
   const [parseNotes, setParseNotes] = useState<ParseWarning[]>([])
   const [importReview, setImportReview] = useState<ImportReview | null>(null)
+  useEffect(() => {
+    if (!reviewingImport || !importReview?.currentRoles?.length) return
+    const current = new Set(importReview.currentRoles)
+    setEditor(previous => previous && ({ ...previous, work_experience: previous.work_experience.map(job => current.has(currentRoleFingerprint(job)) && !job.end_date ? { ...job, end_date_unconfirmed: false } : job) }))
+  }, [importReview, reviewingImport])
   const reviewRequest = useRef(0)
   const refreshImportReview = useCallback(() => {
     const request = ++reviewRequest.current
@@ -1102,6 +1062,7 @@ function ProfileScreen() {
           .then((res) => { if (res.status === 404) return null; if (!res.ok) throw new Error('Profile lookup failed'); return res.json() })
           .then((data) => {
             const saved = data as CareerProfileFull | null
+            savedSnapshotRef.current = saved ? fromFull(saved) : emptyEditor()
             if (!hasSavedProfileContent(saved)) {
               const initial = fromDraft(capturedDraft)
               // Reuse explicit guest choices only for a new profile. Never overwrite
@@ -1160,6 +1121,7 @@ function ProfileScreen() {
       })
       .then(async (data) => {
         const saved = data as CareerProfileFull | null
+            savedSnapshotRef.current = saved ? fromFull(saved) : emptyEditor()
         // A PAID READING, KEPT FOR THEM (2026-09-11). Reopen the decision
         // exactly as if the CV had just been read: against a saved profile,
         // the keep-or-replace choice; with none, straight into the editor and
@@ -1195,7 +1157,7 @@ function ProfileScreen() {
         // Non-fatal: fall back to an empty editor but surface a notice so the
         // founder/CTO can see pre-Supabase (no .env.local) behaviour distinctly.
         setEditor(emptyEditor())
-        setLoadError('Could not load your saved profile. You can still edit below.')
+        setLoadError('Could not load your saved profile. Reload this page before saving to protect your existing details.')
         setLoaded(true)
       })
   }, [])
@@ -1224,7 +1186,7 @@ function ProfileScreen() {
   // Ingest a draft produced inline by the ResumeImport panel — the same decision
   // the mount effect makes for a sessionStorage handoff: against a profile that
   // already has content, go through the add-or-replace choice; otherwise load it
-  // into the dedicated review without saving. Compared against the SAVED profile
+  // into the same editor without saving. Compared against the SAVED profile
   // (a fresh GET), never the possibly-unsaved editor, matching that contract.
   const ingestDraft = useCallback((draft: CareerProfileDraft, notes?: ParseWarning[], incomingReview?: ImportReview) => {
     setParseNotes(notes ?? [])
@@ -1235,11 +1197,12 @@ function ProfileScreen() {
     // the URL, the import panel reopened in paste mode after the user chose
     // Add or Replace — an empty box asking for another CV (seen live
     // 2026-09-12) instead of folding to "Your profile is already created".
-    if (importParam) router.replace('/profile', { scroll: false })
+    if (importParam) router.replace('/profile?view=details', { scroll: false })
     fetch('/api/profile', { cache: 'no-store' })
       .then((res) => { if (res.status === 404) return null; if (!res.ok) throw new Error('Profile lookup failed'); return res.json() })
       .then((data) => {
         const saved = data as CareerProfileFull | null
+            savedSnapshotRef.current = saved ? fromFull(saved) : emptyEditor()
         if (!hasSavedProfileContent(saved)) {
           setEditor(fromDraft(draft))
           setReviewingImport(true)
@@ -1326,7 +1289,6 @@ function ProfileScreen() {
   const [invalidFields, setInvalidFields] = useState<Set<string>>(new Set())
   const [expandedWorkKey, setExpandedWorkKey] = useState<string | null>(null)
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({})
-  const [focusedSection, setFocusedSection] = useState<string | null>(null)
   const didAutoOpen = useRef(false)
 
   // On first load, open the first step that still has points available — the
@@ -1425,7 +1387,7 @@ function ProfileScreen() {
    * as the same thing.
    */
   const sectionOfField = useCallback(
-    (field: string) => Object.entries(SECTION_FIELDS).find(([, fields]) => fields.includes(field))?.[0],
+    (field: string) => field === 'photo_url' ? 'sec_identity' : Object.entries(SECTION_FIELDS).find(([, fields]) => fields.includes(field))?.[0],
     [],
   )
   const sectionTag = useCallback((sectionId: string | undefined) => {
@@ -1469,20 +1431,20 @@ function ProfileScreen() {
    * is not being painted. Found 2026-09-11: the section opened, the cursor
    * never arrived.
    *
-   * Since 2026-10-04 the fields live on the full-profile screen, so this also
-   * switches to it — and the photo, which sits in the overview's header, to
-   * the overview. The focus effect waits for that screen to be showing.
+   * Every fix opens the canonical full editor. All other section headings
+   * stay available; the focus effect waits for the requested section to open.
    */
   const [pendingFocus, setPendingFocus] = useState<{ field?: string; sectionId?: string; categoryBlock?: string } | null>(null)
   const goToProfilePart = useCallback(
     (target: { field?: string; sectionId?: string; categoryBlock?: string }) => {
-      const sectionId = target.sectionId ?? (target.field ? sectionOfField(target.field) : undefined)
-      if (sectionId) setFocusedSection(sectionId)
+      const sectionId = target.sectionId ?? (target.field ? sectionOfField(target.field) ?? (target.field.startsWith('work_experience') ? 'sec_work_experience' : target.field.startsWith('education') ? 'sec_education' : target.field.startsWith('skills') ? 'sec_skills' : target.field.startsWith('certifications') ? 'sec_certifications' : 'sec_additional') : undefined)
+      const roleIndex = target.field?.match(/^work_experience\.(\d+)/)?.[1]
+      if (roleIndex !== undefined && editor?.work_experience[Number(roleIndex)]) setExpandedWorkKey(editor.work_experience[Number(roleIndex)].key)
       if (sectionId) setOpenSections((prev) => ({ ...prev, [sectionId]: true }))
       setPendingFocus({ field: target.field, sectionId, categoryBlock: target.categoryBlock })
       showView('details')
     },
-    [sectionOfField, showView],
+    [sectionOfField, showView, editor],
   )
   // ?open=sec_certifications (optimizer v3, 2026-10-02): the level screen's
   // "add a certificate you hold" link lands on the right section, open.
@@ -1516,15 +1478,6 @@ function ProfileScreen() {
     target.scrollIntoView({ behavior: 'smooth', block: input ? 'center' : 'start' })
     if (input) input.focus({ preventScroll: true })
   }, [pendingFocus, view])
-
-  // A new screen opens at its top — unless it opened to bring a field into
-  // view, which the effect above scrolls to instead.
-  const shownView = useRef(view)
-  useEffect(() => {
-    if (shownView.current === view) return
-    shownView.current = view
-    if (!pendingFocus) window.scrollTo({ top: 0 })
-  }, [view, pendingFocus])
 
   // ---- Section status (2026-09-23) -------------------------------------------
   // Complete / Needs attention / Missing / Optional, from what is actually in
@@ -1605,34 +1558,6 @@ function ProfileScreen() {
     [sectionStatuses],
   )
 
-  // ---- What the profile already says (overview) -----------------------------
-  const profileFacts = useMemo(() => {
-    if (!editor) return null
-    const work = editor.work_experience.filter((w) => w.role.trim() || w.company.trim())
-    const latest = [...work].sort((a, b) => {
-      const aCur = !a.end_date_unconfirmed && a.end_date.trim() === '' ? 1 : 0
-      const bCur = !b.end_date_unconfirmed && b.end_date.trim() === '' ? 1 : 0
-      if (aCur !== bCur) return bCur - aCur
-      return (b.start_date || '').localeCompare(a.start_date || '')
-    })[0]
-    const countryLabel = (v: string) => GULF_COUNTRIES.find((c) => c.value === v)?.label ?? v
-    const gcc = gccExperience(
-      work.map((w) => ({ start_date: w.start_date, end_date: w.end_date || null, end_date_unconfirmed: w.end_date_unconfirmed, location: w.location, gcc_country: w.gcc_country })),
-      (loc) => gccCountryFromLocation(loc)?.country ?? null,
-    )
-    const availability = [editor.visa_status, editor.notice_period ? `Notice: ${editor.notice_period}` : ''].filter((x) => x.trim()).join(' · ')
-    return {
-      currentRoleUnconfirmed: Boolean(latest && (latest.end_date || latest.end_date_unconfirmed)),
-      experienceIncomplete: work.some(w => !w.start_date || !w.end_date && w.end_date_unconfirmed),
-      currentTitle: latest ? [latest.role, latest.company].filter((x) => x.trim()).join(' · ') : null,
-      years: totalExperienceYears({ work_experience: work.map((w) => ({ start_date: w.start_date, end_date: w.end_date || null, end_date_unconfirmed: w.end_date_unconfirmed })) } as never),
-      gcc: { ...gcc, countries: gcc.countries.map(countryLabel) },
-      location: editor.current_location.trim() || null,
-      target: editor.target_job_title.trim() || null,
-      availability: availability || null,
-    }
-  }, [editor])
-
   // ---- Is everything saved? (2026-09-23) -------------------------------------
   // The body a save would send, compared with the body last saved or loaded.
   const [savedBaseline, setSavedBaseline] = useState<string | null>(null)
@@ -1645,9 +1570,31 @@ function ProfileScreen() {
     const blankForm = !hasSavedProfile && currentBody === JSON.stringify(buildPutBody(emptyEditor()))
     if (savedBaseline === null && loaded && (hasSavedProfile || blankForm) && !pendingDraft && !reviewingImport && currentBody) {
       setSavedBaseline(currentBody)
+      savedSnapshotRef.current = editor
     }
-  }, [savedBaseline, loaded, hasSavedProfile, pendingDraft, reviewingImport, currentBody])
-  const isDirty = currentBody !== null && currentBody !== savedBaseline
+  }, [savedBaseline, loaded, hasSavedProfile, pendingDraft, reviewingImport, currentBody, editor])
+  const isDirty = photoChange !== undefined || reviewingImport || (currentBody !== null && currentBody !== savedBaseline)
+
+  useEffect(() => { setImportConfirmed(false); setShowImportIssues(false) }, [currentBody])
+  useEffect(() => {
+    if (showImportIssues) { importIssueRef.current?.focus(); importIssueRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' }) }
+  }, [showImportIssues])
+  const activeReview: ImportReview = importReview ?? { version: 1, id: 'pending-import', createdAt: '', sourceText: '', imported: { roles: 0, skills: 0, qualifications: 0, certificates: 0 }, wordingStatus: 'not_needed', changes: parseNotes.map((note, i) => ({ id: `note-${i}`, field: note.field, label: 'Please verify', kind: 'check', before: '', after: '', reason: note.message })) }
+  const reviewChecks = editor ? resumeReviewChecks({ ...activeReview, currentRoles: [...(activeReview.currentRoles ?? []), ...editor.work_experience.filter(job => !job.end_date && !job.end_date_unconfirmed).map(currentRoleFingerprint)] }, editor, change => currentImportValue(editor, change)) : []
+  const reviewPlan = importReviewPlan(reviewChecks, {})
+
+  const shownView = useRef(view)
+  useEffect(() => {
+    if (shownView.current === view) return
+    if (shownView.current === 'details' && view !== 'details' && isDirty) {
+      if (submitting || !window.confirm('Discard your unsaved Career Profile changes?')) { showView('details'); return }
+      setEditor(savedSnapshotRef.current ?? emptyEditor())
+      setPhotoChange(undefined)
+      setSaveError(null)
+    }
+    shownView.current = view
+    if (!pendingFocus) window.scrollTo({ top: 0 })
+  }, [view, pendingFocus, isDirty, submitting, showView])
 
   /** Everything a CardSection needs, so each call site stays one line of props. */
   const sectionProps = useCallback(
@@ -1655,8 +1602,6 @@ function ProfileScreen() {
       const idx = FORM_SECTIONS.findIndex((s) => s.id === sectionId)
       return {
         id: sectionId,
-        hidden: focusedSection !== null && focusedSection !== sectionId,
-        focused: focusedSection === sectionId,
         step: idx + 1,
         ...pointsFor(sectionId),
         open: Boolean(openSections[sectionId]),
@@ -1665,7 +1610,7 @@ function ProfileScreen() {
         status: statusOf(sectionId),
       }
     },
-    [pointsFor, openSections, toggleSection, statusOf, focusedSection]
+    [pointsFor, openSections, toggleSection, statusOf]
   )
 
   // "N of M key sections done" — ONE count for every screen that shows it (the
@@ -1818,8 +1763,8 @@ function ProfileScreen() {
   )
 
   const onSubmit = useCallback(
-    async (destination: 'exit' | 'confirm' | 'stay' | 'review', reviewedEditor?: EditorData) => {
-      if (!editor || submitting || (reviewingImport && destination !== 'review')) return
+    async (destination: 'stay' | 'review', reviewedEditor?: EditorData) => {
+      if (!editor || submitting || loadError || (reviewingImport && destination !== 'review')) return
       const saveEditor = reviewedEditor ?? editor
       if (reviewedEditor) setEditor(reviewedEditor)
       setSaveError(null)
@@ -1854,7 +1799,6 @@ function ProfileScreen() {
         // PhoneField's `_number` id — a missing phone once scrolled to nothing
         // (seen live 2026-09-12 on "Replace" with a CV that has no phone).
         const firstSection = sectionOfField(String(missing[0].key)) ?? [...owning][0]
-        setFocusedSection(firstSection ?? null)
         setPendingFocus({ field: String(missing[0].key), sectionId: firstSection })
         if (destination !== 'review') showView('details')
         return
@@ -1862,6 +1806,7 @@ function ProfileScreen() {
       setInvalidFields(new Set())
 
       setSubmitting(true)
+      let profileWritten = false
       try {
         const res = await fetch('/api/profile', {
           method: 'PUT',
@@ -1880,15 +1825,45 @@ function ProfileScreen() {
           setSubmitting(false)
           return
         }
+        profileWritten = true
         // Persist only after an explicit Save or review confirmation.
         // The next save is checked against the version just written.
         const savedBody = (await res.json().catch(() => null)) as { updated_at?: string | null } | null
         if (savedBody?.updated_at) savedVersionRef.current = savedBody.updated_at
-        // What is now saved — the save bar reads "All changes saved" until the next edit.
+        savedSnapshotRef.current = saveEditor
         setSavedBaseline(JSON.stringify(buildPutBody(saveEditor)))
-        // A save succeeded, so the profile now exists — the import panel folds
-        // into "Recreate my profile" (2026-09-11).
         setHasSavedProfile(true)
+        let photoError: string | null = null
+        if (photoChange !== undefined) {
+          try {
+            const body = photoChange ? new FormData() : undefined
+            if (body && photoChange) body.set('photo', photoChange)
+            const response = await fetch('/api/profile/photo', { method: photoChange ? 'POST' : 'DELETE', body })
+            const result = await response.json().catch(() => null)
+            if (!response.ok) photoError = result?.error ?? 'Please try the photo again.'
+            else setPhotoChange(undefined)
+          } catch { photoError = 'Check your connection and try the photo again.' }
+        }
+        // Reload server IDs and the optimistic version after all writes. This is
+        // especially important because the existing photo endpoint changes updated_at.
+        const refreshed = await fetch('/api/profile', { cache: 'no-store' })
+        if (!refreshed.ok) {
+          setLoadError('Your details were saved, but we could not reload the latest profile. Reload this page before making more changes.')
+          setSaveError('Details saved. Reload to confirm the latest profile and photo.')
+          setSubmitting(false)
+          return
+        }
+        const latest = await refreshed.json() as CareerProfileFull
+        const savedEditor = fromFull(latest)
+        savedSnapshotRef.current = savedEditor
+        savedVersionRef.current = versionOf(latest)
+        setEditor(savedEditor)
+        setSavedBaseline(JSON.stringify(buildPutBody(savedEditor)))
+        if (photoError) {
+          setSaveError(`Your profile details were saved, but your photo was not changed. ${photoError}`)
+          setSubmitting(false)
+          return
+        }
         // …and if this save carried a CV reading kept on the server (migration
         // 047), that reading is now resolved: clear the copy so it is not
         // offered again. Awaited, so it is gone before any navigation. If the
@@ -1900,31 +1875,52 @@ function ProfileScreen() {
         if (destination === 'review') {
           try { sessionStorage.removeItem(INTAKE_KEY); sessionStorage.removeItem('gulf_readiness_answers') } catch { /* Storage may be unavailable. */ }
           setReviewingImport(false)
+          setShowImport(false)
           setParseNotes([])
           setSubmitting(false)
-          showView('overview')
+          showView('summary')
           window.scrollTo({ top: 0 })
           return
         }
         if (destination === 'stay') {
           setSubmitting(false)
+          setShowImport(false)
+          showView('summary')
+          window.scrollTo({ top: 0 })
           return
         }
-        router.push(destination === 'confirm' ? '/optimize/target' : '/dashboard')
+
       } catch {
-        setSaveError('Network error. Please check your connection and try again.')
+        setSaveError(profileWritten ? 'Your profile details were saved, but the latest profile could not be loaded. Reload before editing again.' : 'Network error. Please check your connection and try again.')
+        if (profileWritten) setLoadError('Reload this page to confirm your saved profile and photo before making more changes.')
         setSubmitting(false)
       }
     },
-    [editor, router, showView, submitting, reviewingImport, sectionOfField]
+    [editor, showView, submitting, reviewingImport, sectionOfField, photoChange, loadError]
   )
 
   useEffect(() => {
-    if (!reviewingImport) return
+    if (!isDirty) return
     const protectReview = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = '' }
     window.addEventListener('beforeunload', protectReview)
     return () => window.removeEventListener('beforeunload', protectReview)
-  }, [reviewingImport])
+  }, [isDirty, submitting])
+
+  // Next client-side navigation does not fire beforeunload. Guard app links too.
+  useEffect(() => {
+    if (view !== 'details' || (!isDirty && !submitting)) return
+    const protectLink = (event: MouseEvent) => {
+      const link = event.target instanceof Element ? event.target.closest('a[href]') : null
+      if (!(link instanceof HTMLAnchorElement) || link.target === '_blank' || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return
+      const next = new URL(link.href, window.location.href)
+      if (next.pathname === '/profile' && viewFromParams(next.searchParams) === 'details') return
+      if (submitting || !window.confirm('Leave without saving your Career Profile changes?')) {
+        event.preventDefault(); event.stopImmediatePropagation()
+      }
+    }
+    document.addEventListener('click', protectLink, true)
+    return () => document.removeEventListener('click', protectLink, true)
+  }, [view, isDirty, submitting])
 
   // An extraction is a pending draft, never a Career Profile. Only the
   // explicit review confirmation below calls the existing profile save API.
@@ -1976,7 +1972,7 @@ function ProfileScreen() {
             }
             setParseNotes(notes => notes.map(note => ({ ...note, field: rebaseImportField(note.field, pendingDraft.draft, merged.profile) })))
             setSavedBaseline(JSON.stringify(buildPutBody(fromFull(pendingDraft.existing))))
-            setEditor(fromFull(merged.profile))
+            setEditor({ ...fromFull(merged.profile), work_experience: fromFull(merged.profile).work_experience.map(job => job.id ? job : { ...job, end_date_unconfirmed: !job.end_date && !activeReview.currentRoles?.includes(currentRoleFingerprint(job)) }) })
             setPendingDraft(null)
             setReviewingImport(true)
           }}
@@ -2066,17 +2062,6 @@ function ProfileScreen() {
     )
   }
 
-  if (reviewingImport) {
-    const review = importReview ?? {
-      version: 1 as const, id: 'pending-import', createdAt: '', sourceText: '',
-      imported: { roles: editor.work_experience.length, skills: editor.skills.length, qualifications: editor.education.length, certificates: editor.certifications.length },
-      wordingStatus: 'not_needed' as const,
-      changes: parseNotes.map((note, i) => ({ id: `pending-note-${i}`, field: note.field, label: 'Please verify', kind: 'check' as const, before: '', after: '', reason: note.message })),
-    }
-    return <ResumeReviewPage value={editor} review={review} existing={hasSavedProfile} busy={submitting} error={loadError ?? saveError} cannotConfirm={!!loadError} score={readiness.score} missing={readiness.missing} onChange={next => setEditor(next)} onConfirm={next => { if (!loadError) void onSubmit('review', next) }} />
-  }
-
-  const hasProfile = Boolean(hasSavedProfile || editor.full_name.trim())
   const headlineEntry = profileHeadline(editor.additional_information)
   const headlineValue = headlineEntry?.value ?? editor.target_job_title
   const headlineShown = headlineEntry?.show_on_resume !== false
@@ -2085,29 +2070,39 @@ function ProfileScreen() {
     additional_information: setProfileHeadline(e.additional_information, value, shown, () => crypto.randomUUID())
       .map(row => row.key ? row : { ...row, key: uid() }),
   }))
-  const saveState: 'saved' | 'dirty' | 'saving' | 'error' = submitting ? 'saving' : saveError ? 'error' : isDirty ? 'dirty' : 'saved'
-  // Returning to Home must not discard edits. Reuse the existing save/validation path.
-  const returnHome = () => { if (submitting) return; if (isDirty) void onSubmit('exit'); else router.push('/dashboard') }
-  const saveButton = (
-    <Button variant="primary" size="sm" busy={submitting} busyLabel="Saving…" onClick={() => void onSubmit('stay')}>
-      Save
-    </Button>
-  )
-  // THE SAVE BAR (2026-09-23): always says whether the profile is saved, sits
-  // where the user is, and shows a failed save next to the button that caused
-  // it. The same on every screen, so a Save pressed anywhere is confirmed.
-  // Once saved, the overview's button leaves for the dashboard; every screen
-  // the overview opened returns to the profile instead (founder request
-  // 2026-10-04).
-  const saveBar = hasSavedProfile || isDirty || saveError ? (
-    <SaveBar
-      state={saveState}
-      message={saveError}
-      onSave={() => void onSubmit('stay')}
-      onFinish={returnHome}
-      finishLabel={isDirty ? 'Save & Home' : 'Home'}
-    />
-  ) : null
+  const cancelEditing = () => {
+    if (submitting) return
+    if (reviewingImport) {
+      resolvesPendingRef.current = false
+      reviewRequest.current++
+      setImportReview(null)
+      setParseNotes([])
+      void fetch('/api/profile/pending-draft', { method: 'DELETE' }).catch(() => {})
+      void fetch('/api/profile/import-review', { method: 'DELETE' }).catch(() => {})
+    }
+    setEditor(savedSnapshotRef.current ?? emptyEditor())
+    setPhotoChange(undefined)
+    setReviewingImport(false)
+    setImportConfirmed(false)
+    setShowImportIssues(false)
+    setShowImport(false)
+    setSaveError(null)
+    setInvalidFields(new Set())
+    setSavedBaseline(JSON.stringify(buildPutBody(savedSnapshotRef.current ?? emptyEditor())))
+    showView('summary')
+  }
+  const saveChanges = (defer = false) => {
+    if (reviewingImport) {
+      if (!importConfirmed || loadError) return
+      if (reviewPlan.outstanding.length && !defer) { setShowImportIssues(true); return }
+      if (reviewPlan.invalid.length) { setShowImportIssues(true); return }
+      void onSubmit('review')
+    } else void onSubmit('stay')
+  }
+  const saveBar = <div data-profile-save-bar className="profile-save-bar page-gutter sticky bottom-[76px] z-20 flex flex-wrap items-center justify-between gap-3 border-t border-line bg-white/95 py-3 backdrop-blur md:bottom-0">
+    <p role="status" aria-live="polite" className={cn('type-helper', saveError ? 'text-alert' : 'text-ink-muted')}>{saveError ?? (submitting ? 'Saving…' : isDirty ? 'You have unsaved changes' : 'All changes saved')}</p>
+    <div className="flex gap-2"><Button variant="secondary" size="sm" disabled={submitting} onClick={cancelEditing}>Cancel</Button><Button size="sm" busy={submitting} busyLabel="Saving…" disabled={!!loadError || (reviewingImport && !importConfirmed)} onClick={() => saveChanges()}>Save changes</Button></div>
+  </div>
   const parseNotesBlock = importReview ? null : (
     <ParseNotes
       notes={parseNotes}
@@ -2127,7 +2122,7 @@ function ProfileScreen() {
         <ViewHeader
           eyebrow="Completeness"
           title="Profile completeness"
-          description="Complete the missing details."
+          description="Review missing details. Update Career Profile to make changes."
           onBack={() => showView('summary')}
           backLabel="Profile"
         />
@@ -2139,7 +2134,6 @@ function ProfileScreen() {
           onOpenSection={(sectionId) => goToProfilePart({ sectionId })}
           onFix={(field) => goToProfilePart({ field })}
         />
-        {saveBar}
         <div className="pb-8" />
       </main>
     )
@@ -2163,31 +2157,9 @@ function ProfileScreen() {
           onOpenSection={(sectionId) => goToProfilePart({ sectionId })}
           // Saves first, so edits made here are never left behind, and the
           // required-field check still runs (the old "Build a CV for a job").
-          onApply={() => void onSubmit('confirm')}
+          onApply={() => router.push('/optimize/target')}
           applyBusy={submitting}
         />
-        {saveBar}
-        <div className="pb-8" />
-      </main>
-    )
-  }
-
-  // ---- Profile settings (what appears on the CV) ----------------------------
-  if (view === 'settings') {
-    return (
-      <main data-ui-service="profile" className={MAIN_CLASS}>
-        <ViewHeader
-          eyebrow="Settings"
-          title="Profile settings"
-          description="Choose what appears on your resume."
-          onBack={() => showView('summary')}
-          backLabel="Profile"
-          action={saveButton}
-        />
-        {visibilityFilled ? (
-          <CvVisibilitySettings value={editor.field_visibility} filled={visibilityFilled} onChange={setVisibility} />
-        ) : null}
-        {saveBar}
         <div className="pb-8" />
       </main>
     )
@@ -2204,198 +2176,50 @@ function ProfileScreen() {
       { id: 'sec_skills', title: 'Skills & tools', lines: [editor.skills.map(item => item.name.trim()).filter(Boolean).slice(0, 7).join(' · ')] },
       { id: 'sec_status', title: 'Gulf preferences', lines: [editor.target_job_title, country, editor.notice_period] },
     ]
-    const openFullProfile = () => { setFocusedSection(null); showView('details') }
+    const openFullProfile = () => showView('details')
     return <main data-ui-service="profile" className="studio-page studio-profile-summary">
-      <header className="studio-page-heading"><h1>Profile</h1><button type="button" className="studio-text-link" onClick={() => showView('settings')}>Resume visibility</button></header>
+      <header className="studio-page-heading"><h1>Career Profile</h1><Button size="sm" onClick={openFullProfile}>Edit Career Profile</Button></header>
       {parseNotesBlock}{loadErrorBlock}
       <div className="studio-profile-layout">
         <div>
           <div className="studio-profile-identity">
-            <div id="f_photo" tabIndex={-1}><PhotoUpload compact photoUrl={editor.photo_url || null} onChange={next => setField({ photo_url: next ?? '' })} /></div>
+            <div className="grid size-20 shrink-0 place-items-center overflow-hidden rounded-ctl border border-line bg-canvas">{editor.photo_url ? <Image src={editor.photo_url} alt="Your profile photo" width={80} height={80} unoptimized className="size-full object-cover" /> : <span className="type-helper text-ink-muted">No photo</span>}</div>
             <div><h2>{editor.full_name || 'Your profile'}</h2>{headlineValue ? <p>{headlineValue}</p> : null}{editor.current_location ? <p>{editor.current_location}</p> : null}</div>
           </div>
           {rows.map(row => {
             const lines = row.lines.map(line => line.trim()).filter(Boolean)
-            return <button key={row.id} type="button" className="studio-profile-row" onClick={() => goToProfilePart({ sectionId: row.id })}>
+            return <div key={row.id} className="studio-profile-row">
               <span><span className="studio-profile-row-heading"><strong>{row.title}</strong></span><span className="studio-profile-row-details">{lines.length ? lines.map((line, index) => <span key={index} className="studio-profile-row-detail">{line}</span>) : <span className="studio-profile-row-detail">{statusOf(row.id) === 'complete' ? 'Details recorded' : 'Add your details'}</span>}</span></span>
-              <span className="studio-profile-edit">Edit<ChevronRightIcon className="size-4" aria-hidden="true" /></span>
-            </button>
+              </div>
           })}
-          <button type="button" className="studio-profile-additional" onClick={openFullProfile}><span><strong>All profile sections</strong><span>Summary, languages, projects, licences and more</span></span><ChevronRightIcon className="size-5" aria-hidden="true" /></button>
-          {!hasProfile ? <ResumeImport initialMode={initialImportMode} collapsible={false} onDraft={ingestDraft} onFillManually={openFullProfile} /> : null}
+          <p className="mt-3 type-helper text-ink-muted">Use Edit Career Profile to update your information, photo and resume visibility.</p>
         </div>
         <aside className="studio-profile-aside">
           <h2>Profile completeness</h2><strong className="studio-profile-score">{readiness.score}<span> /100</span></strong><progress max={100} value={readiness.score} aria-label="Profile completeness" />
           <button type="button" className="studio-text-link" onClick={() => showView('completeness')}>{readiness.missing.length ? `Review ${readiness.missing.length} missing details` : 'Review profile details'}</button>
           <button type="button" className="studio-text-link" onClick={() => showView('readiness')}>Gulf preparation<ChevronRightIcon className="size-4" aria-hidden="true" /></button>
           <hr />{hasSavedProfile ? <CareerProfileResumeButton showHint={false} /> : null}
-          <button type="button" className="studio-text-link" onClick={() => showView('overview')}>Update from resume</button>
-          {hasSavedProfile ? <button type="button" className="studio-text-link" disabled={submitting} onClick={() => void onSubmit('confirm')}>Optimize Resume</button> : null}
+          {hasSavedProfile ? <button type="button" className="studio-text-link" disabled={submitting} onClick={() => router.push('/optimize/target')}>Optimize Resume</button> : null}
         </aside>
       </div>
       {claimedScan ? <details className="studio-profile-scan"><summary>Your last resume scan · {claimedScan.overall_score}/100</summary><p>Structure {claimedScan.category_scores.structure} · Clarity {claimedScan.category_scores.clarity_and_impact} · Gulf readiness {claimedScan.category_scores.gulf_readiness}</p><button type="button" className="studio-text-link" onClick={() => setClaimedScan(null)}>Dismiss scan result</button></details> : null}
-      {saveBar}
     </main>
-  }
-
-  // ---- Overview -------------------------------------------------------------
-  if (view === 'overview') {
-    const vis = visibilitySummary(editor.field_visibility)
-    return (
-      <main data-ui-service="profile" className={MAIN_CLASS}>
-        <header className="workspace-heading page-gutter flex flex-col gap-4 pb-5 pt-6 sm:pt-8">
-          <GulfContext />
-          <div className="grid grid-cols-[68px_minmax(0,1fr)] items-center gap-4 sm:grid-cols-[68px_minmax(0,1fr)_auto]">
-            <div id="f_photo" tabIndex={-1} className="shrink-0 rounded-card focus:outline-none">
-              <PhotoUpload compact photoUrl={editor.photo_url || null} onChange={(next) => setField({ photo_url: next ?? '' })} />
-            </div>
-            <div className="min-w-0 flex-1">
-              <h1 className="type-title text-ink">Career Profile</h1>
-              <p className="mt-1 type-helper text-ink-soft">{editor.full_name || 'Your experience. Your next Gulf role.'}</p>
-            </div>
-            <div className="col-span-2 sm:col-span-1">
-              <Button variant="primary" size="sm" busy={submitting} busyLabel="Saving…" onClick={() => void onSubmit('stay')}>Save</Button>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <span role="progressbar" aria-label="Profile complete" aria-valuemin={0} aria-valuemax={100} aria-valuenow={readiness.score} className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-line"><span className="block h-full rounded-full bg-teal" style={{ width: `${readiness.score}%` }} /></span>
-            <span className="shrink-0 type-caption text-ink-muted">{readiness.score}% complete · {itemsLeft} left</span>
-          </div>
-        </header>
-
-        {/* The CV reader's "please check these" — first, while it is fresh. */}
-        {parseNotesBlock}
-        {loadErrorBlock}
-        {readiness.missing.length > 0 && <div className="mx-3 mt-4 flex flex-col gap-3 rounded-card bg-gold-soft p-4 sm:mx-5 sm:flex-row sm:items-center sm:justify-between"><div><p className="type-label font-semibold text-gold-ink">Update needed · {readiness.missing.length} details</p><p className="mt-1 type-helper text-ink-soft">Your profile completeness reflects missing information. Open either readiness result to see what to update.</p></div><button type="button" className={buttonVariants({variant:'secondary',size:'sm'})} onClick={()=>goToProfilePart({field:readiness.missing[0].field})}>Update {readiness.missing[0].label}</button></div>}
-
-        {/* WELCOME BACK — one-time claimed anonymous scan result (TASK-070).
-            Dismissible and non-blocking; the editor is fully usable underneath.
-            Renders only when CLAIMED_SCAN_RESULT_KEY was actually present — and
-            that key was already read+cleared in the mount pass, so this can never
-            reappear after a reload. */}
-        {claimedScan ? (
-          <div className="mx-3 sm:mx-5 mt-4 flex items-start justify-between gap-3 rounded-ctl border border-teal/40 bg-white px-4 py-3">
-            <div className="flex flex-col gap-1">
-              <p className="type-helper font-semibold uppercase tracking-[0.14em] text-teal">
-                Welcome back
-              </p>
-              <p className="type-helper font-medium text-ink">
-                Here&rsquo;s what we found in your last scan &mdash; it carries over into your Career Profile.
-              </p>
-              <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1">
-                <span className="font-mono text-2xl font-semibold text-teal">
-                  {claimedScan.overall_score}
-                  <span className="text-sm">/100</span>
-                </span>
-                <span className="font-mono type-caption text-ink-soft">Structure {claimedScan.category_scores.structure}</span>
-                <span className="font-mono type-caption text-ink-soft">Clarity {claimedScan.category_scores.clarity_and_impact}</span>
-                <span className="font-mono type-caption text-ink-soft">Gulf-readiness {claimedScan.category_scores.gulf_readiness}</span>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setClaimedScan(null)}
-              aria-label="Dismiss welcome back banner"
-              className="min-h-11 shrink-0 px-1 text-ink-muted transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
-            >
-              ✕
-            </button>
-          </div>
-        ) : null}
-
-
-        {hasSavedProfile && editor.full_name.trim() ? (
-          <div className="mx-3 sm:mx-5 mt-4 flex flex-col gap-3 rounded-card border border-line bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex flex-col gap-0.5">
-              <p className="type-label font-semibold text-ink">Preview your resume</p>
-              <p className="type-helper leading-relaxed text-ink-soft">
-                Your saved experience. Your choice of Gulf template.
-              </p>
-            </div>
-            <div className="ui-action-group">
-            <CareerProfileResumeButton showHint={false} />
-            <Button
-              variant="progress"
-              size="sm"
-              className="shrink-0"
-              busy={submitting}
-              busyLabel="Saving…"
-              onClick={() => void onSubmit('confirm')}
-            >
-              Optimize Resume
-            </Button>
-            </div>
-          </div>
-        ) : null}
-
-
-        {hasProfile && profileFacts ? (
-          <>
-            <section aria-labelledby="profile-sections-title" className="mx-3 mt-6 sm:mx-5">
-              <div className="mb-3 flex items-center justify-between gap-3"><h2 id="profile-sections-title" className="type-section text-ink">Your details</h2><button type="button" onClick={() => { setFocusedSection(null); showView('details') }} className="min-h-11 type-label text-teal hover:underline">Edit profile →</button></div>
-              <div className="workspace-panel divide-y divide-line">
-                {sectionStatuses.map((section, index) => (
-                  <button key={section.id} type="button" onClick={() => goToProfilePart({ sectionId: section.id })} className="flex min-h-16 w-full items-center gap-3 px-4 py-3 text-left hover:bg-teal-soft/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal sm:px-5">
-                    <span aria-hidden="true" className="flex size-7 shrink-0 items-center justify-center rounded-lg bg-teal-soft/60 type-caption text-teal">{index + 1}</span>
-                    <span className="min-w-0 flex-1"><span className="block type-label font-semibold text-ink">{section.label}</span><span className="mt-0.5 block type-caption text-ink-muted">{section.hint}</span></span>
-                    <StatusChip status={section.status} />
-                  </button>
-                ))}
-              </div>
-            </section>
-            <details className="group mx-3 mt-5 rounded-card border border-line bg-white sm:mx-5">
-              <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 type-label font-semibold text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-teal [&::-webkit-details-marker]:hidden">Profile insights & resume visibility<span aria-hidden="true" className="text-lg text-teal group-open:rotate-45">+</span></summary>
-              <div className="border-t border-line pb-4">
-                <ScoreCards completeness={{ score: readiness.score, itemsLeft, detail: `${doneCount} of ${keyCount} key sections done` }} gulf={gulfReadiness} onOpenCompleteness={() => showView('completeness')} onOpenReadiness={() => showView('readiness')} />
-                <SettingsCard shown={vis.shown} total={vis.total} groups={vis.groups} onOpen={() => showView('settings')} />
-                <CareerSnapshot facts={profileFacts} onOpen={goToProfilePart} onOpenAll={() => { setFocusedSection(null); showView('details') }} />
-              </div>
-            </details>
-          </>
-        ) : null}
-
-        {/* THE WAY FORWARD (2026-09-12). Once a profile is saved — including the
-            auto-save straight after a CV is read — this page had no next step:
-            the only exit was Save, back to the dashboard. The "save, then go to
-            the optimizer" path already existed (onSubmit('confirm')) with nothing
-            calling it. It saves first, so edits made here are never left behind,
-            and the required-field check still runs. */}
-        {/* START OR UPDATE FROM A RESUME — the three ways in that used to live on
-            the /create-resume screen and in the sidebar (founder decision
-            2026-08-18: fold them onto the Career Profile itself, and 2026-08-18:
-            do the import INLINE so it is one screen with a consistent back, not a
-            hop out to /onboarding/extracting). Upload/paste run the SAME parse
-            endpoints; the resulting draft goes through ingestDraft, which reuses
-            the page's own add-or-replace step — nothing is overwritten silently.
-            Once a saved profile exists it collapses to "Recreate my profile"
-            (2026-09-11), so nobody is asked to create what they already have.
-            "Type it myself" / "Edit it myself" open the full-profile screen. */}
-        <ResumeImport
-          initialMode={initialImportMode}
-          collapsible={hasSavedProfile}
-          onDraft={ingestDraft}
-          onFillManually={() => { setFocusedSection(null); showView('details') }}
-        />
-        {saveBar}
-        <div className="pb-8" />
-      </main>
-    )
   }
 
   // ---- The full profile (view === 'details') --------------------------------
   return (
-    <main data-ui-service="profile" className={cn(MAIN_CLASS, focusedSection && 'studio-page studio-focused-editor')}>
-      <ViewHeader
-        eyebrow="Full profile"
-        title={FORM_SECTIONS.find(section => section.id === focusedSection)?.label ?? 'Your full profile'}
-        description={focusedSection ? '' : 'Review and edit your details.'}
-        onBack={() => showView('summary')}
-        backLabel="Profile"
-        action={focusedSection ? undefined : saveButton}
-      />
-      <div className="studio-full-editor-intro page-gutter flex flex-wrap items-center gap-4 py-3"><div id="f_photo" tabIndex={-1}><PhotoUpload compact photoUrl={editor.photo_url || null} onChange={(next) => setField({ photo_url: next ?? '' })} /></div><CareerProfileResumeButton /><Button variant="secondary" size="sm" onClick={() => showView('overview')}>Update from resume</Button><Button variant="secondary" size="sm" busy={submitting} onClick={() => void onSubmit('confirm')}>Optimize Resume</Button></div>
-      {parseNotesBlock}
+    <main data-ui-service="profile" className={MAIN_CLASS}>
+      <ViewHeader eyebrow="Career Profile" title="Edit Career Profile" description="Update your information here, then save your changes." onBack={cancelEditing} backLabel="Career Profile" />
       {loadErrorBlock}
+      {reviewingImport ? <ResumeImportFindings review={activeReview} currentValue={change => currentImportValue(editor, change)} onChoose={(change, value) => setEditor(applyImportChange(editor, change, value, uid))} checks={reviewChecks} confirmed={importConfirmed} busy={submitting} onConfirm={setImportConfirmed} onFix={field => goToProfilePart({ field })} /> : null}
+      {showImportIssues && reviewingImport ? <section ref={importIssueRef} tabIndex={-1} aria-labelledby="review-issues-title" className="mx-3 my-4 rounded-card border border-alert bg-alert-soft p-4 text-alert sm:mx-5">
+        <h2 id="review-issues-title" className="type-section">Some details still need attention</h2><p className="mt-2 type-helper">Update them now, or save with missing details and complete them later. Invalid supplied values must be corrected or cleared.</p>
+        <div className="mt-3 flex flex-wrap gap-2"><Button variant="secondary" size="sm" onClick={() => goToProfilePart({ field: reviewPlan.outstanding[0]?.field ?? 'full_name' })}>Update now</Button><Button size="sm" disabled={submitting || reviewPlan.invalid.length > 0} onClick={() => saveChanges(true)}>Skip and save</Button></div>
+      </section> : null}
+      <fieldset disabled={submitting} className="min-w-0">
+      <div className="page-gutter py-4"><Button variant="secondary" size="sm" aria-expanded={showImport} onClick={() => setShowImport(value => !value)}>Update from resume</Button>
+      {showImport ? <ResumeImport initialMode={initialImportMode} collapsible={false} onDraft={ingestDraft} onFillManually={() => setShowImport(false)} /> : null}</div>
+      {parseNotesBlock}
 
       {/* Editor body */}
       <div id="profile-editor" className="page-gutter flex scroll-mt-4 flex-col gap-2.5 py-4">
@@ -2414,15 +2238,17 @@ function ProfileScreen() {
           )}
         </p>
 
-        <nav aria-label="Career Profile blocks" className="space-y-3 rounded-card border border-line bg-white p-4">
-          <div><h2 className="font-semibold text-ink">Your 14 Career Profile blocks</h2><p className="field-hint">Open a block to review your details. Specialist blocks are optional; add only what applies to you.</p></div>
+        <details className="rounded-card border border-line bg-white p-4"><summary className="min-h-11 cursor-pointer type-label font-semibold text-ink">Find a profile section</summary><nav aria-label="Career Profile blocks" className="mt-3 space-y-3">
+          <p className="field-hint">Jump to any section below. Add specialist details only when they apply to you.</p>
           <div className="grid gap-2 sm:grid-cols-2">
             {PROFILE_BLOCKS.map((block, index) => {
               const sections: Record<string, string> = { contact: 'sec_identity', summary: 'sec_summary', experience: 'sec_work_experience', education: 'sec_education', skills: 'sec_skills', training: 'sec_certifications', licences: 'sec_license', gulf: 'sec_status' }
               return <button key={block.id} type="button" className="min-h-11 rounded-ctl border border-line px-3 py-2 text-left type-helper font-semibold text-ink hover:border-teal focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal" onClick={() => goToProfilePart({ sectionId: sections[block.id] ?? 'sec_additional', categoryBlock: sections[block.id] ? undefined : block.id })}>{index + 1}. {block.title}</button>
             })}
           </div>
-        </nav>
+        </nav></details>
+
+        <section aria-label="Profile photo" className="rounded-card border border-line bg-white p-4"><ProfilePhotoDraft photoUrl={photoChange === null ? null : photoPreview ?? (editor.photo_url || null)} busy={submitting} onSelect={setPhotoChange} /></section>
 
         {/* STATUS & TARGET */}
         <CardSection
@@ -2512,7 +2338,7 @@ function ProfileScreen() {
           action={
             <button
               type="button"
-              onClick={() => showView('settings')}
+              onClick={() => { const panel = document.getElementById('profile-visibility') as HTMLDetailsElement | null; if (panel) { panel.open = true; panel.scrollIntoView({ behavior: 'smooth', block: 'start' }) } }}
               className="-mx-1 inline-flex min-h-11 items-center px-1 type-helper font-semibold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
             >
               What appears on your resume →
@@ -2584,7 +2410,7 @@ function ProfileScreen() {
               value={editor.current_location}
               onChange={(e) => setField({ current_location: e.target.value })}
             />
-            <details className="studio-contact-extras sm:col-span-2" open={focusedSection !== 'sec_identity'}>
+            <details className="studio-contact-extras sm:col-span-2">
               <summary>Personal & Gulf details</summary><div className="grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <TextField
@@ -3112,6 +2938,8 @@ function ProfileScreen() {
         </CardSection>
       </div>
 
+      <details id="profile-visibility" className="mx-3 my-4 rounded-card border border-line bg-white sm:mx-5" open={searchParams.get('view') === 'settings'}><summary className="min-h-11 cursor-pointer p-4 type-label font-semibold text-ink">Resume visibility</summary>{visibilityFilled ? <CvVisibilitySettings value={editor.field_visibility} filled={visibilityFilled} onChange={setVisibility} /> : null}</details>
+      </fieldset>
       {saveBar}
       <div className="pb-8" />
     </main>
