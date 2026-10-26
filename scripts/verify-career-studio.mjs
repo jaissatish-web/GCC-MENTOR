@@ -62,7 +62,7 @@ try {
     await page.waitForSelector('.studio-profile-summary')
     assert.equal(await page.$eval('.studio-profile-identity h2',el=>el.textContent),'Maya Review Draft','Save returns to the updated read-only summary')
     const writes=await(await fetch(origin+'/__writes')).json();const save=writes.find(w=>w.path==='/api/profile');assert.ok(save?.body.expected_updated_at!==undefined,'Optimistic version retained');assert.equal(save.body.full_name,'Maya Review Draft')
-    await go('/package/studio-resume');await page.waitForSelector('.studio-document-summary');assert.equal(await page.$$eval('.studio-service-row',els=>els.length),3);assert.equal(await page.$eval('.studio-workspace-actions',el=>el.open),false)
+    await go('/package/studio-resume');await page.waitForSelector('.studio-document-summary');assert.equal(await page.$$eval('.studio-service-row',els=>els.length),3);assert.equal(await page.$eval('.resume-top-actions',el=>getComputedStyle(el).display),'grid');assert.equal(await page.$eval('.editor-action-dock',els=>els.length),0,'No floating dock covers the resume');assert.deepEqual(await page.$eval('.resume-top-actions > button',els=>els.slice(0,2).map(el=>el.textContent.trim())),['Undo changes','Save changes'],'Undo and Save remain available in the top action group')
     assert.ok(await page.$eval('.studio-service-row[href^="/mock-interview"]',el=>el.href.includes('package=studio-resume')))
     await reflow('Resume '+width);await shot('resume-'+width)
     await go('/mock-interview?package=studio-resume&run=run-active');await page.waitForSelector('.studio-interview-room');await page.waitForSelector('textarea')
