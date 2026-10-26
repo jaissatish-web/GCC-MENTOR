@@ -150,5 +150,5 @@ COMPACT-BRAND-001 implemented and locally verified: one root palette/type system
 COMPACT-BRAND-001 implementation and local verification are complete. PR #40 targets protected main; required CI and merge are pending. The production deployment has not been updated or verified.
 
 
-## 26 October 2026 — SKILLPILOT-BRAND-001 approved, implementation pending
+## 26 October 2026 — SKILLPILOT-BRAND-001 implementation on review branch
 Satish asks to adapt SkillPilot's typography, boxes, header, visuals and text/CTA alignment across public and signed-in GCC Mentor, using its navy/blue/cyan palette. Requirements and protected scope: [SKILLPILOT_BRAND_2026-10-26.md](SKILLPILOT_BRAND_2026-10-26.md). Visual-only. Preserve APIs, auth, services, scores, prompts, payment/data flows and resume/document styles. Next: update shared palette, typography and layout consumers, inspect diff and verify phone/desktop screens. Do not call it live until deployment is confirmed.
