@@ -1120,3 +1120,12 @@ body .app-type .text-bp-navy:not(:where([data-document-preview],[data-document-p
 body .app-type .text-bp-navy-ink:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)),
 body .app-type .text-forest:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)),
 body .app-type .text-charcoal:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { color:var(--ui-ink)!important; }
+
+/* Resume actions stay in normal flow, leaving the document unobscured. */
+.app-type .resume-top-actions { display:grid!important; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; width:100%; min-width:0; }
+.app-type .resume-top-actions > :is(a,button) { width:100%; min-width:0; min-height:44px; white-space:normal; text-align:center; justify-content:center; }
+.app-type .resume-top-actions .resume-action-status,.app-type .resume-top-actions .resume-action-stage { grid-column:1/-1; }
+@media(min-width:768px) { .app-type .resume-top-actions { grid-template-columns:repeat(4,minmax(0,1fr)); } }
+body .app-type .editor-mobile-toolbar { background:var(--ui-surface)!important; color:var(--ui-ink)!important; }
+body .app-type .editor-mobile-toolbar button { color:rgb(var(--ui-accent-rgb))!important; }
+body .app-type .editor-settings-panel { background:var(--ui-surface)!important; color:var(--ui-ink)!important; }
