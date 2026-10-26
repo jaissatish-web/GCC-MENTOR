@@ -1,33 +1,33 @@
-/* COMPACT BRAND — 26 October 2026. White surfaces, slate type, indigo actions.
+/* SKILLPILOT-BRAND-001 — 26 October 2026. Navy surfaces, blue actions, cyan details.
    SINGLE UI CONFIGURATION. Edit tokens here; do not add page-specific type scales.
    Code-owned only: no public settings, database storage or user preference UI. */
 :root {
   --ui-page-gutter: 16px;
   --ui-card-padding: 16px;
   --ui-card-radius: 16px;
-  --ui-card-shadow: 0 1px 2px rgb(43 38 64 / .04);
-  --ui-keyword-rgb: 112 69 111;
-  --ui-keyword-soft-rgb: 247 240 247;
-  --ui-info-rgb: 79 70 163;
-  --ui-info-soft-rgb: 242 241 253;
+  --ui-card-shadow: 0 10px 28px rgb(0 0 0 / .22);
+  --ui-keyword-rgb: 34 211 238;
+  --ui-keyword-soft-rgb: 12 45 63;
+  --ui-info-rgb: 34 211 238;
+  --ui-info-soft-rgb: 12 45 63;
   /* Semantic palette: RGB triplets allow shared opacity utilities. */
-  --ui-canvas-rgb: 248 249 252;
-  --ui-surface-rgb: 255 255 255;
-  --ui-ink-rgb: 32 37 54;
-  --ui-ink-soft-rgb: 75 83 101;
-  --ui-ink-muted-rgb: 98 105 122;
-  --ui-brand-rgb: 79 70 229;
-  --ui-brand-hover-rgb: 67 56 202;
-  --ui-brand-soft-rgb: 238 242 255;
-  --ui-line-rgb: 225 228 236;
-  --ui-line-strong-rgb: 136 145 163;
-  --ui-accent-rgb: 210 145 18;
-  --ui-accent-ink-rgb: 133 80 5;
-  --ui-accent-soft-rgb: 255 247 230;
-  --ui-success-rgb: 22 115 79;
-  --ui-success-soft-rgb: 236 247 239;
-  --ui-error-rgb: 181 47 53;
-  --ui-error-soft-rgb: 255 240 240;
+  --ui-canvas-rgb: 7 13 27;
+  --ui-surface-rgb: 13 21 38;
+  --ui-ink-rgb: 241 246 253;
+  --ui-ink-soft-rgb: 194 205 220;
+  --ui-ink-muted-rgb: 148 164 187;
+  --ui-brand-rgb: 59 130 246;
+  --ui-brand-hover-rgb: 37 99 235;
+  --ui-brand-soft-rgb: 17 39 70;
+  --ui-line-rgb: 41 55 78;
+  --ui-line-strong-rgb: 78 95 121;
+  --ui-accent-rgb: 34 211 238;
+  --ui-accent-ink-rgb: 103 232 249;
+  --ui-accent-soft-rgb: 12 45 63;
+  --ui-success-rgb: 74 222 128;
+  --ui-success-soft-rgb: 16 48 36;
+  --ui-error-rgb: 248 113 113;
+  --ui-error-soft-rgb: 58 25 31;
   --ui-canvas: rgb(var(--ui-canvas-rgb));
   --ui-surface: rgb(var(--ui-surface-rgb));
   --ui-ink: rgb(var(--ui-ink-rgb));
@@ -39,8 +39,8 @@
   --ui-line: rgb(var(--ui-line-rgb));
   --ui-line-strong: rgb(var(--ui-line-strong-rgb));
   --ui-inverse: #fff;
-  --ui-hero-background: var(--ui-surface);
-  --ui-hero-gradient: var(--ui-surface);
+  --ui-hero-background: var(--ui-canvas);
+  --ui-hero-gradient: linear-gradient(135deg, #0b1425 0%, #10264a 100%);
   --ui-hero-label: var(--ui-brand);
   --ui-hero-copy: var(--ui-ink-soft);
   --ui-control-radius: 10px;
