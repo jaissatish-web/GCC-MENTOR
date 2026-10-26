@@ -123,3 +123,28 @@ for (const value of [0, 49, 50, 55, 69, 70, 95, 100]) {
 }
 assert.ok(!unavailable.includes('aria-valuenow='))
 console.log('PASS: readiness bars preserve scores at red/yellow/green boundaries and unknown values')
+
+// Reference Home must retain real data and priority without leaking stale counts.
+require.extensions['.css'] = (module: NodeModule) => { module.exports = {} }
+const { WorkspaceHome } = require('../components/studio/WorkspaceHome')
+const personalProps = {
+ profile:{...candidate,full_name:'Quality Candidate',current_location:'Doha',visa_status:null,notice_period:'30 days',passport_validity_date:null},profileLoaded:true,profileError:false,
+ score:64,missing:['Skills'],gulf:{finalScore:55},packages:[followJob],packagesLoaded:true,packagesError:false,
+ overview:stats,overviewLoading:false,overviewError:false,nextAction:followAction,ready:true,error:false,
+ now:new Date(2026,9,17,10),onRetryOverview:()=>{},
+}
+const personalHome = renderToStaticMarkup(React.createElement(WorkspaceHome,personalProps))
+assert.ok(personalHome.includes('Continue your interview') && personalHome.includes('href="/mock-interview?package=active-job"'),'Preserve unfinished practice destination')
+assert.ok(personalHome.includes('Application pipeline') && personalHome.includes('>4</dd>'),'Use all-account current stages')
+assert.ok(personalHome.includes('>7</strong>') && personalHome.includes('Cover letters'),'Use aggregate saved activity')
+assert.ok(personalHome.includes('Tomorrow') && personalHome.includes('/package/active-job?tab=tracker'),'Retain real reminder and civil-date calculation')
+assert.ok(personalHome.includes('Add in Career Profile') && personalHome.includes('30 days'),'Missing document values stay unknown; saved availability is retained')
+assert.ok(!personalHome.includes('Open to work') && !personalHome.includes('Mar 2029') && !personalHome.includes('50%'),'Do not import sample facts or hiring claims')
+const staleHome = renderToStaticMarkup(React.createElement(WorkspaceHome,{...personalProps,overviewError:true,profileError:true,packagesError:true,error:true,ready:false}))
+assert.ok(!staleHome.includes('>7</strong>') && !staleHome.includes('>4</dd>'),'Failed totals cannot display stale counts')
+assert.ok(staleHome.includes('Application counts unavailable') && staleHome.includes('Saved progress unavailable'))
+const draftPriority = renderToStaticMarkup(React.createElement(WorkspaceHome,{...personalProps,nextAction:{state:'draft_waiting',title:'Review imported resume',href:'/profile?review=1',cta:'Review import'}}))
+assert.ok(draftPriority.includes('Review imported resume') && !draftPriority.includes('Continue your interview'),'Pending import keeps its priority over unfinished practice')
+if (cssExtension) require.extensions['.css'] = cssExtension
+else delete require.extensions['.css']
+console.log('PASS: reference Home actual totals, unknown documents, reminder dates, stale/error states and pending-import/interview priority')
