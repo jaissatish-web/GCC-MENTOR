@@ -75,7 +75,7 @@
 .mobileBreak { display:none; }
 .viewSwitch { display:inline-flex; max-width:100%; gap:4px; padding:5px; margin-top:23px; background:var(--ui-brand-soft); border-radius:13px; }
 .viewButton { min-height:44px; min-width:0; padding:8px 20px; border-radius:9px; color:var(--ui-muted); font-size:var(--ui-helper-size); font-weight:var(--ui-weight-label); }
-.viewSelected { color:var(--ui-brand); background:var(--ui-surface); box-shadow:0 2px 6px var(--ui-ink)0a,0 1px 2px var(--ui-ink)0a; }
+.viewSelected { color:var(--ui-brand); background:var(--ui-surface); box-shadow:0 2px 6px rgb(0 0 0 / .15),0 1px 2px rgb(0 0 0 / .15); }
 .viewButton:focus-visible { outline:2px solid var(--ui-brand); outline-offset:2px; }
 .guideBody { padding:0 32px 32px; }
 .journeyCanvas { padding:0 0 120px; background:url('/images/journey/gulf-skyline.webp') center bottom / 100% auto no-repeat; }
@@ -96,7 +96,7 @@
 .flowLine::after { position:absolute; content:''; width:5px; height:5px; border-radius:50%; background:var(--ui-brand); left:-2px; top:0; animation:travel 2.8s ease-in-out infinite; }
 .reviewPill { display:flex; width:fit-content; max-width:100%; align-items:center; gap:8px; margin:0 auto; padding:9px 16px; border:1px solid var(--ui-brand-soft); border-radius:10px; color:var(--ui-muted); background:var(--ui-surface); box-shadow:0 3px 9px #1b355c04; }
 .profileJunction { position:relative; }
-.profileCard { border-color:var(--ui-line); background:var(--ui-surface)df8; }
+.profileCard { border-color:var(--ui-line); background:var(--ui-surface); }
 .profileCard .iconTile { background:var(--ui-brand-soft); color:var(--ui-accent-ink); }
 .profileCard .stepLabel { color:var(--ui-accent-ink); }
 .profileCheck { margin-left:auto; color:var(--ui-accent); }
@@ -117,8 +117,8 @@
 .jobChoice strong { display:block; font-weight:var(--ui-weight-heading); color:var(--ui-ink); line-height:var(--ui-body-line); }
 .jobChoice small { display:block; margin-top:3px; color:var(--ui-muted); }
 .jobChoice > svg { flex:none; margin-left:auto; }
-.jobChoice:hover { border-color:var(--ui-brand); box-shadow:0 3px 12px var(--ui-brand)0a; }
-.jobChoiceActive { border-color:var(--ui-brand); background:var(--ui-brand-soft); box-shadow:0 3px 12px var(--ui-brand)0a; }
+.jobChoice:hover { border-color:var(--ui-brand); box-shadow:0 3px 12px rgb(var(--ui-brand-rgb) / .12); }
+.jobChoiceActive { border-color:var(--ui-brand); background:var(--ui-brand-soft); box-shadow:0 3px 12px rgb(var(--ui-brand-rgb) / .12); }
 .jobChoiceActive small,.jobChoiceActive > svg { color:var(--ui-brand); }
 .branchNumber { align-self:flex-start; display:grid; flex:none; place-items:center; min-width:32px; height:30px; border-radius:8px; color:var(--ui-info); background:var(--ui-brand-soft); font-size:var(--ui-caption-size); font-weight:var(--ui-weight-heading); }
 .jobChoiceActive .branchNumber { background:var(--ui-brand-soft); color:var(--ui-brand); }
