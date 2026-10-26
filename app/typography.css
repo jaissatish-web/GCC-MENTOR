@@ -1,4 +1,4 @@
-/* UNIVERSAL TYPOGRAPHY — soft-indigo application system; marketing uses display roles.
+/* UNIVERSAL TYPOGRAPHY — SkillPilot-inspired sans system with compact mono details; documents stay isolated.
    Change text settings here only. Document output is isolated below. */
 :root {
   --ui-font: var(--font-inter, Inter), ui-sans-serif, system-ui, sans-serif;
@@ -30,7 +30,7 @@
   --ui-nav-action-measure: 18rem;
   --ui-brand-caption-measure: min(18ch, 14vw);
   /* Existing consumers resolve to the same roles, never separate scales. */
-  --ui-mono-font: var(--ui-font);
+  --ui-mono-font: var(--font-plex-mono, 'IBM Plex Mono'), ui-monospace, monospace;
   --ui-demo-caption-size: var(--ui-caption-size);
   --ui-hero-size: clamp(1.625rem, 2.8vw, 2.5rem);
   --ui-hero-line: var(--ui-heading-line);
@@ -288,3 +288,7 @@ body .auth-shell .auth-story-title { font-size:clamp(1.875rem, 3vw, 2.25rem) !im
 body .auth-shell .auth-form-surface > h1 { font-size:var(--ui-title-size) !important; font-weight:var(--ui-weight-title) !important; letter-spacing:-.025em !important; }
 body .auth-shell .auth-form-surface > p { font-size:var(--ui-helper-size) !important; }
 body .auth-shell label { font-size:var(--ui-label-size) !important; font-weight:var(--ui-weight-label) !important; }
+
+/* Short technical labels use the locally served Plex Mono face. */
+body .font-mono:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,[data-typography="document"],[data-typography="document"] *)),
+body [class*="kickerGold"]:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,[data-typography="document"],[data-typography="document"] *)) { font-family:var(--ui-mono-font)!important; }
