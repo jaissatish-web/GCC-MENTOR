@@ -49,6 +49,13 @@ try{
  const start=async()=>{await page.goto(origin,{waitUntil:'networkidle0'});await page.evaluate(()=>sessionStorage.clear());await page.reload({waitUntil:'networkidle0'});await page.waitForSelector('#resume-upload')}
  const questions=async(gulf=false)=>{
   await click('Continue');await page.waitForSelector('#intake-location')
+  const labels = await page.$$eval('.field-label', elements => elements.map(element => ({
+   text: element.textContent,
+   color: getComputedStyle(element).color,
+   expected: getComputedStyle(document.querySelector('main')).color,
+  })))
+  assert.ok(labels.length >= 4, 'Readiness labels and legends are rendered')
+  for (const label of labels) assert.equal(label.color, label.expected, `${label.text} uses active theme ink`)
   await page.$$eval('fieldset',(fields,value)=>fields.forEach(f=>[...f.querySelectorAll('button')].find(b=>b.textContent===(value?'Yes':'No')).click()),gulf)
   await click('Continue');await page.waitForSelector('#intake-country');await page.select('#intake-country','generic_gulf');await page.select('#intake-passport','not_available')
   await click('See my two readiness results')

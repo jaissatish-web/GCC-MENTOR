@@ -175,13 +175,14 @@
      is ink and bold, the hint is muted and regular, the value in the box is
      ink and medium. Before this, label and hint were both grey. */
   .field-label {
-    @apply text-ink;
+    /* Resolve the active palette; @apply bakes in the legacy dark ink. */
+    color: var(--ui-ink);
     font-size: var(--ui-label-size);
     font-weight: var(--ui-weight-label);
     line-height: var(--ui-label-line);
   }
   .field-hint {
-    @apply text-ink-muted;
+    color: var(--ui-muted);
     font-size: var(--ui-helper-size);
     font-weight: var(--ui-weight-regular);
     line-height: var(--ui-body-line);
