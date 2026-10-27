@@ -1,0 +1,29 @@
+/* Resume review only: preserve the brand's surfaces and type, with explicit
+   semantic feedback independent of the legacy gold-to-cyan accent mapping. */
+body [data-ui-service="resume-review"] {
+  --review-attention: #fbbf24;
+  --review-attention-soft: #37280f;
+}
+body .app-type [data-ui-service="resume-review"] .review-status-ok {
+  color: rgb(var(--ui-success-rgb)) !important;
+}
+body .app-type [data-ui-service="resume-review"] .review-status-attention,
+body .app-type [data-ui-service="resume-review"] .text-gold-ink {
+  color: var(--review-attention) !important;
+}
+body .app-type [data-ui-service="resume-review"] .review-status-missing {
+  color: rgb(var(--ui-error-rgb)) !important;
+}
+body .app-type [data-ui-service="resume-review"] .bg-gold {
+  background-color: var(--review-attention) !important;
+}
+body .app-type [data-ui-service="resume-review"] .bg-gold-soft {
+  background-color: var(--review-attention-soft);
+  border-color: var(--review-attention) !important;
+}
+body .app-type [data-ui-service="resume-review"] .review-progress {
+  accent-color: rgb(var(--ui-success-rgb)) !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  body [data-ui-service="resume-review"] { scroll-behavior: auto; }
+}

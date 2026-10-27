@@ -4,6 +4,7 @@
 @import "./responsive.css";
 @import "./career-studio.css";
 @import "./auth-presentation.css";
+@import "./resume-review.css";
 
 @tailwind base;
 @tailwind components;

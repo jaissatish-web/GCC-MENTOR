@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import { REVIEW_RECOVERY_KEY, reviewSource, reviewStorage, readReviewRecovery, writeReviewRecovery, clearReviewRecovery } from '@/lib/resumeReviewRecovery'
 import { ChevronRightIcon } from '@heroicons/react/24/outline'
 
 import { validProfileEmail, validProfilePhone } from '@/lib/profileFieldValidity'
@@ -216,6 +217,34 @@ interface EditorData {
   certifications: EditableCert[]
   education: EditableEdu[]
   additional_information: EditableAdditional[]
+}
+
+/** Validate tab checkpoint structure before giving it back to the canonical editor. */
+function isReviewEditor(value: unknown): value is EditorData {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false
+  const candidate = value as Record<string, unknown>
+  const base = emptyEditor()
+  for (const [key, sample] of Object.entries(base)) {
+    const entry = candidate[key]
+    if (Array.isArray(sample)) {
+      if (!Array.isArray(entry) || entry.some(row => !row || typeof row !== 'object' || Array.isArray(row))) return false
+    } else if (key === 'field_visibility') {
+      if (!entry || typeof entry !== 'object' || Array.isArray(entry) || Object.values(entry).some(v => typeof v !== 'boolean')) return false
+    } else if (sample === null) {
+      if (entry !== null && typeof entry !== 'boolean') return false
+    } else if (typeof entry !== typeof sample) return false
+  }
+  const rows: Record<string, string[]> = { work_experience: ['key','company','role','start_date','end_date','location','description','highlights','gcc_country'], skills:['key','name'], certifications:['key','name','issuer','issue_date','expiry_date'], education:['key','degree','institution','field_of_study','start_year','end_year'], additional_information:['key','label','value'] }
+  return Object.entries(rows).every(([key, fields]) => (candidate[key] as Record<string, unknown>[]).every(row => {
+    if (!fields.every(field => typeof row[field] === 'string')) return false
+    if (row.id !== undefined && typeof row.id !== 'string') return false
+    if (key === 'work_experience' && row.end_date_unconfirmed !== undefined && typeof row.end_date_unconfirmed !== 'boolean') return false
+    if (key !== 'additional_information') return true
+    for (const field of ['category_id','category_name','level']) if (row[field] != null && typeof row[field] !== 'string') return false
+    if (row.category_order != null && (typeof row.category_order !== 'number' || !Number.isFinite(row.category_order))) return false
+    if (row.category_position != null && !['after_summary','after_experience','after_education','after_skills','after_certifications','end'].includes(String(row.category_position))) return false
+    return row.show_on_resume == null || typeof row.show_on_resume === 'boolean'
+  }))
 }
 
 // ---------------------------------------------------------------------------
@@ -990,6 +1019,44 @@ function ProfileScreen() {
     const current = new Set(importReview.currentRoles)
     setEditor(previous => previous && ({ ...previous, work_experience: previous.work_experience.map(job => current.has(currentRoleFingerprint(job)) && !job.end_date ? { ...job, end_date_unconfirmed: false } : job) }))
   }, [importReview, reviewingImport])
+  const reviewPersistedRef = useRef(false)
+  const originalReviewRef = useRef<EditorData | null>(null)
+  const recoverySourceRef = useRef<string | null>(null)
+  const recoveryImportRef = useRef<string | null>(null)
+  const [recoveryNotice, setRecoveryNotice] = useState<string | null>(null)
+  // Only a matching server import can unlock recovery; a browser checkpoint
+  // alone can never create a review or bypass returning-user merge protection.
+  useEffect(() => {
+    if (!reviewingImport || !editor || !loaded || loadError || reviewPersistedRef.current) return
+    const importId = importReview?.id
+    if (!importId) {
+      if (!originalReviewRef.current) originalReviewRef.current = editor
+      setRecoveryNotice('Your original pending resume can be reopened after refresh. Edited selections cannot be recovered for this older import; keep this tab open until you save.')
+      return
+    }
+    if (recoveryImportRef.current !== importId) {
+      const body = buildPutBody(originalReviewRef.current ?? editor)
+      // First-profile guest choices are overlaid only on the initial handoff.
+      // The matching import id is authoritative for those local context fields.
+      if (!savedVersionRef.current) { delete body.target_country; delete body.target_job_title; delete body.currently_in_gulf }
+      const source = reviewSource(body)
+      const restored = readReviewRecovery(reviewStorage(), importId, savedVersionRef.current, source, isReviewEditor)
+      if (!restored) clearReviewRecovery(reviewStorage())
+      originalReviewRef.current = restored?.original ?? originalReviewRef.current ?? editor
+      recoverySourceRef.current = source
+      recoveryImportRef.current = importId
+      setRecoveryNotice('Your review edits are retained in this tab until you save or discard them. Photo file selections must be chosen again after refresh.')
+      if (restored) {
+        setEditor(restored.editor)
+        if (restored.scan && typeof restored.scan === 'object' && 'overall_score' in restored.scan) setClaimedScan(restored.scan as AtsScoreResult)
+        setImportConfirmed(false)
+        setRecoveryNotice('Your unsaved review was restored in this tab. Check the details and confirm again before saving.')
+        return
+      }
+    }
+    const saved = writeReviewRecovery(reviewStorage(), { importId, savedVersion: savedVersionRef.current, source: recoverySourceRef.current!, original: originalReviewRef.current!, editor, scan: claimedScan })
+    if (!saved) setRecoveryNotice('Review recovery is unavailable in this browser. Keep this tab open until you save.')
+  }, [reviewingImport, editor, loaded, loadError, importReview?.id, claimedScan])
   const reviewRequest = useRef(0)
   const refreshImportReview = useCallback(() => {
     const request = ++reviewRequest.current
@@ -1197,6 +1264,11 @@ function ProfileScreen() {
   // (a fresh GET), never the possibly-unsaved editor, matching that contract.
   const ingestDraft = useCallback((draft: CareerProfileDraft, notes?: ParseWarning[], incomingReview?: ImportReview) => {
     setReviewEditing(false)
+    reviewPersistedRef.current = false
+    originalReviewRef.current = null
+    recoveryImportRef.current = null
+    recoverySourceRef.current = null
+    clearReviewRecovery(reviewStorage())
     setClaimedScan(null) // A new inline import has no associated scan score.
     setParseNotes(notes ?? [])
     if (incomingReview) { reviewRequest.current++; setImportReview(incomingReview) } else refreshImportReview()
@@ -1837,6 +1909,9 @@ function ProfileScreen() {
           return
         }
         profileWritten = true
+        // Reloading saved IDs can render before pending cleanup finishes.
+        // Do not recreate an unsaved checkpoint for an already committed profile.
+        reviewPersistedRef.current = true
         // Persist only after an explicit Save or review confirmation.
         // The next save is checked against the version just written.
         const savedBody = (await res.json().catch(() => null)) as { updated_at?: string | null } | null
@@ -1884,6 +1959,7 @@ function ProfileScreen() {
           await fetch('/api/profile/pending-draft', { method: 'DELETE' }).catch(() => {})
         }
         if (destination === 'review') {
+          clearReviewRecovery(reviewStorage())
           try { sessionStorage.removeItem(INTAKE_KEY); sessionStorage.removeItem('gulf_readiness_answers') } catch { /* Storage may be unavailable. */ }
           setReviewingImport(false)
           setShowImport(false)
@@ -1944,6 +2020,7 @@ function ProfileScreen() {
   // and nothing in the saved profile changes.
   const keepCurrentProfile = useCallback(() => {
     if (!pendingDraft) return
+    clearReviewRecovery(reviewStorage())
     setEditor(fromFull(pendingDraft.existing))
     reviewRequest.current++
     setImportReview(null)
@@ -2088,6 +2165,7 @@ function ProfileScreen() {
   const cancelEditing = () => {
     if (submitting) return
     if (reviewingImport) {
+      clearReviewRecovery(reviewStorage())
       resolvesPendingRef.current = false
       reviewRequest.current++
       setImportReview(null)
@@ -2136,17 +2214,25 @@ function ProfileScreen() {
   if (isReviewRoute && reviewingImport && !reviewEditing) {
     const text = (values: Array<string | null | undefined>) => values.filter(value => value?.trim()).join(' · ')
     const status = (id: string) => sectionStatuses.find(section => section.id === id)?.status ?? 'optional'
-    const additional = (kind: string) => editor.additional_information.filter(row => profileBlockForCategory(row.category_name ?? row.label) === kind).map(row => text([row.label, row.value])).join('\n')
-    const sections = [
-      { id:'sec_summary', title:'Professional Summary', content:editor.professional_summary, field:'professional_summary' },
-      { id:'sec_work_experience', title:'Experience', content:editor.work_experience.map(job => [text([job.role,job.company,job.start_date,job.end_date]),job.description,job.highlights].filter(Boolean).join('\n')).join('\n\n'), field:'work_experience' },
-      { id:'sec_skills', title:'Skills', content:editor.skills.map(row=>row.name).join(' · '), field:'skills' },
-      { id:'sec_certifications', title:'Certifications', content:editor.certifications.map(row=>text([row.name,row.issuer])).join('\n'), field:'certifications' },
-      { id:'sec_education', title:'Education', content:editor.education.map(row=>text([row.degree,row.institution])).join('\n'), field:'education' },
-      { id:'projects', title:'Projects', content:additional('projects'), field:'additional_information' },
-      { id:'languages', title:'Languages', content:additional('languages'), field:'additional_information' },
-    ].map(section => ({...section,status:section.id==='projects'||section.id==='languages' ? (section.content ? 'complete' as const : 'optional' as const) : status(section.id), changes:activeReview.changes.filter(change=>change.field===section.field || change.field.startsWith(section.field+'.')).filter(change=>section.field!=='additional_information' || change.label.toLowerCase().includes(section.id==='projects'?'project':'language'))}))
-    return <ResumeAcceptanceReview sections={sections} completion={[{id:'sec_identity',title:'Personal Details',status:status('sec_identity')},...sections.map(({id,title,status})=>({id,title,status}))]} review={activeReview} score={claimedScan?.overall_score} strengths={claimedScan?.strengths} improvements={claimedScan?.improvements} profileExists={hasSavedProfile} currentValue={change=>currentImportValue(editor,change)} onChoose={(change,value)=>setEditor(applyImportChange(editor,change,value,uid))} onEdit={id=>goToProfilePart({sectionId:id==='projects'||id==='languages'?'sec_additional':id,categoryBlock:id==='projects'||id==='languages'?id:undefined})} confirmed={importConfirmed} onConfirm={setImportConfirmed} busy={submitting} error={saveError ?? loadError} saveDisabled={Boolean(loadError)} onSave={()=>saveChanges()} issues={showImportIssues ? <section ref={importIssueRef} tabIndex={-1} className="rounded-card border border-alert bg-alert-soft p-4"><h2 className="type-section text-alert">Some details still need attention</h2><p className="mt-2 type-helper text-ink-soft">Update them now, or save with missing details and complete them later. Invalid supplied values must be corrected or cleared.</p><div className="mt-3 flex flex-wrap gap-2"><Button variant="secondary" size="sm" onClick={()=>goToProfilePart({field:reviewPlan.outstanding[0]?.field ?? 'full_name'})}>Update now</Button><Button size="sm" disabled={submitting || reviewPlan.invalid.length>0} onClick={()=>saveChanges(true)}>Skip and save</Button></div></section> : null} />
+    const reviewSections = (data: EditorData) => {
+      const additional = (kind: string) => data.additional_information.filter(row => profileBlockForCategory(row.category_name ?? row.label) === kind).map(row => text([row.label, row.level, row.value])).join('\n')
+      const sections = [
+        { id:'sec_identity', title:'Personal Information', content:[['Name',data.full_name],['Email',data.email],['Phone',data.phone],['WhatsApp',data.whatsapp],['Location',data.current_location],['Nationality',data.nationality],['Date of birth',data.date_of_birth],['LinkedIn',data.linkedin_url],['Passport type',data.passport_type],['Passport validity',data.passport_validity_date]].filter(([,value])=>value).map(([label,value])=>`${label}: ${value}`).join('\n'), field:'identity' },
+        { id:'sec_summary', title:'Professional Summary', content:data.professional_summary, field:'professional_summary' },
+        { id:'sec_work_experience', title:'Experience', content:data.work_experience.map(job => [text([job.role,job.company,job.start_date,job.end_date,job.location]),job.description,job.highlights].filter(Boolean).join('\n')).join('\n\n'), field:'work_experience' },
+        { id:'sec_skills', title:'Skills', content:text([data.skills.map(row=>row.name).join(' · '),additional('skills')]), field:'skills' },
+        { id:'sec_certifications', title:'Certifications', content:data.certifications.map(row=>text([row.name,row.issuer,row.issue_date,row.expiry_date])).join('\n'), field:'certifications' },
+        { id:'sec_education', title:'Education', content:text([data.education.map(row=>text([row.degree,row.institution,row.field_of_study,row.start_year,row.end_year])).join('\n'),additional('education')]), field:'education' },
+        ...['projects','training','languages','licences','achievements','activities','research','links'].map(id => ({ id, title: id === 'training' ? 'Training' : PROFILE_BLOCKS.find(block=>block.id===id)!.title, content: id==='licences' ? text([additional(id),data.has_driving_license===true?'Driving licence recorded':data.has_driving_license===false?'No driving licence declared':'',data.driving_license_country,data.driving_license_category,data.driving_license_validity_date,data.professional_licence]) : additional(id), field:'additional_information' })),
+        { id:'sec_status', title:'Gulf Preferences & Availability', content:text([data.target_job_title,data.target_country,data.target_industry,data.target_company,data.current_employer,data.current_project,data.notice_period,data.visa_status,data.visa_transferable===true?'Visa transferable':data.visa_transferable===false?'Visa not transferable':'',data.degree_attestation,data.saudi_verification,data.arabic_level,additional('gulf')]),field:'status' },
+        { id:'sec_additional',title:'Additional Information',content:data.additional_information.filter(row=>!profileBlockForCategory(row.category_name??row.label) && !['Preparation details (private)','Profile headline'].includes(row.category_name??row.label)).map(row=>text([row.label,row.value])).join('\n'),field:'additional_information' },
+      ]
+      return sections.map(section => ({ ...section, status: section.id.startsWith('sec_') && section.id !== 'sec_additional' ? status(section.id) : section.content ? 'complete' as const : 'optional' as const, hint:sectionStatuses.find(item=>item.id===section.id)?.hint,
+        changes: activeReview.changes.filter(change => section.field === 'identity' ? (SECTION_FIELDS.sec_identity as readonly string[]).includes(change.field) : section.field === 'status' ? (SECTION_FIELDS.sec_status as readonly string[]).includes(change.field) : change.field === section.field || change.field.startsWith(section.field+'.')).filter(change => section.field !== 'additional_information' || (section.id === 'sec_additional' ? !profileBlockForCategory(change.label) : profileBlockForCategory(change.label) === section.id)) }))
+    }
+    const sections = reviewSections(editor)
+    const originalContents = Object.fromEntries(reviewSections(originalReviewRef.current ?? editor).map(section=>[section.id,section.content]))
+    return <ResumeAcceptanceReview candidateName={editor.full_name} recoveryKey={importReview?.id ? REVIEW_RECOVERY_KEY : undefined} originalContents={originalContents} sections={sections} review={activeReview} score={claimedScan?.overall_score} strengths={claimedScan?.strengths} improvements={claimedScan?.improvements} profileExists={hasSavedProfile} currentValue={change=>currentImportValue(editor,change)} onChoose={(change,value)=>setEditor(applyImportChange(editor,change,value,uid))} onEdit={id=>goToProfilePart({sectionId:id.startsWith('sec_')?id:'sec_additional',categoryBlock:id.startsWith('sec_')?undefined:id})} confirmed={importConfirmed} onConfirm={setImportConfirmed} busy={submitting} error={saveError ?? loadError} saveDisabled={Boolean(loadError)} onSave={()=>saveChanges()} issues={<>{recoveryNotice ? <p role="status" className="mt-3 type-helper text-ink-soft">{recoveryNotice}</p> : null}{showImportIssues ? <section ref={importIssueRef} tabIndex={-1} className="rounded-card border border-alert bg-alert-soft p-4"><h2 className="type-section text-alert">Some details still need attention</h2><p className="mt-2 type-helper text-ink-soft">Update them now, or save with missing details and complete them later. Invalid supplied values must be corrected or cleared.</p><div className="mt-3 flex flex-wrap gap-2"><Button variant="secondary" size="sm" onClick={()=>goToProfilePart({field:reviewPlan.outstanding[0]?.field ?? 'full_name'})}>Update now</Button><Button size="sm" disabled={submitting || reviewPlan.invalid.length>0} onClick={()=>saveChanges(true)}>Skip and save</Button></div></section> : null}</>} />
   }
 
   // ---- Completeness ---------------------------------------------------------

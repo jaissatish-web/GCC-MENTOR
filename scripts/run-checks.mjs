@@ -52,6 +52,7 @@ const TS_CHECKS = [
   'verify-import-review.ts',
   'verify-import-review-checks.ts',
   'verify-review-before-profile.ts',
+  'verify-resume-review-recovery.ts',
   'verify-unknown-employment-status.ts',
   'verify-profile-review-navigation.ts',
   'verify-client-import.ts',
