@@ -133,7 +133,9 @@
     @apply border-teal-bright;
   }
   .field:focus {
-    @apply border-teal bg-white;
+    @apply border-teal;
+    background-color: var(--ui-surface);
+    color: var(--ui-ink);
     box-shadow: 0 0 0 3px rgb(var(--ui-brand-rgb) / .24);
   }
   .field[aria-invalid='true'] {

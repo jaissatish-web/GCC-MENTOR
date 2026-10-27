@@ -188,3 +188,7 @@ PERSONAL-HOME-002 follow-through: Satish explicitly authorized cloud-browser che
 Approved by Satish: new-user dashboard automatically offers Upload/Paste/Type in a dismissible first-resume dialog after confirmed empty successful reads; preserve pending imports and returning-user work. Contract FIRST_RESUME_ONBOARDING_2026-10-27.md. Also inspect every authored page/service for white UI surfaces that escape the navy/blue/cyan theme, preserving paper/document/template previews; theme-only work bounded in THEME_SURFACE_AUDIT_2026-10-27.md. Implementation and browser verification pending. Backend/auth/scoring/templates protected; no account modifications or provider calls for testing.
 
 Implementation complete: first-resume dialog and no-handoff signup dashboard routing; theme escapes corrected. Full 80-script suite passed; final production build and delivery checks recorded in the delivery PR. See docs/first-resume-theme-qa.md for browser evidence and limits.
+
+CONTROL-CONTRAST-001 approved: fix reported tone/editor white-on-white states and audit shared SaaS controls. See docs/CONTROL_CONTRAST_2026-10-27.md.
+
+CONTROL-CONTRAST-001 implemented and locally verified: tone choices, field focus, native options and legacy field surfaces. Production build and universal-theme checks passed; fixture browser review confirms readable controls and preserved document paper. Release gate tracked in delivery PR.

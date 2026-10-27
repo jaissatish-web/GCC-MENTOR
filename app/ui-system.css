@@ -1130,3 +1130,13 @@ body .app-type .text-charcoal:not(:where([data-document-preview],[data-document-
 body .app-type .editor-mobile-toolbar:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { background:var(--ui-surface)!important; color:var(--ui-ink)!important; }
 body .app-type .editor-mobile-toolbar button:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { color:rgb(var(--ui-accent-rgb))!important; }
 body .app-type .editor-settings-panel:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { background:var(--ui-surface)!important; color:var(--ui-ink)!important; }
+
+/* CONTROL-CONTRAST-001: native menus and legacy field utility consumers.
+   App controls only; authored resume/document paper keeps its own palette. */
+body .bg-field:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, [data-typography="document"], [data-typography="document"] *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)) {
+  background-color: var(--ui-surface);
+  color: var(--ui-ink);
+  border-color: var(--ui-field-border);
+}
+.app-type.internal-ui :is(input, select, textarea):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, [data-typography="document"], [data-typography="document"] *)) { color-scheme: dark; }
+.app-type.internal-ui select:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, [data-typography="document"], [data-typography="document"] *)) :is(option, optgroup) { background-color: var(--ui-surface); color: var(--ui-ink); }

@@ -342,7 +342,7 @@ function CoverLetterScreen() {
                                               // The chosen tone must look chosen from across the room.
                                               active
                                                 ? 'border-teal bg-teal-soft ring-1 ring-teal'
-                                                : 'border-field-line bg-field hover:border-teal',
+                                                : 'border-line-strong bg-canvas hover:border-teal',
                                             )}
                                           >
                                             <span className={cn('type-helper font-semibold', active ? 'text-teal' : 'text-ink')}>
