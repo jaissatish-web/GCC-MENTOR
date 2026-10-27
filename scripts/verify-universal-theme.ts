@@ -36,3 +36,11 @@ assert.ok(render(React.createElement(Button,{busy:true,busyLabel:"Saving"},"Save
 assert.ok(render(React.createElement(Card,null,"Editable content")).includes('border-line'))
 for(const item of NAV_ITEMS) assert.ok(theme.toString().includes(`.${item.iconClass} {`),`Navigation color missing: ${item.label}`)
 console.log('PASS: resolved universal theme variables, protected document boundaries, useful containers, unboxed guidance, accessible states and navigation accents')
+
+// Interaction states must retain the dark surface when legacy controls focus.
+const globals = parse(readFileSync('app/globals.css', 'utf8'))
+const focusedField: string[] = []
+globals.walkRules('.field:focus', rule => { rule.walkDecls(d => { if(d.prop === 'background-color') focusedField.push(d.value) }); rule.walkAtRules('apply', at => assert.ok(!/\bbg-white\b/.test(at.params),'Focused fields cannot emit a literal white utility')) })
+assert.ok(focusedField.includes('var(--ui-surface)'),'Focused fields use the current theme surface')
+assert.ok(!readFileSync('app/cover-letter/page.tsx','utf8').includes('bg-field'),'Tone choices use explicit current surface roles')
+console.log('PASS: focused form fields and tone choices retain semantic theme surfaces')
