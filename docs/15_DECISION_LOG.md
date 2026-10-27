@@ -1914,3 +1914,5 @@ Satish requests smaller readable typography and CTAs, consistent colour and alig
 
 
 26 October 2026 — SKILLPILOT-BRAND-001 presentation code implemented on temporary review branch `codex/skillpilot-brand-001` because main requires checks. Shared design tokens, typography accents and cross-page surfaces updated; preview and visual verification pending. No logic or resume-template changes are intended.
+# 26 October 2026 — PERSONAL-HOME-002
+Satish requests the attached dashboard layout matched to GCC Mentor's current theme. Personal header, compact readiness/activity, interview performance/quick actions, events, pipeline and documents; actual saved data only. Preserve navigation, next-action priority, scoring, services and authored resume output. Specification: PERSONAL_DASHBOARD_2026-10-26.md.

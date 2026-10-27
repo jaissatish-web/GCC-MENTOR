@@ -3,6 +3,9 @@ Total output lines: 156
 
 # Progress and next action
 
+## PERSONAL-HOME-002 — 26 October 2026
+Approved, not implemented: adapt supplied Dashboard.html hierarchy to current navy/blue/cyan theme. Contract: [PERSONAL_DASHBOARD_2026-10-26.md](PERSONAL_DASHBOARD_2026-10-26.md). Real profile/overview/progress/tracker values only; retain ongoing interview, pending draft, error/loading paths and canonical profile editor. Backend/scoring/templates protected. Browser live-site inspection blocked by automatic approval review pending explicit browser authorization; complete implementation and non-browser checks first.
+
 Updated 22 October 2026. Single active task tracker; old task/release reports are historical.
 
 ## DOC-001 — establish persistent project memory
@@ -171,3 +174,12 @@ Approved: replace floating mobile Save/Download dock with top actions ordered Ed
 
 ## PERSONAL-HOME-001 — 26 October 2026
 Approved dashboard presentation: sun/greeting, actual name and target job title; existing readiness, separate saved usage counts, visible interview performance, quick resume/profile actions and upcoming events. Remove full tools entry from dashboard header; keep services in unchanged navigation. Reuse existing APIs, counters, next-action decisions and progress/events components. No fabricated activity or score changes.
+
+
+PERSONAL-HOME-002 source implemented: reference-like profile/readiness/activity/interview/actions/events/pipeline/documents layout using current shared navy/blue/cyan tokens. Actual aggregate counts and comparable per-resume scores only. Typecheck/lint/build and 80/80 repository checks passed; extended dashboard regression passed real/stale/unknown values and import/interview priority. Final rebuild after last style/import correction passed. Browser visual QA remains blocked by automatic approval review (explicit browser authorization missing). Main is protected; temporary draft delivery PR will retain work pending browser QA. Not merged or live.
+
+
+PERSONAL-HOME-002 follow-through: Satish explicitly authorized cloud-browser checks and completion. Side-by-side phone capture found shared progress-selector specificity overriding readiness colors. Correct the scoped selector, then repeat phone/desktop/error/empty and CTA verification before merge. Existing live deployment is main723b0da; no claim of updated release yet.
+
+
+27 October2026 — PERSONAL-HOME-002 visual QA passed after authorized cloud-browser comparison. Fixed scoped red/yellow/green bars, intact320px Review actions and central pipeline stats. Verified320/390/1280/1440px reflow,200% text, empty/error/loading/pending states, history selector, exact unfinished-run navigation, canonical editor and services drawer using isolated fictional APIs. Final production build and focused assertions passed. Required final-head CI and main/Vercel release pending; live dashboard requires sign-in, so no authenticated production account walkthrough is claimed. Evidence: personal-dashboard-qa.md and dashboard-reference-qa/.
