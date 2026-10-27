@@ -148,3 +148,11 @@ assert.ok(draftPriority.includes('Review imported resume') && !draftPriority.inc
 if (cssExtension) require.extensions['.css'] = cssExtension
 else delete require.extensions['.css']
 console.log('PASS: reference Home actual totals, unknown documents, reminder dates, stale/error states and pending-import/interview priority')
+
+const { shouldOfferFirstResume } = require('../lib/firstResumeOnboarding')
+const emptyAccount = { pendingDraftAbsent:true,ready:true,error:false,profileExists:false,profileLoaded:true,profileError:false,packagesLoaded:true,packagesError:false,packageCount:0,overviewLoading:false,overviewError:false,resumeCount:0,nextActionState:'no_profile' }
+assert.equal(shouldOfferFirstResume(emptyAccount),true,'Offer guidance after confirmed empty reads')
+for(const override of [{pendingDraftAbsent:false},{pendingDraftAbsent:undefined},{ready:false},{profileLoaded:false},{packagesLoaded:false},{overviewLoading:true},{error:true},{profileError:true},{packagesError:true},{overviewError:true},{resumeCount:undefined},{resumeCount:1},{packageCount:1},{profileExists:true},{nextActionState:'draft_waiting'}]) {
+ assert.equal(shouldOfferFirstResume({...emptyAccount,...override}),false,`No onboarding interruption for ${JSON.stringify(override)}`)
+}
+console.log('PASS: first-resume popup only for a confirmed empty account; loading/error/pending/existing work remains protected')

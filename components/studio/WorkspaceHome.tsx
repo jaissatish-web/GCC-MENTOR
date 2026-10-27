@@ -1,6 +1,8 @@
 'use client'
 
 import Link from 'next/link'
+import { FirstResumeDialog } from '@/components/dashboard/FirstResumeDialog'
+import { shouldOfferFirstResume } from '@/lib/firstResumeOnboarding'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { ArrowRightIcon, ChevronRightIcon, ChatBubbleLeftRightIcon, DocumentTextIcon, EnvelopeIcon, ExclamationTriangleIcon, QuestionMarkCircleIcon, SunIcon, SparklesIcon, PlusIcon, PencilSquareIcon, CalendarDaysIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline'
@@ -18,6 +20,7 @@ import type { CareerProfileFull } from '@/types/careerProfile'
 import type { GulfReadinessResult } from '@/lib/gulfReadiness/types'
 
 type Props = {
+  pendingDraftAbsent?: boolean
   profile: CareerProfileFull | null; profileLoaded: boolean; profileError: boolean
   score: number; missing: string[]; gulf: GulfReadinessResult | null
   packages: PackageSummary[]; packagesLoaded: boolean; packagesError: boolean
@@ -62,7 +65,9 @@ export function WorkspaceHome(p: Props) {
     { label: 'Update Career Profile', detail: 'Keep your details current', href: '/profile?view=details', Icon: PencilSquareIcon },
     { label: 'Add a job application', detail: 'Set up a job workspace', href: '/optimize/target', Icon: PlusIcon },
   ]
+  const offerFirstResume = shouldOfferFirstResume({pendingDraftAbsent:p.pendingDraftAbsent === true,ready:p.ready,error:p.error,profileExists:Boolean(p.profile),profileLoaded:p.profileLoaded,profileError:p.profileError,packagesLoaded:p.packagesLoaded,packagesError:p.packagesError,packageCount:p.packages.length,overviewLoading:p.overviewLoading,overviewError:p.overviewError,resumeCount:p.overview?.resume_count,nextActionState:p.nextAction.state})
   return <main className={`studio-page studio-home ${styles.dashboard}`}>
+    <FirstResumeDialog eligible={offerFirstResume} />
     <header className={styles.profile} aria-busy={!p.profileLoaded}>
       <div className={styles.avatar}>{available && p.profile?.photo_url ? <Image src={p.profile.photo_url} width={80} height={80} unoptimized alt="" /> : <span aria-hidden="true">{p.profileLoaded && !p.profileError ? initials : '—'}</span>}</div>
       <div className={styles.identity}>

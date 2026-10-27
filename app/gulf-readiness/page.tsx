@@ -233,7 +233,7 @@ export default function GulfReadinessPage() {
         .catch(err => setError(err instanceof Error ? err.message : 'Your scan could not be found.'))
     }, [])
 
-  if (error) return <main className="min-h-dvh bg-canvas px-3 sm:px-5 py-20 text-center"><h1 className="type-title">Your scan is unavailable</h1><p className="mx-auto mt-4 max-w-lg text-ink-soft">{error}</p><Link href="/ats-scan" className="mt-8 inline-flex rounded-ctl bg-teal px-6 py-3 font-bold text-white">Scan my resume again</Link></main>
+  if (error) return <main className="min-h-dvh bg-canvas text-ink px-3 sm:px-5 py-20 text-center"><h1 className="type-title">Your scan is unavailable</h1><p className="mx-auto mt-4 max-w-lg text-ink-soft">{error}</p><Link href="/ats-scan" className="mt-8 inline-flex rounded-ctl bg-teal px-6 py-3 font-bold text-white">Scan my resume again</Link></main>
   if (!score) return <main className="flex min-h-dvh items-center justify-center bg-canvas"><p className="font-mono text-sm text-ink-500 type-helper">Preparing your resume scan…</p></main>
 
   const overallTone = score.overall_score >= 75 ? 'green' : score.overall_score >= 55 ? 'gold' : 'terra'

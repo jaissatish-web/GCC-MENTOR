@@ -29,6 +29,7 @@ export default function DashboardPage() {
   // A CV reading kept on the server until the user decides (migration 047).
   // When there is one, it is the next step above everything else.
   const [hasPendingDraft, setHasPendingDraft] = useState(false)
+  const [pendingDraftAbsent, setPendingDraftAbsent] = useState(false)
   const [loadError, setLoadError] = useState(false)
   const didInit = useRef(false)
   const [overview, setOverview] = useState<DashboardOverview | null>(null)
@@ -72,7 +73,10 @@ export default function DashboardPage() {
     // cannot be read, the dashboard simply shows its usual next step.
     fetch('/api/profile/pending-draft', { cache: 'no-store' })
       .then((res) => (res.ok ? res.json().catch(() => null) : null))
-      .then((data) => setHasPendingDraft(Boolean(data?.pending)))
+      .then((data) => {
+        setHasPendingDraft(Boolean(data?.pending))
+        setPendingDraftAbsent(Boolean(data && Object.prototype.hasOwnProperty.call(data, 'pending') && data.pending === null))
+      })
       .catch(() => {
         /* non-fatal */
       })
@@ -127,5 +131,5 @@ export default function DashboardPage() {
   const nextAction = dashboardNextAction(computeNextAction(profile, packages, score, missing.length, hasPendingDraft))
 
   const ready = profileLoaded && packagesLoaded && !loadError
-  return <WorkspaceHome profile={profile} profileLoaded={profileLoaded} profileError={profileError} score={score} missing={missing.map(item => item.label)} gulf={gulf} packages={packages} packagesLoaded={packagesLoaded} packagesError={packagesError} overview={overview} overviewLoading={overviewLoading} overviewError={overviewError} nextAction={nextAction} ready={ready} error={loadError} now={clock} onRetryOverview={() => void loadOverview()} />
+  return <WorkspaceHome pendingDraftAbsent={pendingDraftAbsent} profile={profile} profileLoaded={profileLoaded} profileError={profileError} score={score} missing={missing.map(item => item.label)} gulf={gulf} packages={packages} packagesLoaded={packagesLoaded} packagesError={packagesError} overview={overview} overviewLoading={overviewLoading} overviewError={overviewError} nextAction={nextAction} ready={ready} error={loadError} now={clock} onRetryOverview={() => void loadOverview()} />
 }

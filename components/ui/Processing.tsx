@@ -369,7 +369,7 @@ export function ProcessingInline({
   return (
     <div
       className={cn('flex items-center gap-4 rounded-card border border-gold/25 px-4 py-4 shadow-m-1', className)}
-      style={{ background: 'linear-gradient(135deg, #FFFFFF 0%, #EFF2F8 55%, #FBF6EA 100%)' }}
+      style={{ background: 'linear-gradient(135deg, var(--ui-surface) 0%, var(--ui-brand-soft) 100%)' }}
     >
       <ProcessingOrbit size={72} glyph="" />
       <div className="flex min-w-0 flex-col gap-1">

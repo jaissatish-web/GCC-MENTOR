@@ -101,7 +101,7 @@
 .profileCard .stepLabel { color:var(--ui-accent-ink); }
 .profileCheck { margin-left:auto; color:var(--ui-accent); }
 .profileBranches { display:grid; grid-template-columns:1fr 1fr; gap:10px; width:min(100%,580px); margin:12px auto 0; }
-.socialCard { position:relative; display:flex; align-items:center; gap:9px; padding:13px; border:1px solid color-mix(in srgb,var(--service-ink) 15%,white); border-radius:12px; background:color-mix(in srgb,var(--service-soft) 40%,white); }
+.socialCard { position:relative; display:flex; align-items:center; gap:9px; padding:13px; border:1px solid color-mix(in srgb,var(--service-ink) 15%,var(--ui-line)); border-radius:12px; background:color-mix(in srgb,var(--service-soft) 40%,var(--ui-surface)); }
 .socialCard .iconTile { width:32px; height:32px; border-radius:9px; }
 .socialCard .iconTile svg { width:17px; height:17px; }
 .socialCard h4 { color:var(--ui-ink); font-weight:var(--ui-weight-heading); }
@@ -134,7 +134,7 @@
 .cvSteps { display:flex; align-items:center; gap:6px; margin-left:auto; color:var(--ui-line); }
 .outputFork { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-top:15px; align-items:start; }
 .outputNode { min-width:0; border:1px solid var(--ui-line); border-radius:12px; background:var(--ui-surface); overflow:hidden; }
-.outputOpen { border-color:color-mix(in srgb,var(--service-ink) 35%,white); }
+.outputOpen { border-color:color-mix(in srgb,var(--service-ink) 35%,var(--ui-line)); }
 .outputTrigger { display:flex; align-items:center; gap:9px; width:100%; min-height:78px; padding:13px 11px; text-align:left; }
 .outputTrigger .iconTile { width:34px; height:34px; border-radius:10px; }
 .outputTrigger .iconTile svg { width:18px; height:18px; }
@@ -145,7 +145,7 @@
 .outputTrigger:focus-visible { outline:2px solid var(--service-ink); outline-offset:-3px; }
 .outputBody { padding:0 14px 15px; }
 .outputBody p { line-height:var(--ui-body-line); color:var(--ui-muted); }
-.topicPill { display:block; margin-top:10px; padding:7px 9px; border-radius:7px; color:var(--service-ink); background:color-mix(in srgb,var(--service-soft) 70%,white); }
+.topicPill { display:block; margin-top:10px; padding:7px 9px; border-radius:7px; color:var(--service-ink); background:color-mix(in srgb,var(--service-soft) 70%,var(--ui-surface)); }
 .improvementPanel { margin-top:16px; border-top:1px solid var(--ui-line); padding-top:17px; }
 .improvementHeading { display:flex; align-items:center; gap:9px; }
 .improvementHeading .iconTile { width:33px; height:33px; border-radius:10px; }
