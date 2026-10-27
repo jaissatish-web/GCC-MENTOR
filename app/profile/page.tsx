@@ -1953,6 +1953,9 @@ function ProfileScreen() {
     void fetch('/api/profile/pending-draft', { method: 'DELETE' }).catch(() => {})
   }, [pendingDraft])
 
+  // Do not flash the ordinary editor while its existing draft moves to review.
+  if (!isReviewRoute && (reviewingImport || pendingDraft)) return <main className={MAIN_CLASS}><PageSkeleton label="Opening Resume Review" /></main>
+
   // The upload decision comes BEFORE the editor exists, so nothing can be
   // saved — accidentally or otherwise — until the user has chosen.
   if (pendingDraft) {
