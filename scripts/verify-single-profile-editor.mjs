@@ -11,9 +11,11 @@ const root=process.cwd(), require=createRequire(import.meta.url), dir=mkdtempSyn
 const fixture=JSON.parse(readFileSync(root+'/scripts/fixtures/studioFixture.json','utf8')).profile
 const output=root+'/artifacts/single-profile-editor'
 mkdirSync(output,{recursive:true})
-let pageForDebug,browser,server,profile=structuredClone(fixture),scenario='saved',writes=[],failPhoto=false,pending=null
+let pageForDebug,browser,server,profile=structuredClone(fixture),scenario='saved',writes=[],failPhoto=false,pending=null,failProfileOnce=false
 const errors=[],external=[],checks=[]
-const freshDraft=()=>({...structuredClone(fixture),id:undefined,user_id:undefined,full_name:'Imported Maya Thomas',work_experience:fixture.work_experience.map(w=>({...w,id:undefined})),skills:fixture.skills.map(s=>({...s,id:undefined})),education:fixture.education.map(e=>({...e,id:undefined})),certifications:fixture.certifications.map(c=>({...c,id:undefined}))})
+const reviewBefore=fixture.professional_summary.replace('experience','experiance')
+const makeReview=()=>({version:1,id:'fixture-review-'+scenario,createdAt:'2026-10-27T10:00:00Z',sourceText:'Fictional resume',changes:[{id:'fixture-summary-change',field:'professional_summary',label:'Professional summary',kind:'spelling',before:reviewBefore,after:fixture.professional_summary,reason:'Corrected a spelling error without adding candidate facts.',suggested:true,restorable:true}],imported:{roles:fixture.work_experience.length,skills:fixture.skills.length,qualifications:fixture.education.length,certificates:fixture.certifications.length},wordingStatus:'checked'})
+const freshDraft=()=>({...structuredClone(fixture),id:undefined,user_id:undefined,full_name:'Imported Maya Thomas',professional_summary:reviewBefore,additional_information:[{label:'Gas plant controls',value:'Configured field instrument loops.',category_name:'Projects'},{label:'Water treatment upgrade',value:'Supported loop checks.',category_name:'Projects'},{label:'English',value:'Working language',level:'Professional',category_name:'Languages'},{label:'Portfolio note',value:'Candidate supplied note.',category_name:'Other information'}],work_experience:fixture.work_experience.map(w=>({...w,id:undefined})),skills:fixture.skills.map(s=>({...s,id:undefined})),education:fixture.education.map(e=>({...e,id:undefined})),certifications:fixture.certifications.map(c=>({...c,id:undefined}))})
 
 async function bundle(){
  writeFileSync(dir+'/entry.jsx',`import React from'react';import{createRoot}from'react-dom/client';import{AppShell}from${JSON.stringify(root+'/components/layout/AppShell.tsx')};import Profile from${JSON.stringify(root+'/app/profile/page.tsx')};createRoot(document.getElementById('root')).render(<AppShell><Profile/></AppShell>);`)
@@ -32,7 +34,7 @@ function serve(){
   const url=new URL(req.url,'http://fixture'),p=url.pathname
   const send=(body,status=200)=>{res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify(body))}
   if(p==='/__scenario'){
-   scenario=url.searchParams.get('state')||'saved';profile=['new-import','incomplete-import','invalid-import'].includes(scenario)?null:structuredClone(fixture);writes=[];failPhoto=scenario==='photo-error';pending=['new-import','existing-import','incomplete-import','invalid-import'].includes(scenario)?{draft:freshDraft(),report:null}:null
+   scenario=url.searchParams.get('state')||'saved';profile=['new-import','retry-import','incomplete-import','invalid-import'].includes(scenario)?null:structuredClone(fixture);writes=[];failPhoto=scenario==='photo-error';failProfileOnce=scenario==='retry-import';pending=['new-import','retry-import','existing-import','incomplete-import','invalid-import'].includes(scenario)?{draft:freshDraft(),report:{review:makeReview()}}:null
    if(scenario==='incomplete-import')Object.assign(pending.draft,{full_name:'',email:'',phone:'',whatsapp:'',work_experience:[{company:'Fictional employer',role:'Engineer',start_date:null,end_date:null,description:'Maintained equipment.',highlights:[]}],education:[],skills:[],certifications:[]})
    if(scenario==='invalid-import')pending.draft.email='not-an-email'
    if(scenario==='missing')profile.email=''
@@ -46,6 +48,7 @@ function serve(){
     const chunks=[];for await(const chunk of req)chunks.push(chunk)
     const raw=Buffer.concat(chunks).toString();let body={};try{body=JSON.parse(raw)}catch{}
     writes.push({path:p,method:req.method,body})
+    if(p==='/api/profile'&&req.method==='PUT'&&failProfileOnce){failProfileOnce=false;return send({error:'Temporary save failure. Please try again.'},503)}
     if(p==='/api/profile'&&req.method==='PUT'&&scenario==='save-conflict')return send({error:'Fictional stale profile conflict. Reload before saving.'},409)
     if(p==='/api/profile'&&req.method==='PUT'){profile={...fixture,...profile,...body,id:fixture.id,updated_at:'2026-10-25T20:00:00Z'};return send({updated_at:profile.updated_at})}
     if(p==='/api/profile/photo'){
@@ -58,7 +61,7 @@ function serve(){
    }
    if(p==='/api/profile')return profile?send(profile):send({error:'No profile'},404)
    if(p==='/api/profile/pending-draft')return send({pending})
-   if(p==='/api/profile/import-review')return send({review:null})
+   if(p==='/api/profile/import-review')return send({review:pending?.report?.review??null})
    if(p==='/api/parse/recreate-status')return send({allowed:true,remaining:3,limit:3,used:0})
    if(p==='/api/packages/career-profile')return send({package:null,summary:null})
    return send({error:'No fixture data'},404)
@@ -74,7 +77,7 @@ try{
  browser=await puppeteer.launch({executablePath:process.env.CHROME_PATH||await puppeteer.executablePath(),headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--disable-gpu']})
  const page=pageForDebug=await browser.newPage();page.setDefaultTimeout(12000);page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>void d.accept())
  await page.setRequestInterception(true);page.on('request',r=>{const url=new URL(r.url());if(['data:','blob:'].includes(url.protocol)||url.origin===origin)void r.continue();else{external.push(r.url());void r.abort()}})
- const state=async name=>{await fetch(origin+'/__scenario?state='+name)}
+ const state=async name=>{await page.evaluate(()=>sessionStorage.clear()).catch(()=>{});await fetch(origin+'/__scenario?state='+name)}
  const go=async path=>{console.log('CHECK '+scenario+' '+path);await page.goto(origin+path,{waitUntil:'domcontentloaded'});await page.waitForNetworkIdle({idleTime:100,timeout:5000}).catch(()=>{})}
  const click=async text=>{await page.waitForFunction(t=>[...document.querySelectorAll('button')].some(b=>b.textContent.trim()===t),{},text);await page.evaluate(t=>[...document.querySelectorAll('button')].find(b=>b.textContent.trim()===t).click(),text)}
  const openContact=async()=>{await page.evaluate(()=>{const nav=document.querySelector('nav[aria-label="Career Profile blocks"]');const disclosure=nav.closest('details');if(disclosure&&!disclosure.open)disclosure.querySelector('summary').click();[...nav.querySelectorAll('button')].find(b=>b.textContent.includes('Personal & Contact Details')).click()});await page.waitForSelector('#f_full_name')}
@@ -104,20 +107,64 @@ try{
  }
  await state('new-import');await go('/profile/review');await page.waitForSelector('[data-ui-service="resume-review"]');
  assert.equal((await allWrites()).length,0,'New review page never creates profile on load');
- assert.equal(await page.$$eval('[id^="review-section-"]',els=>els.length),7,'All seven extracted sections are available');
+ assert.equal(await page.$$eval('[id^="review-section-"]',els=>els.length),16,'All supported sections are available');
  assert.ok(await page.$eval('main',el=>el.textContent.includes('No analysis score was provided')),'Missing analysis is not invented');
  assert.equal(await page.$$eval('button',bs=>bs.find(b=>b.textContent.trim()==='Save confirmed data').disabled),true,'Final acknowledgement is required');
+ const reviewAction=async(id,text)=>page.evaluate((id,text)=>{const section=document.getElementById('review-section-'+id).closest('section');const button=[...section.querySelectorAll('button')].find(button=>button.textContent.trim()===text);if(!button)throw Error('Missing review action '+id+' '+text);button.click()},id,text)
+ const openReviewSection=async id=>page.evaluate(id=>{const nav=document.querySelector('nav[aria-label="Resume review sections"]');const button=[...nav.querySelectorAll('button')].find(button=>button.textContent.includes(document.getElementById('review-section-'+id).textContent));if(!button)throw Error('Missing section navigation '+id);button.click()},id)
+ await reviewAction('sec_skills','Confirm current details');await page.waitForFunction(()=>!document.querySelector('#review-content-sec_skills'));
+ assert.ok(await page.$eval('#review-section-sec_skills',el=>el.closest('section').textContent.includes('Reviewed')),'Confirmed section collapses with completion state');
+ const completedColor=await page.$eval('#review-section-sec_skills',el=>getComputedStyle(el.closest('section').querySelector('[role="status"]')).color);assert.equal(completedColor,'rgb(74, 222, 128)','Reviewed state uses semantic green');
+ await reviewAction('sec_skills','Reopen');await page.waitForSelector('#review-content-sec_skills');
+ await reviewAction('training','Skip for now');await page.waitForFunction(()=>!document.querySelector('#review-content-training'));
+ assert.ok(await page.$eval('#review-section-training',el=>el.closest('section').textContent.includes('Skipped for now')),'Skipped section is distinct from reviewed content');
+ const skippedColor=await page.$eval('#review-section-training',el=>getComputedStyle(el.closest('section').querySelector('[role="status"]')).color);assert.equal(skippedColor,'rgb(251, 191, 36)','Skipped state uses semantic amber');
+ await openReviewSection('training');await page.waitForSelector('#review-content-training');
+ assert.ok(await page.$eval('#review-content-training',el=>el.textContent.includes('Not found in the extracted details.')),'Skipping never invents optional training');
+ await reviewAction('sec_summary','Accept suggestion');await page.waitForFunction(()=>!document.querySelector('#review-content-sec_summary'));
+ await page.reload({waitUntil:'domcontentloaded'});await page.waitForSelector('[data-ui-service="resume-review"]');
+ await page.waitForFunction(()=>document.body.innerText.includes('Your unsaved review was restored'));
+ await openReviewSection('sec_summary');await page.waitForSelector('#review-content-sec_summary');
+ assert.equal(await page.$eval('#review-content-sec_summary h4 + p',el=>el.textContent),reviewBefore,'Original extracted summary stays immutable after acceptance and refresh');
+ assert.ok(await page.$eval('#review-content-sec_summary',el=>el.textContent.includes('Your selected content')),'Accepted text survives refresh separately from original');
+ assert.equal(await page.$$eval('button',bs=>bs.find(b=>b.textContent.trim()==='Save confirmed data').disabled),true,'Recovery requires fresh final confirmation');
+ await reviewAction('sec_summary','Keep original');await page.waitForFunction(()=>!document.querySelector('#review-content-sec_summary'));
+ await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>document.body.innerText.includes('Your unsaved review was restored'));
+ await openReviewSection('sec_summary');await page.waitForSelector('#review-content-sec_summary');
+ assert.equal(await page.$eval('#review-content-sec_summary h4 + p',el=>el.textContent),reviewBefore,'Kept original survives refresh');
+ await reviewAction('sec_summary','Accept suggestion');await page.waitForFunction(()=>!document.querySelector('#review-content-sec_summary'));
+ assert.equal((await allWrites()).length,0,'Confirm, skip, accept, original and refresh perform no server writes');
+ checks.push('Review decisions collapse/reopen, skip safely and recover accepted/original values');
+ for(const width of [320,390,1440]){await page.setViewport({width,height:900,deviceScaleFactor:1});await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));await reflow('Complete review '+width);await page.screenshot({path:output+'/resume-review-'+width+'.png',fullPage:false})}
  await page.$eval('button[aria-label="Edit Professional Summary manually"]',button=>button.click());await canonical();
  await page.$eval('#f_professional_summary',el=>{Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value').set.call(el,'User reviewed summary with only real career details.');el.dispatchEvent(new Event('input',{bubbles:true}))});
  await click('Back to Resume Review');await page.waitForSelector('[data-ui-service="resume-review"]');
  assert.ok(await page.$eval('main',el=>el.textContent.includes('User reviewed summary with only real career details.')),'Manual selection returns to review');
  assert.equal((await allWrites()).length,0,'Manual editing remains local before final Save');
+ await page.reload({waitUntil:'domcontentloaded'});await page.waitForFunction(()=>document.body.innerText.includes('Your unsaved review was restored'));
+ await openReviewSection('sec_summary');await page.waitForSelector('#review-content-sec_summary');
+ assert.ok(await page.$eval('#review-content-sec_summary',el=>el.textContent.includes('User reviewed summary with only real career details.')),'Manual edits survive refresh');
+ assert.equal(await page.$eval('#review-content-sec_summary h4 + p',el=>el.textContent),reviewBefore,'Manual edit cannot overwrite original extracted content');
+ assert.equal(await page.$$eval('#review-content-sec_summary button',bs=>bs.find(b=>b.textContent.trim()==='Accept suggestion').disabled),true,'Stale suggestion cannot overwrite manual text');
+ checks.push('Manual review recovery retains immutable source and refuses stale suggestions');
  await page.click('input[type="checkbox"]');await click('Save confirmed data');
  await page.waitForFunction(()=>document.querySelector('.studio-profile-summary') || document.querySelector('section h2')?.textContent==='Some details still need attention' || [...document.querySelectorAll('button')].some(b=>b.textContent.trim()==='Skip and save'));
  if(await page.$$eval('button',bs=>bs.some(b=>b.textContent.trim()==='Skip and save')))await click('Skip and save');
  await page.waitForSelector('.studio-profile-summary');assert.equal(new URL(page.url()).pathname,'/profile','Successful confirmation returns to original profile');
  const confirmedWrites=(await allWrites()).filter(w=>w.path==='/api/profile');assert.equal(confirmedWrites.length,1,'Only one existing profile PUT');assert.equal(confirmedWrites[0].body.professional_summary,'User reviewed summary with only real career details.');
  checks.push('Resume review manual selection and final confirmation use the existing save');
+ await state('retry-import');await go('/profile/review');await page.waitForSelector('[data-ui-service="resume-review"]');
+ assert.ok(await page.$eval('main',el=>el.textContent.includes('Gas plant controls')&&el.textContent.includes('Water treatment upgrade')&&el.textContent.includes('Professional')),'Multiple projects and stated language proficiency are visible');
+ await page.click('input[type="checkbox"]');await click('Save confirmed data');
+ if(await page.$$eval('button',bs=>bs.some(b=>b.textContent.trim()==='Skip and save')))await click('Skip and save');
+ await page.waitForFunction(()=>document.body.textContent.includes('Temporary save failure. Please try again.'));
+ assert.ok(await page.$('[data-ui-service="resume-review"]'),'Failed save keeps review open');
+ assert.ok(await page.evaluate(()=>sessionStorage.getItem('career_profile_review_recovery_v1')),'Failed save keeps recovery checkpoint');
+ if(await page.$$eval('button',bs=>bs.some(b=>b.textContent.trim()==='Skip and save')))await click('Skip and save');else await click('Save confirmed data');
+ await page.waitForSelector('.studio-profile-summary');
+ assert.equal((await allWrites()).filter(w=>w.path==='/api/profile').length,2,'Retry uses same existing save endpoint');
+ assert.equal(await page.evaluate(()=>sessionStorage.getItem('career_profile_review_recovery_v1')),null,'Successful retry clears recovery');
+ checks.push('Failed review save retains content and retries successfully');
  await state('existing-import');await go('/profile');await page.waitForFunction(()=>document.body.innerText.includes('You already have a profile'));assert.equal((await allWrites()).length,0,'Returning-user import never overwrites before a choice');await page.evaluate(()=>[...document.querySelectorAll('main button')].find(b=>b.textContent.includes('Replace my profile')).click());await canonical();await page.evaluate(()=>{const nav=document.querySelector('nav[aria-label="Career Profile blocks"]');const disclosure=nav.closest('details');if(disclosure&&!disclosure.open)disclosure.querySelector('summary').click();[...nav.querySelectorAll('button')].find(b=>b.textContent.includes('Personal & Contact Details')).click()});await page.waitForSelector('#f_full_name');assert.equal(await page.$eval('#f_full_name',e=>e.value),'Imported Maya Thomas');await click('Cancel');await page.waitForSelector('.studio-profile-summary');assert.ok(await page.$eval('.studio-profile-identity',e=>e.textContent.includes('Maya Thomas')),'Cancelling replacement preserves saved profile');assert.equal((await allWrites()).filter(w=>w.path==='/api/profile').length,0,'Cancelled replacement never writes profile');checks.push('Returning-user import protection and cancellation');
  await state('new-import');await go('/profile');await canonical();await page.evaluate(()=>{const nav=document.querySelector('nav[aria-label="Career Profile blocks"]');const disclosure=nav.closest('details');if(disclosure&&!disclosure.open)disclosure.querySelector('summary').click();[...nav.querySelectorAll('button')].find(b=>b.textContent.includes('Personal & Contact Details')).click()});await page.waitForSelector('#f_full_name');assert.equal(await page.$eval('#f_full_name',e=>e.value),'Imported Maya Thomas');assert.equal(await page.$('[id^="review-field-"]'),null,'No second imported-data editor');assert.equal((await allWrites()).length,0,'Imported facts are not automatically saved')
  const reviewLabel='I reviewed the details read from my resume. Missing information can be completed later.'
