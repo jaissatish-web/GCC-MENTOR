@@ -122,7 +122,7 @@ export function WorkspaceHome(p: Props) {
       <section className={styles.card} aria-labelledby="dashboard-pipeline" aria-busy={p.overviewLoading}>
         <div className={styles.heading}><h2 id="dashboard-pipeline">Application pipeline</h2><Link className={styles.textLink} href="/dashboard/library" aria-label="Manage applications"><ChevronRightIcon aria-hidden="true" /></Link></div>
         {p.overviewError ? <div role="alert" className={styles.notice}>Application counts unavailable. <button type="button" onClick={p.onRetryOverview}>Try again</button></div> : null}
-        <dl className={styles.pipeline}>{stages.map(stage => <div key={stage.key}><dt>{stage.label}</dt><dd>{p.overviewLoading || p.overviewError || p.overview?.stages?.[stage.key] === undefined ? '—' : p.overview.stages[stage.key]}</dd></div>)}</dl>
+        <dl className={styles.pipeline}>{stages.map(stage => <div key={stage.key}><dt>{stage.label}</dt><dd className="type-stat">{p.overviewLoading || p.overviewError || p.overview?.stages?.[stage.key] === undefined ? '—' : p.overview.stages[stage.key]}</dd></div>)}</dl>
         <p className={styles.muted}>Current saved stages · Manage applications in your Resume Library.</p>
       </section>
       <section className={styles.card} aria-labelledby="dashboard-documents" aria-busy={!p.profileLoaded}>

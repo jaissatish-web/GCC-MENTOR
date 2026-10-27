@@ -17,12 +17,12 @@
 .heading .textLink{flex-shrink:0}.heading .textLink:has(svg:only-child){min-width:44px;justify-content:center}
 .muted{color:var(--ui-muted);font-size:var(--ui-helper-size);font-weight:var(--ui-weight-regular)}
 .scoreLine{display:flex;gap:12px;align-items:baseline;justify-content:space-between}.scoreLine>strong{white-space:nowrap}.scoreLine>span{text-align:right}
-.readinessBar{width:100%;height:8px;appearance:none;border:none;border-radius:99px;overflow:hidden;background:var(--ui-line);color:var(--ui-success)}
-.readinessBar::-webkit-progress-bar{background:var(--ui-line);border-radius:99px}
-.readinessBar::-webkit-progress-value{background:var(--ui-success);border-radius:99px}.readinessBar::-moz-progress-bar{background:var(--ui-success);border-radius:99px}
-.readinessBar[data-level=low]{color:var(--ui-error)}.readinessBar[data-level=low]::-webkit-progress-value{background:var(--ui-error)}.readinessBar[data-level=low]::-moz-progress-bar{background:var(--ui-error)}
-.readinessBar[data-level=medium]{color:var(--ui-gold-ink,#f6c86b)}.readinessBar[data-level=medium]::-webkit-progress-value{background:var(--ui-gold-ink,#f6c86b)}.readinessBar[data-level=medium]::-moz-progress-bar{background:var(--ui-gold-ink,#f6c86b)}
-.readinessBar:not([value]){opacity:.35}
+.dashboard.dashboard.dashboard .readinessBar{width:100%;height:8px;appearance:none;border:none;border-radius:99px;overflow:hidden;background:var(--ui-line);color:rgb(var(--ui-success-rgb))}
+.dashboard.dashboard.dashboard .readinessBar::-webkit-progress-bar{background:var(--ui-line);border-radius:99px}
+.dashboard.dashboard.dashboard .readinessBar::-webkit-progress-value{background:rgb(var(--ui-success-rgb));border-radius:99px}.dashboard.dashboard.dashboard .readinessBar::-moz-progress-bar{background:rgb(var(--ui-success-rgb));border-radius:99px}
+.dashboard.dashboard.dashboard .readinessBar[data-level=low]{color:var(--ui-error)}.dashboard.dashboard.dashboard .readinessBar[data-level=low]::-webkit-progress-value{background:var(--ui-error)}.dashboard.dashboard.dashboard .readinessBar[data-level=low]::-moz-progress-bar{background:var(--ui-error)}
+.dashboard.dashboard.dashboard .readinessBar[data-level=medium]{color:var(--ui-gold-ink,#f6c86b)}.dashboard.dashboard.dashboard .readinessBar[data-level=medium]::-webkit-progress-value{background:var(--ui-gold-ink,#f6c86b)}.dashboard.dashboard.dashboard .readinessBar[data-level=medium]::-moz-progress-bar{background:var(--ui-gold-ink,#f6c86b)}
+.dashboard.dashboard.dashboard .readinessBar:not([value]){opacity:.35}
 .missing{padding:0;margin:0;list-style:none}.missing li+li{border-top:1px solid var(--ui-line)}
 .missing a{min-height:44px;display:flex;align-items:center;gap:8px;color:var(--ui-ink-soft);font-size:var(--ui-helper-size)}.missing a>svg{color:var(--ui-accent-ink);width:15px;height:15px}.missing a>span:last-child{display:flex;align-items:center;gap:4px;margin-left:auto}.missing a>span:last-child svg{width:14px;height:14px}
 .dividedLink{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;border-top:1px solid var(--ui-line);margin-top:auto;padding-top:8px;font-size:var(--ui-helper-size);color:var(--ui-ink-soft)}.dividedLink>span{display:flex;align-items:center;gap:6px;color:var(--ui-accent-ink)}
@@ -44,10 +44,13 @@
 .performance{display:flex;flex-direction:column;gap:12px;height:100%}.performance .heading{gap:4px}.performance .heading h2{flex:1}.performance .heading>a{font-size:var(--ui-helper-size)}
 .performanceSummary{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 12px}.performanceSummary strong{color:var(--ui-accent-ink)}
 .practiceLabel{color:var(--ui-muted);font-size:var(--ui-helper-size)}.practiceSelect{display:flex;align-items:center;gap:8px;min-width:0;flex-wrap:wrap;font-size:var(--ui-helper-size);color:var(--ui-muted)}.practiceSelect select{min-height:44px;width:100%;min-width:0;background:var(--ui-canvas);border:1px solid var(--ui-line-strong);color:var(--ui-ink);padding:8px;border-radius:var(--ui-control-radius)}
-.metrics{display:flex;flex-direction:column;gap:10px}.metric{display:grid;grid-template-columns:minmax(100px,1fr) minmax(40px,1fr) 26px;gap:10px;align-items:center;font-size:var(--ui-helper-size)}.metric>span:first-child{color:var(--ui-ink-soft)}.metric>span:last-child{text-align:right;font-variant-numeric:tabular-nums}.metric progress{width:100%;height:6px;appearance:none;border:none;border-radius:99px;overflow:hidden;background:var(--ui-line);color:var(--ui-accent)}.metric progress::-webkit-progress-bar{background:var(--ui-line)}.metric progress::-webkit-progress-value{background:var(--ui-accent);border-radius:99px}.metric progress::-moz-progress-bar{background:var(--ui-accent)}
+.metrics{display:flex;flex-direction:column;gap:10px}.metric{display:grid;grid-template-columns:minmax(100px,1fr) minmax(40px,1fr) 26px;gap:10px;align-items:center;font-size:var(--ui-helper-size)}.metric>span:first-child{color:var(--ui-ink-soft)}.metric>span:last-child{text-align:right;font-variant-numeric:tabular-nums}.dashboard.dashboard.dashboard .metric progress{width:100%;height:6px;appearance:none;border:none;border-radius:99px;overflow:hidden;background:var(--ui-line);color:var(--ui-accent)}.dashboard.dashboard.dashboard .metric progress::-webkit-progress-bar{background:var(--ui-line)}.dashboard.dashboard.dashboard .metric progress::-webkit-progress-value{background:var(--ui-accent);border-radius:99px}.dashboard.dashboard.dashboard .metric progress::-moz-progress-bar{background:var(--ui-accent)}
 .performanceFooter{margin-top:auto;padding-top:4px;display:flex;flex-direction:column;gap:4px}.performanceFooter>a{width:100%}
 @media(min-width:760px){.pair{grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}.avatar{width:80px;height:80px}}
 @media(max-width:359px){.profile{gap:10px}.avatar{width:56px;height:56px}.profileLink{display:none}.card{padding:14px}.heading{flex-wrap:wrap}.events li{flex-wrap:wrap;gap:8px}.eventAction{margin-left:56px}.metric{gap:6px;grid-template-columns:minmax(90px,1fr) minmax(30px,1fr) 24px}.quickAction{padding:12px}.pipeline{gap:4px}}
 
 :global(.app-type.internal-ui.career-studio) .dashboard .continue>a,:global(.app-type.internal-ui.career-studio) .dashboard .continue>button{width:auto}
 @media(max-width:519px){:global(.app-type.internal-ui.career-studio) .dashboard .continue>a,:global(.app-type.internal-ui.career-studio) .dashboard .continue>button{width:100%}}
+/* Keep short row actions intact while long missing-field labels wrap. */
+.missing a>span:nth-child(2){flex:1;min-width:0}
+.missing a>span:last-child{flex-shrink:0;white-space:nowrap}
