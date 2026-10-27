@@ -153,7 +153,7 @@ export function ResultsOverview({
 
       <div className="grid gap-3 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         {/* SUMMARY — purple */}
-        <article className="flex flex-col gap-2 rounded-card border border-sec-summary/30 bg-[#F2EEF9] p-4">
+        <article className="flex flex-col gap-2 rounded-card border border-sec-summary/30 bg-teal-soft p-4">
           <div className="flex items-center justify-between gap-2">
             <CardLabel tone="text-sec-summary" icon={FileText}>Professional summary</CardLabel>
             <Link href={`/package/${id}/edit`} className="inline-flex min-h-11 items-center text-[13px] font-semibold text-sec-summary underline-offset-2 hover:underline">

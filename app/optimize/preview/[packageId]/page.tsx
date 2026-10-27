@@ -257,7 +257,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
         {/* Legend */}
         <div className="flex flex-wrap gap-2 rounded-card border border-line bg-white p-3 text-[12.5px]">
           <span className="rounded-[4px] bg-ok-soft px-2 py-1 text-ink">Green · reworded from your profile</span>
-          <span className="rounded-[4px] bg-[#E8F4EC] px-2 py-1 font-semibold text-sec-status">Highlighted · job description keyword</span>
+          <span className="rounded-[4px] bg-teal-soft px-2 py-1 font-semibold text-sec-status">Highlighted · job description keyword</span>
           <span className="rounded-[4px] border border-gold/60 bg-gold-soft px-2 py-1 text-ink">
             Yellow · unverified suggestion — select only if true for you
           </span>

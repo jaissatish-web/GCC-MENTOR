@@ -183,3 +183,8 @@ PERSONAL-HOME-002 follow-through: Satish explicitly authorized cloud-browser che
 
 
 27 October2026 — PERSONAL-HOME-002 visual QA passed after authorized cloud-browser comparison. Fixed scoped red/yellow/green bars, intact320px Review actions and central pipeline stats. Verified320/390/1280/1440px reflow,200% text, empty/error/loading/pending states, history selector, exact unfinished-run navigation, canonical editor and services drawer using isolated fictional APIs. Final production build and focused assertions passed. Required final-head CI and main/Vercel release pending; live dashboard requires sign-in, so no authenticated production account walkthrough is claimed. Evidence: personal-dashboard-qa.md and dashboard-reference-qa/.
+
+## FIRST-RESUME-001 and THEME-SURFACES-001 —27 October2026
+Approved by Satish: new-user dashboard automatically offers Upload/Paste/Type in a dismissible first-resume dialog after confirmed empty successful reads; preserve pending imports and returning-user work. Contract FIRST_RESUME_ONBOARDING_2026-10-27.md. Also inspect every authored page/service for white UI surfaces that escape the navy/blue/cyan theme, preserving paper/document/template previews; theme-only work bounded in THEME_SURFACE_AUDIT_2026-10-27.md. Implementation and browser verification pending. Backend/auth/scoring/templates protected; no account modifications or provider calls for testing.
+
+Implementation complete: first-resume dialog and no-handoff signup dashboard routing; theme escapes corrected. Full 80-script suite passed; final production build and delivery checks recorded in the delivery PR. See docs/first-resume-theme-qa.md for browser evidence and limits.

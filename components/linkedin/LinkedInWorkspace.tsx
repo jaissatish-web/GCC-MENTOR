@@ -365,7 +365,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
       {error && (
         <div
           role="alert"
-          className="rounded-ctl border border-red-200 bg-red-50 p-4 text-sm text-red-800"
+          className="rounded-ctl border border-alert/30 bg-alert-soft p-4 text-sm text-alert"
         >
           {error}{' '}
           <button className="ml-2 underline" onClick={() => void load()}>
@@ -442,7 +442,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                     </span>
                   </div>
                   {stale && (
-                    <p className="rounded-ctl border border-amber-200 bg-amber-50 p-4 text-sm text-ink type-helper">
+                    <p className="rounded-ctl border border-gold/30 bg-gold-soft p-4 text-sm text-ink type-helper">
                       This saved content predates your latest Career Profile
                       changes. Review it before copying or prepare a fresh
                       version.
@@ -456,7 +456,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                   disabled={busy === 'save'}
                 >
                   {stale && (
-                    <p className="rounded-ctl border border-amber-200 bg-amber-50 p-4 text-sm text-ink type-helper">
+                    <p className="rounded-ctl border border-gold/30 bg-gold-soft p-4 text-sm text-ink type-helper">
                       Career Profile has changed since this content was
                       generated. Review the saved version and generate a fresh
                       version to use your latest facts.

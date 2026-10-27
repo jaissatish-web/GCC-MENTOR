@@ -195,7 +195,7 @@ export function DocumentReader({ children, onClose, title = 'Resume preview', ca
   const z = zoom === 0 ? fit : zoom
   if (typeof document === 'undefined') return null
   return createPortal(
-    <dialog ref={dialogRef} onCancel={e => { e.preventDefault(); onClose() }} aria-label={title} aria-modal="true" className="fixed inset-0 z-[90] m-0 h-dvh max-h-none w-screen max-w-none border-0 bg-[#e8eeec] p-0 backdrop:bg-ink/70">
+    <dialog ref={dialogRef} onCancel={e => { e.preventDefault(); onClose() }} aria-label={title} aria-modal="true" className="fixed inset-0 z-[90] m-0 h-dvh max-h-none w-screen max-w-none border-0 bg-canvas p-0 backdrop:bg-ink/70">
       <div className="flex h-full flex-col">
         <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-line bg-white px-4 py-3">
           <div className="min-w-0"><h2 className="text-[15px] font-semibold text-ink">{title}</h2><p className="text-[12px] text-ink-muted">{caption}</p></div>

@@ -10,11 +10,11 @@ import { InterviewComparison } from './InterviewComparison'
 function change(value: number) { return `${value > 0 ? '+' : ''}${value}` }
 type Metric = typeof INTERVIEW_METRICS[number]['key']
 const AREAS = {
-  overall_score: { icon: TrendingUp, ink: '#0F4C43', soft: '#E4EEEB' },
-  technical_score: { icon: Brain, ink: '#0F4C43', soft: '#E4EEEB' },
-  role_fit_score: { icon: BriefcaseBusiness, ink: '#0F4C43', soft: '#E4EEEB' },
-  gulf_readiness_score: { icon: Globe2, ink: '#0F4C43', soft: '#E4EEEB' },
-  answer_structure_score: { icon: MessageSquare, ink: '#0F4C43', soft: '#E4EEEB' },
+  overall_score: { icon: TrendingUp, ink: 'var(--ui-accent-ink)', soft: 'var(--ui-brand-soft)' },
+  technical_score: { icon: Brain, ink: 'var(--ui-accent-ink)', soft: 'var(--ui-brand-soft)' },
+  role_fit_score: { icon: BriefcaseBusiness, ink: 'var(--ui-accent-ink)', soft: 'var(--ui-brand-soft)' },
+  gulf_readiness_score: { icon: Globe2, ink: 'var(--ui-accent-ink)', soft: 'var(--ui-brand-soft)' },
+  answer_structure_score: { icon: MessageSquare, ink: 'var(--ui-accent-ink)', soft: 'var(--ui-brand-soft)' },
 } as const
 
 export function InterviewProgress({ progress, packageId, compact = false, onPractice }: { progress: Progress; packageId: string; compact?: boolean; onPractice?: () => void }) {
@@ -56,12 +56,12 @@ export function InterviewProgress({ progress, packageId, compact = false, onPrac
         <svg key={metric} viewBox="0 0 350 165" className="mt-3 block max-h-60 w-full" role="img" aria-labelledby={chartId}>
           <title id={chartId}>{metricLabel} scores: {progress.timeline.map(p => `mock interview ${p.number}: ${p.scores[metric]}${p.comparable ? '' : ', different settings'}`).join('; ')}</title>
           <defs><linearGradient id={`${chartId}-fill`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={area.ink} stopOpacity="0.26" /><stop offset="100%" stopColor={area.ink} stopOpacity="0.02" /></linearGradient></defs>
-          {[0, 50, 100].map(score => <g key={score}><line x1="30" x2="320" y1={y(score)} y2={y(score)} stroke="#DCE5E1" strokeDasharray="4 4" /><text x="20" y={y(score) + 4} textAnchor="end" fill="#64716B" fontSize="14">{score}</text></g>)}
+          {[0, 50, 100].map(score => <g key={score}><line x1="30" x2="320" y1={y(score)} y2={y(score)} stroke="var(--ui-line)" strokeDasharray="4 4" /><text x="20" y={y(score) + 4} textAnchor="end" fill="var(--ui-muted)" fontSize="14">{score}</text></g>)}
           {fillPath && <path d={fillPath} fill={`url(#${chartId}-fill)`} />}
           {progress.comparableCount > 1 && <polyline className="practice-chart-line" points={points} fill="none" stroke={area.ink} strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" pathLength="1" />}
-          {progress.timeline.map((point, i) => <g key={point.id}>{point.id === focus.id && <circle cx={x(i)} cy={y(point.scores[metric])} r="11" fill={point.comparable ? area.ink : '#64716B'} opacity="0.13" />}<circle cx={x(i)} cy={y(point.scores[metric])} r={point.id === focus.id ? 6 : 4} fill={point.comparable ? area.ink : '#A2AAA6'} stroke="white" strokeWidth="2" />{(progress.timeline.length <= 6 || i === 0 || i === progress.timeline.length - 1) && <text x={x(i)} y="160" textAnchor="middle" fill="#64716B" fontSize="14">#{point.number}</text>}</g>)}
+          {progress.timeline.map((point, i) => <g key={point.id}>{point.id === focus.id && <circle cx={x(i)} cy={y(point.scores[metric])} r="11" fill={point.comparable ? area.ink : 'var(--ui-muted)'} opacity="0.13" />}<circle cx={x(i)} cy={y(point.scores[metric])} r={point.id === focus.id ? 6 : 4} fill={point.comparable ? area.ink : 'var(--ui-muted)'} stroke="var(--ui-surface)" strokeWidth="2" />{(progress.timeline.length <= 6 || i === 0 || i === progress.timeline.length - 1) && <text x={x(i)} y="160" textAnchor="middle" fill="var(--ui-muted)" fontSize="14">#{point.number}</text>}</g>)}
         </svg>
-        <div className="flex flex-wrap gap-2 pb-1" aria-label="Explore interview scores">{progress.timeline.map(point => <button key={point.id} type="button" aria-pressed={point.id === focus.id} onClick={() => setFocusedId(point.id)} className="practice-skill min-h-11 shrink-0 rounded-lg border px-3" style={{ borderColor: point.id === focus.id ? area.ink : '#DCE5E1', background: point.id === focus.id ? area.soft : 'white', color: point.comparable ? area.ink : '#64716B' }}>#{point.number} · {point.scores[metric]}</button>)}</div>
+        <div className="flex flex-wrap gap-2 pb-1" aria-label="Explore interview scores">{progress.timeline.map(point => <button key={point.id} type="button" aria-pressed={point.id === focus.id} onClick={() => setFocusedId(point.id)} className="practice-skill min-h-11 shrink-0 rounded-lg border px-3" style={{ borderColor: point.id === focus.id ? area.ink : 'var(--ui-line)', background: point.id === focus.id ? area.soft : 'var(--ui-surface)', color: point.comparable ? area.ink : 'var(--ui-muted)' }}>#{point.number} · {point.scores[metric]}</button>)}</div>
         <p role="status" className="mt-3 type-helper text-ink-soft">Mock interview {focus.number} · {metricLabel}: {focus.scores[metric]}/100{!focus.comparable ? ' · different settings' : ''}</p>
         {progress.comparableCount === 1 ? <p className="mt-2 type-helper text-ink-muted">This is your baseline. Repeat the same settings and saved resume to start a comparable trend.</p> : <p className="mt-2 type-helper text-ink-muted">{progress.comparableCount} matching interviews · Coloured points form your comparable trend.</p>}
         {progress.timeline.some(p => !p.comparable) && <p className="mt-1 type-helper text-ink-muted">Grey points show other settings. Their scores are separate baselines.</p>}

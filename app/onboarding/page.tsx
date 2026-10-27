@@ -154,14 +154,12 @@ export default function OnboardingPage() {
           return
         }
 
-        // Nothing to auto-extract. The Career Profile is the one place a user
-        // builds their profile now (founder decision 2026-08-18): its inline
-        // import row offers upload/paste/fill, so send them there directly rather
-        // than to a separate chooser.
-        router.replace('/profile')
+        // No resume handoff: show the dashboard and its first-resume choices.
+        // Existing handoffs above still continue into review/extraction.
+        router.replace('/dashboard')
       })
       .catch(() => {
-        if (!cancelled) router.replace('/profile')
+        if (!cancelled) router.replace('/dashboard')
       })
     return () => {
       cancelled = true
