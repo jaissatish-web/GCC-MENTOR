@@ -192,3 +192,7 @@ Implementation complete: first-resume dialog and no-handoff signup dashboard rou
 CONTROL-CONTRAST-001 approved: fix reported tone/editor white-on-white states and audit shared SaaS controls. See docs/CONTROL_CONTRAST_2026-10-27.md.
 
 CONTROL-CONTRAST-001 implemented and locally verified: tone choices, field focus, native options and legacy field surfaces. Production build and universal-theme checks passed; fixture browser review confirms readable controls and preserved document paper. Release gate tracked in delivery PR.
+
+RESUME-REVIEW-001 approved: dedicated visual acceptance page using existing processing, draft, editor and save contracts; backend/AI/scoring/schema/auth/billing/settings/dashboard protected. See docs/RESUME_ACCEPTANCE_REVIEW_2026-10-27.md.
+
+RESUME-REVIEW-001 implemented: dedicated protected /profile/review, existing suggestion selection/manual editing and visual checklist, existing confirmed save to /profile. Build/80 regressions and focused SSR passed; fictional browser verified no writes before confirmation and one existing PUT after. No protected backend/API/AI/auth/schema/dashboard/settings/billing/animation files changed. Full delivery gate and deployment recorded in delivery PR.

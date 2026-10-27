@@ -6,6 +6,7 @@ import { ChevronRightIcon } from '@heroicons/react/24/outline'
 import { validProfileEmail, validProfilePhone } from '@/lib/profileFieldValidity'
 import { rebaseImportField } from '@/lib/resumeParse/reviewPlan'
 import { INTAKE_KEY, contextFromProfile } from '@/lib/careerIntake/shared'
+import { ResumeAcceptanceReview } from '@/components/profile/ResumeAcceptanceReview'
 import { ResumeImportFindings } from '@/components/profile/ResumeImportFindings'
 import { ProfilePhotoDraft } from '@/components/profile/ProfilePhotoDraft'
 import { resumeReviewChecks } from '@/lib/resumeParse/reviewChecks'
@@ -16,12 +17,13 @@ import { sortedWorkRoles } from '@/lib/profileWorkNavigation'
 import { currentRoleFingerprint, type ImportReview } from '@/lib/resumeParse/importReview'
 import { organizeCategoryEntries, type CategoryMetadata } from '@/lib/profileCategories'
 import { ProfileBlockCategories, focusProfileBlockCategory } from '@/components/profile/ProfileBlockCategories'
-import { PROFILE_BLOCKS } from '@/lib/careerProfileBlocks'
+import { PROFILE_BLOCKS, profileBlockForCategory } from '@/lib/careerProfileBlocks'
 import { GulfContext } from '@/components/layout/GulfContext'
 import { CareerProfileResumeButton } from '@/components/resume/CareerProfileResumeButton'
 import { PageSkeleton } from '@/components/ui/Skeleton'
 
-import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import {
   Suspense,
   useCallback,
@@ -931,6 +933,8 @@ function ConfirmToggle({
 
 function ProfileScreen() {
   const router = useRouter()
+  const isReviewRoute = usePathname() === '/profile/review'
+  const [reviewEditing, setReviewEditing] = useState(false)
   const searchParams = useSearchParams()
   // Deep-link intent from the dashboard nudge / CTA (?import=upload|paste) so the
   // matching panel opens on arrival. Absent → the import row shows just its buttons.
@@ -944,9 +948,9 @@ function ProfileScreen() {
   // history API without a server round trip, and the editor stays mounted.
   const showView = useCallback(
     (next: ProfileView) => {
-      if (next !== requestedView) window.history.pushState(null, '', `/profile?view=${next}`)
+      if (next !== requestedView) window.history.pushState(null, '', `${isReviewRoute ? '/profile/review' : '/profile'}?view=${next}`)
     },
-    [requestedView],
+    [requestedView, isReviewRoute],
   )
 
   const [editor, setEditor] = useState<EditorData | null>(null)
@@ -1002,6 +1006,9 @@ function ProfileScreen() {
     draft: CareerProfileDraft
     existing: CareerProfileFull
   } | null>(null)
+  useEffect(() => {
+    if ((reviewingImport || pendingDraft) && !isReviewRoute) window.history.replaceState(null, '', '/profile/review')
+  }, [reviewingImport, pendingDraft, isReviewRoute])
   const didInit = useRef(false)
   // The profile version this editor holds; null until one has been loaded or saved.
   const savedVersionRef = useRef<string | null>(null)
@@ -1189,6 +1196,8 @@ function ProfileScreen() {
   // into the same editor without saving. Compared against the SAVED profile
   // (a fresh GET), never the possibly-unsaved editor, matching that contract.
   const ingestDraft = useCallback((draft: CareerProfileDraft, notes?: ParseWarning[], incomingReview?: ImportReview) => {
+    setReviewEditing(false)
+    setClaimedScan(null) // A new inline import has no associated scan score.
     setParseNotes(notes ?? [])
     if (incomingReview) { reviewRequest.current++; setImportReview(incomingReview) } else refreshImportReview()
     setSaveError(null)
@@ -1437,6 +1446,7 @@ function ProfileScreen() {
   const [pendingFocus, setPendingFocus] = useState<{ field?: string; sectionId?: string; categoryBlock?: string } | null>(null)
   const goToProfilePart = useCallback(
     (target: { field?: string; sectionId?: string; categoryBlock?: string }) => {
+      if (isReviewRoute) setReviewEditing(true)
       const sectionId = target.sectionId ?? (target.field ? sectionOfField(target.field) ?? (target.field.startsWith('work_experience') ? 'sec_work_experience' : target.field.startsWith('education') ? 'sec_education' : target.field.startsWith('skills') ? 'sec_skills' : target.field.startsWith('certifications') ? 'sec_certifications' : 'sec_additional') : undefined)
       const roleIndex = target.field?.match(/^work_experience\.(\d+)/)?.[1]
       if (roleIndex !== undefined && editor?.work_experience[Number(roleIndex)]) setExpandedWorkKey(editor.work_experience[Number(roleIndex)].key)
@@ -1444,7 +1454,7 @@ function ProfileScreen() {
       setPendingFocus({ field: target.field, sectionId, categoryBlock: target.categoryBlock })
       showView('details')
     },
-    [sectionOfField, showView, editor],
+    [sectionOfField, showView, editor, isReviewRoute],
   )
   // ?open=sec_certifications (optimizer v3, 2026-10-02): the level screen's
   // "add a certificate you hold" link lands on the right section, open.
@@ -1799,6 +1809,7 @@ function ProfileScreen() {
         // PhoneField's `_number` id — a missing phone once scrolled to nothing
         // (seen live 2026-09-12 on "Replace" with a CV that has no phone).
         const firstSection = sectionOfField(String(missing[0].key)) ?? [...owning][0]
+        if (isReviewRoute) setReviewEditing(true)
         setPendingFocus({ field: String(missing[0].key), sectionId: firstSection })
         if (destination !== 'review') showView('details')
         return
@@ -1878,7 +1889,8 @@ function ProfileScreen() {
           setShowImport(false)
           setParseNotes([])
           setSubmitting(false)
-          showView('summary')
+          if (isReviewRoute) router.replace('/profile')
+          else showView('summary')
           window.scrollTo({ top: 0 })
           return
         }
@@ -1896,7 +1908,7 @@ function ProfileScreen() {
         setSubmitting(false)
       }
     },
-    [editor, showView, submitting, reviewingImport, sectionOfField, photoChange, loadError]
+    [editor, showView, submitting, reviewingImport, sectionOfField, photoChange, loadError, isReviewRoute, router]
   )
 
   useEffect(() => {
@@ -2089,7 +2101,8 @@ function ProfileScreen() {
     setSaveError(null)
     setInvalidFields(new Set())
     setSavedBaseline(JSON.stringify(buildPutBody(savedSnapshotRef.current ?? emptyEditor())))
-    showView('summary')
+    if (isReviewRoute) router.replace('/profile')
+    else showView('summary')
   }
   const saveChanges = (defer = false) => {
     if (reviewingImport) {
@@ -2114,6 +2127,24 @@ function ProfileScreen() {
   const loadErrorBlock = loadError ? (
     <div className="mx-3 sm:mx-5 mt-4 rounded-ctl border border-alert/30 bg-alert-soft px-3.5 py-3 type-caption text-alert">{loadError}</div>
   ) : null
+
+  if (isReviewRoute && !reviewingImport) return <main className={MAIN_CLASS}><div className="page-gutter py-8"><h1 className="type-title text-ink">Resume Review</h1><p className="mt-3 type-body text-ink-soft">No resume reading is waiting for confirmation. Your saved profile is unchanged.</p><Link className={buttonVariants({ variant: 'secondary' })+' mt-4'} href="/profile">Open Career Profile</Link></div></main>
+
+  if (isReviewRoute && reviewingImport && !reviewEditing) {
+    const text = (values: Array<string | null | undefined>) => values.filter(value => value?.trim()).join(' · ')
+    const status = (id: string) => sectionStatuses.find(section => section.id === id)?.status ?? 'optional'
+    const additional = (kind: string) => editor.additional_information.filter(row => profileBlockForCategory(row.category_name ?? row.label) === kind).map(row => text([row.label, row.value])).join('\n')
+    const sections = [
+      { id:'sec_summary', title:'Professional Summary', content:editor.professional_summary, field:'professional_summary' },
+      { id:'sec_work_experience', title:'Experience', content:editor.work_experience.map(job => [text([job.role,job.company,job.start_date,job.end_date]),job.description,job.highlights].filter(Boolean).join('\n')).join('\n\n'), field:'work_experience' },
+      { id:'sec_skills', title:'Skills', content:editor.skills.map(row=>row.name).join(' · '), field:'skills' },
+      { id:'sec_certifications', title:'Certifications', content:editor.certifications.map(row=>text([row.name,row.issuer])).join('\n'), field:'certifications' },
+      { id:'sec_education', title:'Education', content:editor.education.map(row=>text([row.degree,row.institution])).join('\n'), field:'education' },
+      { id:'projects', title:'Projects', content:additional('projects'), field:'additional_information' },
+      { id:'languages', title:'Languages', content:additional('languages'), field:'additional_information' },
+    ].map(section => ({...section,status:section.id==='projects'||section.id==='languages' ? (section.content ? 'complete' as const : 'optional' as const) : status(section.id), changes:activeReview.changes.filter(change=>change.field===section.field || change.field.startsWith(section.field+'.')).filter(change=>section.field!=='additional_information' || change.label.toLowerCase().includes(section.id==='projects'?'project':'language'))}))
+    return <ResumeAcceptanceReview sections={sections} completion={[{id:'sec_identity',title:'Personal Details',status:status('sec_identity')},...sections.map(({id,title,status})=>({id,title,status}))]} review={activeReview} score={claimedScan?.overall_score} strengths={claimedScan?.strengths} improvements={claimedScan?.improvements} profileExists={hasSavedProfile} currentValue={change=>currentImportValue(editor,change)} onChoose={(change,value)=>setEditor(applyImportChange(editor,change,value,uid))} onEdit={id=>goToProfilePart({sectionId:id==='projects'||id==='languages'?'sec_additional':id,categoryBlock:id==='projects'||id==='languages'?id:undefined})} confirmed={importConfirmed} onConfirm={setImportConfirmed} busy={submitting} error={saveError ?? loadError} saveDisabled={Boolean(loadError)} onSave={()=>saveChanges()} issues={showImportIssues ? <section ref={importIssueRef} tabIndex={-1} className="rounded-card border border-alert bg-alert-soft p-4"><h2 className="type-section text-alert">Some details still need attention</h2><p className="mt-2 type-helper text-ink-soft">Update them now, or save with missing details and complete them later. Invalid supplied values must be corrected or cleared.</p><div className="mt-3 flex flex-wrap gap-2"><Button variant="secondary" size="sm" onClick={()=>goToProfilePart({field:reviewPlan.outstanding[0]?.field ?? 'full_name'})}>Update now</Button><Button size="sm" disabled={submitting || reviewPlan.invalid.length>0} onClick={()=>saveChanges(true)}>Skip and save</Button></div></section> : null} />
+  }
 
   // ---- Completeness ---------------------------------------------------------
   if (view === 'completeness') {
@@ -2209,7 +2240,8 @@ function ProfileScreen() {
   // ---- The full profile (view === 'details') --------------------------------
   return (
     <main data-ui-service="profile" className={MAIN_CLASS}>
-      <ViewHeader eyebrow="Career Profile" title="Edit Career Profile" description="Update your information here, then save your changes." onBack={cancelEditing} backLabel="Career Profile" />
+      <ViewHeader eyebrow={isReviewRoute ? "Resume Review" : "Career Profile"} title="Edit Career Profile" description="Update your information here, then save your changes." onBack={cancelEditing} backLabel="Career Profile" />
+      {isReviewRoute ? <div className="page-gutter py-3"><Button variant="secondary" onClick={()=>{setReviewEditing(false);window.scrollTo({top:0})}}>Back to Resume Review</Button></div> : null}
       {loadErrorBlock}
       {reviewingImport ? <ResumeImportFindings review={activeReview} currentValue={change => currentImportValue(editor, change)} onChoose={(change, value) => setEditor(applyImportChange(editor, change, value, uid))} checks={reviewChecks} confirmed={importConfirmed} busy={submitting} onConfirm={setImportConfirmed} onFix={field => goToProfilePart({ field })} /> : null}
       {showImportIssues && reviewingImport ? <section ref={importIssueRef} tabIndex={-1} aria-labelledby="review-issues-title" className="mx-3 my-4 rounded-card border border-alert bg-alert-soft p-4 text-alert sm:mx-5">

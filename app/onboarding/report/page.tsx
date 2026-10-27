@@ -51,7 +51,7 @@ export default function OnboardingReportPage() {
       sessionStorage.removeItem(CLAIMED_RESUME_TEXT_KEY)
       sessionStorage.setItem(CAREER_PROFILE_DRAFT_KEY,JSON.stringify(body.draft))
       sessionStorage.setItem(CAREER_PROFILE_PARSE_NOTES_KEY,JSON.stringify(body.report?.warnings??[]))
-      router.push('/profile')
+      router.push('/profile/review')
     }catch(error){setOpenError(error instanceof Error?error.message:'Could not open the profile.');setOpening(false)}
   }
 
