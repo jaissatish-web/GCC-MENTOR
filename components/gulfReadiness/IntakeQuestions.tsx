@@ -17,7 +17,7 @@ export function IntakeQuestions({intake,onChange,onFinish,onBack}:{intake:Career
  const choice=(label:string,value:string,change:(v:string)=>void)=><fieldset><legend className="field-label">{label}</legend><div className="mt-2 grid grid-cols-3 gap-2">{bool.map(item=><button key={item.label} type="button" aria-pressed={value===item.value} onClick={()=>change(item.value)} className={`min-h-11 rounded-ctl border px-2 py-3 text-sm font-semibold ${value===item.value?'border-teal bg-teal text-white':'border-line bg-white text-ink'}`}>{item.label}</button>)}</div></fieldset>
  return <div>
   <p className="text-xs font-semibold uppercase tracking-wider text-teal">Your resume is read · quick check {page+1} of {totalPages}</p>
-  <h1 className="mt-3 type-title">{page===0?'Your situation today':page===1?'Your Gulf preparation':'Fill only what we could not read'}</h1>
+  <h1 className="mt-3 type-title text-ink">{page===0?'Your situation today':page===1?'Your Gulf preparation':'Fill only what we could not read'}</h1>
   <p className="mt-3 text-sm text-ink-soft">We found {intake.draft.work_experience.length} {intake.draft.work_experience.length===1?'role':'roles'}, {intake.draft.skills.length} {intake.draft.skills.length===1?'skill':'skills'} and {intake.draft.education.length} {intake.draft.education.length===1?'qualification':'qualifications'}. Information already captured is reused for both scorecards.</p>
   <form className="mt-5 space-y-5 rounded-card border border-line bg-white p-5 sm:p-6" onSubmit={e=>{e.preventDefault();if(page<totalPages-1)setPage(page+1);else onFinish()}}>
    {page===0?<>

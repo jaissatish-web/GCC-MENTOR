@@ -223,3 +223,10 @@ record changes. Affected: server quota helpers, import allowance label and focus
 regression checks. Acceptance: only the exact account receives the exception;
 ordinary users retain existing quotas; interruptions and failed calls keep their
 existing accounting. Implemented with focused regression checks passing: exact-account matching, monthly/daily allowances, unchanged ordinary quotas, atomic settlement, pauses, global capacity, concurrency and database failure. Full repository checks and deployment are release gates; live usage is not yet claimed.
+
+## 2026-10-27 — READINESS-CONTRAST-004
+Approved: fix unreadable box titles/field labels after resume processing in the public readiness journey. Labels and legends must consume live semantic ink tokens, including outside the signed-in app wrapper; headings retain the shared scale. Scope: shared field label/hint CSS and explicit intake heading color. Preserve questions, navigation, extraction, scoring, storage, authentication and resume documents. Acceptance: labels and headings readable on current surfaces at mobile/desktop widths. Verify compiled CSS contrast and repository typecheck/lint/build. Status: approved, implementation pending.
+
+READINESS-CONTRAST-004 implemented: `.field-label` and `.field-hint` now resolve semantic CSS variables instead of Tailwind's baked legacy ink. Intake page heading explicitly uses theme ink. Production build, typecheck and lint passed. Browser PDF/DOCX/paste flow passed at 320/390/768/1440px, including rendered label/legend color assertions, invalid files and retry (synthetic AI response; actual parsers). No live provider/account verification claimed. Full regression suite result recorded below.
+
+READINESS-CONTRAST-004: 82/82 repository regression checks passed. Main publication follows these local gates; Vercel production deployment remains unverified.

@@ -1943,3 +1943,6 @@ record changes. Affected: server quota helpers, import allowance label and focus
 regression checks. Acceptance: only the exact account receives the exception;
 ordinary users retain existing quotas; interruptions and failed calls keep their
 existing accounting. Implemented with focused regression checks passing: exact-account matching, monthly/daily allowances, unchanged ordinary quotas, atomic settlement, pauses, global capacity, concurrency and database failure. Full repository checks and deployment are release gates; live usage is not yet claimed.
+
+## 2026-10-27 — READINESS-CONTRAST-004
+Approved: fix unreadable box titles/field labels after resume processing in the public readiness journey. Labels and legends must consume live semantic ink tokens, including outside the signed-in app wrapper; headings retain the shared scale. Scope: shared field label/hint CSS and explicit intake heading color. Preserve questions, navigation, extraction, scoring, storage, authentication and resume documents. Acceptance: labels and headings readable on current surfaces at mobile/desktop widths. Verify compiled CSS contrast and repository typecheck/lint/build. Status: approved, implementation pending.
