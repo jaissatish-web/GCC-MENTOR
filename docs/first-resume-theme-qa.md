@@ -9,3 +9,5 @@ Browser verification with fictional local data: all three choices opened the exi
 Checks: typecheck and lint passed; all 80 regression scripts passed, including eligibility fixture cases; final production build passed, including the foreground fix. No auth, database, scoring, payments or document export logic changed.
 
 Limits: the local static harness cannot render server-session settings/admin or dynamic authentication routes; those received source review. No authenticated production account was used and no user records were changed. Route inventory and intentional paper exceptions are in THEME_SURFACE_AUDIT_2026-10-27.md. This is not certification of every live service state.
+
+Review follow-up: pending-draft lookup must return an explicit successful `{pending:null}` before opening guidance. Slow, malformed and failed responses leave guidance suppressed. Eligibility fixtures cover unknown/false pending confirmation; pending-draft next-action behavior remains intact.

@@ -20,6 +20,7 @@ import type { CareerProfileFull } from '@/types/careerProfile'
 import type { GulfReadinessResult } from '@/lib/gulfReadiness/types'
 
 type Props = {
+  pendingDraftAbsent?: boolean
   profile: CareerProfileFull | null; profileLoaded: boolean; profileError: boolean
   score: number; missing: string[]; gulf: GulfReadinessResult | null
   packages: PackageSummary[]; packagesLoaded: boolean; packagesError: boolean
@@ -64,7 +65,7 @@ export function WorkspaceHome(p: Props) {
     { label: 'Update Career Profile', detail: 'Keep your details current', href: '/profile?view=details', Icon: PencilSquareIcon },
     { label: 'Add a job application', detail: 'Set up a job workspace', href: '/optimize/target', Icon: PlusIcon },
   ]
-  const offerFirstResume = shouldOfferFirstResume({ready:p.ready,error:p.error,profileExists:Boolean(p.profile),profileLoaded:p.profileLoaded,profileError:p.profileError,packagesLoaded:p.packagesLoaded,packagesError:p.packagesError,packageCount:p.packages.length,overviewLoading:p.overviewLoading,overviewError:p.overviewError,resumeCount:p.overview?.resume_count,nextActionState:p.nextAction.state})
+  const offerFirstResume = shouldOfferFirstResume({pendingDraftAbsent:p.pendingDraftAbsent === true,ready:p.ready,error:p.error,profileExists:Boolean(p.profile),profileLoaded:p.profileLoaded,profileError:p.profileError,packagesLoaded:p.packagesLoaded,packagesError:p.packagesError,packageCount:p.packages.length,overviewLoading:p.overviewLoading,overviewError:p.overviewError,resumeCount:p.overview?.resume_count,nextActionState:p.nextAction.state})
   return <main className={`studio-page studio-home ${styles.dashboard}`}>
     <FirstResumeDialog eligible={offerFirstResume} />
     <header className={styles.profile} aria-busy={!p.profileLoaded}>
