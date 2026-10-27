@@ -1,5 +1,8 @@
 import './resolve-paths'
 import assert from 'node:assert/strict'
+import * as React from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
+import { ResumeAcceptanceReview, type AcceptanceSection } from '../components/profile/ResumeAcceptanceReview'
 import { importReviewPlan, rebaseImportField } from '../lib/resumeParse/reviewPlan'
 import { resumeReviewChecks, type ReviewCheckEditor } from '../lib/resumeParse/reviewChecks'
 import {currentRoleFingerprint} from '../lib/resumeParse/importReview'
@@ -43,3 +46,56 @@ assert.ok(deferPlan.outstanding.some(c=>c.field==='full_name'),'deferred gaps re
 assert.ok(importReviewPlan(bad,{}).invalid.some(c=>c.field==='email'),'malformed supplied values must be corrected or cleared')
 assert.equal(importReviewPlan(uncertain,{}).invalid.length,0,'uncertain extraction may be deferred without marking it verified')
 console.log('PASS explicit import review: required vs optional, uncertain facts, changed-value invalidation, valid-data profile and Gulf scoring')
+
+
+// Render the real review UI: supplied analysis stays read-only and choosing a
+// pending import never becomes an implicit save during presentation.
+;(globalThis as unknown as { React: typeof React }).React = React
+const suggestion = { id:'summary-wording', field:'professional_summary', label:'Professional summary', kind:'wording' as const,
+  before:'I commission control systems.', after:'I commission control systems safely.', reason:'Existing supplied wording suggestion.', suggested:true, restorable:true }
+const sectionTitles = ['Professional Summary','Experience','Skills','Certifications','Education','Projects','Languages']
+const acceptanceSections: AcceptanceSection[] = sectionTitles.map((title,index) => ({
+  id:`review-${index}`,title,content:index === 0 ? suggestion.before : `Extracted ${title}`,
+  status:index === 2 ? 'attention' : 'complete',changes:index === 0 ? [suggestion] : [],
+}))
+let uiCallbackCalls = 0
+const uiProps: React.ComponentProps<typeof ResumeAcceptanceReview> = {
+  sections:acceptanceSections,review:{...review,wordingStatus:'checked',changes:[suggestion]},score:73.25,
+  strengths:['Source strength: grounded technical evidence.'],improvements:['Source improvement: add missing dates.'],
+  currentValue:change=>change.before,onChoose:()=>{uiCallbackCalls++},onEdit:()=>{uiCallbackCalls++},
+  confirmed:false,onConfirm:()=>{uiCallbackCalls++},busy:false,onSave:()=>{uiCallbackCalls++},profileExists:false,
+}
+const renderAcceptance = (overrides: Partial<typeof uiProps> = {}) => renderToStaticMarkup(React.createElement(ResumeAcceptanceReview,{...uiProps,...overrides}))
+const finalSaveAttrs = (html: string) => {
+  const button = html.match(/<button\b([^>]*)>Save confirmed data<\/button>/)
+  assert.ok(button,'The existing final confirmation action is rendered')
+  return button[1]
+}
+const acceptAttrs = (html: string) => Array.from(html.matchAll(/<button\b([^>]*)>Accept suggestion<\/button>/g),match=>match[1])
+const disabled = (attributes: string) => /\bdisabled=""/.test(attributes)
+const acceptanceMarkup = renderAcceptance()
+for (const title of sectionTitles) assert.ok(acceptanceMarkup.includes(`>${title}</h3>`),`Review includes the ${title} extracted section`)
+assert.ok(acceptanceMarkup.includes('value="73.25"') && acceptanceMarkup.includes('>73.25<span'),'Supplied score is displayed without recalculation or rounding')
+for (const value of [...uiProps.strengths!,...uiProps.improvements!]) assert.ok(acceptanceMarkup.includes(value),'Existing analysis finding is preserved: '+value)
+assert.ok(acceptanceMarkup.includes(suggestion.after) && acceptanceMarkup.includes(suggestion.reason),'Only the supplied suggestion and reason are displayed')
+assert.ok(disabled(finalSaveAttrs(acceptanceMarkup)),'Saving requires explicit review acknowledgement')
+assert.ok(!disabled(finalSaveAttrs(renderAcceptance({confirmed:true}))), 'Acknowledged review can use the existing save callback')
+assert.ok(disabled(finalSaveAttrs(renderAcceptance({confirmed:true,saveDisabled:true}))), 'An existing-profile lookup error keeps Save disabled even after acknowledgement')
+assert.ok(acceptAttrs(acceptanceMarkup).some(attributes=>!disabled(attributes)),'A matching real suggestion remains selectable')
+const staleMarkup = renderAcceptance({currentValue:()=> 'My later manual edit.'})
+assert.ok(acceptAttrs(staleMarkup).every(disabled),'A suggestion cannot overwrite stale or manually edited content')
+assert.ok(staleMarkup.includes('This text was edited or could not be matched safely.'),'Stale comparison explains why the current value is kept')
+const noAnalysisMarkup = renderAcceptance({score:undefined,strengths:[],improvements:[],review:{...review,wordingStatus:'unavailable'},sections:acceptanceSections.map(section=>({...section,changes:[]}))})
+assert.ok(noAnalysisMarkup.includes('No analysis score was provided with this import.'),'Missing scores are not presented as zero or invented')
+assert.ok(!noAnalysisMarkup.includes('aria-label="Current resume analysis score"'),'Missing analysis has no misleading scored progress bar')
+assert.ok(noAnalysisMarkup.includes('No strengths were included in the existing analysis.') && noAnalysisMarkup.includes('No improvement areas were included in the existing analysis.'),'Missing analysis findings are stated honestly')
+assert.equal((noAnalysisMarkup.match(/No suggestion provided for this section\./g)??[]).length,7,'Every extracted section honestly reports unavailable suggestions')
+assert.ok(noAnalysisMarkup.includes('Wording suggestions were unavailable for this import.'),'An unavailable wording pass is visible without blocking extracted data')
+assert.ok(acceptAttrs(noAnalysisMarkup).every(disabled),'No-suggestion sections cannot accept invented improvements')
+assert.ok(renderAcceptance({score:0}).includes('value="0"'),'An actual supplied zero score is not confused with unavailable analysis')
+const unsafeText = '<strong>candidate supplied text</strong>'
+const escapedMarkup = renderAcceptance({sections:[{...acceptanceSections[0],content:unsafeText,changes:[{...suggestion,after:unsafeText}]}],strengths:[unsafeText],improvements:[unsafeText],currentValue:()=>suggestion.before})
+assert.ok(escapedMarkup.includes('&lt;strong&gt;candidate supplied text&lt;/strong&gt;'),'Candidate and model strings render as escaped text')
+assert.ok(!escapedMarkup.includes(unsafeText),'Raw extracted or suggested HTML cannot create elements')
+assert.equal(uiCallbackCalls,0,'Rendering the review does not call edits, choices, confirmation or save callbacks')
+console.log('PASS resume acceptance UI: seven sections, unchanged analysis, honest unavailable states, explicit/blocked save, stale suggestions and escaped text')

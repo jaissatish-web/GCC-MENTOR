@@ -140,7 +140,7 @@ export default function OnboardingPage() {
         if (data?.draft) {
           window.sessionStorage.setItem(CAREER_PROFILE_DRAFT_KEY, JSON.stringify(data.draft))
           carryScore()
-          router.replace('/profile')
+          router.replace('/profile/review')
           return
         }
 

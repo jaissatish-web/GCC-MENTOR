@@ -120,7 +120,7 @@ function ExtractingScreen() {
         if (Array.isArray(result.warnings)) {
           window.sessionStorage.setItem(CAREER_PROFILE_PARSE_NOTES_KEY, JSON.stringify(result.warnings))
         }
-        router.push('/profile')
+        router.push('/profile/review')
       } catch {
         setServerMessage(IMPORT_DISPLAY_FAILED)
         setCheckSaved(true)
