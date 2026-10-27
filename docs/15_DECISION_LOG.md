@@ -1924,3 +1924,5 @@ Satish requests the attached dashboard layout matched to GCC Mentor's current th
 27 October 2026 — Satish authorized RESUME-REVIEW-001 visual review/acceptance before profile creation. Existing AI and all business logic remain unchanged; unavailable scores/suggestions must be labelled honestly.
 
 27 October 2026 — Satish authorized complete resume-to-profile journey and preview. Reuse existing review/editor/save. Preserve AI/scoring contracts; absent numeric section scores remain unavailable. Session-only matching-draft recovery avoids changing schema or storing resume facts permanently in browser storage. Test on delivery branch before main.
+
+27 October 2026 — Satish approved guided top-to-bottom correction after Save, red attention border becoming green on correction, preserving optional deferral.

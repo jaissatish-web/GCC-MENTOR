@@ -27,3 +27,19 @@ body .app-type [data-ui-service="resume-review"] .review-progress {
 @media (prefers-reduced-motion: reduce) {
   body [data-ui-service="resume-review"] { scroll-behavior: auto; }
 }
+
+/* Canonical editor correction feedback; no scoring or validation changes. */
+body .app-type [data-guided-validation="attention"] {
+  border: 2px solid rgb(var(--ui-error-rgb)) !important;
+  animation: profile-issue-pulse 1s ease-in-out 3;
+}
+body .app-type [data-guided-validation="resolved"] {
+  border: 2px solid rgb(var(--ui-success-rgb)) !important;
+  animation: none;
+}
+@keyframes profile-issue-pulse {
+  50% { box-shadow: 0 0 0 4px rgb(var(--ui-error-rgb) / .2); }
+}
+@media (prefers-reduced-motion: reduce) {
+  body .app-type [data-guided-validation] { animation: none; }
+}

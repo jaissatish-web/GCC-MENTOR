@@ -716,6 +716,8 @@ function CardSection({
   onToggle,
   accent,
   status,
+  validationState,
+  validationMessage,
   children,
 }: {
   id?: string
@@ -728,6 +730,8 @@ function CardSection({
   total?: number
   /** Complete / Needs attention / Missing / Optional — see sectionStatuses. */
   status?: SectionStatus
+  validationState?: 'attention' | 'resolved'
+  validationMessage?: string
   open: boolean
   onToggle: () => void
   /** This block's identity colour. See SECTION_ACCENT. */
@@ -739,6 +743,7 @@ function CardSection({
   return (
     <Card
       id={id}
+      data-guided-validation={validationState}
       tone="light"
       className={cn(
         'flex scroll-mt-24 flex-col overflow-hidden border-l-[3px] p-0 transition-colors',
@@ -834,6 +839,7 @@ function CardSection({
           </span>
         </button>
       </h2>
+      {validationState ? <p role="status" className={cn('px-4 pb-3 type-helper', validationState === 'attention' ? 'text-alert' : 'text-ok')}>{validationState === 'resolved' ? 'Checks passed for this block.' : validationMessage}</p> : null}
 
       {open ? (
         <div id={panelId} className="ui-panel-padding border-t border-line p-4 sm:p-5">
@@ -1557,7 +1563,7 @@ function ProfileScreen() {
     // before focusing a validation or readiness target.
     let disclosure = target.closest('details')
     while (disclosure) { disclosure.open = true; disclosure = disclosure.parentElement?.closest('details') ?? null }
-    target.scrollIntoView({ behavior: 'smooth', block: input ? 'center' : 'start' })
+    target.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: input ? 'center' : 'start' })
     if (input) input.focus({ preventScroll: true })
   }, [pendingFocus, view])
 
@@ -1657,13 +1663,32 @@ function ProfileScreen() {
   }, [savedBaseline, loaded, hasSavedProfile, pendingDraft, reviewingImport, currentBody, editor])
   const isDirty = photoChange !== undefined || reviewingImport || (currentBody !== null && currentBody !== savedBaseline)
 
-  useEffect(() => { setImportConfirmed(false); setShowImportIssues(false) }, [currentBody])
-  useEffect(() => {
-    if (showImportIssues) { importIssueRef.current?.focus(); importIssueRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' }) }
-  }, [showImportIssues])
+  useEffect(() => { setImportConfirmed(false) }, [currentBody])
   const activeReview: ImportReview = importReview ?? { version: 1, id: 'pending-import', createdAt: '', sourceText: '', imported: { roles: 0, skills: 0, qualifications: 0, certificates: 0 }, wordingStatus: 'not_needed', changes: parseNotes.map((note, i) => ({ id: `note-${i}`, field: note.field, label: 'Please verify', kind: 'check', before: '', after: '', reason: note.message })) }
   const reviewChecks = editor ? resumeReviewChecks({ ...activeReview, currentRoles: [...(activeReview.currentRoles ?? []), ...editor.work_experience.filter(job => !job.end_date && !job.end_date_unconfirmed).map(currentRoleFingerprint)] }, editor, change => currentImportValue(editor, change)) : []
   const reviewPlan = importReviewPlan(reviewChecks, {})
+  const [guidedSections, setGuidedSections] = useState<string[]>([])
+  const issueSection = (field: string) => ['date_of_birth', 'linkedin_url', 'passport_type'].includes(field) ? 'sec_identity' : sectionOfField(field) ?? sectionOfField(field.split('.')[0]) ?? 'sec_additional'
+  const orderedIssues = [...reviewPlan.outstanding].sort((a, b) => {
+    const sectionDifference = FORM_SECTIONS.findIndex(s => s.id === issueSection(a.field)) - FORM_SECTIONS.findIndex(s => s.id === issueSection(b.field))
+    if (sectionDifference) return sectionDifference
+    const fields = SECTION_FIELDS[issueSection(a.field)] ?? []
+    return fields.indexOf(a.field.split('.')[0]) - fields.indexOf(b.field.split('.')[0]) || a.field.localeCompare(b.field, undefined, { numeric: true })
+  })
+  useEffect(() => { if (!orderedIssues.length) setShowImportIssues(false) }, [orderedIssues.length])
+  const guidedState = (id: string): 'attention' | 'resolved' | undefined => !guidedSections.includes(id) ? undefined : orderedIssues.some(check => issueSection(check.field) === id) ? 'attention' : 'resolved'
+  const guidedMessage = (id: string) => { const issue = orderedIssues.find(check => issueSection(check.field) === id); return issue ? `${issue.title}: ${issue.reason}` : undefined }
+  const guideToFirstIssue = () => {
+    const first = orderedIssues[0]
+    if (!first) return
+    setGuidedSections(previous => [...new Set([...previous, ...orderedIssues.map(check => issueSection(check.field))])])
+    goToProfilePart({ field: first.field, sectionId: issueSection(first.field) })
+  }
+
+  useEffect(() => {
+    // Guided Save focuses the actual field; the summary must not steal focus.
+    if (showImportIssues && !guidedSections.length) { importIssueRef.current?.focus(); importIssueRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' }) }
+  }, [showImportIssues, guidedSections.length])
 
   const shownView = useRef(view)
   useEffect(() => {
@@ -2188,8 +2213,8 @@ function ProfileScreen() {
   const saveChanges = (defer = false) => {
     if (reviewingImport) {
       if (!importConfirmed || loadError) return
-      if (reviewPlan.outstanding.length && !defer) { setShowImportIssues(true); return }
-      if (reviewPlan.invalid.length) { setShowImportIssues(true); return }
+      if (reviewPlan.outstanding.length && !defer) { setShowImportIssues(true); guideToFirstIssue(); return }
+      if (reviewPlan.invalid.length) { setShowImportIssues(true); guideToFirstIssue(); return }
       void onSubmit('review')
     } else void onSubmit('stay')
   }
@@ -2335,7 +2360,7 @@ function ProfileScreen() {
       {reviewingImport ? <ResumeImportFindings review={activeReview} currentValue={change => currentImportValue(editor, change)} onChoose={(change, value) => setEditor(applyImportChange(editor, change, value, uid))} checks={reviewChecks} confirmed={importConfirmed} busy={submitting} onConfirm={setImportConfirmed} onFix={field => goToProfilePart({ field })} /> : null}
       {showImportIssues && reviewingImport ? <section ref={importIssueRef} tabIndex={-1} aria-labelledby="review-issues-title" className="mx-3 my-4 rounded-card border border-alert bg-alert-soft p-4 text-alert sm:mx-5">
         <h2 id="review-issues-title" className="type-section">Some details still need attention</h2><p className="mt-2 type-helper">Update them now, or save with missing details and complete them later. Invalid supplied values must be corrected or cleared.</p>
-        <div className="mt-3 flex flex-wrap gap-2"><Button variant="secondary" size="sm" onClick={() => goToProfilePart({ field: reviewPlan.outstanding[0]?.field ?? 'full_name' })}>Update now</Button><Button size="sm" disabled={submitting || reviewPlan.invalid.length > 0} onClick={() => saveChanges(true)}>Skip and save</Button></div>
+        <div className="mt-3 flex flex-wrap gap-2"><Button variant="secondary" size="sm" onClick={guideToFirstIssue}>Next issue</Button><Button size="sm" disabled={submitting || reviewPlan.invalid.length > 0} onClick={() => saveChanges(true)}>Skip and save</Button></div>
       </section> : null}
       <fieldset disabled={submitting} className="min-w-0">
       <div className="page-gutter py-4"><Button variant="secondary" size="sm" aria-expanded={showImport} onClick={() => setShowImport(value => !value)}>Update from resume</Button>
@@ -2373,7 +2398,7 @@ function ProfileScreen() {
 
         {/* STATUS & TARGET */}
         <CardSection
-          {...sectionProps('sec_status')}
+          {...sectionProps('sec_status')} validationState={guidedState('sec_status')} validationMessage={guidedMessage('sec_status')}
           title="Gulf Preferences & Availability"
           helper="Your target roles, countries and current situation. Availability, passport and visa details are recorded in Personal & Contact Details below."
         >
@@ -2453,7 +2478,7 @@ function ProfileScreen() {
         {/* IDENTITY & CONTACT — the card header opens Profile settings, the
             per-field "what appears on your CV" screen (was /profile/visibility). */}
         <CardSection
-          {...sectionProps('sec_identity')}
+          {...sectionProps('sec_identity')} validationState={guidedState('sec_identity')} validationMessage={guidedMessage('sec_identity')}
           title="Personal & Contact Details"
           helper="Passport, visa and contact details are private to your account, and our team’s access is logged. You choose what appears on your resume."
           action={
@@ -2728,7 +2753,7 @@ function ProfileScreen() {
             "no" (docs/GCC_READINESS_JOB_MATCH.md §5). Readiness/Match input only
             — deliberately no field_visibility toggle (TASK-067 scope decision). */}
         <CardSection
-          {...sectionProps('sec_license')}
+          {...sectionProps('sec_license')} validationState={guidedState('sec_license')} validationMessage={guidedMessage('sec_license')}
           title="Professional Licences & Approvals"
           helper="Record relevant licences and approvals only. Add professional registrations and client approvals in the specialist blocks below."
         >
@@ -2779,7 +2804,7 @@ function ProfileScreen() {
 
         {/* PROFESSIONAL SUMMARY — the user's OWN summary, source of the diff */}
         <CardSection
-          {...sectionProps('sec_summary')}
+          {...sectionProps('sec_summary')} validationState={guidedState('sec_summary')} validationMessage={guidedMessage('sec_summary')}
           title="Professional Summary / Career Objective"
           helper="The first thing a recruiter reads. Two or three sentences — the optimizer reframes it per job, never changing your facts."
         >
@@ -2799,7 +2824,7 @@ function ProfileScreen() {
 
         {/* WORK EXPERIENCE */}
         <CardSection
-          {...sectionProps('sec_work_experience')}
+          {...sectionProps('sec_work_experience')} validationState={guidedState('sec_work_experience')} validationMessage={guidedMessage('sec_work_experience')}
           title="Work experience"
           helper="Jobs, internships, apprenticeships, freelance and self-employment. Keep the actual employer separate from the client or project in your description."
           badge={editor.work_experience.length ? `${editor.work_experience.length} found` : undefined}
@@ -2920,7 +2945,7 @@ function ProfileScreen() {
 
         {/* EDUCATION */}
         <CardSection
-          {...sectionProps('sec_education')}
+          {...sectionProps('sec_education')} validationState={guidedState('sec_education')} validationMessage={guidedMessage('sec_education')}
           title="Education & Qualifications"
           helper="Include the awarding institution — employers often verify it."
           badge={editor.education.length ? `${editor.education.length} found` : undefined}
@@ -2967,7 +2992,7 @@ function ProfileScreen() {
 
         {/* SKILLS */}
         <CardSection
-          {...sectionProps('sec_skills')}
+          {...sectionProps('sec_skills')} validationState={guidedState('sec_skills')} validationMessage={guidedMessage('sec_skills')}
           title="Skills & Tools"
           helper="Only what you actually worked with. The optimizer reorders these per job, never adds to them."
           badge={editor.skills.length ? `${editor.skills.length} found` : undefined}
@@ -3010,7 +3035,7 @@ function ProfileScreen() {
 
         {/* CERTIFICATIONS */}
         <CardSection
-          {...sectionProps('sec_certifications')}
+          {...sectionProps('sec_certifications')} validationState={guidedState('sec_certifications')} validationMessage={guidedMessage('sec_certifications')}
           title="Certifications & Training"
           helper="Certificates, short courses and vocational training. Add the provider and dates when known; never invent an expiry."
           badge={editor.certifications.length ? `${editor.certifications.length} found` : undefined}
@@ -3054,7 +3079,7 @@ function ProfileScreen() {
           <button type="button" className={buttonVariants({ variant: 'ghost', size: 'sm' })} onClick={() => goToProfilePart({ sectionId: 'sec_additional', categoryBlock: 'training' })}>Add or review additional training details</button>
         </CardSection>
 
-        <CardSection {...sectionProps('sec_additional')} title="Specialist blocks & custom sections" helper="Projects, languages, awards, activities, research and professional links. Your original headings stay intact.">
+        <CardSection {...sectionProps('sec_additional')} validationState={guidedState('sec_additional')} validationMessage={guidedMessage('sec_additional')} title="Specialist blocks & custom sections" helper="Projects, languages, awards, activities, research and professional links. Your original headings stay intact.">
           <ProfileBlockCategories reservedEntries={editor.additional_information.filter(row => isHeadlineEntry(row) || row.category_name === 'Preparation details (private)')} value={editor.additional_information.filter(row => !isHeadlineEntry(row) && row.category_name !== 'Preparation details (private)')} onChange={(rows) => setEditor(e => e && ({ ...e, additional_information: [...rows, ...e.additional_information.filter(row => isHeadlineEntry(row) || row.category_name === 'Preparation details (private)')] }))} />
         </CardSection>
       </div>
