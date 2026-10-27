@@ -1,4 +1,5 @@
 import { createServiceRoleClient } from '@/lib/supabase/serviceAdmin'
+import { hasUnlimitedPersonalUsage, UNLIMITED_PERSONAL_ALLOWANCE } from '@/lib/personalUsage'
 import { getDefaultDailyLimit, identityUserIds, resetsInText, windowStart } from '@/lib/rateLimit'
 
 /**
@@ -97,7 +98,8 @@ export async function reserveAiAction(opts: {
   const override = ((overrides ?? []) as Array<{ limit_override: number | null }>).find((r) => r.limit_override != null)
     ?.limit_override
   const limit =
-    override != null && override >= 0 ? override : c?.daily_limit_per_user ?? getDefaultDailyLimit(opts.action)
+    hasUnlimitedPersonalUsage(opts.userId) ? UNLIMITED_PERSONAL_ALLOWANCE
+      : override != null && override >= 0 ? override : c?.daily_limit_per_user ?? getDefaultDailyLimit(opts.action)
 
   const { data, error } = await supabase.rpc('reserve_rate_limit', {
     p_user_id: opts.userId,
