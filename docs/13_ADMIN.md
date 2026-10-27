@@ -134,3 +134,20 @@ Deletion is the user's own action from Settings, by design.
 
 **"I paid but something broke" is resolvable today** — that was a launch requirement
 and it is met.
+
+
+## 2026-10-27 — Approved founder usage exception
+
+Satish authorized unlimited personal usage for his existing authenticated account.
+Resolve the exact email in Auth once and bind the exception to that immutable
+account ID, never to editable Career Profile email, phone, admin status, or request
+input. Apply across daily model allowances and monthly profile recreation. Use
+Postgres's maximum signed integer allowance (2,147,483,647 per window) for existing
+contracts and atomic reservations: effectively unlimited personal usage, not a
+new subscription or a global allowance change. Preserve counters, fail-closed DB
+checks, service pauses, concurrency, global capacity, payment and ownership gates.
+Show Unlimited for the account's resume-import allowance. No schema or customer
+record changes. Affected: server quota helpers, import allowance label and focused
+regression checks. Acceptance: only the exact account receives the exception;
+ordinary users retain existing quotas; interruptions and failed calls keep their
+existing accounting. Implemented with focused regression checks passing: exact-account matching, monthly/daily allowances, unchanged ordinary quotas, atomic settlement, pauses, global capacity, concurrency and database failure. Full repository checks and deployment are release gates; live usage is not yet claimed.

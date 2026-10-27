@@ -1895,7 +1895,7 @@ Satish authorized autonomous internal UI implementation, testing, protected merg
 25 October 2026 — Satish authorized fixing the resume-confirmation category metadata save failure. Normalize category-level metadata consistently before save, preserve candidate facts/private visibility, and retain strict API validation; no schema or unrelated changes.
 
 
-25 October2026 — WHITE-WORKSPACE-001 approved: white background/no-blue comprehensive presentation refresh, concise copy and aligned mobile/desktop controls. Expert design decisions and main release authorized; backend/auth/scoring/prompts/templates protected. Specification: WHITE_WORKSPACE_2026-10-25.md. Implementation and verification pending.
+25 October2026 — WHITE-WORKSPACE-001 approved: white background/no-blue comprehensive presentation refresh, concise copy and aligned mobile/desktop controls. Expert design decisions and main release authorized; backend/auth/scoring/prompts/templates protected. Specification: WHITE_WORKSPACE_2026-10-25.md. Implemented with focused regression checks passing: exact-account matching, monthly/daily allowances, unchanged ordinary quotas, atomic settlement, pauses, global capacity, concurrency and database failure. Full repository checks and deployment are release gates; live usage is not yet claimed.
 
 
 25 October 2026 — Satish approves SkillDrift-inspired Inter/soft-indigo/lavender/near-white UI and rounded controls across GCC Mentor, superseding the earlier emerald/no-blue presentation. Preserve service logic, authentication and resume/template output. See SOFT_INDIGO_2026-10-25.md.
@@ -1910,7 +1910,7 @@ Satish authorized autonomous internal UI implementation, testing, protected merg
 Satish requests smaller readable typography and CTAs, consistent colour and alignment throughout the landing and internal platform. COMPACT-BRAND-001 refines the current indigo system: one palette owner, white/slate reading surfaces, compact type and spacing, 44px touch targets. Input text remains16px; document typography and service logic remain protected. See COMPACT_BRAND_2026-10-26.md. Approved, not yet implemented.
 
 
-26 October 2026 — SKILLPILOT-BRAND-001 approved: Satish requests SkillPilot-inspired typography, headers, cards, visuals, alignment and navy/blue/cyan colors across GCC Mentor. Preserve service behavior and resume outputs. Specification: SKILLPILOT_BRAND_2026-10-26.md. Implementation and verification pending.
+26 October 2026 — SKILLPILOT-BRAND-001 approved: Satish requests SkillPilot-inspired typography, headers, cards, visuals, alignment and navy/blue/cyan colors across GCC Mentor. Preserve service behavior and resume outputs. Specification: SKILLPILOT_BRAND_2026-10-26.md. Implemented with focused regression checks passing: exact-account matching, monthly/daily allowances, unchanged ordinary quotas, atomic settlement, pauses, global capacity, concurrency and database failure. Full repository checks and deployment are release gates; live usage is not yet claimed.
 
 
 26 October 2026 — SKILLPILOT-BRAND-001 presentation code implemented on temporary review branch `codex/skillpilot-brand-001` because main requires checks. Shared design tokens, typography accents and cross-page surfaces updated; preview and visual verification pending. No logic or resume-template changes are intended.
@@ -1926,3 +1926,20 @@ Satish requests the attached dashboard layout matched to GCC Mentor's current th
 27 October 2026 — Satish authorized complete resume-to-profile journey and preview. Reuse existing review/editor/save. Preserve AI/scoring contracts; absent numeric section scores remain unavailable. Session-only matching-draft recovery avoids changing schema or storing resume facts permanently in browser storage. Test on delivery branch before main.
 
 27 October 2026 — Satish approved guided top-to-bottom correction after Save, red attention border becoming green on correction, preserving optional deferral.
+
+
+## 2026-10-27 — Approved founder usage exception
+
+Satish authorized unlimited personal usage for his existing authenticated account.
+Resolve the exact email in Auth once and bind the exception to that immutable
+account ID, never to editable Career Profile email, phone, admin status, or request
+input. Apply across daily model allowances and monthly profile recreation. Use
+Postgres's maximum signed integer allowance (2,147,483,647 per window) for existing
+contracts and atomic reservations: effectively unlimited personal usage, not a
+new subscription or a global allowance change. Preserve counters, fail-closed DB
+checks, service pauses, concurrency, global capacity, payment and ownership gates.
+Show Unlimited for the account's resume-import allowance. No schema or customer
+record changes. Affected: server quota helpers, import allowance label and focused
+regression checks. Acceptance: only the exact account receives the exception;
+ordinary users retain existing quotas; interruptions and failed calls keep their
+existing accounting. Implemented with focused regression checks passing: exact-account matching, monthly/daily allowances, unchanged ordinary quotas, atomic settlement, pauses, global capacity, concurrency and database failure. Full repository checks and deployment are release gates; live usage is not yet claimed.

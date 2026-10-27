@@ -48,6 +48,7 @@ type Mode = 'idle' | 'upload' | 'paste'
 
 /** The subset of /api/parse/recreate-status this panel shows. */
 interface RecreationQuota {
+  unlimited?: boolean
   limit: number
   used: number
   remaining: number
@@ -193,7 +194,7 @@ export function ResumeImport({
             </p>
             {quota && !exhausted ? (
               <p className="type-helper font-semibold text-ink-muted">
-                {quota.remaining} of {quota.limit} recreation{quota.limit === 1 ? '' : 's'} left this month
+                {quota.unlimited ? 'Unlimited resume imports' : `${quota.remaining} of ${quota.limit} recreations left this month`}
               </p>
             ) : null}
           </div>
@@ -237,7 +238,7 @@ export function ResumeImport({
           </p>
           {recreating && quota && !exhausted ? (
             <p className="type-helper font-semibold text-ink-muted">
-              {quota.remaining} of {quota.limit} recreation{quota.limit === 1 ? '' : 's'} left this month
+              {quota.unlimited ? 'Unlimited resume imports' : `${quota.remaining} of ${quota.limit} recreations left this month`}
             </p>
           ) : null}
         </div>

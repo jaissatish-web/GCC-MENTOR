@@ -1,4 +1,5 @@
 import { createServiceRoleClient } from '@/lib/supabase/serviceAdmin'
+import { hasUnlimitedPersonalUsage, UNLIMITED_PERSONAL_ALLOWANCE } from '@/lib/personalUsage'
 
 /**
  * Rate limiting (TASK-038).
@@ -230,7 +231,9 @@ export async function getRateLimitStatus(opts: {
   const rows = (data ?? []) as Array<{ count: number | null; limit_override: number | null }>
   const current = rows.reduce((sum, r) => sum + (r.count ?? 0), 0)
   const override = rows.find((r) => r.limit_override != null)?.limit_override ?? null
-  const limit = override != null && override >= 0 ? override : getDefaultDailyLimit(opts.action)
+  const limit = hasUnlimitedPersonalUsage(opts.userId)
+    ? UNLIMITED_PERSONAL_ALLOWANCE
+    : override != null && override >= 0 ? override : getDefaultDailyLimit(opts.action)
 
   const remaining = Math.max(0, limit - current)
   const allowed = current < limit

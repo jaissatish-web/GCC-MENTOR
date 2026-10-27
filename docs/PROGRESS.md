@@ -51,7 +51,7 @@ VISUAL-010 implemented for feature-branch review: all ten themes use the existin
 VISUAL-010 final local verification: **77/77 repository checks passed**, including disposable database/API suites; typecheck/lint/final production build passed. Template golden suite passed all63 (512 masks+19 styles each); original53 fingerprints retained exactly. Two existing test expectations were extended for63 registry entries and new description keyword matches; search logic itself is unchanged. Actual PDF and UI limitations remain as documented. Review code commit f27412edb6cc604aec8e2789be449f68df992193, draft PR #30. Preview deployment dpl_HFNVdNZpMQvoukxxFLU8XpvpuUsY is READY for this exact feature commit, target null (preview). Runtime GET /templates returns503 because Supabase is not configured in the existing preview environment; no configuration/auth changes made. Committed screenshots remain reviewable. GitHub CI run444 was in progress (not claimed passed); local77/77 passed. No main merge or production release. See visual-templates/README.md.
 
 ## UI-CLEAR-PATH — 24 October 2026
-Approved rollout recorded BEFORE implementation in CLEAR_PATH_ROLLOUT.md. Current main b319aab. Internal UI only; landing, documents and backend protected. Implementation and verification pending.
+Approved rollout recorded BEFORE implementation in CLEAR_PATH_ROLLOUT.md. Current main b319aab. Internal UI only; landing, documents and backend protected. Implemented with focused regression checks passing: exact-account matching, monthly/daily allowances, unchanged ordinary quotas, atomic settlement, pauses, global capacity, concurrency and database failure. Full repository checks and deployment are release gates; live usage is not yet claimed.
 
 UI-CLEAR-PATH implementation: scoped shared type/layout/palette/controls and internal portal markers implemented; new CSS propagation/public-document isolation harness passes. Local77/77, typecheck/lint/build, mobile/drawer/interview/preparation/intake checks pass; final route sweep and CI/release pending. See CLEAR_PATH_ROLLOUT.md for exact scope/evidence/live-auth limitations.
 
@@ -118,7 +118,7 @@ PROFILE-CATEGORY-SAVE-001 local completion — 25 October 2026: application comm
 PROFILE-CATEGORY-SAVE-001 release authorization — 25 October 2026: Satish explicitly instructs publishing completed fixes to main and checking the main website, without asking again. The earlier publication blocker is resolved for this fix. Proceed through protected-main CI/PR merge and Vercel production verification, with no protection bypass. Local verification remains typecheck/lint/build and80/80 checks; actual release evidence follows in the merge record.
 
 
-25 October2026 — WHITE-WORKSPACE-001 approved: white background/no-blue comprehensive presentation refresh, concise copy and aligned mobile/desktop controls. Expert design decisions and main release authorized; backend/auth/scoring/prompts/templates protected. Specification: WHITE_WORKSPACE_2026-10-25.md. Implementation and verification pending.
+25 October2026 — WHITE-WORKSPACE-001 approved: white background/no-blue comprehensive presentation refresh, concise copy and aligned mobile/desktop controls. Expert design decisions and main release authorized; backend/auth/scoring/prompts/templates protected. Specification: WHITE_WORKSPACE_2026-10-25.md. Implemented with focused regression checks passing: exact-account matching, monthly/daily allowances, unchanged ordinary quotas, atomic settlement, pauses, global capacity, concurrency and database failure. Full repository checks and deployment are release gates; live usage is not yet claimed.
 
 
 WHITE-WORKSPACE-001 implemented in checkpoint faeafa7; visual QA and verification follow-up recorded in root design-qa.md. White landing and internal semantic palette, readable marketing hierarchy, aligned shared CTA rows, white auth/professional shells and shorter service copy are integrated. No diff in app/api,lib,types,supabase,components/templates or components/resume. Local80/80 checks passed after typography correction; final built artifact includes white body and accessible lazy-preview status. Cloud-browser representative mobile/desktop profile/report interactions passed. Local standalone Chromium installation was unavailable; comprehensive responsive/PDF scripts remain required CI before main merge. Publication/main release explicitly authorized by founder; no new approval required.
@@ -134,7 +134,7 @@ WHITE-WORKSPACE-001 final visual QA passed: enlarged-text reflow corrected and v
 SOFT-INDIGO-001 implemented and visual QA passed: centralised Inter/indigo/plum/lavender system,12px controls,24px grouped cards, responsive auth shell and consistent landing/workspace/professional presentation. Removed conflicting legacy globals/responsive palette/type blocks. Mobile report inset issue corrected without weakening above-fold assertion. Local typecheck/lint/all80 checks/build, mobile/enlarged reflow, scoped controls/document isolation, Career Studio29 checks, CTA and universal typography checks passed. Reference/comparison/browser evidence in design-reference/soft-indigo and design-qa.md. Protected backend/auth/document directories unchanged. Required CI/main/Vercel release pending; user again explicitly instructs completion and main publication.
 
 
-25 October 2026 — SINGLE-EDITOR-001 approved, not implemented: Satish approved one Career Profile editor, read-only summary and uniform entry links, imported review inside same form, deferred photo save and Cancel/Save changes. Domain acceptance in CAREER_PROFILE_BLOCKS.md. Backend/schema/auth/scoring/templates protected. Implementation and verification pending.
+25 October 2026 — SINGLE-EDITOR-001 approved, not implemented: Satish approved one Career Profile editor, read-only summary and uniform entry links, imported review inside same form, deferred photo save and Cancel/Save changes. Domain acceptance in CAREER_PROFILE_BLOCKS.md. Backend/schema/auth/scoring/templates protected. Implemented with focused regression checks passing: exact-account matching, monthly/daily allowances, unchanged ordinary quotas, atomic settlement, pauses, global capacity, concurrency and database failure. Full repository checks and deployment are release gates; live usage is not yet claimed.
 
 
 SINGLE-EDITOR-001 implemented and local functional/visual QA passed: one canonical editor for manual/section/import/visibility/photo changes; other surfaces are read-only with consistent links. Removed duplicate editor/photo components and direct optimizer/preview profile mutations. Local typecheck/lint/build,80/80 checks,24 canonical editor checks,29 Career Studio checks, full preview regression, mobile/enlarged text and scoped UI/document isolation passed. Photo errors truthfully distinguish saved details from photo failure; Cancel and409 scenarios verified. Runtime tests use fictional APIs, not live accounts. Main protection requires checks; temporary delivery branch/PR permitted by AGENTS. Required CI, merge and Vercel verification pending.
@@ -206,3 +206,20 @@ COMPLETE-RESUME-JOURNEY-002 final local QA: 81/81 regressions, 31 canonical-edit
 GUIDED-CORRECTIONS-003 approved: Save navigates to first unresolved block, red pulse and green resolved feedback, ordered next-issue navigation. Existing validation and skip/save rules protected. Implementation/verification in progress.
 
 GUIDED-CORRECTIONS-003 local verification: build and 81/81 checks passed; 31 browser scenarios including targeted red block focus, green correction feedback and original skip/save behavior passed. Required delivery CI and main release pending.
+
+
+## 2026-10-27 — Approved founder usage exception
+
+Satish authorized unlimited personal usage for his existing authenticated account.
+Resolve the exact email in Auth once and bind the exception to that immutable
+account ID, never to editable Career Profile email, phone, admin status, or request
+input. Apply across daily model allowances and monthly profile recreation. Use
+Postgres's maximum signed integer allowance (2,147,483,647 per window) for existing
+contracts and atomic reservations: effectively unlimited personal usage, not a
+new subscription or a global allowance change. Preserve counters, fail-closed DB
+checks, service pauses, concurrency, global capacity, payment and ownership gates.
+Show Unlimited for the account's resume-import allowance. No schema or customer
+record changes. Affected: server quota helpers, import allowance label and focused
+regression checks. Acceptance: only the exact account receives the exception;
+ordinary users retain existing quotas; interruptions and failed calls keep their
+existing accounting. Implemented with focused regression checks passing: exact-account matching, monthly/daily allowances, unchanged ordinary quotas, atomic settlement, pauses, global capacity, concurrency and database failure. Full repository checks and deployment are release gates; live usage is not yet claimed.

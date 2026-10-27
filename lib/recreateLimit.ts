@@ -1,4 +1,5 @@
 import { createServiceRoleClient } from '@/lib/supabase/serviceAdmin'
+import { hasUnlimitedPersonalUsage, UNLIMITED_PERSONAL_ALLOWANCE } from '@/lib/personalUsage'
 
 /**
  * How many times a user may RECREATE their Career Profile from a CV in a month
@@ -55,6 +56,7 @@ function nextMonthStart(now: Date = new Date()): Date {
 }
 
 export interface RecreationStatus {
+  unlimited?: boolean
   /** A saved profile exists, so a CV read now would be a recreate. */
   isRecreate: boolean
   paid: boolean
@@ -116,12 +118,15 @@ export async function getRecreationStatus(userId: string): Promise<RecreationSta
     (serviceCredit.data?.length ?? 0) > 0 ||
     (optimizationCredit.data?.length ?? 0) > 0
   const override = counter.data?.limit_override
-  const limit = typeof override === 'number' && override >= 0 ? override : recreationLimitFor(paid)
+  const unlimited = hasUnlimitedPersonalUsage(userId)
+  const limit = unlimited ? UNLIMITED_PERSONAL_ALLOWANCE
+    : typeof override === 'number' && override >= 0 ? override : recreationLimitFor(paid)
   const used = counter.data?.count ?? 0
   const remaining = Math.max(0, limit - used)
   const allowed = !isRecreate || used < limit
 
   return {
+    unlimited,
     isRecreate,
     paid,
     limit,
