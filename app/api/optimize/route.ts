@@ -110,9 +110,13 @@ function validateBody(body: unknown): { error: string } | { body: ParsedBody } {
   if (!Array.isArray(sb.experienceIds) || sb.experienceIds.some((x) => typeof x !== 'string')) {
     return { error: 'selectedBlocks.experienceIds' }
   }
+  if (sb.skills !== undefined && typeof sb.skills !== 'boolean') return { error: 'selectedBlocks.skills' }
+  if (sb.confirmedRequirements !== undefined && (!Array.isArray(sb.confirmedRequirements) || sb.confirmedRequirements.length > 30 || sb.confirmedRequirements.some(x => typeof x !== 'string' || x.length > 4000))) {
+    return { error: 'selectedBlocks.confirmedRequirements' }
+  }
   // "Optimize nothing" (open item B8) is rejected: it would spend a build and
   // deliver the candidate's own text back.
-  if (!sb.summary && sb.experienceIds.length === 0) return { error: 'selectedBlocks' }
+  if (!sb.summary && sb.experienceIds.length === 0 && sb.skills !== true) return { error: 'selectedBlocks' }
 
   if (typeof body.level !== 'string' || !OPTIMIZATION_LEVELS.includes(body.level as OptimizationLevel)) {
     return { error: 'level' }
@@ -135,6 +139,8 @@ function validateBody(body: unknown): { error: string } | { body: ParsedBody } {
       selectedBlocks: {
         summary: sb.summary,
         experienceIds: sb.experienceIds as string[],
+        ...(typeof sb.skills === 'boolean' ? { skills: sb.skills } : {}),
+        ...(Array.isArray(sb.confirmedRequirements) ? { confirmedRequirements: [...new Set(sb.confirmedRequirements as string[])] } : {}),
       },
       level: body.level as OptimizationLevel,
       analysisId: typeof body.analysisId === 'string' && body.analysisId.trim() ? body.analysisId.trim() : null,
@@ -294,8 +300,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     try {
       await ensureAdvert()
       const { analysis, analysisId } = await getAnalysisV3(analysisInput())
-      // New claims remain pending for every application, regardless of earlier consent.
-      const autoApply = false // Every new claim needs per-application confirmation.
+      // Earlier consent never approves a claim. buildV3 validates any explicit
+      // setup choices; packages without them retain pending suggestions.
+      const autoApply = false
       const result = await buildV3({ profile, target: targetFields, level, selectedBlocks, jobDescription: advert, typicalAdvert: typical, analysis, analysisId, autoApply, route: '/api/optimize' })
       if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status })
       console.log(

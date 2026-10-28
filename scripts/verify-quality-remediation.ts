@@ -58,7 +58,7 @@ async function main() {
   // Simulate the actual draft-state entry path for every supported dial code.
   for(const code of ALL_DIAL_CODES){let draftDial=code.dial;let stored='';const parts=splitPhone(stored);const dial=parts.dial||(!parts.number?draftDial:'');stored=joinPhone(dial,'2025550142');assert.equal(splitPhone(stored).dial,code.dial);stored=joinPhone(dial,'');assert.equal(stored,'');assert.equal(draftDial,code.dial)}
   const service=readFileSync('lib/optimizer/v3/service.ts','utf8')
-  assert(service.includes("status: 'pending'"));assert(!service.includes("status: opts.autoApply"));assert(service.includes('const generated = rewritten'))
+  assert(service.includes("status: preselected ? 'confirmed' : 'pending'"));assert(!service.includes("status: opts.autoApply"));assert(service.includes('const generated = preselected ?'));assert(service.includes('selectedAnalysis(opts.analysis, selectedBlocks, level)'))
   const preview=readFileSync('app/optimize/preview/[packageId]/page.tsx','utf8')
   assert(preview.includes('keep: false, text: s.text'));assert(preview.includes('const needsConfirm = kept.length > 0'))
   console.log(`PASS: ${scenarios} adversarial CV scenarios (50 professions × 3 levels), reviewer fallback, denied qualification, language, employment, dial-code entry, and per-application confirmation.`)

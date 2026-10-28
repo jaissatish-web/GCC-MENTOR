@@ -249,7 +249,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
           <h1 className="font-display text-[27px] leading-tight text-ink">Your optimized resume</h1>
           <p className="type-helper text-ink-soft">
             For <strong className="text-ink">{pkg.target_job_title}</strong>
-            {pkg.target_company ? ` · ${pkg.target_company}` : ''} · {pkg.optimization_level.charAt(0).toUpperCase() + pkg.optimization_level.slice(1)} optimization.
+            {pkg.target_company ? ` · ${pkg.target_company}` : ''} · {pkg.optimization_level === 'high' ? 'Hard' : pkg.optimization_level.charAt(0).toUpperCase() + pkg.optimization_level.slice(1)} optimization.
             Tap any text to edit it. Nothing is saved until you press Save.
           </p>
         </div>

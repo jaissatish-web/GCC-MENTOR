@@ -1946,3 +1946,6 @@ existing accounting. Implemented with focused regression checks passing: exact-a
 
 ## 2026-10-27 — READINESS-CONTRAST-004
 Approved: fix unreadable box titles/field labels after resume processing in the public readiness journey. Labels and legends must consume live semantic ink tokens, including outside the signed-in app wrapper; headings retain the shared scale. Scope: shared field label/hint CSS and explicit intake heading color. Preserve questions, navigation, extraction, scoring, storage, authentication and resume documents. Acceptance: labels and headings readable on current surfaces at mobile/desktop widths. Verify compiled CSS contrast and repository typecheck/lint/build. Status: approved, implementation pending.
+
+## 28 October 2026 — OPT-PRESELECT-001
+Latest founder instruction supersedes older fixed level bands: Easy ~+10, Moderate ~+25, Hard target75–95 match, all evidence limited. Explicit pre-generation duty confirmation and summary/company/skills choices; preserve existing final review. No invented facts or forced scores.
