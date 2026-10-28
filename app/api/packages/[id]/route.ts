@@ -647,7 +647,7 @@ export async function PATCH(request: NextRequest, props: { params: Promise<{ id:
   let matchReport: MatchReport | null = null
   if (storedReport?.after && nextSnapshot && storedReport.target) {
     const keywords = validateKeywords(storedReport.target.keywords)
-    if (keywords.length > 0) {
+    if (keywords.length > 0 || storedReport.target.scoring_version === 'match-v2') {
       const target = { ...storedReport.target, keywords }
       const suggestions = nextSuggestions ?? storedReport.suggestions ?? []
       const after = scoreResume(scoreDocumentFromResume(nextSnapshot), target, storedReport.qualifications ?? null)
@@ -659,6 +659,13 @@ export async function PATCH(request: NextRequest, props: { params: Promise<{ id:
         ...storedReport,
         after,
         after_edited: true,
+        ...(after.v2 ? {
+          why_fits: after.keywords.filter(k => k.credit > 0).map(k => ({term:k.term,where:k.where})),
+          gaps: [
+            ...after.keywords.filter(k => k.credit === 0).map(k => ({term:k.term,importance:k.importance,kind:k.kind})),
+            ...after.v2.screening.filter(r => r.status !== 'met').map(r => ({term:r.term,importance:r.importance,kind:(r.kind === 'education' ? 'education' : r.kind === 'experience_years' ? 'domain' : 'certification') as 'education' | 'domain' | 'certification'})),
+          ],
+        } : {}),
         ...(suggestions.length ? { suggestions, projected_with_suggestions: Math.max(projected, after.total) } : {}),
       }
     }

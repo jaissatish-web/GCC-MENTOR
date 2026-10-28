@@ -1951,3 +1951,5 @@ Approved: fix unreadable box titles/field labels after resume processing in the 
 Latest founder instruction supersedes older fixed level bands: Easy ~+10, Moderate ~+25, Hard target75–95 match, all evidence limited. Explicit pre-generation duty confirmation and summary/company/skills choices; preserve existing final review. No invented facts or forced scores.
 
 28 October2026 — OPT-CLARITY-002: approve clearer levels, per-suggestion priority/evidence/owner and explicit final change labels/originals, following competitor research. Preserve score goals, candidate facts and all service logic.
+
+28October2026 — Approve OPT-JD-SCORE-003 and PROCESSING-CYBER-001 above. Application-scoped skills override previous links requiring master-profile edits. New weighted scoring is versioned; preserve historical reports and truthful screening. Light cyber animation with stable layout and truthful step statuses.

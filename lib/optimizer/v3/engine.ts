@@ -554,6 +554,9 @@ export function targetFromAnalysis(a: AnalysisV3, targetTitle: string, mode: 'jo
   return {
     version: 1,
     mode,
+    scoring_version: 'match-v2',
+    screening_as_of: new Date().toISOString(),
+    screening_requirements: a.requirements.filter(r => FIXED_KINDS.has(r.kind)).map(r => ({term:r.term, importance:r.importance, kind:r.kind, status:r.group === 'A' ? 'met' as const : 'unknown' as const})),
     job_title: targetTitle,
     title_variants: [],
     seniority: null,

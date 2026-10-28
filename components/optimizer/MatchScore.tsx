@@ -68,6 +68,17 @@ export function BandPill({ value }: { value: number }) {
 }
 
 export function PartBars({ score, compare }: { score: MatchScore; compare?: MatchScore }) {
+  if (score.v2) {
+    const labels = { quality: 'Resume quality & readability', presentation: 'Target-role presentation', screening: 'Essential screening', skills: 'Job skills & tools', responsibilities: 'Job responsibilities', supporting: 'Supporting keywords' }
+    return <div className="flex flex-col gap-2.5">{(Object.keys(labels) as Array<keyof typeof labels>).map(key => {
+      const part = score.v2!.breakdown[key]
+      if (!part.applicable) return null
+      const previous = compare?.v2?.breakdown[key]?.points
+      const delta = previous === undefined ? 0 : part.points - previous
+      return <div key={key} className="flex flex-col gap-1"><div className="flex flex-wrap justify-between gap-2 type-helper"><span className="font-semibold text-ink-soft">{labels[key]}</span><span className="font-mono text-ink">{Number(part.points.toFixed(1))}/{part.max}{delta > 0 ? <span className="ml-2 text-teal">+{Number(delta.toFixed(1))}</span> : null}</span></div><div className="h-1.5 overflow-hidden rounded-full bg-line"><div className="h-full rounded-full bg-teal" style={{ width: `${part.score}%` }} /></div></div>
+    })}</div>
+  }
+
   const keys = (Object.keys(PART_LABELS) as Array<keyof MatchScore['parts']>).filter((k) => {
     const p = score.parts[k]
     return p !== null && p.weight > 0

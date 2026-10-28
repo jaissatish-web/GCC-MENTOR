@@ -17,10 +17,12 @@
  */
 
 import type { ResumeDocument } from '@/lib/resumeDocument'
+import type { ProfileWorkExperience } from '@/types/careerProfile'
 import type { OptimizationLevel } from '@/types/package'
 import { containsTerm, containsTermInSentence, prepare, stems, wordCount, type PreparedText } from './text'
 import type { EvidenceLocation, JobTargetProfile, KeywordCredit, KeywordEvidence, MatchScore, ScorePart } from './types'
 import { keywordWeight } from './evidence'
+import { scoreResumeV2 } from './scoreV2'
 
 export const SCORING_VERSION = 'match-v1'
 
@@ -31,7 +33,7 @@ const FIRST_PERSON = /\b(I|my|me|mine|myself)\b/
 export interface ScoreDocument {
   headline: string
   summary: string
-  experience: Array<{ entryId: string; role: string; bullets: string[] }>
+  experience: Array<{ entryId: string; role: string; bullets: string[]; source?: ProfileWorkExperience }>
   skills: string[]
   certifications: string[]
   education: string[]
@@ -46,7 +48,7 @@ export function scoreDocumentFromResume(doc: ResumeDocument): ScoreDocument {
   return {
     headline: doc.header.targetJobTitle ?? '',
     summary: doc.summary ?? '',
-    experience: (doc.experience ?? []).map((x) => ({ entryId: x.entry.id, role: x.entry.role ?? '', bullets: x.bullets ?? [] })),
+    experience: (doc.experience ?? []).map((x) => ({ entryId: x.entry.id, role: x.entry.role ?? '', bullets: x.bullets ?? [], source: x.entry })),
     skills: (doc.skills ?? []).map((s) => s.name),
     certifications: (doc.certifications ?? []).map((c) => c.display),
     education: (doc.education ?? []).map((e) => e.line),
@@ -210,6 +212,7 @@ function combine(parts: MatchScore['parts']): number {
 }
 
 export function scoreResume(doc: ScoreDocument, target: JobTargetProfile, qualifications: number | null): MatchScore {
+  if (target.scoring_version === 'match-v2') return scoreResumeV2(doc, target)
   const p = prepareDoc(doc)
   const credits = keywordCredits(p, target)
   const parts: MatchScore['parts'] = {

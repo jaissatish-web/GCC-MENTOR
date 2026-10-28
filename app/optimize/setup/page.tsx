@@ -4,7 +4,6 @@ import { PageSkeleton } from '@/components/ui/Skeleton'
 import { useRouter } from 'next/navigation'
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Button, buttonVariants } from '@/components/ui/Button'
-import Link from 'next/link'
 import { ProcessingOrbit, ProcessingSteps } from '@/components/ui/Processing'
 import { setupNotes } from '@/lib/processingNotes'
 import { Card } from '@/components/ui/Card'
@@ -15,6 +14,9 @@ import {
   OPTIMIZATION_REPLACE_PACKAGE_KEY,
   OPTIMIZATION_TARGET_DRAFT_KEY,
 } from '@/lib/onboardingDraft'
+import type { MatchScore } from '@/lib/optimizer/types'
+import { JobScoreDetails } from '@/components/optimizer/JobScoreDetails'
+import { PartBars } from '@/components/optimizer/MatchScore'
 import type { OptimizationLevel } from '@/types/package'
 import { Alert } from '@/components/ui/Alert'
 import { CTA, NAMES } from '@/lib/serviceLabels'
@@ -86,7 +88,7 @@ const LEVELS: ReadonlyArray<{
     changes: [
       'Natural rewriting around this job’s requirements',
       'Includes only additional duties you confirm before running',
-      'Highlights missing tools and skills to review in Career Profile',
+      'Lets you confirm missing skills for this resume only',
     ],
     explain:
       'Thorough tailoring towards 75–95% match, using your existing facts and only the relevant duties you confirm below. Missing qualifications or unrelated experience can keep the actual match below this goal.',
@@ -94,6 +96,8 @@ const LEVELS: ReadonlyArray<{
 ]
 
 interface JobCheck {
+  beforeScore?: MatchScore
+  resumeSkills?: Array<{ id: string; term: string; importance: 'must' | 'nice'; kind: string }>
   recommendedLevel?: OptimizationLevel
   dutySuggestions?: Array<{ id: string; term: string; block: string; quote: string | null; importance: 'must' | 'nice'; levels: OptimizationLevel[] }>
   mode: 'job_description' | 'target_title_only'
@@ -119,6 +123,7 @@ function SetupScreen() {
   const [experiences, setExperiences] = useState<ExperienceRow[]>([])
   const [summaryOn, setSummaryOn] = useState(true)
   const [skillsOn, setSkillsOn] = useState(true)
+  const [confirmedSkills, setConfirmedSkills] = useState<string[]>([])
   const [confirmedRequirements, setConfirmedRequirements] = useState<string[]>([])
   const [expOn, setExpOn] = useState<Record<string, boolean>>({})
   const [level, setLevel] = useState<OptimizationLevel>('moderate')
@@ -221,9 +226,10 @@ function SetupScreen() {
   }, [draft, profileId, checkRun])
 
   const selectedIds = useMemo(() => experiences.filter((e) => expOn[e.id]).map((e) => e.id), [experiences, expOn])
-  const nothingSelected = !summaryOn && !skillsOn && selectedIds.length === 0
+  const nothingSelected = !summaryOn && !skillsOn && selectedIds.length === 0 && (level === 'easy' || !(check?.resumeSkills ?? []).some(item => confirmedSkills.includes(item.id)))
   const allSelected = summaryOn && skillsOn && selectedIds.length === experiences.length
   const availableSuggestions = (check?.dutySuggestions ?? []).filter((item) => item.levels.includes(level) && (item.block === 'summary' ? summaryOn : selectedIds.includes(item.block)))
+  const selectedSkills = useMemo(() => level === 'easy' ? [] : (check?.resumeSkills ?? []).filter((item) => confirmedSkills.includes(item.id)).map((item) => item.id), [level, check, confirmedSkills])
   const selectedRequirements = availableSuggestions.filter((item) => confirmedRequirements.includes(item.id)).map((item) => item.id)
   const hasJobDescription = !!draft && draft.job_description.trim() !== ''
 
@@ -237,7 +243,7 @@ function SetupScreen() {
     if (summaryOn) list.push('Rewriting your summary')
     for (const e of experiences) if (expOn[e.id]) list.push(e.hasDuties ? `Rewriting your activities at ${e.company || 'this role'}` : `Checking what fits this job at ${e.company || 'this role'}`)
     if (skillsOn) list.push('Ordering skills by relevance')
-    list.push('Checking every line against your Career Profile')
+    list.push('Checking recorded facts and your confirmations for this resume')
     list.push('Scoring your optimized resume (after)')
     return Array.from(new Set(list))
   }, [draft, hasJobDescription, summaryOn, skillsOn, experiences, expOn])
@@ -260,7 +266,7 @@ function SetupScreen() {
             target_industry: draft.target_industry.trim() !== '' ? draft.target_industry : null,
           },
           jobDescription: hasJobDescription ? draft.job_description : null,
-          selectedBlocks: { summary: summaryOn, experienceIds: selectedIds, skills: skillsOn, confirmedRequirements: selectedRequirements },
+          selectedBlocks: { summary: summaryOn, experienceIds: selectedIds, skills: skillsOn, confirmedRequirements: selectedRequirements, confirmedSkills: selectedSkills },
           level,
           analysisId: null,
           ...(needsAgreement && agreed ? { acceptTerms: true } : {}),
@@ -302,7 +308,7 @@ function SetupScreen() {
       setError('Network error. Please check your connection and try again.')
       setSubmitting(false)
     }
-  }, [draft, profileId, checkReady, levelSelected, submitting, nothingSelected, hasJobDescription, summaryOn, skillsOn, selectedIds, selectedRequirements, level, router, buildSteps, needsAgreement, agreed])
+  }, [draft, profileId, checkReady, levelSelected, submitting, nothingSelected, hasJobDescription, summaryOn, skillsOn, selectedIds, selectedRequirements, selectedSkills, level, router, buildSteps, needsAgreement, agreed])
 
   if (!draft) {
     return (
@@ -442,11 +448,11 @@ function SetupScreen() {
                       <span className="rounded-full bg-white px-2 py-0.5 type-caption font-semibold text-ink-soft">{check?.recommendedLevel === l.value ? 'Recommended' : l.tag}</span>
                     </span>
                     <span className="type-helper font-semibold text-teal">
-                      {check ? `Up to ${check.expected[l.value]}% with supported choices` : checkState === 'loading' ? 'Working out your score…' : l.aim}
+                      {check ? `Estimated ${check.expected[l.value]}% from supported wording` : checkState === 'loading' ? 'Working out your score…' : l.aim}
                     </span>
                     {l.value === 'high' && check?.highIfConfirmed && check.highIfConfirmed > check.expected.high ? (
                       <span className="-mt-1 type-caption font-semibold text-gold-ink">
-                        estimated {check.highIfConfirmed} if your Career Profile supports all requirements
+                        potential {check.highIfConfirmed}% if you can confirm the listed skills for this resume
                       </span>
                     ) : null}
                     <p className="type-helper font-semibold text-ink">{l.aim}</p>
@@ -462,12 +468,20 @@ function SetupScreen() {
                 )
               })}
             </div>
-            <p className="type-helper leading-relaxed text-ink-soft">These are improvement goals, not guaranteed scores. This is GCC Mentor’s estimate of job alignment; an employer’s ATS can assess your resume differently. Aim for a clear, relevant resume rather than chasing 100%. Estimates assume all eligible changes; your selected sections and confirmed duties determine the measured result. Existing strong resumes may have less room to improve.</p>
+            <p className="type-helper leading-relaxed text-ink-soft">These are improvement goals, not guaranteed scores. This is GCC Mentor’s estimate of job alignment; an employer’s ATS can assess your resume differently. Aim for a clear, relevant resume rather than chasing 100%. Estimates assume all eligible changes and are provisional until final quality checks; your selected sections and confirmed duties determine the measured result. Existing strong resumes may have less room to improve.</p>
             {levelSelected ? <Alert variant={level === 'easy' ? 'info' : 'warning'}>{levelInfo.explain}</Alert> : null}
 
-            {/* Missing skills are reviewed in the single Career Profile editor. */}
-            {levelSelected && level !== 'easy' && check?.askSkills?.length ? (
-              <ProfileSkillsGaps items={check.askSkills} upTo={check.highIfConfirmed ?? check.expected.high} />
+            {/* Explicit skills are added only to this application resume. */}
+            {levelSelected && level !== 'easy' && check?.resumeSkills?.length ? (
+              <div className="flex flex-col gap-3 rounded-ctl border border-teal/30 bg-canvas p-4">
+                <h2 className="type-label font-semibold text-ink">Choose skills for this resume only</h2>
+                <p className="type-helper leading-relaxed text-ink-soft">The job asks for these skills, tools or standards. Select only those you actually have. Your Career Profile and other resumes stay unchanged. Selecting a skill does not claim you used it at any particular company.</p>
+                {check.resumeSkills.map((item) => <label key={item.id} className="flex min-h-11 cursor-pointer items-start gap-3 rounded-ctl border border-line bg-white p-3 type-helper text-ink">
+                  <input type="checkbox" className="mt-1 size-4 shrink-0 accent-teal" checked={confirmedSkills.includes(item.id)} onChange={(event) => setConfirmedSkills((prev) => event.target.checked ? [...prev, item.id] : prev.filter((id) => id !== item.id))} />
+                  <span><strong className="block">I have this skill: {item.term}</strong><span className="mt-1 block text-ink-soft">{item.importance === 'must' ? 'Required' : 'Preferred'} · Add to the skills section of this resume only</span></span>
+                </label>)}
+                <p role="status" className="type-helper font-semibold text-teal">{selectedSkills.length} resume-only skills selected</p>
+              </div>
             ) : null}
 
             {/* Parts to rewrite — all by default, adjustable. */}
@@ -489,7 +503,7 @@ function SetupScreen() {
                   />
                 ))}
                 <PartToggle label="Skills — order existing skills by relevance" on={skillsOn} onToggle={() => setSkillsOn((v) => !v)} />
-                <p className="type-helper text-ink-muted">Deselected parts keep their original content. Skills are reordered only; no unconfirmed skills are added.</p>
+                <p className="type-helper text-ink-muted">Deselected parts keep their original content. Existing skills can be reordered; only the extra skills you explicitly select above are added.</p>
               </div>
             </details>
             {levelSelected && level !== 'easy' ? (
@@ -564,8 +578,7 @@ function SetupScreen() {
 /**
  * The job check (optimizer v3). Field match first — a different field is said
  * plainly, with the honest low score — then certificates the job asks for that
- * the profile does not show: never added for the user, offered to add to the
- * Career Profile if they really hold them.
+ * the profile does not show: never added for the user, shown as screening gaps, never fabricated for the user.
  */
 function JobCheckCard({ state, check, title, onPasteAdvert }: { state: 'idle' | 'loading' | 'done' | 'error'; check: JobCheck | null; title: string; onPasteAdvert: () => void }) {
   const [showAdvert, setShowAdvert] = useState(false)
@@ -599,6 +612,8 @@ function JobCheckCard({ state, check, title, onPasteAdvert }: { state: 'idle' | 
             ? `Your experience (${check.candidateField}) shares part of the work of this ${check.jobField} role. Requirements outside your field stay unmet, so the score has a ceiling.`
             : `This job is ${check.jobField}; your experience is ${check.candidateField}. Even after optimization your resume will score low for it (up to ${check.expected.high}) — jobs in your own field will score much higher. You can still go ahead.`}
       </p>
+      {check.beforeScore?.v2 ? <p className="type-helper text-ink-muted">Initial scores have pending quality checks. The final before/after comparison checks both versions consistently, including grammar and the Word export.</p> : null}
+      {check.beforeScore?.v2 ? <details className="rounded-ctl border border-line bg-white p-3"><summary className="min-h-11 cursor-pointer type-helper font-semibold text-ink">Initial screening and score breakdown</summary><div className="mt-3 flex flex-col gap-4"><PartBars score={check.beforeScore} /><JobScoreDetails score={check.beforeScore} /></div></details> : null}
       {/* No advert (2026-10-02): matched against the typical Gulf advert for the
           title — shown, so the user sees exactly what the score is based on. */}
       {check.typical ? (
@@ -626,11 +641,11 @@ function JobCheckCard({ state, check, title, onPasteAdvert }: { state: 'idle' | 
       {check.askCertifications.length ? (
         <div className="flex flex-col gap-2 rounded-ctl border border-line bg-white p-3">
           <p className="type-helper font-semibold text-ink">This job asks for certificates your profile does not show</p>
-          <p className="type-helper leading-snug text-ink-muted">If you hold any of these, add the correct details in Career Profile. Save there, then return to this job to check your updated match.</p>
+          <p className="type-helper leading-snug text-ink-muted">These are screening requirements to verify before applying. They are not added automatically. A higher keyword score does not resolve a missing qualification or licence.</p>
           <ul className="flex flex-col divide-y divide-line">
             {check.askCertifications.map(cert => <li key={cert.term} className="flex flex-wrap items-center justify-between gap-2 py-2 type-helper"><span className="text-ink">{cert.term}{cert.importance === 'must' ? <span className="ml-1.5 type-caption font-semibold text-alert">required</span> : null}</span></li>)}
           </ul>
-          <Link href="/profile?view=details&open=sec_certifications" className={buttonVariants({ variant: 'secondary', size: 'sm' })}>Update Career Profile</Link>
+          <p className="type-helper text-ink-muted">You can inspect your qualifications in the final resume review. Keep any unmet mandatory requirement visible.</p>
         </div>
       ) : null}
     </Card>
@@ -668,17 +683,4 @@ export default function OptimizeSetupPage() {
       <SetupScreen />
     </Suspense>
   )
-}
-
-/** Read-only job gaps; career facts can only be edited in Career Profile. */
-function ProfileSkillsGaps({ items, upTo }: { items: Array<{ term: string; importance: 'must' | 'nice'; gain: number }>; upTo: number }) {
-  return <Card tone="light" className="flex flex-col gap-3 border-2 border-gold/40 bg-gold-soft/40 p-4">
-    <div className="flex flex-col gap-1">
-      <p className="type-label font-semibold text-ink">Skills this job asks for</p>
-      <p className="type-helper leading-snug text-ink-soft">These are not recorded in your Career Profile. If you have them, add only the skills you really use or know in Career Profile. Save there, then return to this job to check your updated match. Hard may reach up to {upTo}% if all requirements are supported.</p>
-    </div>
-    <ul className="grid gap-1.5 sm:grid-cols-2">{items.map(item => <li key={item.term} className="min-h-11 rounded-ctl border border-line bg-white px-3 py-2 type-helper text-ink">{item.term}{item.importance === 'must' ? <span className="ml-1.5 type-caption font-semibold text-alert">required</span> : null}</li>)}</ul>
-    <Link href="/profile?view=details&open=sec_skills" className={buttonVariants({ variant: 'secondary', size: 'sm' })}>Update Career Profile</Link>
-    <p className="type-caption text-ink-muted">You can also continue with the facts already saved in your profile.</p>
-  </Card>
 }

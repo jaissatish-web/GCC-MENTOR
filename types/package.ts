@@ -292,7 +292,7 @@ export interface Package {
    * What the user chose to optimize, captured at creation (migration 033) so
    * generation can run later, in a request that carries only a package id.
    */
-  selected_blocks?: { summary: boolean; experienceIds: string[]; skills?: boolean; confirmedRequirements?: string[] } | null
+  selected_blocks?: { summary: boolean; experienceIds: string[]; skills?: boolean; confirmedRequirements?: string[]; confirmedSkills?: string[] } | null
 
   /** User-chosen label (migration 036). NULL = never renamed; the UI falls back to target_job_title. */
   name?: string | null

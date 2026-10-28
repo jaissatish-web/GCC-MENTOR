@@ -1,6 +1,7 @@
 import './resolve-paths'
 import assert from 'node:assert/strict'
-import { dutySuggestions, requirementId, selectedAnalysis, recommendedLevel } from '../lib/optimizer/v3/preselection'
+import { sanitizeEditedDocument } from '../lib/resumeEdits'
+import { dutySuggestions, requirementId, selectedAnalysis, recommendedLevel, resumeSkillSuggestions, confirmedResumeSkills } from '../lib/optimizer/v3/preselection'
 import type { AnalysisV3, Requirement } from '../lib/optimizer/v3/engine'
 const duty = (term: string, location: string, importance: 'must' | 'nice' = 'must'): Requirement => ({term, location, importance, quote: 'Related source duty', kind: 'responsibility', group: 'B'})
 const a: AnalysisV3 = { fieldMatch: 'same', candidateField: 'Engineering', jobField: 'Engineering', requirements: [duty('handover','a'), duty('planning','b','nice'), {...duty('PMP','a'), group: 'C', kind: 'certification'}, duty('teamwork','summary')], ms:0, inputTokens:0,outputTokens:0 }
@@ -29,6 +30,9 @@ import { buildV3 } from '../lib/optimizer/v3/service'
 import { scoreDocumentFromResume, scoreResume } from '../lib/optimizer/score'
 const engine = require('../lib/optimizer/v3/engine') as typeof import('../lib/optimizer/v3/engine')
 const originalWriter = engine.writeV3
+const quality = require('../lib/optimizer/qualityReview') as typeof import('../lib/optimizer/qualityReview')
+const originalQualityReview = quality.reviewScoreQuality
+quality.reviewScoreQuality = async (_documents, target) => target
 async function verifyBuild() {
   const {profile} = makeTemplateFixture()
   const owner = profile.work_experience[0].id
@@ -56,6 +60,9 @@ async function verifyBuild() {
   assert.equal(approved.report.suggestions?.length,1,'only approved company receives the duty')
   assert.equal(approved.report.suggestions?.[0].status,'confirmed')
   assert.equal(approved.report.auto_applied,true)
+  assert.ok(approved.report.why_fits?.some(q=>q.term==='handover documentation'),'confirmed generated duty appears in measured fit')
+  assert.ok(!approved.report.gaps?.some(q=>q.term==='handover documentation'))
+  assert.ok(approved.report.max_total >= (approved.report.after?.total ?? 0))
   assert.ok(approved.documentSnapshot.experience.find(e=>e.entry.id===owner)?.bullets.some(b=>b.includes('handover documentation')))
   assert.ok(approved.optimizedContent.experience_blocks.find(b=>b.profile_experience_id===owner)?.generated_bullets?.some(b=>b.includes('handover documentation')),'confirmed points mirrored to durable content')
   assert.equal(approved.documentSnapshot.summary,profile.professional_summary)
@@ -77,6 +84,37 @@ async function verifyBuild() {
   const corrupted={...analysis,requirements:[{...requirement,kind:'certification'}]}
   assert.equal(dutySuggestions(corrupted,[owner]).length,0)
   assert.equal(selectedAnalysis(corrupted,choices,'moderate').requirements[0].group,'C')
+  // Missing named tools remain application-only, never company evidence.
+  const tool = {...duty('FictionalTool Pro',owner),group:'C' as const,kind:'tool'}
+  const toolAnalysis={...analysis,requirements:[requirement,tool]}
+  const skill=resumeSkillSuggestions(toolAnalysis)[0]
+  assert.equal(confirmedResumeSkills(toolAnalysis,{...choices,confirmedSkills:[skill.id]},'easy').length,0)
+  assert.equal(confirmedResumeSkills(toolAnalysis,{...choices,confirmedSkills:['forged']},'high').length,0)
+  assert.equal(resumeSkillSuggestions({...toolAnalysis,requirements:[{...tool,kind:'certification'}]}).length,0)
+  const master=JSON.stringify(profile)
+  const skillResult=await buildV3({profile,target:{target_job_title:'Commissioning Engineer',target_industry:null,target_country:null},level:'moderate',selectedBlocks:{...choices,confirmedSkills:[skill.id]},jobDescription:'FictionalTool Pro and handover documentation',analysis:toolAnalysis,analysisId:null,autoApply:false,route:'test'})
+  assert.ok(skillResult.ok)
+  if(!skillResult.ok)throw Error('Scoped build failed')
+  assert.equal(JSON.stringify(profile),master,'master profile is never mutated')
+  assert.ok(skillResult.documentSnapshot.skills.some(s=>s.name==='FictionalTool Pro'))
+  assert.deepEqual(skillResult.documentSnapshot.skills.slice(0,profile.skills.length).map(s=>s.id),[...profile.skills].sort((a,b)=>a.sort_order-b.sort_order).map(s=>s.id),'skills:false preserves original order before scoped additions')
+  assert.ok(!skillResult.documentSnapshot.experience.some(e=>e.bullets.some(b=>b.includes('FictionalTool Pro'))),'skill selection does not invent company use')
+  assert.equal(skillResult.report.resume_only_skills?.length,1)
+  assert.equal(skillResult.report.target.scoring_version,'match-v2')
+  const savedScoped=sanitizeEditedDocument(skillResult.documentSnapshot,skillResult.documentSnapshot)
+  assert.ok(savedScoped.skills.some(s=>s.name==='FictionalTool Pro'),'package editor preserves application-only skill identity')
+  assert.equal(scoreResume(scoreDocumentFromResume(savedScoped),skillResult.report.target,skillResult.report.qualifications).total,skillResult.report.after?.total,'preview/save sanitization preserves score parity')
+  assert.ok(!skillResult.report.gaps?.some(g=>g.term==='FictionalTool Pro'))
+  assert.ok((received as AnalysisV3 | null)?.requirements.find(r=>r.term==='FictionalTool Pro')?.group==='C','writer never receives a confirmed tool as company fact')
+  const undelivered = {...requirement, term:'Undelivered specialist duty'}
+  const missingFixed = {...requirement, term:'Required fictional licence',kind:'licence',group:'C' as const}
+  const dropped=await buildV3({profile,target:{target_job_title:'Commissioning Engineer',target_industry:null,target_country:null},level:'moderate',selectedBlocks:{...choices,confirmedRequirements:[requirementId(undelivered)]},jobDescription:'Undelivered specialist duty',analysis:{...analysis,requirements:[undelivered,missingFixed]},analysisId:null,autoApply:false,route:'test'})
+  assert.ok(dropped.ok)
+  if(!dropped.ok)throw Error('Dropped-claim build failed')
+  assert.ok(dropped.report.gaps?.some(q=>q.term===undelivered.term),'selected but ungenerated duty remains a measured gap')
+  assert.ok(!dropped.report.why_fits?.some(q=>q.term===undelivered.term),'selection alone never establishes fit')
+  assert.ok(dropped.report.gaps?.some(q=>q.term===missingFixed.term),'unknown mandatory screening stays visible')
+  assert.ok(dropped.report.max_total >= (dropped.report.after?.total ?? 0))
   console.log('PASS mocked build: preapproved content/owner/sections/skills, actual scoring, empty/forged/legacy choices')
 }
-verifyBuild().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>{engine.writeV3=originalWriter})
+verifyBuild().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>{engine.writeV3=originalWriter;quality.reviewScoreQuality=originalQualityReview})

@@ -110,6 +110,8 @@ export interface SelectedBlocks {
   skills?: boolean
   /** Explicit per-application approvals from the job check; absent = legacy review. */
   confirmedRequirements?: string[]
+  /** Skills explicitly confirmed for this resume only; never master-profile writes. */
+  confirmedSkills?: string[]
 }
 
 export interface OptimizationTarget {
