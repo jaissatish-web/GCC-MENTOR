@@ -35,7 +35,7 @@ export function MatchResult({
   if (!after) return null
   const gain = after.total - report.before.total
   const estimate = report.mode === 'target_title_only'
-  const place = (w: string) => (w === 'summary' ? 'your summary' : roleNames[w] ? roleNames[w] : 'your experience')
+  const place = (w: string) => (w === 'summary' ? 'your summary' : w === 'skills' ? 'this resume’s skills section' : roleNames[w] ? roleNames[w] : 'your experience')
   const kept = (report.kept_original ?? []).filter((k, i, all) => all.findIndex((x) => x.block === k.block) === i)
 
   return (

@@ -61,6 +61,8 @@ export interface JobTargetProfile {
   /** Missing preserves historical match-v1 arithmetic. */
   scoring_version?: 'match-v1' | 'match-v2'
   screening_requirements?: ScreeningRequirement[]
+  /** Fixed assessment date keeps ongoing employment arithmetic identical across clients and later edits. */
+  screening_as_of?: string
   /** Frozen server checks, bound to the exact scored document signature. */
   quality_reviews?: Record<string, QualityReviewEvidence>
   version: 1

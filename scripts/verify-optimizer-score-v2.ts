@@ -1,7 +1,9 @@
 import './resolve-paths'
 import assert from 'node:assert/strict'
-import { scoreResume, type ScoreDocument } from '../lib/optimizer/score'
+import { scoreResume, scoreDocumentFromResume, type ScoreDocument } from '../lib/optimizer/score'
 import { scoreDocumentSignature, uniqueScoredRequirements } from '../lib/optimizer/scoreV2'
+import { makeTemplateFixture } from './fixtures/templateFixture'
+import { buildResumeDocument } from '../lib/resumeDocument'
 import type { JobTargetProfile, TargetKeyword } from '../lib/optimizer/types'
 
 const keyword = (term: string, kind: TargetKeyword['kind'], importance: 'must' | 'nice' = 'must', aliases: string[] = []): TargetKeyword => ({term,kind,importance,aliases})
@@ -87,6 +89,26 @@ const affirmed={...denied,skills:['SAP PM'],experience:[{entryId:'e1',role:'Inst
 assert.ok(scoreResume(affirmed,negativeTarget,100).keywords.every(k=>k.credit===1),'real affirmative skill and responsibility receive coverage')
 const noLoadTarget={...target,keywords:[keyword('no-load testing','skill')],screening_requirements:[]}
 assert.equal(scoreResume({...doc,summary:'',skills:['no-load testing'],experience:[]},noLoadTarget,100).keywords[0].credit,1,'technical no-load testing is not a denied claim')
+const sourceFixture=makeTemplateFixture()
+sourceFixture.profile.work_experience=sourceFixture.profile.work_experience.slice(0,1).map(e=>({...e,role:'Instrument Engineer',start_date:'2010-01-01',end_date:'2020-01-01',end_date_unconfirmed:false,highlights:['Performed commissioning and instrument maintenance at gas plants.'],description:''}))
+const rendered=buildResumeDocument({profile:sourceFixture.profile,optimizedContent:{summary:{generated:'',source_profile_summary:sourceFixture.profile.professional_summary??''},experience_blocks:[],skills_reordered:false},skillsOrder:sourceFixture.skillsOrder,fieldVisibility:sourceFixture.profile.field_visibility,targetJobTitle:'Instrument Engineer'})
+const yearTarget={...target,screening_as_of:'2026-10-28T00:00:00.000Z',screening_requirements:[{term:'5 years experience',kind:'experience_years',importance:'must' as const,status:'met' as const}]}
+assert.equal(scoreResume(scoreDocumentFromResume(rendered),yearTarget,100).v2?.screening[0].status,'met','rendered dated experience independently meets the requirement')
+const shortened=structuredClone(rendered)
+shortened.experience[0].entry.start_date='2019-01-01'
+assert.equal(scoreResume(scoreDocumentFromResume(shortened),yearTarget,100).v2?.screening[0].status,'unmet','shortened final resume dates cannot keep stale met status')
+const removed=structuredClone(rendered);removed.experience=[]
+assert.equal(scoreResume(scoreDocumentFromResume(removed),yearTarget,100).v2?.screening[0].status,'unknown','removed role cannot keep stale met status')
+const undated=structuredClone(rendered);undated.experience[0].entry.start_date=null
+assert.equal(scoreResume(scoreDocumentFromResume(undated),yearTarget,100).v2?.screening[0].status,'unknown','missing dates do not prove a shortfall or a match')
+const invalidDates=structuredClone(rendered);invalidDates.experience[0].entry.start_date='2010-13-01'
+assert.equal(scoreResume(scoreDocumentFromResume(invalidDates),yearTarget,100).v2?.screening[0].status,'unknown','invalid dates cannot manufacture a duration')
+const stillWorking=structuredClone(rendered);stillWorking.experience[0].entry.start_date='2020-01-01';stillWorking.experience[0].entry.end_date=null
+assert.equal(scoreResume(scoreDocumentFromResume(stillWorking),{...yearTarget,screening_as_of:'2022-01-01T00:00:00.000Z'},100).v2?.screening[0].status,'unmet','ongoing-role years use the frozen assessment date, not the wall clock')
+assert.equal(scoreResume(scoreDocumentFromResume(stillWorking),yearTarget,100).v2?.screening[0].status,'met')
+const deferred=structuredClone(rendered);deferred.experience[0].entry.end_date=null;deferred.experience[0].entry.end_date_unconfirmed=true
+assert.equal(scoreResume(scoreDocumentFromResume(deferred),yearTarget,100).v2?.screening[0].status,'unknown','unconfirmed current employment cannot prove duration')
+assert.equal(scoreResume(doc,yearTarget,100).v2?.screening[0].status,'met','explicit incomplete bare fixtures retain server assessment')
 const legacy={...target,scoring_version:undefined}
 const legacyResult=scoreResume(doc,legacy,100)
 assert.equal(legacyResult.scoring_version,'match-v1')

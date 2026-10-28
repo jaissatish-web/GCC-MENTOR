@@ -3,6 +3,7 @@ import type { ScoreDocument } from './score'
 import type { JobTargetProfile, KeywordCredit, MatchScore, QualityCheck, ScoreV2Bucket, ScoreV2Part, ScreeningRequirement, TargetKeyword } from './types'
 import { containsTerm, containsTermInSentence, prepare, wordCount } from './text'
 import { positiveStatements } from './v3/claimChecks'
+import { experienceRequirementMet } from './experienceMet'
 
 export const SCORE_V2_VERSION = 'match-v2'
 export const SCORE_V2_WEIGHTS = { quality: 25, presentation: 10, screening: 10, skills: 30, responsibilities: 20, supporting: 5 } as const
@@ -124,6 +125,32 @@ function screening(doc: ScoreDocument, target: JobTargetProfile, keywords: Targe
       continue
     }
     let status = r.status
+    if (r.kind === 'experience_years') {
+      if (doc.experience.length === 0) status = 'unknown'
+      else if (target.screening_as_of && Number.isFinite(new Date(target.screening_as_of).getTime()) && doc.experience.some(e => e.source)) {
+        // Rendered entries, never the unchanged master-profile history. Bare
+        // ScoreDocument fixtures with no metadata retain their assessed status.
+        const sourced = doc.experience.filter(e => e.source).map(e => ({ ...e.source!, role: positiveStatements(e.role), description: '', highlights: e.bullets.map(positiveStatements).filter(Boolean) }))
+        const asOf = new Date(target.screening_as_of)
+        const dateValue = (value: string | null | undefined): number | null => {
+          const match = value && /^(\d{4})(?:-(0[1-9]|1[0-2]))?(?:-(0[1-9]|[12]\d|3[01]))?$/.exec(value)
+          if (!match) return null
+          const year = Number(match[1]), month = Number(match[2] ?? 1), day = Number(match[3] ?? 1)
+          const time = Date.UTC(year, month - 1, day), date = new Date(time)
+          return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day ? time : null
+        }
+        const dated = sourced.filter(e => {
+          const start = dateValue(e.start_date), end = e.end_date === null ? asOf.getTime() : dateValue(e.end_date)
+          return start !== null && end !== null && !e.end_date_unconfirmed && start <= end && start <= asOf.getTime()
+        })
+        const incomplete = dated.length !== doc.experience.length
+        // The shared year helper reads local calendar fields; construct those
+        // from the frozen UTC date so month boundaries agree in every timezone.
+        const arithmeticDate = new Date(asOf.getUTCFullYear(), asOf.getUTCMonth(), asOf.getUTCDate(), 12)
+        const assessed = experienceRequirementMet({ work_experience: dated }, r.term, arithmeticDate)
+        status = assessed.ok ? 'met' : incomplete ? 'unknown' : 'unmet'
+      }
+    }
     if (r.kind === 'education' || r.kind === 'certification' || r.kind === 'licence') {
       const lines = r.kind === 'education' ? doc.education : doc.certifications
       const k = keywords.find(k => identity(k.term) === key)

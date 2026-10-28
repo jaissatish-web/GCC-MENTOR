@@ -24,7 +24,7 @@ export async function reviewScoreQuality(documents: ResumeDocument[], target: Jo
     try {
       const buffer = await Packer.toBuffer(buildResumeDocx(doc))
       const parsed = normalise((await mammoth.extractRawText({ buffer })).value)
-      const required = [scored.summary, ...scored.experience.flatMap(role => [role.role, ...role.bullets]), ...scored.skills, ...scored.certifications, ...scored.education].map(normalise).filter(Boolean)
+      const required = [doc.header.displayName, scored.headline, scored.summary, ...doc.experience.flatMap(role => [role.companyLine, role.range]), ...scored.experience.flatMap(role => [role.role, ...role.bullets]), ...scored.skills, ...scored.certifications, ...scored.education].map(normalise).filter(Boolean)
       reviews[id] = { grammar: reviews[id]?.grammar ?? 'unavailable', exportReadability: required.length > 0 && required.every(text => parsed.includes(text)) ? 'passed' : 'failed' }
     } catch { reviews[id] = { grammar: reviews[id]?.grammar ?? 'unavailable', exportReadability: 'unavailable' } }
   }
