@@ -259,12 +259,16 @@ function PreviewInner({ packageId }: { packageId: string }) {
           <span className="rounded-[4px] bg-ok-soft px-2 py-1 text-ink">Green · reworded from your profile</span>
           <span className="rounded-[4px] bg-teal-soft px-2 py-1 font-semibold text-sec-status">Highlighted · job description keyword</span>
           <span className="rounded-[4px] border border-gold/60 bg-gold-soft px-2 py-1 text-ink">
-            Yellow · unverified suggestion — select only if true for you
+            Yellow · additional duty — check its confirmation label
           </span>
         </div>
 
+        <p className="type-helper leading-relaxed text-ink-soft">Review each change against your original experience. Labels distinguish rewritten wording, duties you confirmed and any suggestions still awaiting your choice. The match score is GCC Mentor’s estimate, not a guarantee of an employer’s ATS result.</p>
+
         {/* SUMMARY */}
         <Section title="Professional summary" tone="border-sec-summary/40" accent="text-sec-summary" icon={FileText}>
+          <span className="type-caption font-semibold text-ink-soft">{summary !== doc.summary ? 'Edited by you' : summary.trim() === summarySource ? 'Original wording' : 'Rewritten from your profile'}</span>
+          {summarySource ? <details className="rounded-ctl border border-line bg-canvas p-3"><summary className="min-h-11 cursor-pointer type-helper font-semibold text-ink">View original summary</summary><p className="whitespace-pre-wrap type-helper leading-relaxed text-ink-soft">{summarySource}</p></details> : null}
           {editing === 'summary' ? (
             <EditBox value={summary} rows={6} onChange={setSummary} onDone={() => setEditing(null)} />
           ) : (
@@ -287,7 +291,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
 
         {/* SKILLS */}
         <Section title="Skills" tone="border-sec-skills/40" accent="text-sec-skills" icon={Puzzle}>
-          <p className="type-helper text-ink-muted">Ordered by relevance to this job. Tap × to remove a skill.</p>
+          <p className="type-helper text-ink-muted">{oc.skills_reordered ? 'Ordered by relevance to this job.' : 'Original skills order retained.'} Tap × to remove a skill.</p>
           <div className="flex flex-wrap gap-2">
             {skills.map((k) => {
               const isKeyword = !!keywordRe && new RegExp(keywordRe.source, 'i').test(k.name)
@@ -362,8 +366,9 @@ function PreviewInner({ packageId }: { packageId: string }) {
                 {block && !(block.source_bullets ?? []).some((x) => x.trim()) ? (
                   <p className="type-helper text-ink-muted">No duties in your Career Profile for this job yet. Add what you did there for a stronger, true resume.</p>
                 ) : block && !block.was_optimized ? (
-                  <p className="type-helper text-ink-muted">Kept in your own words (the rewrite could not be proven from your profile).</p>
+                  <p className="type-helper text-ink-muted">Original wording retained for this company.</p>
                 ) : null}
+                {source.trim() || item.entry.description?.trim() ? <details className="rounded-ctl border border-line bg-canvas p-3"><summary className="min-h-11 cursor-pointer type-helper font-semibold text-ink">View original responsibilities</summary><p className="whitespace-pre-wrap type-helper leading-relaxed text-ink-soft">{source.trim() || item.entry.description}</p></details> : null}
                 {editing === id ? (
                   <EditBox
                     value={bullets.join('\n')}
@@ -381,7 +386,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
                           <li key={i} className="rounded-ctl bg-gold-soft px-2 py-1.5 marker:text-gold-ink">
                             <span className="text-ink">{b}</span>
                             <span className="mt-1 flex flex-wrap items-center gap-2 text-[12px] text-gold-ink">
-                              Added for this job, typical of your field
+                              New duty — confirmed by you
                               <button
                                 type="button"
                                 onClick={(e) => {
@@ -397,6 +402,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
                           </li>
                         ) : (
                           <li key={i}>
+                            <span className="mb-0.5 block type-caption font-semibold text-ink-soft">{!item.bullets.includes(b) ? 'Edited by you' : block?.was_optimized && !(block.source_bullets ?? []).includes(b) ? 'Rewritten from your profile' : 'Original wording'}</span>
                             <Colored text={b} source={block?.was_optimized ? source : null} re={keywordRe} added={addedTerms} />
                           </li>
                         )
@@ -507,6 +513,7 @@ function SuggestedLine({ s, draft, onChange, re }: { s: Suggestion; draft: Draft
   const text = draft?.text ?? s.text
   return (
     <div className={cn('flex flex-col gap-2 rounded-ctl border p-3', keep ? 'border-gold bg-gold-soft' : 'border-dashed border-line-strong bg-white')}>
+      <span className="type-caption font-semibold text-ink">{keep ? 'New duty — selected for this resume' : 'New suggestion — not included'}</span>
       {edit ? (
         <textarea autoFocus value={text} rows={3} onChange={(e) => onChange({ text: e.target.value })} className="field text-[14px]" />
       ) : (

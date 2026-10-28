@@ -57,7 +57,7 @@ const LEVELS: ReadonlyArray<{
     value: 'easy',
     label: 'Easy',
     aim: 'Aim: about +10 ATS points',
-    tag: 'Light touch',
+    tag: 'Polish existing facts',
     changes: [
       'Summary and work activities reworded in the job’s keywords',
       'Uses only what your profile already says',
@@ -69,7 +69,7 @@ const LEVELS: ReadonlyArray<{
     value: 'moderate',
     label: 'Moderate',
     aim: 'Aim: about +25 ATS points',
-    tag: 'More tailoring',
+    tag: 'Targeted rewrite',
     changes: [
       'Everything in Easy, rewritten to lead with what this job needs',
       'Suggests relevant duties separately for your confirmation',
@@ -82,7 +82,7 @@ const LEVELS: ReadonlyArray<{
     value: 'high',
     label: 'Hard',
     aim: 'Aim: 75–95% ATS match',
-    tag: 'Strongest',
+    tag: 'Comprehensive tailoring',
     changes: [
       'Natural rewriting around this job’s requirements',
       'Includes only additional duties you confirm before running',
@@ -462,7 +462,7 @@ function SetupScreen() {
                 )
               })}
             </div>
-            <p className="type-helper leading-relaxed text-ink-soft">These are improvement goals, not guaranteed scores. Estimates assume all eligible changes; your selected sections and confirmed duties determine the measured result. Existing strong resumes may have less room to improve.</p>
+            <p className="type-helper leading-relaxed text-ink-soft">These are improvement goals, not guaranteed scores. This is GCC Mentor’s estimate of job alignment; an employer’s ATS can assess your resume differently. Aim for a clear, relevant resume rather than chasing 100%. Estimates assume all eligible changes; your selected sections and confirmed duties determine the measured result. Existing strong resumes may have less room to improve.</p>
             {levelSelected ? <Alert variant={level === 'easy' ? 'info' : 'warning'}>{levelInfo.explain}</Alert> : null}
 
             {/* Missing skills are reviewed in the single Career Profile editor. */}
@@ -501,7 +501,9 @@ function SetupScreen() {
                     <input type="checkbox" className="mt-1 size-4 shrink-0 accent-teal" checked={confirmedRequirements.includes(item.id)} onChange={(event) => setConfirmedRequirements((prev) => event.target.checked ? [...prev, item.id] : prev.filter((id) => id !== item.id))} />
                     <span className="min-w-0 type-helper text-ink">
                       <span className="block font-semibold">I have performed: {item.term}</span>
-                      <span className="mt-1 block text-ink-soft">{item.block === 'summary' ? 'Professional summary' : experiences.find((entry) => entry.id === item.block)?.label || 'Work experience'}</span>
+                      <span className="mt-1 block font-semibold text-teal">{item.importance === 'must' ? 'Required by this role' : 'Preferred for this role'}</span>
+                      <span className="mt-1 block text-ink-soft">Why this matters: {hasJobDescription ? 'your job description' : 'the typical requirements for your target role'} asks for this duty. Confirming real experience lets us describe it in the role’s language.</span>
+                      <span className="mt-1 block text-ink-soft">Add under: {item.block === 'summary' ? 'Professional summary' : experiences.find((entry) => entry.id === item.block)?.label || 'Work experience'}</span>
                       {item.quote ? <span className="mt-1 block text-ink-muted">Related profile experience: “{item.quote}”</span> : null}
                     </span>
                   </label>
