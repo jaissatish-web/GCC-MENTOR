@@ -1949,3 +1949,5 @@ Approved: fix unreadable box titles/field labels after resume processing in the 
 
 ## 28 October 2026 — OPT-PRESELECT-001
 Latest founder instruction supersedes older fixed level bands: Easy ~+10, Moderate ~+25, Hard target75–95 match, all evidence limited. Explicit pre-generation duty confirmation and summary/company/skills choices; preserve existing final review. No invented facts or forced scores.
+
+28 October2026 — OPT-CLARITY-002: approve clearer levels, per-suggestion priority/evidence/owner and explicit final change labels/originals, following competitor research. Preserve score goals, candidate facts and all service logic.
