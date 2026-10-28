@@ -13,7 +13,9 @@ const pkg=JSON.parse(readFileSync(root+'/scripts/fixtures/studioFixture.json','u
 const owner=pkg.document_snapshot.experience[0].entry.id
 const confirmedText='Prepared handover documentation for operations.'
 pkg.document_snapshot.experience[0].bullets.push(confirmedText)
-pkg.match_report={report_version:1,before:{total:55},after:{total:80},auto_applied:true,target:{job_title:'Project Engineer',title_variants:[],keywords:[]},suggestions:[{id:'confirmed-1',block:owner,requirement:'handover documentation',text:confirmedText,status:'confirmed'},{id:'pending-1',block:owner,requirement:'planning',text:'Coordinated planning with operations.',status:'pending'}]}
+pkg.match_report={report_version:1,before:{total:55},after:{total:80},auto_applied:true,target:{scoring_version:'match-v2',job_title:'Project Engineer',title_variants:[],keywords:[{term:'SAP PM',kind:'tool',importance:'must',aliases:[]},{term:'handover documentation',kind:'responsibility',importance:'must',aliases:[]}],screening_requirements:[{term:'PMP',kind:'certification',importance:'must',status:'unknown'}]},suggestions:[{id:'confirmed-1',block:owner,requirement:'handover documentation',text:confirmedText,status:'confirmed'},{id:'pending-1',block:owner,requirement:'planning',text:'Coordinated planning with operations.',status:'pending'}]}
+pkg.document_snapshot.skills.push({id:'resume-skill-1',profile_id:pkg.profile_id,name:'SAP PM',sort_order:99,created_at:''})
+pkg.match_report.resume_only_skills=[{id:'resume-skill-1',term:'SAP PM'}]
 let savedPreview=null
 try {
  writeFileSync(dir+'/entry.jsx',`import React from'react';import{createRoot}from'react-dom/client';import Setup from${JSON.stringify(root+'/app/optimize/setup/page.tsx')};import Preview from${JSON.stringify(root+'/app/optimize/preview/[packageId]/page.tsx')};const params=Promise.resolve({packageId:'preview-fixture'});createRoot(document.getElementById('root')).render(location.pathname.includes('/preview/')?<React.Suspense><Preview params={params}/></React.Suspense>:<Setup/>);`)
@@ -29,7 +31,7 @@ try {
  const send=(data,status=200)=>{res.writeHead(status,{'Content-Type':'application/json'});res.end(JSON.stringify(data))}
  if(p==='/api/packages/preview-fixture'){if(req.method==='PATCH'){let raw='';for await(const c of req)raw+=c;savedPreview=JSON.parse(raw);return send({success:true})}return send({package:pkg})}
  if(p==='/api/profile')return send({id:'profile-1',work_experience:[{id:'role-1',company:'Fictional Energy',role:'Engineer',highlights:['Maintained controls']}]})
- if(p==='/api/optimize/check')return failCheck?send({error:'Failed'},503):send({check:{mode:'job_description',fieldMatch:'same',candidateField:'Instrumentation',jobField:'Instrumentation',before:55,expected:{easy:65,moderate:80,high:90},recommendedLevel:'moderate',askCertifications:[],askSkills:[],dutySuggestions:[{id:'duty-1',term:'handover documentation',block:'role-1',quote:'Maintained controls',importance:'must',levels:['moderate','high']},{id:'duty-2',term:'team coordination',block:'role-1',quote:'Maintained controls',importance:'nice',levels:['high']}]},consented:true})
+ if(p==='/api/optimize/check')return failCheck?send({error:'Failed'},503):send({check:{mode:'job_description',fieldMatch:'same',candidateField:'Instrumentation',jobField:'Instrumentation',before:55,expected:{easy:65,moderate:80,high:90},recommendedLevel:'moderate',askCertifications:[],askSkills:[],resumeSkills:[{id:'skill-1',term:'SAP PM',kind:'tool',importance:'must'},{id:'skill-2',term:'AutoCAD',kind:'tool',importance:'nice'}],dutySuggestions:[{id:'duty-1',term:'handover documentation',block:'role-1',quote:'Maintained controls',importance:'must',levels:['moderate','high']},{id:'duty-2',term:'team coordination',block:'role-1',quote:'Maintained controls',importance:'nice',levels:['high']}]},consented:true})
  if(p==='/api/optimize'){let raw='';for await(const c of req)raw+=c;submitted=JSON.parse(raw);return send({success:true,packageId:'fixture-package'})}
  if(p==='/fixture.js'){res.setHeader('Content-Type','text/javascript');return res.end(readFileSync(dir+'/fixture.js'))}
  if(p.startsWith('/_next/')){try{res.setHeader('Content-Type',p.endsWith('.css')?'text/css':'font/woff2');return res.end(readFileSync(root+'/.next/'+p.slice(7)))}catch{res.statusCode=404;return res.end()}}
@@ -50,22 +52,23 @@ try {
 
  assert.ok(await page.evaluate(()=>document.body.innerText.includes('Aim: about +25')))
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true)
- await page.click('input[type="checkbox"]')
+ await clickText('label','I have this skill: SAP PM')
+ await clickText('label','I have performed: handover documentation')
  await clickText('[role="checkbox"]','Engineer')
- assert.equal(await page.$('input[type="checkbox"]'),null,'Deselected role hides its duties')
+ assert.ok(!await page.evaluate(()=>document.body.innerText.includes('I have performed: handover documentation')),'Deselected role hides its duties')
  await clickText('[role="checkbox"]','Engineer')
  await page.waitForSelector('input[type="checkbox"]')
- await page.click('input[type="checkbox"]') // deselect retained choice
+ await clickText('label','I have performed: handover documentation') // deselect retained duty
  await clickText('[role="radio"]','Hard')
- assert.equal(await page.$$eval('input[type="checkbox"]',es=>es.length),2)
+ assert.equal(await page.$$eval('input[type="checkbox"]',es=>es.length),4)
  await clickText('[role="radio"]','Easy')
  assert.equal(await page.$('input[type="checkbox"]'),null,'Easy has no additions')
  await clickText('[role="radio"]','Moderate')
- await page.click('input[type="checkbox"]')
+ await clickText('label','I have performed: handover documentation')
  await clickText('[role="checkbox"]','Skills')
  await clickText('button','Optimize Resume for This Job')
  await page.waitForFunction(()=>location.pathname.includes('/generate/'))
- assert.deepEqual(submitted.selectedBlocks,{summary:true,experienceIds:['role-1'],skills:false,confirmedRequirements:['duty-1']})
+ assert.deepEqual(submitted.selectedBlocks,{summary:true,experienceIds:['role-1'],skills:false,confirmedRequirements:['duty-1'],confirmedSkills:['skill-1']})
  }
  failCheck=true;await page.goto(`http://127.0.0.1:${server.address().port}/optimize/setup`)
  await page.waitForFunction(()=>document.body.innerText.includes('Retry ATS check'))
@@ -75,6 +78,7 @@ try {
  await page.setViewport({width,height:950})
  await page.goto(`http://127.0.0.1:${server.address().port}/optimize/preview/preview-fixture`)
  await page.waitForFunction(()=>document.body.innerText.includes('New duty — confirmed by you'),{timeout:5000}).catch(async e=>{console.error('Preview body:',await page.evaluate(()=>document.body.innerText));throw e})
+ assert.ok(await page.evaluate(()=>document.body.innerText.includes('Screening still needs attention')&&document.body.innerText.includes('PMP — not confirmed')&&document.body.innerText.includes('confirmed for this resume')))
  assert.ok(await page.evaluate(()=>document.body.innerText.includes('New suggestion — not included')&&document.body.innerText.includes('Rewritten from your profile')))
  await clickText('summary','View original summary')
  assert.ok(await page.evaluate(()=>document.body.innerText.includes('Instrumentation and control engineer with fourteen years')))
@@ -92,6 +96,7 @@ try {
  assert.ok(savedPreview.suggestion_actions.some(a=>a.id==='confirmed-1'&&a.action==='dismiss'))
  assert.ok(!savedPreview.document.experience[0].bullets.includes(confirmedText))
  assert.equal(savedPreview.document.summary,'Candidate edited summary using their own words.')
+ assert.ok(savedPreview.document.skills.some(s=>s.id==='resume-skill-1'&&s.name==='SAP PM'),'resume-only skills survive edit/save')
  }
  assert.deepEqual(errors,[])
  console.log('Optimizer setup UI: mobile/desktop section and duty choices, exact payload, Easy exclusion, failed-check retry, original comparisons, provenance labels and confirmed-duty remove/save passed.')

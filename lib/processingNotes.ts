@@ -87,7 +87,7 @@ export const RESCORE_NOTES: readonly string[] = [
 
 export const GENERATE_NOTES: readonly string[] = [
   'Your employers, job titles and dates are kept exactly as your profile states them.',
-  'Any line that cannot be traced to your profile is sent back and rewritten.',
+  'New skills and duties are included only when you confirm them for this resume.',
   'The wording is sharpened for the role. The facts stay yours.',
   'Next: your finished CV, ready to style, edit and download.',
 ]

@@ -21,6 +21,7 @@ import type { OptimizationLevel } from '@/types/package'
 import { containsTerm, containsTermInSentence, prepare, stems, wordCount, type PreparedText } from './text'
 import type { EvidenceLocation, JobTargetProfile, KeywordCredit, KeywordEvidence, MatchScore, ScorePart } from './types'
 import { keywordWeight } from './evidence'
+import { scoreResumeV2 } from './scoreV2'
 
 export const SCORING_VERSION = 'match-v1'
 
@@ -210,6 +211,7 @@ function combine(parts: MatchScore['parts']): number {
 }
 
 export function scoreResume(doc: ScoreDocument, target: JobTargetProfile, qualifications: number | null): MatchScore {
+  if (target.scoring_version === 'match-v2') return scoreResumeV2(doc, target)
   const p = prepareDoc(doc)
   const credits = keywordCredits(p, target)
   const parts: MatchScore['parts'] = {

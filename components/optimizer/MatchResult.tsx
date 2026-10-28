@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { cn } from '@/lib/utils'
 import type { MatchReport } from '@/lib/optimizer/types'
 import { BandPill, KeywordChips, PartBars, ScoreRing } from './MatchScore'
+import { JobScoreDetails } from './JobScoreDetails'
 import { CTA, NAMES } from '@/lib/serviceLabels'
 
 /**
@@ -61,7 +62,7 @@ export function MatchResult({
           <span aria-hidden="true" className="text-[22px] text-ink-muted">→</span>
           <ScoreRing value={after.total} size={112} label="After" />
           <div className="ml-1 flex flex-col items-start gap-1.5">
-            <BandPill value={after.total} />
+            {after.v2 && (after.v2.mandatoryGaps > 0 || after.v2.mandatoryUnknown > 0) ? <span className="rounded-full bg-gold-soft px-2.5 py-1 type-caption font-semibold text-gold-ink">Screening requires review</span> : <BandPill value={after.total} />}
             {gain > 0 ? <span className="font-mono text-[13px] font-semibold text-teal">+{gain} points</span> : null}
             <span className="text-[12px] leading-snug text-ink-muted">
               Estimated match potential: <strong className="text-ink">{Math.max(report.max_total, after.total)}</strong>
@@ -72,6 +73,8 @@ export function MatchResult({
           <PartBars score={after} compare={report.before} />
         </div>
       </div>
+
+      <JobScoreDetails score={after} before={report.before} />
 
       {report.why_fits && report.why_fits.length > 0 ? (
         <div className="flex flex-col gap-1.5">
@@ -116,17 +119,13 @@ export function MatchResult({
         <details className="group rounded-ctl border border-gold/40 bg-gold-soft/40 p-3">
           <summary className="cursor-pointer list-none type-helper font-semibold text-ink">
             Want a higher score? {report.gaps.length} {estimate ? 'common requirement' : 'job requirement'}
-            {report.gaps.length === 1 ? '' : 's'} aren&apos;t in your profile yet{' '}
+            {report.gaps.length === 1 ? '' : 's'} aren&apos;t covered in this resume{' '}
             <span className="text-teal group-open:hidden">Show</span>
           </summary>
           <div className="mt-2 flex flex-col gap-1.5">
             <KeywordChips items={report.gaps.slice(0, 12)} tone="gap" />
             <p className="type-helper leading-relaxed text-ink-soft">
-              If you have genuinely done any of these, add them to your{' '}
-              <Link href="/profile" className="font-semibold text-teal underline-offset-2 hover:underline">
-                Career Profile
-              </Link>{' '}
-              and optimize again. Your score rises with each one.
+              Review only the skills and duties you really have. You can edit this resume or run optimisation again and select additions for this resume only. Career Profile and other resumes stay unchanged.
             </p>
           </div>
         </details>

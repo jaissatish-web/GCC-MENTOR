@@ -11,6 +11,8 @@ import { Alert } from '@/components/ui/Alert'
 import { readMatchReport } from '@/components/optimizer/MatchResult'
 import { applySuggestionsToDocument, type Suggestion } from '@/lib/optimizer/suggestions'
 import { scoreDocumentFromResume, scoreResume } from '@/lib/optimizer/score'
+import { JobScoreDetails } from '@/components/optimizer/JobScoreDetails'
+import { PartBars } from '@/components/optimizer/MatchScore'
 import { NAMES } from '@/lib/serviceLabels'
 import type { ResumeDocument } from '@/lib/resumeDocument'
 import type { MatchReport } from '@/lib/optimizer/types'
@@ -169,10 +171,11 @@ function PreviewInner({ packageId }: { packageId: string }) {
     () => pending.filter((s) => drafts[s.id]?.keep && drafts[s.id]?.text.trim()).map((s) => ({ ...s, text: drafts[s.id].text.trim() })),
     [pending, drafts],
   )
-  const liveScore = useMemo(() => {
+  const liveMatchScore = useMemo(() => {
     if (!edited || !report) return null
-    return scoreResume(scoreDocumentFromResume(applySuggestionsToDocument(edited, kept)), report.target, report.qualifications ?? null).total
+    return scoreResume(scoreDocumentFromResume(applySuggestionsToDocument(edited, kept)), report.target, report.qualifications ?? null)
   }, [edited, kept, report])
+  const liveScore = liveMatchScore?.total ?? null
 
   if (error) {
     return (
@@ -265,6 +268,8 @@ function PreviewInner({ packageId }: { packageId: string }) {
 
         <p className="type-helper leading-relaxed text-ink-soft">Review each change against your original experience. Labels distinguish rewritten wording, duties you confirmed and any suggestions still awaiting your choice. The match score is GCC Mentor’s estimate, not a guarantee of an employer’s ATS result.</p>
 
+        {liveMatchScore?.v2 ? <Section title="Readiness for this job" tone="border-line" accent="text-teal" icon={FileText}><PartBars score={liveMatchScore} compare={report?.before} /><JobScoreDetails score={liveMatchScore} before={report?.before} /></Section> : null}
+
         {/* SUMMARY */}
         <Section title="Professional summary" tone="border-sec-summary/40" accent="text-sec-summary" icon={FileText}>
           <span className="type-caption font-semibold text-ink-soft">{summary !== doc.summary ? 'Edited by you' : summary.trim() === summarySource ? 'Original wording' : 'Rewritten from your profile'}</span>
@@ -303,7 +308,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
                     isKeyword ? 'border-line ui-keyword font-semibold' : 'border-line bg-white text-ink',
                   )}
                 >
-                  {k.name}
+                  <span>{k.name}{report?.resume_only_skills?.some(item => item.id === k.id) ? <span className="ml-1 type-caption text-teal"> · confirmed for this resume</span> : null}</span>
                   <button
                     type="button"
                     aria-label={`Remove ${k.name}`}

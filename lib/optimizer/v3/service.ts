@@ -26,7 +26,8 @@ import { containsTermRaw } from '../text'
 import type { KeywordKind, MatchReport, MatchScore } from '../types'
 import { addableAt, analyzeV3, targetFromAnalysis, writeV3, type AnalysisV3 } from './engine'
 import { experienceRequirementMet } from '../experienceMet'
-import { dutySuggestions, recommendedLevel, selectedAnalysis, type DutySuggestion } from './preselection'
+import { reviewScoreQuality } from '../qualityReview'
+import { dutySuggestions, recommendedLevel, selectedAnalysis, resumeSkillSuggestions, confirmedResumeSkills, type DutySuggestion, type ResumeSkillSuggestion } from './preselection'
 
 const FIXED = new Set(['education', 'experience_years', 'certification', 'licence'])
 const ASKABLE = new Set(['certification', 'licence'])
@@ -162,6 +163,8 @@ function ceilingAt(base: ScoreDocument, a: AnalysisV3, level: OptimizationLevel,
 
 export interface CheckReport {
   recommendedLevel: OptimizationLevel
+  resumeSkills: ResumeSkillSuggestion[]
+  beforeScore: MatchScore
   dutySuggestions: DutySuggestion[]
   mode: 'job_description' | 'target_title_only'
   fieldMatch: AnalysisV3['fieldMatch']
@@ -186,7 +189,8 @@ export function checkReport(profile: CareerProfileFull, analysis: AnalysisV3, ti
   const target = targetFromAnalysis(a, title, modeOf(jd))
   const quals = qualificationsOf(a)
   const base = scoreDocumentFromResume(baselineDocument(profile, title, fv))
-  const before = scoreResume(base, target, quals).total
+  const beforeScore = scoreResume(base, target, quals)
+  const before = beforeScore.total
   const expected = {
     easy: Math.max(before, ceilingAt(base, a, 'easy', target, quals)),
     moderate: Math.max(before, ceilingAt(base, a, 'moderate', target, quals)),
@@ -205,9 +209,9 @@ export function checkReport(profile: CareerProfileFull, analysis: AnalysisV3, ti
   // High's tick-list (founder, 2026-10-02): what each one would add at High
   // if the user really has it, and the best High can reach with all of them.
   const promote = (qs: typeof a.requirements) => ({ ...a, requirements: a.requirements.map((r) => (qs.includes(r) ? { ...r, group: 'A' as const } : r)) })
-  // Not for a job outside the user's field (launch audit I6): "up to 41 if you
-  // have the skills" for a hotel job invited an accountant to tick hotel skills.
-  const skillQs = a.fieldMatch === 'different' ? [] : a.requirements.filter((q) => q.group === 'C' && ASK_SKILL.has(q.kind))
+  // Explicitly confirmed skills are application-only, even for a career change;
+  // they never imply the candidate performed this job's responsibilities.
+  const skillQs = a.requirements.filter(q => resumeSkillSuggestions(analysis).some(s => s.term === q.term && s.kind === q.kind))
   const askSkills = skillQs
     .map((q) => {
       const withIt = promote([q])
@@ -215,10 +219,11 @@ export function checkReport(profile: CareerProfileFull, analysis: AnalysisV3, ti
     })
     .sort((x, y) => (x.importance === y.importance ? y.gain - x.gain : x.importance === 'must' ? -1 : 1))
     .slice(0, 15)
-  const certQs = a.requirements.filter((q) => q.group === 'C' && ASKABLE.has(q.kind))
-  const all = promote([...skillQs, ...certQs])
-  const highIfConfirmed = Math.max(expected.high, ceilingAt(base, all, 'high', target, qualificationsOf(all), certQs.map((q) => q.term), skillQs.map((q) => q.term)))
-  return { mode: modeOf(jd), fieldMatch: a.fieldMatch, jobField: a.jobField, candidateField: a.candidateField, before, expected, askCertifications, askSkills, highIfConfirmed, recommendedLevel: recommendedLevel(before, expected), dutySuggestions: dutySuggestions(a, profile.work_experience.map(e => e.id)) }
+  // Only actual selectable resume skills contribute to this possibility; missing
+  // licences/certificates remain screening gaps, never assumed to close.
+  const all = promote(skillQs)
+  const highIfConfirmed = Math.max(expected.high, ceilingAt(base, all, 'high', target, qualificationsOf(all), [], skillQs.map((q) => q.term)))
+  return { beforeScore, resumeSkills: resumeSkillSuggestions(analysis), mode: modeOf(jd), fieldMatch: a.fieldMatch, jobField: a.jobField, candidateField: a.candidateField, before, expected, askCertifications, askSkills, highIfConfirmed, recommendedLevel: recommendedLevel(before, expected), dutySuggestions: dutySuggestions(a, profile.work_experience.map(e => e.id)) }
 }
 
 export type BuildV3Result =
@@ -244,11 +249,23 @@ export async function buildV3(opts: {
   /** No advert was pasted: jobDescription is the typical Gulf advert for the title. */
   typicalAdvert?: boolean
   route: string
+  giveUpAt?: number
 }): Promise<BuildV3Result> {
   const { profile, target: tf, level, selectedBlocks, jobDescription: jd } = opts
   const a = selectedAnalysis(opts.analysis, selectedBlocks, level)
   const preselected = Array.isArray(selectedBlocks.confirmedRequirements)
   const title = tf.target_job_title
+  const additions = confirmedResumeSkills(opts.analysis, selectedBlocks, level).filter(s => !profileListsSkill(profile, s.term))
+  // Application-only facts are never passed to the writer as company evidence.
+  // They are appended after writing, exclusively in this document's Skills list.
+  const scopedProfile: CareerProfileFull = {
+    ...profile,
+    skills: [...profile.skills, ...additions.map((s, i) => ({
+      id: `resume-skill:${sha256(s.id)}`, profile_id: profile.id, name: s.term,
+      sort_order: Math.max(-1, ...profile.skills.map(k => k.sort_order)) + i + 1,
+      created_at: profile.updated_at ?? profile.created_at,
+    }))],
+  }
   let w
   try {
     w = await writeV3(profile, title, jd, a, level, opts.route)
@@ -312,15 +329,17 @@ export async function buildV3(opts: {
     ...(kept.length ? { fallback_used: { summary: kept.some((k) => k.block === 'summary'), experience_ids: kept.filter((k) => k.block !== 'summary').map((k) => k.block) } } : {}),
     skills_reordered: selectedBlocks.skills !== false && skillsOrder.length === original.length && skillsOrder.some((id, i) => id !== original[i]),
   }
-  const finalOrder = selectedBlocks.skills !== false && skillsOrder.length === original.length ? skillsOrder : original
-  const documentSnapshot = buildResumeDocument({ profile, optimizedContent, skillsOrder: finalOrder, fieldVisibility: profile.field_visibility, targetJobTitle: title })
+  const existingOrder = selectedBlocks.skills !== false && skillsOrder.length === original.length ? skillsOrder : original
+  const finalOrder = [...existingOrder, ...scopedProfile.skills.filter(s => !profile.skills.some(p => p.id === s.id)).map(s => s.id)]
+  const documentSnapshot = buildResumeDocument({ profile: scopedProfile, optimizedContent, skillsOrder: finalOrder, fieldVisibility: profile.field_visibility, targetJobTitle: title })
 
   // ---- the report the result screens read
-  const target = targetFromAnalysis(a, title, modeOf(jd))
+  const baseDocument = baselineDocument(profile, title, profile.field_visibility)
+  const target = await reviewScoreQuality([baseDocument, documentSnapshot], targetFromAnalysis(a, title, modeOf(jd)), opts.route, opts.giveUpAt)
   const quals = qualificationsOf(a)
   const check = checkReport(profile, a, title, jd, profile.field_visibility)
   const score = (d: ResumeDocument): MatchScore => scoreResume(scoreDocumentFromResume(d), target, quals)
-  const before = score(baselineDocument(profile, title, profile.field_visibility))
+  const before = score(baseDocument)
   const after = score(documentSnapshot)
   const pending = suggestions.filter((s) => s.status === 'pending')
   const kindOf = (k: string): KeywordKind => (({ licence: 'certification', equipment: 'skill', standard: 'tool', experience_years: 'domain' }) as Record<string, KeywordKind>)[k] ?? (k as KeywordKind)
@@ -334,14 +353,20 @@ export async function buildV3(opts: {
     profile_fingerprint: profileFingerprint(profile),
     qualifications: quals,
     before,
-    max_total: check.expected.high,
+    max_total: Math.max(check.expected.high, after.total),
     level,
     after,
-    why_fits: a.requirements.filter((q) => q.group === 'A').map((q) => ({ term: q.term, where: q.location ? [q.location] : [] })),
-    gaps: a.requirements.filter((q) => q.group === 'C').map((q) => ({ term: q.term, importance: q.importance, kind: kindOf(q.kind) })),
+    // A selection is not a successful rewrite: explain only the terms actually
+    // present in this frozen resume, and retain failed/dropped additions as gaps.
+    why_fits: after.keywords.filter(q => q.credit > 0).map(q => ({term:q.term, where:q.where})),
+    gaps: [...new Map([
+      ...after.keywords.filter(q => q.credit === 0).map(q => ({term:q.term, importance:q.importance, kind:q.kind})),
+      ...(after.v2?.screening ?? []).filter(q => q.status !== 'met').map(q => ({term:q.term, importance:q.importance, kind:kindOf(q.kind)})),
+    ].map(q => [`${q.kind}:${q.term.toLowerCase()}`, q])).values()],
     kept_original: kept,
     generated_at: new Date().toISOString(),
     suggestions,
+    resume_only_skills: additions.map(s => ({id: `resume-skill:${sha256(s.id)}`, term:s.term})),
     auto_applied: preselected && suggestions.some(s => s.status === 'confirmed'),
     projected_with_suggestions: pending.length ? score(applySuggestionsToDocument(documentSnapshot, pending)).total : after.total,
     // Product goals never impose a floor on the measured score. Only show a reachable goal.

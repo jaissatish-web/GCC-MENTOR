@@ -30,8 +30,9 @@ import { cn } from '@/lib/utils'
  * is this product breaking its own promise at the worst possible moment. What
  * is shown instead is all true: that it is running (the motion), what it is
  * doing (steps that name real stages of the pipeline), and a note about what
- * this service does and why. The steps are paced by the page's own timer, and
- * the last one holds until the answer arrives rather than pretending to finish.
+ * this service does and why. A timed workflow focus may move between the listed tasks, but green ticks
+ * require explicit service-confirmed completion. The final focus holds until
+ * the answer arrives rather than pretending to finish.
  *
  * NO TIMINGS (founder decision 2026-09-11). This used to show a running clock
  * and an estimate beside it — "usually about 20 seconds". The estimates were
@@ -91,24 +92,24 @@ function useRotation(count: number, ms: number = NOTE_MS): number {
  */
 const ART = {
   light: {
-    track: 'rgba(24,28,27,0.14)',
-    comet1: '201,150,46', // gold
-    comet2: '6,104,71', // emerald action
-    comet3: '201,150,46',
-    particle: '#C9962E',
-    dial: 'rgba(24,28,27,0.22)',
-    halo: 'radial-gradient(circle, rgba(6,104,71,0.16) 0%, rgba(201,150,46,0.10) 38%, rgba(255,255,255,0) 70%)',
-    ripple: 'rgba(6,104,71,0.35)',
+    track: 'rgba(103,213,244,0.28)',
+    comet1: '109,231,255',
+    comet2: '191,181,255',
+    comet3: '221,247,255',
+    particle: '#BFF5FF',
+    dial: 'rgba(116,215,241,0.58)',
+    halo: 'radial-gradient(circle, rgba(115,225,255,0.23) 0%, rgba(179,165,255,0.12) 40%, transparent 70%)',
+    ripple: 'rgba(136,226,255,0.46)',
   },
   dark: {
-    track: 'rgba(255,255,255,0.08)',
-    comet1: '233,199,122', // light gold
-    comet2: '160,205,180', // soft emerald
-    comet3: '233,199,122',
-    particle: '#E9C77A',
-    dial: 'rgba(255,255,255,0.18)',
-    halo: 'radial-gradient(circle, rgba(160,205,180,0.22) 0%, rgba(233,199,122,0.14) 38%, rgba(0,0,0,0) 70%)',
-    ripple: 'rgba(233,199,122,0.45)',
+    track: 'rgba(190,239,255,0.19)',
+    comet1: '172,242,255',
+    comet2: '210,195,255',
+    comet3: '235,251,255',
+    particle: '#DDFBFF',
+    dial: 'rgba(188,236,255,0.56)',
+    halo: 'radial-gradient(circle, rgba(138,226,255,0.26) 0%, rgba(190,167,255,0.15) 40%, transparent 70%)',
+    ripple: 'rgba(179,239,255,0.52)',
   },
 } as const
 
@@ -166,7 +167,14 @@ export function ProcessingOrbit({
   const w = (f: number, min: number) => Math.max(min, Math.round(size * f * 10) / 10)
 
   return (
-    <div aria-hidden="true" className={cn('relative shrink-0', className)} style={{ width: size, height: size }}>
+    <div aria-hidden="true" data-processing-orbit className={cn('relative isolate shrink-0', className)} style={{ width: size, height: size, maxWidth: '100%' }}>
+      {/* Stationary circuit reticle; motion stays inside this fixed-size frame. */}
+      {!small ? <svg viewBox="0 0 100 100" className="pointer-events-none absolute inset-[8%] size-[84%]" fill="none" stroke={c.dial} strokeWidth="0.65">
+        <path d="M8 31V15h16M76 15h16v16M92 69v16H76M24 85H8V69M0 50h12m76 0h12M50 0v12m0 76v12" />
+        <path d="M27 31h8l7 7m31-7h-8l-7 7M27 69h8l7-7m31 7h-8l-7-7" />
+        <rect x="43" y="43" width="14" height="14" rx="3" stroke={c.particle} />
+        <circle cx="50" cy="50" r="36" strokeDasharray="1 8" />
+      </svg> : null}
       {/* Halo — the soft light the whole thing sits in. */}
       <div className="absolute -inset-[18%] rounded-full animate-halo motion-reduce:animate-none" style={{ background: c.halo }} />
 
@@ -218,8 +226,9 @@ export function ProcessingOrbit({
       <div
         className="absolute inset-[35%] overflow-hidden rounded-full animate-breathe motion-reduce:animate-none"
         style={{
-          background: 'radial-gradient(circle at 32% 26%, #1E3A5C 0%, #0F2542 58%, #060F1D 100%)',
-          boxShadow: tone === 'dark' ? '0 0 22px 2px rgba(233,199,122,0.35), inset 0 1px 1px rgba(255,255,255,0.35)' : '0 6px 18px -4px rgba(24,28,27,0.45), inset 0 1px 1px rgba(255,255,255,0.35)',
+          background: 'radial-gradient(circle at 32% 26%, #3B7294 0%, #173D63 54%, #0B1D3D 100%)',
+          border: '1px solid rgba(194,242,255,0.8)',
+          boxShadow: '0 0 24px 3px rgba(154,232,255,0.36), inset 0 1px 4px rgba(236,249,255,0.6)',
         }}
       >
         <div
@@ -238,16 +247,16 @@ export function ProcessingOrbit({
 }
 
 /**
- * The named steps, and a rotating note beneath them.
- *
- * Controlled when the page passes `activeIndex` (the optimizer and extraction
- * screens already run their own timers against real call lengths). Otherwise
- * it advances itself every `stepMs` and HOLDS on the last step — it never ticks
- * the final one done, because only the server's answer can do that.
+ * Keep every workflow row and the tallest quotation in layout at all times.
+ * A timer only changes focus; it cannot establish that backend work completed.
+ * Consumers with real stage events pass completedIndices (and completed on the
+ * final response). Existing timer-based consumers remain compatible and honest.
  */
 export function ProcessingSteps({
   steps,
   activeIndex,
+  completedIndices,
+  completed = false,
   stepMs = 4000,
   tone = 'light',
   notes,
@@ -255,145 +264,83 @@ export function ProcessingSteps({
 }: {
   steps: readonly string[]
   activeIndex?: number
+  /** Only indices confirmed by the service response or a real progress event. */
+  completedIndices?: readonly number[]
+  /** True only after the operation's successful response. */
+  completed?: boolean
   stepMs?: number
   tone?: Tone
-  /** Sentences true of this service, one at a time (lib/processingNotes.ts). */
   notes?: readonly string[]
   className?: string
 }) {
   const [auto, setAuto] = useState(0)
-  const controlled = typeof activeIndex === 'number'
+  const controlled = typeof activeIndex === 'number' || completedIndices !== undefined || completed
   useEffect(() => {
-    if (controlled) return
+    if (controlled || steps.length < 2) return
     const t = window.setInterval(() => setAuto((i) => Math.min(i + 1, steps.length - 1)), stepMs)
     return () => window.clearInterval(t)
   }, [controlled, stepMs, steps.length])
 
-  const active = Math.min(controlled ? (activeIndex as number) : auto, steps.length - 1)
+  const done = new Set(completedIndices ?? [])
+  const firstUnfinished = steps.findIndex((_, i) => !done.has(i))
+  const desired = typeof activeIndex === 'number' ? activeIndex : completedIndices !== undefined ? firstUnfinished : auto
+  const active = Math.max(0, Math.min(desired, steps.length - 1))
   const note = useRotation(notes?.length ?? 0)
   const dark = tone === 'dark'
+  const allDone = completed || (steps.length > 0 && firstUnfinished === -1)
 
   return (
-    <div className={cn('flex w-full flex-col gap-3', className)}>
+    <div data-processing-steps className={cn('flex w-full min-w-0 flex-col gap-3', className)}>
+      <p className={cn('text-center text-[11px] font-semibold uppercase tracking-[0.14em]', dark ? 'text-cyan-100/80' : 'text-ink-soft')}>
+        {allDone ? 'Processing complete' : 'Processing workflow'}
+      </p>
       <ol className="flex flex-col gap-2.5">
         {steps.map((label, i) => {
-          const state = i < active ? 'done' : i === active ? 'active' : 'todo'
+          const state = completed || done.has(i) ? 'done' : !allDone && i === active ? 'active' : 'todo'
           return (
-            <li
-              key={label}
-              className={cn(
-                'flex items-center gap-3 rounded-ctl px-3.5 py-3 text-[14px] transition-colors duration-500',
-                state === 'active' && (dark ? 'bg-white/[0.08]' : 'bg-white shadow-m-1'),
-              )}
-            >
-              <span
-                aria-hidden="true"
-                className={cn(
-                  'relative flex size-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold',
-                  state === 'done' && 'bg-ok text-white',
-                  state === 'active' && 'border-2 border-gold',
-                  // Measured on ink: white/40 was 3.81 and failed for these 11px numbers; white/55 is 5.8.
-                  state === 'todo' && (dark ? 'border border-white/25 text-white/55' : 'border border-line-strong text-ink-muted'),
-                )}
-              >
-                {state === 'done' ? (
-                  <CheckIcon className="size-3.5" strokeWidth={3} />
-                ) : state === 'active' ? (
-                  <span className={cn('size-2 rounded-full animate-breathe motion-reduce:animate-none', 'bg-gold')} />
-                ) : (
-                  i + 1
-                )}
+            <li key={`${i}:${label}`} data-processing-state={state} aria-current={state === 'active' ? 'step' : undefined}
+              className={cn('flex min-h-[52px] items-center gap-3 rounded-ctl border px-3.5 py-3 text-[14px] font-medium transition-colors duration-500', state === 'active' ? 'border-cyan-200/40 bg-cyan-100/[0.08]' : 'border-transparent')}>
+              <span aria-hidden="true" className={cn('relative flex size-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold', state === 'done' && 'bg-ok text-void', state === 'active' && 'border-2 border-cyan-200', state === 'todo' && (dark ? 'border border-white/25 text-white/65' : 'border border-line-strong text-ink-muted'))}>
+                {state === 'done' ? <CheckIcon className="size-3.5" strokeWidth={3} /> : state === 'active' ? <span className="size-2 rounded-full bg-cyan-200 animate-breathe motion-reduce:animate-none" /> : i + 1}
               </span>
-              <span
-                className={cn(
-                  state === 'todo'
-                    ? dark
-                      ? 'text-white/55' // white/45 sat exactly on 4.50 — no margin
-                      : 'text-ink-muted'
-                    : dark
-                      ? 'text-white'
-                      : 'text-ink',
-                  state === 'active' && 'font-semibold',
-                )}
-              >
-                {label}
-              </span>
+              <span className={cn('min-w-0 flex-1 break-words', dark ? state === 'todo' ? 'text-white/65' : 'text-white' : state === 'todo' ? 'text-ink-muted' : 'text-ink')}>{label}</span>
+              <span className="sr-only">{state === 'done' ? 'Completed' : state === 'active' ? 'Current workflow stage' : 'Not confirmed complete'}</span>
             </li>
           )
         })}
       </ol>
-
-      {/* One note at a time. The fixed height keeps the page from jumping as a
-          one-line note gives way to a two-line one. */}
       {notes && notes.length > 0 ? (
-        <p
-          className={cn(
-            'flex min-h-[3em] items-start justify-center px-2 text-center text-[13px] leading-relaxed',
-            dark ? 'text-white/75' : 'text-ink-soft',
-          )}
-        >
-          <span key={note} className="animate-fade-in motion-reduce:animate-none">
-            {notes[note]}
-          </span>
-        </p>
+        <div data-processing-notes className="grid min-h-[4.5em] w-full min-w-0 items-start rounded-ctl border border-cyan-200/15 px-3 py-3">
+          {notes.map((text, index) => <p key={`${index}:${text}`} aria-hidden={index !== note} className={cn('col-start-1 row-start-1 break-words text-center text-[13px] leading-relaxed', index === note ? 'visible' : 'invisible', dark ? 'text-white/80' : 'text-ink-soft')}><span className={index === note ? 'animate-fade-in motion-reduce:animate-none' : undefined}>{text}</span></p>)}
+        </div>
       ) : null}
-
-      {/* Screen readers hear the stage change, not a stream of notes. */}
-      <p role="status" aria-live="polite" className="sr-only">
-        {steps[active]}
-      </p>
+      <p role="status" aria-live="polite" className="sr-only">{allDone ? 'Processing complete' : steps[active] ?? 'Processing'}</p>
     </div>
   )
 }
 
-/** A wait inside a card: small orbit, the current step, and a rotating note. */
+/** Shared card wait: the orbit never moves when workflow focus or quotes change. */
 export function ProcessingInline({
   steps,
   stepMs = 4000,
   notes,
+  activeIndex,
+  completedIndices,
+  completed = false,
   className,
 }: {
   steps: readonly string[]
   stepMs?: number
-  /** Sentences true of this service, one at a time (lib/processingNotes.ts). */
   notes?: readonly string[]
+  activeIndex?: number
+  completedIndices?: readonly number[]
+  completed?: boolean
   className?: string
 }) {
-  const [i, setI] = useState(0)
-  useEffect(() => {
-    const t = window.setInterval(() => setI((n) => Math.min(n + 1, steps.length - 1)), stepMs)
-    return () => window.clearInterval(t)
-  }, [stepMs, steps.length])
-  const note = useRotation(notes?.length ?? 0)
-
   return (
-    <div
-      className={cn('flex items-center gap-4 rounded-card border border-gold/25 px-4 py-4 shadow-m-1', className)}
-      style={{ background: 'linear-gradient(135deg, var(--ui-surface) 0%, var(--ui-brand-soft) 100%)' }}
-    >
-      <ProcessingOrbit size={72} glyph="" />
-      <div className="flex min-w-0 flex-col gap-1">
-        {steps.length > 1 ? (
-          <span aria-hidden="true" className="flex gap-1">
-            {steps.map((s, n) => (
-              <span key={s} className={cn('h-1 rounded-full transition-all duration-500', n < i ? 'w-3 bg-ok' : n === i ? 'w-6 bg-gold' : 'w-3 bg-line-strong')} />
-            ))}
-          </span>
-        ) : null}
-        <span className="text-[14px] font-semibold text-ink" key={steps[i]}>
-          <span className="animate-fade-in">{steps[i]}…</span>
-        </span>
-        {notes && notes.length > 0 ? (
-          <span className="block min-h-[2.8em] text-[12.5px] leading-snug text-ink-soft">
-            <span key={note} className="animate-fade-in motion-reduce:animate-none">
-              {notes[note]}
-            </span>
-          </span>
-        ) : null}
-      </div>
-      <p role="status" aria-live="polite" className="sr-only">
-        {steps[i]}
-      </p>
+    <div data-processing-inline className={cn('flex min-w-0 flex-col items-center gap-5 rounded-card border border-cyan-200/25 px-4 py-5 shadow-m-1', className)} style={{ background: 'linear-gradient(135deg, var(--ui-surface) 0%, var(--ui-brand-soft) 100%)' }}>
+      <ProcessingOrbit size={104} glyph="AI" />
+      <ProcessingSteps steps={steps} stepMs={stepMs} notes={notes} activeIndex={activeIndex} completedIndices={completedIndices} completed={completed} />
     </div>
   )
 }

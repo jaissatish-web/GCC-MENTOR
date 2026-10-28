@@ -42,7 +42,27 @@ export interface TargetKeyword {
  * usually asks for. They may rank and score; they are never evidence and never
  * content (the prompt, the validator and the UI all say so).
  */
+export interface ScreeningRequirement {
+  term: string
+  importance: KeywordImportance
+  kind: string
+  status: 'met' | 'unmet' | 'unknown'
+}
+
+export interface QualityReviewEvidence {
+  grammar: 'passed' | 'issues' | 'unavailable'
+  /** Server-validated literal excerpts and bounded proofreading explanations. */
+  grammarIssues?: Array<{ excerpt: string; reason: string }>
+  /** Only set after the actual exported file has been parsed and checked. */
+  exportReadability?: 'passed' | 'failed' | 'unavailable'
+}
+
 export interface JobTargetProfile {
+  /** Missing preserves historical match-v1 arithmetic. */
+  scoring_version?: 'match-v1' | 'match-v2'
+  screening_requirements?: ScreeningRequirement[]
+  /** Frozen server checks, bound to the exact scored document signature. */
+  quality_reviews?: Record<string, QualityReviewEvidence>
   version: 1
   mode: OptimizationMode
   job_title: string
@@ -111,6 +131,38 @@ export interface KeywordCredit {
   where: string[]
 }
 
+export type ScoreV2Bucket = 'quality' | 'presentation' | 'screening' | 'skills' | 'responsibilities' | 'supporting'
+export interface ScoreV2Part extends ScorePart {
+  /** Earned raw points before absent-category redistribution. */
+  points: number
+  /** Nominal maximum (25/10/10/30/20/5). weight is zero when not applicable. */
+  max: number
+  applicable: boolean
+  matched?: number
+  total?: number
+  requiredMatched?: number
+  requiredTotal?: number
+}
+export interface QualityCheck {
+  details?: string[]
+  id: string
+  label: string
+  status: 'passed' | 'issues' | 'pending'
+  points: number
+  max: number
+}
+export interface MatchScoreV2 {
+  breakdown: Record<ScoreV2Bucket, ScoreV2Part>
+  screening: ScreeningRequirement[]
+  quality_checks: QualityCheck[]
+  quality_signature: string
+  /** Raw points divided by applicableMaximum, multiplied by 100. */
+  applicableMaximum: number
+  rawPoints: number
+  mandatoryGaps: number
+  mandatoryUnknown: number
+}
+
 export interface MatchScore {
   scoring_version: string
   total: number
@@ -122,6 +174,7 @@ export interface MatchScore {
     qualifications: ScorePart | null
   }
   keywords: KeywordCredit[]
+  v2?: MatchScoreV2
 }
 
 export type KeptOriginalReason = 'grounding' | 'quality' | 'review' | 'no_output' | 'score_guard'
@@ -154,6 +207,8 @@ export interface MatchReport {
   target_band?: [number, number]
   /** Which engine built it. Absent = the 2026-09-17 engine. */
   engine?: 'v3'
+  /** Explicitly confirmed additions belonging to this application, never the master profile. */
+  resume_only_skills?: Array<{ id: string; term: string }>
   /** v3: how the candidate's field relates to the job's. */
   field_match?: { match: 'same' | 'related' | 'different'; job_field: string; candidate_field: string }
   /**

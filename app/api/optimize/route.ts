@@ -114,9 +114,12 @@ function validateBody(body: unknown): { error: string } | { body: ParsedBody } {
   if (sb.confirmedRequirements !== undefined && (!Array.isArray(sb.confirmedRequirements) || sb.confirmedRequirements.length > 30 || sb.confirmedRequirements.some(x => typeof x !== 'string' || x.length > 4000))) {
     return { error: 'selectedBlocks.confirmedRequirements' }
   }
+  if (sb.confirmedSkills !== undefined && (!Array.isArray(sb.confirmedSkills) || sb.confirmedSkills.length > 30 || sb.confirmedSkills.some(x => typeof x !== 'string' || x.length > 4000))) {
+    return { error: 'selectedBlocks.confirmedSkills' }
+  }
   // "Optimize nothing" (open item B8) is rejected: it would spend a build and
   // deliver the candidate's own text back.
-  if (!sb.summary && sb.experienceIds.length === 0 && sb.skills !== true) return { error: 'selectedBlocks' }
+  if (!sb.summary && sb.experienceIds.length === 0 && sb.skills !== true && !(Array.isArray(sb.confirmedSkills) && sb.confirmedSkills.length > 0 && body.level !== 'easy')) return { error: 'selectedBlocks' }
 
   if (typeof body.level !== 'string' || !OPTIMIZATION_LEVELS.includes(body.level as OptimizationLevel)) {
     return { error: 'level' }
@@ -140,6 +143,7 @@ function validateBody(body: unknown): { error: string } | { body: ParsedBody } {
         summary: sb.summary,
         experienceIds: sb.experienceIds as string[],
         ...(typeof sb.skills === 'boolean' ? { skills: sb.skills } : {}),
+        ...(Array.isArray(sb.confirmedSkills) ? { confirmedSkills: [...new Set(sb.confirmedSkills as string[])] } : {}),
         ...(Array.isArray(sb.confirmedRequirements) ? { confirmedRequirements: [...new Set(sb.confirmedRequirements as string[])] } : {}),
       },
       level: body.level as OptimizationLevel,
@@ -303,7 +307,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       // Earlier consent never approves a claim. buildV3 validates any explicit
       // setup choices; packages without them retain pending suggestions.
       const autoApply = false
-      const result = await buildV3({ profile, target: targetFields, level, selectedBlocks, jobDescription: advert, typicalAdvert: typical, analysis, analysisId, autoApply, route: '/api/optimize' })
+      const result = await buildV3({ profile, target: targetFields, level, selectedBlocks, jobDescription: advert, typicalAdvert: typical, analysis, analysisId, autoApply, route: '/api/optimize', giveUpAt })
       if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status })
       console.log(
         'optimize v3: user=' + user.id + ' package=' + generatePackageId + ' level=' + level + ' field=' + analysis.fieldMatch +
