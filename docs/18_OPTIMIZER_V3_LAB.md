@@ -121,3 +121,15 @@ click to review page (was 75 s with the cache bug); 41 → 53 (55 with the 2 sug
 points), best possible 56; second optimization at High went straight to the CV page,
 41 → 55. Different field (MEP → Finance Manager): "Outside your field", 27 at every
 level. Tests: `scripts/verify-optimizer-v3.ts`.
+
+
+## OPT-PRESELECT-001 — 28 October 2026 — approved, implementation pending
+Founder requests job-dependent level recommendations and review before generation. Easy targets about +10 score points through existing-fact polishing; Moderate targets about +25 with individually confirmed relevant duties; Hard (stored enum high) targets 75–95% match where evidence supports it. These are goals, never forced score floors or guarantees. Preserve measured before/after scoring and honest ceilings.
+
+Before Run: show current fit, recommendation and estimates; let users select summary, each company and skills ordering, and individually opt into relevant same-field suggestions. No added duty selected by default; server validates selections against current analysis, level and selected owner. Unselected sections retain original content. Confirmed duties are naturally drafted within their actual company; unsupported software/certificates/qualifications still require the canonical Career Profile editor. Preserve final full resume, original/generated comparison, edit/keep/undo/save/download logic.
+
+Scope: setup page, job check/report, selected-block request/storage contract, v3 build and focused regressions. Existing JSON selected_blocks stores optional choices; no schema migration, auth/billing/readiness/template changes. Legacy packages without choices retain existing pending-suggestion behavior. Acceptance: goals/recommendation are data-dependent; Easy adds no claims; Moderate/Hard only incorporate explicit, valid choices; skills off preserves order; company/summary off preserves originals; score remains measured. Verify typecheck/lint/build/repository tests plus focused contract and UI checks.
+
+
+OPT-PRESELECT-001 implemented and locally verified: job-check recommendations; Easy +10 / Moderate +25 / Hard75–95 goals with measured scores and honest ceilings; visible summary/company/skills ordering choices; evidence-linked, unchecked duty confirmations. Server revalidates owner, level, kind and evidence identity, incorporates only approved generated duties, and retains final editable/removable highlights. Existing packages without choices retain pending-suggestion behavior. No schema/auth/billing/readiness/template changes.
+Verification: production build/typecheck/lint passed;83/83 repository checks passed, including real document/score assembly with a mocked writer, approvals/forgeries/empty selections/legacy behavior. Actual setup component browser fixture passed390/1440px, section and duty toggles, precise submission payload, Easy exclusion, failed-check retry and no horizontal overflow. Tests use fictional APIs and no live account or AI provider; natural-language fidelity and production deployment remain unverified. New preselection behavior targets default v3; rollback v2 remains historical. Publication pending.

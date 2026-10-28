@@ -19,33 +19,9 @@ import type { OptimizationLevel } from '@/types/package'
 import { Alert } from '@/components/ui/Alert'
 import { CTA, NAMES } from '@/lib/serviceLabels'
 
-/**
- * Step 2 of 3 — choose the optimization level. Route /optimize/setup.
- *
- * OPTIMIZER v3 (2026-10-02, founder decision) supersedes the note below: the
- * screen now CHECKS THE JOB on arrival (POST /api/optimize/check — one cached
- * analysis the build reuses) and shows the field match, the honest best score
- * per level and certificates to ask about. The check must finish before the
- * user explicitly chooses a level; the first time, they agree before Moderate/High.
- *
- * REBUILT 2026-09-17 (founder decision): NO SCORE BEFORE OPTIMIZING.
- * This screen used to call POST /api/optimize/analyze on arrival and show a
- * match report, per-level projections and "do you have these?" tick boxes
- * before anything was built. The founder's flow is simpler: the user gives the
- * target job (step 1), chooses a level (here), and sees the ATS score BEFORE
- * and AFTER together with the optimized CV on the result page. So this screen
- * makes no AI call. The analysis runs once, inside the build
- * (app/api/optimize/route.ts Phase B → resolveAnalysis), which is the same
- * number of calls for a finished CV and none for a user who stops here.
- *
- * INPUT: the step-1 draft in sessionStorage [OPTIMIZATION_TARGET_DRAFT_KEY].
- * It is kept (not cleared) until the optimization starts, so "Change" returns to
- * step 1 with the title and description still filled in. Absent → step 1.
- *
- * SUBMIT: POST /api/optimize (Phase A — creates the package, no model call),
- * then /optimize/generate/[packageId] runs the build. Every part of the CV that
- * the AI may rewrite (summary + each role's activities) is selected by default;
- * the choice is behind "Choose which parts to rewrite" for the few who want it.
+/** Step 2: job check, recommended level and explicit choices before building.
+ * Score goals are evidence-limited; final measured scores and editable review
+ * continue to use the existing package/preview workflow.
  */
 
 interface TargetDraft {
@@ -80,7 +56,7 @@ const LEVELS: ReadonlyArray<{
   {
     value: 'easy',
     label: 'Easy',
-    aim: 'Uses only what your profile says',
+    aim: 'Aim: about +10 ATS points',
     tag: 'Light touch',
     changes: [
       'Summary and work activities reworded in the job’s keywords',
@@ -92,32 +68,34 @@ const LEVELS: ReadonlyArray<{
   {
     value: 'moderate',
     label: 'Moderate',
-    aim: 'Adds duties typical of your field',
-    tag: 'Recommended',
+    aim: 'Aim: about +25 ATS points',
+    tag: 'More tailoring',
     changes: [
       'Everything in Easy, rewritten to lead with what this job needs',
       'Suggests relevant duties separately for your confirmation',
       'Never adds certificates, dates, companies or personal details',
     ],
     explain:
-      'Everything in Easy, plus separate suggestions for relevant duties. Suggestions enter your resume only after you confirm them. Certificates, education, employers, dates and personal details are never added or changed.',
+      'Everything in Easy, plus separate suggestions for relevant duties. Choose truthful suggestions below before running; only your choices enter the resume. Certificates, education, employers, dates and personal details are never added or changed.',
   },
   {
     value: 'high',
-    label: 'High',
-    aim: 'Every line in the job’s own words',
+    label: 'Hard',
+    aim: 'Aim: 75–95% ATS match',
     tag: 'Strongest',
     changes: [
-      'Every activity rewritten in the job’s own language',
-      'Offers additional duties for your review; none is assumed',
+      'Natural rewriting around this job’s requirements',
+      'Includes only additional duties you confirm before running',
       'Highlights missing tools and skills to review in Career Profile',
     ],
     explain:
-      'The strongest rewrite, in the job description’s own words, plus points for every duty of the job that is typical of your field. Be ready to talk about every line in an interview.',
+      'Thorough tailoring towards 75–95% match, using your existing facts and only the relevant duties you confirm below. Missing qualifications or unrelated experience can keep the actual match below this goal.',
   },
 ]
 
 interface JobCheck {
+  recommendedLevel?: OptimizationLevel
+  dutySuggestions?: Array<{ id: string; term: string; block: string; quote: string | null; importance: 'must' | 'nice'; levels: OptimizationLevel[] }>
   mode: 'job_description' | 'target_title_only'
   fieldMatch: 'same' | 'related' | 'different'
   jobField: string
@@ -140,6 +118,8 @@ function SetupScreen() {
   const [profileId, setProfileId] = useState<string | null>(null)
   const [experiences, setExperiences] = useState<ExperienceRow[]>([])
   const [summaryOn, setSummaryOn] = useState(true)
+  const [skillsOn, setSkillsOn] = useState(true)
+  const [confirmedRequirements, setConfirmedRequirements] = useState<string[]>([])
   const [expOn, setExpOn] = useState<Record<string, boolean>>({})
   const [level, setLevel] = useState<OptimizationLevel>('moderate')
   const [levelSelected, setLevelSelected] = useState(false)
@@ -241,8 +221,10 @@ function SetupScreen() {
   }, [draft, profileId, checkRun])
 
   const selectedIds = useMemo(() => experiences.filter((e) => expOn[e.id]).map((e) => e.id), [experiences, expOn])
-  const nothingSelected = !summaryOn && selectedIds.length === 0
-  const allSelected = summaryOn && selectedIds.length === experiences.length
+  const nothingSelected = !summaryOn && !skillsOn && selectedIds.length === 0
+  const allSelected = summaryOn && skillsOn && selectedIds.length === experiences.length
+  const availableSuggestions = (check?.dutySuggestions ?? []).filter((item) => item.levels.includes(level) && (item.block === 'summary' ? summaryOn : selectedIds.includes(item.block)))
+  const selectedRequirements = availableSuggestions.filter((item) => confirmedRequirements.includes(item.id)).map((item) => item.id)
   const hasJobDescription = !!draft && draft.job_description.trim() !== ''
 
   // Named steps for the build screen, from what is selected.
@@ -254,11 +236,11 @@ function SetupScreen() {
     ]
     if (summaryOn) list.push('Rewriting your summary')
     for (const e of experiences) if (expOn[e.id]) list.push(e.hasDuties ? `Rewriting your activities at ${e.company || 'this role'}` : `Checking what fits this job at ${e.company || 'this role'}`)
-    list.push('Ordering skills by relevance')
+    if (skillsOn) list.push('Ordering skills by relevance')
     list.push('Checking every line against your Career Profile')
     list.push('Scoring your optimized resume (after)')
     return Array.from(new Set(list))
-  }, [draft, hasJobDescription, summaryOn, experiences, expOn])
+  }, [draft, hasJobDescription, summaryOn, skillsOn, experiences, expOn])
 
   // Moderate and High add points: the first time, the user agrees once.
   const checkReady = checkState === 'done' && check !== null
@@ -278,7 +260,7 @@ function SetupScreen() {
             target_industry: draft.target_industry.trim() !== '' ? draft.target_industry : null,
           },
           jobDescription: hasJobDescription ? draft.job_description : null,
-          selectedBlocks: { summary: summaryOn, experienceIds: selectedIds },
+          selectedBlocks: { summary: summaryOn, experienceIds: selectedIds, skills: skillsOn, confirmedRequirements: selectedRequirements },
           level,
           analysisId: null,
           ...(needsAgreement && agreed ? { acceptTerms: true } : {}),
@@ -320,7 +302,7 @@ function SetupScreen() {
       setError('Network error. Please check your connection and try again.')
       setSubmitting(false)
     }
-  }, [draft, profileId, checkReady, levelSelected, submitting, nothingSelected, hasJobDescription, summaryOn, selectedIds, level, router, buildSteps, needsAgreement, agreed])
+  }, [draft, profileId, checkReady, levelSelected, submitting, nothingSelected, hasJobDescription, summaryOn, skillsOn, selectedIds, selectedRequirements, level, router, buildSteps, needsAgreement, agreed])
 
   if (!draft) {
     return (
@@ -365,7 +347,7 @@ function SetupScreen() {
           onBack={() => router.push('/optimize/target')}
           backLabel="Back to Job Details"
           title={`Choose your ${NAMES.level.toLowerCase()}`}
-          subtitle="Choose the amount of rewriting. Your career facts stay the same."
+          subtitle="Review your job match, choose a level and select what to optimise."
         />
 
         {loadError ? <Alert variant="danger">{loadError}</Alert> : null}
@@ -457,16 +439,17 @@ function SetupScreen() {
                         </span>
                         <span className="text-[16px] font-semibold text-ink">{l.label}</span>
                       </span>
-                      <span className="rounded-full bg-white px-2 py-0.5 type-caption font-semibold text-ink-soft">{l.tag}</span>
+                      <span className="rounded-full bg-white px-2 py-0.5 type-caption font-semibold text-ink-soft">{check?.recommendedLevel === l.value ? 'Recommended' : l.tag}</span>
                     </span>
                     <span className="type-helper font-semibold text-teal">
-                      {check ? `Estimated ATS match ${check.expected[l.value]}` : checkState === 'loading' ? 'Working out your score…' : l.aim}
+                      {check ? `Up to ${check.expected[l.value]}% with supported choices` : checkState === 'loading' ? 'Working out your score…' : l.aim}
                     </span>
                     {l.value === 'high' && check?.highIfConfirmed && check.highIfConfirmed > check.expected.high ? (
                       <span className="-mt-1 type-caption font-semibold text-gold-ink">
                         estimated {check.highIfConfirmed} if your Career Profile supports all requirements
                       </span>
                     ) : null}
+                    <p className="type-helper font-semibold text-ink">{l.aim}</p>
                     <ul className="flex flex-col gap-1.5">
                       {l.changes.map((c) => (
                         <li key={c} className="flex gap-1.5 type-helper leading-snug text-ink-soft">
@@ -479,15 +462,16 @@ function SetupScreen() {
                 )
               })}
             </div>
+            <p className="type-helper leading-relaxed text-ink-soft">These are improvement goals, not guaranteed scores. Estimates assume all eligible changes; your selected sections and confirmed duties determine the measured result. Existing strong resumes may have less room to improve.</p>
             {levelSelected ? <Alert variant={level === 'easy' ? 'info' : 'warning'}>{levelInfo.explain}</Alert> : null}
 
             {/* Missing skills are reviewed in the single Career Profile editor. */}
-            {levelSelected && level === 'high' && check?.askSkills?.length ? (
+            {levelSelected && level !== 'easy' && check?.askSkills?.length ? (
               <ProfileSkillsGaps items={check.askSkills} upTo={check.highIfConfirmed ?? check.expected.high} />
             ) : null}
 
             {/* Parts to rewrite — all by default, adjustable. */}
-            <details className="group rounded-ctl border border-line bg-canvas px-3 py-2">
+            <details open className="group rounded-ctl border border-line bg-canvas px-3 py-2">
               <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 type-helper font-semibold text-ink">
                 <span>Choose which parts to rewrite</span>
                 <span className="type-caption font-normal text-ink-muted">
@@ -504,16 +488,34 @@ function SetupScreen() {
                     onToggle={() => setExpOn((prev) => ({ ...prev, [e.id]: !prev[e.id] }))}
                   />
                 ))}
-                <p className="type-helper text-ink-muted">Skills are put in order of relevance, never reworded.</p>
+                <PartToggle label="Skills — order existing skills by relevance" on={skillsOn} onToggle={() => setSkillsOn((v) => !v)} />
+                <p className="type-helper text-ink-muted">Deselected parts keep their original content. Skills are reordered only; no unconfirmed skills are added.</p>
               </div>
             </details>
+            {levelSelected && level !== 'easy' ? (
+              <div className="flex flex-col gap-3 rounded-ctl border border-line bg-canvas p-3">
+                <h2 className="type-label font-semibold text-ink">Choose additional duties you have actually performed</h2>
+                <p className="type-helper leading-relaxed text-ink-soft">Nothing is selected by default. Confirm each duty only for the company shown. We will phrase your selected duties naturally with your existing experience; you can edit or undo them in the final review.</p>
+                {availableSuggestions.length ? availableSuggestions.map((item) => (
+                  <label key={item.id} className="flex min-h-11 cursor-pointer items-start gap-3 rounded-card border border-line bg-white p-3">
+                    <input type="checkbox" className="mt-1 size-4 shrink-0 accent-teal" checked={confirmedRequirements.includes(item.id)} onChange={(event) => setConfirmedRequirements((prev) => event.target.checked ? [...prev, item.id] : prev.filter((id) => id !== item.id))} />
+                    <span className="min-w-0 type-helper text-ink">
+                      <span className="block font-semibold">I have performed: {item.term}</span>
+                      <span className="mt-1 block text-ink-soft">{item.block === 'summary' ? 'Professional summary' : experiences.find((entry) => entry.id === item.block)?.label || 'Work experience'}</span>
+                      {item.quote ? <span className="mt-1 block text-ink-muted">Related profile experience: “{item.quote}”</span> : null}
+                    </span>
+                  </label>
+                )) : <p className="type-helper text-ink-soft">No additional duties available for this level and your selected sections. You can continue by polishing your recorded facts.</p>}
+                <p role="status" className="type-helper font-semibold text-teal">{selectedRequirements.length} additional duties selected</p>
+              </div>
+            ) : null}
           </fieldset>
         </Card>
 
         {/* 3. What you get */}
         <div className="rounded-card border border-teal/30 bg-teal-soft/50 px-4 py-3 type-helper leading-relaxed text-ink-soft">
           <strong className="text-ink">You will see:</strong> your {NAMES.atsScore} before and after for this job,
-          and your {NAMES.optimizedCv.toLowerCase()}, saved in your {NAMES.library}.
+          your full original data and optimised resume, with the existing edit, keep and undo choices before saving or downloading.
         </div>
 
         {/* First time only: how it works, and the one-time agreement (migration 061). */}
@@ -522,9 +524,9 @@ function SetupScreen() {
             <p className="type-label font-semibold text-ink">{firstTime ? 'Your first optimization — how it works' : 'Before you optimize'}</p>
             <ul className="flex flex-col gap-1.5 type-helper leading-snug text-ink-soft">
               <li>• <strong className="text-ink">Easy</strong> rewords only what your profile says.</li>
-              <li>• <strong className="text-ink">Moderate</strong> and <strong className="text-ink">High</strong> offer separate suggestions for duties you may have performed. Select only what is true.</li>
+              <li>• <strong className="text-ink">Moderate</strong> and <strong className="text-ink">Hard</strong> offer separate suggestions for duties you may have performed. Select only what is true.</li>
               <li>• Your certificates, education, employers, job titles, dates and personal details are never added or changed.</li>
-              <li>• Every application shows unverified suggestions separately in yellow. None is selected or added to your resume until you confirm it.</li>
+              <li>• Only duties you confirm for this application are included. Unselected suggestions are not added; review every generated line before using it.</li>
             </ul>
             <label className="flex cursor-pointer items-start gap-2.5 rounded-ctl border border-line bg-canvas p-3 type-helper text-ink">
               <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="mt-0.5 size-4 shrink-0 accent-teal" />
@@ -535,13 +537,13 @@ function SetupScreen() {
 
         {error ? <Alert variant="danger">{error}</Alert> : null}
         {nothingSelected ? (
-          <p className="text-center type-helper text-ink-muted">Select the summary or at least one role to rewrite.</p>
+          <p className="text-center type-helper text-ink-muted">Select the summary, skills ordering or at least one role to optimise.</p>
         ) : null}
 
         <p id="optimization-status" role="status" className="text-center type-helper text-ink-soft">
           {!checkReady
             ? checkState === 'error' ? 'Retry ATS checking to continue.' : 'Checking ATS compatibility — optimization unlocks when your results are ready.'
-            : !levelSelected ? 'Review your ATS results, then choose Easy, Moderate or High and confirm any relevant suggestions.'
+            : !levelSelected ? 'Review your ATS results, then choose Easy, Moderate or Hard and confirm any relevant suggestions.'
             : 'Review your selected level and suggestions, then optimize your resume when you are ready.'}
         </p>
         <Button
@@ -671,7 +673,7 @@ function ProfileSkillsGaps({ items, upTo }: { items: Array<{ term: string; impor
   return <Card tone="light" className="flex flex-col gap-3 border-2 border-gold/40 bg-gold-soft/40 p-4">
     <div className="flex flex-col gap-1">
       <p className="type-label font-semibold text-ink">Skills this job asks for</p>
-      <p className="type-helper leading-snug text-ink-soft">These are not recorded in your Career Profile. If you have them, add only the skills you really use or know in Career Profile. Save there, then return to this job to check your updated match. High may reach up to {upTo} if all requirements are supported.</p>
+      <p className="type-helper leading-snug text-ink-soft">These are not recorded in your Career Profile. If you have them, add only the skills you really use or know in Career Profile. Save there, then return to this job to check your updated match. Hard may reach up to {upTo}% if all requirements are supported.</p>
     </div>
     <ul className="grid gap-1.5 sm:grid-cols-2">{items.map(item => <li key={item.term} className="min-h-11 rounded-ctl border border-line bg-white px-3 py-2 type-helper text-ink">{item.term}{item.importance === 'must' ? <span className="ml-1.5 type-caption font-semibold text-alert">required</span> : null}</li>)}</ul>
     <Link href="/profile?view=details&open=sec_skills" className={buttonVariants({ variant: 'secondary', size: 'sm' })}>Update Career Profile</Link>

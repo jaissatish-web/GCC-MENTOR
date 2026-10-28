@@ -106,6 +106,10 @@ export interface SelectedBlocks {
    *  not sent to the model as something to rewrite, and the model is not
    *  asked to return it. */
   experienceIds: string[]
+  /** False preserves the profile's original skills order. */
+  skills?: boolean
+  /** Explicit per-application approvals from the job check; absent = legacy review. */
+  confirmedRequirements?: string[]
 }
 
 export interface OptimizationTarget {

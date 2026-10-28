@@ -10,8 +10,8 @@
  *   buildV3()        the CV, in the exact shapes the existing screens read
  *                    (OptimizedContent, skills_order, ResumeDocument, MatchReport)
  *
- * Added points always remain pending suggestions until explicitly confirmed
- * for this application. Previous consent never verifies a new duty. Certificates and licences are
+ * Added points remain pending unless explicitly confirmed during this application
+ * setup. Previous consent never verifies a new duty. Certificates and licences are
  * never written — `ask_certifications` offers them to the user instead.
  */
 import { buildResumeDocument, drivingLicenceLine, type ResumeDocument } from '@/lib/resumeDocument'
@@ -21,11 +21,12 @@ import type { OptimizationTarget, SelectedBlocks } from '@/lib/ai/buildOptimizat
 import { analysisInputHash, baselineDocument, profileFingerprint, sha256 } from '../analyze'
 import { getAnalysisByHash, saveAnalysis } from '../analysisStore'
 import { scoreDocumentFromResume, scoreResume, type ScoreDocument } from '../score'
-import { applySuggestionsToDocument, reachableTargetBand, type Suggestion } from '../suggestions'
+import { applySuggestionsToDocument, type Suggestion } from '../suggestions'
 import { containsTermRaw } from '../text'
 import type { KeywordKind, MatchReport, MatchScore } from '../types'
 import { addableAt, analyzeV3, targetFromAnalysis, writeV3, type AnalysisV3 } from './engine'
 import { experienceRequirementMet } from '../experienceMet'
+import { dutySuggestions, recommendedLevel, selectedAnalysis, type DutySuggestion } from './preselection'
 
 const FIXED = new Set(['education', 'experience_years', 'certification', 'licence'])
 const ASKABLE = new Set(['certification', 'licence'])
@@ -160,6 +161,8 @@ function ceilingAt(base: ScoreDocument, a: AnalysisV3, level: OptimizationLevel,
 }
 
 export interface CheckReport {
+  recommendedLevel: OptimizationLevel
+  dutySuggestions: DutySuggestion[]
   mode: 'job_description' | 'target_title_only'
   fieldMatch: AnalysisV3['fieldMatch']
   jobField: string
@@ -174,7 +177,12 @@ export interface CheckReport {
   highIfConfirmed: number
 }
 
-export function checkReport(profile: CareerProfileFull, a: AnalysisV3, title: string, jd: string | null, fv?: Partial<FieldVisibility> | null): CheckReport {
+export function checkReport(profile: CareerProfileFull, analysis: AnalysisV3, title: string, jd: string | null, fv?: Partial<FieldVisibility> | null): CheckReport {
+  // Only duties the setup can actually offer count toward its honest ceiling.
+  // Inferred summary-only soft skills and invalid owner/kind rows remain gaps.
+  const roleIds = profile.work_experience.map(e => e.id)
+  const offered = dutySuggestions(analysis, roleIds)
+  const a = selectedAnalysis(analysis, { summary: true, experienceIds: roleIds, confirmedRequirements: offered.map(s => s.id) }, 'high')
   const target = targetFromAnalysis(a, title, modeOf(jd))
   const quals = qualificationsOf(a)
   const base = scoreDocumentFromResume(baselineDocument(profile, title, fv))
@@ -210,7 +218,7 @@ export function checkReport(profile: CareerProfileFull, a: AnalysisV3, title: st
   const certQs = a.requirements.filter((q) => q.group === 'C' && ASKABLE.has(q.kind))
   const all = promote([...skillQs, ...certQs])
   const highIfConfirmed = Math.max(expected.high, ceilingAt(base, all, 'high', target, qualificationsOf(all), certQs.map((q) => q.term), skillQs.map((q) => q.term)))
-  return { mode: modeOf(jd), fieldMatch: a.fieldMatch, jobField: a.jobField, candidateField: a.candidateField, before, expected, askCertifications, askSkills, highIfConfirmed }
+  return { mode: modeOf(jd), fieldMatch: a.fieldMatch, jobField: a.jobField, candidateField: a.candidateField, before, expected, askCertifications, askSkills, highIfConfirmed, recommendedLevel: recommendedLevel(before, expected), dutySuggestions: dutySuggestions(a, profile.work_experience.map(e => e.id)) }
 }
 
 export type BuildV3Result =
@@ -237,7 +245,9 @@ export async function buildV3(opts: {
   typicalAdvert?: boolean
   route: string
 }): Promise<BuildV3Result> {
-  const { profile, target: tf, level, selectedBlocks, jobDescription: jd, analysis: a } = opts
+  const { profile, target: tf, level, selectedBlocks, jobDescription: jd } = opts
+  const a = selectedAnalysis(opts.analysis, selectedBlocks, level)
+  const preselected = Array.isArray(selectedBlocks.confirmedRequirements)
   const title = tf.target_job_title
   let w
   try {
@@ -260,23 +270,30 @@ export async function buildV3(opts: {
       blocks.push({ profile_experience_id: e.id, was_optimized: false, generated_bullets: null, source_bullets: source, claims: [] })
       continue
     }
-    const newPts = job.bullets.filter((b) => b.isNew)
+    const newPts = job.bullets.filter((b) => {
+      if (!b.isNew) return false
+      if (!preselected) return true
+      // A confirmed duty belongs to the company the user confirmed, even if
+      // the writer placed it elsewhere or mixed two companies' requirements.
+      const matched = addable.filter(r => containsTermRaw(b.text, r.term))
+      return matched.length > 0 && matched.every(r => r.location === e.id)
+    })
     newPts.forEach((b, i) => {
       suggestions.push({
         id: `${e.id}:v3:${i}`,
         block: e.id,
-        requirement: addable.find((r) => containsTermRaw(b.text, r.term))?.term ?? '',
+        requirement: addable.find((r) => (!preselected || r.location === e.id) && containsTermRaw(b.text, r.term))?.term ?? '',
         text: b.text,
-        status: 'pending',
+        status: preselected ? 'confirmed' : 'pending',
       })
     })
     if (job.keptOriginal) kept.push({ block: e.id, reason: 'grounding' })
     const rewritten = job.keptOriginal ? source : job.bullets.filter((b) => !b.isNew).map((b) => b.text)
-    const generated = rewritten
+    const generated = preselected ? [...rewritten, ...newPts.map(b => b.text)] : rewritten
     blocks.push({
       profile_experience_id: e.id,
-      was_optimized: !job.keptOriginal,
-      generated_bullets: job.keptOriginal ? null : generated,
+      was_optimized: !job.keptOriginal || (preselected && newPts.length > 0),
+      generated_bullets: job.keptOriginal && !(preselected && newPts.length > 0) ? null : generated,
       source_bullets: source,
       claims: [],
     })
@@ -293,9 +310,9 @@ export async function buildV3(opts: {
     summary: { generated: summaryOn ? w.summary : '', source_profile_summary: profile.professional_summary ?? '' },
     experience_blocks: blocks,
     ...(kept.length ? { fallback_used: { summary: kept.some((k) => k.block === 'summary'), experience_ids: kept.filter((k) => k.block !== 'summary').map((k) => k.block) } } : {}),
-    skills_reordered: skillsOrder.length === original.length && skillsOrder.some((id, i) => id !== original[i]),
+    skills_reordered: selectedBlocks.skills !== false && skillsOrder.length === original.length && skillsOrder.some((id, i) => id !== original[i]),
   }
-  const finalOrder = skillsOrder.length === original.length ? skillsOrder : original
+  const finalOrder = selectedBlocks.skills !== false && skillsOrder.length === original.length ? skillsOrder : original
   const documentSnapshot = buildResumeDocument({ profile, optimizedContent, skillsOrder: finalOrder, fieldVisibility: profile.field_visibility, targetJobTitle: title })
 
   // ---- the report the result screens read
@@ -325,9 +342,14 @@ export async function buildV3(opts: {
     kept_original: kept,
     generated_at: new Date().toISOString(),
     suggestions,
+    auto_applied: preselected && suggestions.some(s => s.status === 'confirmed'),
     projected_with_suggestions: pending.length ? score(applySuggestionsToDocument(documentSnapshot, pending)).total : after.total,
-    // The level's band only when this profile can reach it — never "target 75–85" beside a best of 57.
-    target_band: reachableTargetBand(level, check.expected[level]),
+    // Product goals never impose a floor on the measured score. Only show a reachable goal.
+    target_band: level === 'high'
+      ? (check.expected.high >= 75 ? [75, 95] : undefined)
+      : (check.expected[level] >= Math.min(100, before.total + (level === 'easy' ? 10 : 25))
+        ? [Math.min(100, before.total + (level === 'easy' ? 10 : 25)), Math.min(100, before.total + (level === 'easy' ? 10 : 25))]
+        : undefined),
     field_match: { match: a.fieldMatch, job_field: a.jobField, candidate_field: a.candidateField },
     ask_certifications: check.askCertifications,
 
@@ -345,6 +367,6 @@ export async function buildV3(opts: {
     skillsOrder: finalOrder,
     documentSnapshot,
     report,
-    stats: { ms: w.ms, caught: w.caught.length, keptOriginal: kept.length, newPoints: suggestions.length, autoApplied: false },
+    stats: { ms: w.ms, caught: w.caught.length, keptOriginal: kept.length, newPoints: suggestions.length, autoApplied: preselected && suggestions.length > 0 },
   }
 }

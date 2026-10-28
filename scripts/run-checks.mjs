@@ -59,6 +59,7 @@ const TS_CHECKS = [
   'verify-loose-duties.ts',
   'verify-match-terms.ts',
   'verify-optimizer-v3.ts',
+  'verify-optimizer-preselection.ts',
   'verify-resume-order.ts',
   'verify-ats-file-check.ts',
   'verify-service-outputs.ts',
