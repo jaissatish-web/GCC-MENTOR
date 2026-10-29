@@ -24,12 +24,9 @@ import { GulfFlag, isGulfFlagCountry } from '@/components/ui/GulfFlag'
  * summary; it does not replace them. If the only place a user meets the
  * grounding promise is down here, the product has already failed.
  *
- * LEGAL LINKS APPEAR ONLY ONCE WRITTEN. Migration 046 put the privacy, terms
- * and refund pages in a table the founder edits at `/admin/content`, and this
- * asks that table what is published rather than hard-coding three links. Until
- * a page is written AND published it does not exist here — a link to a blank
- * legal page is worse than no link, because it reads as though the policy says
- * nothing. Nothing about them is written on the founder's behalf.
+ * Legal policy links use the same site_content publication gate as the pages.
+ * Approved seed copy is in scripts/seed-legal-policies.sql; the founder can
+ * continue editing and publishing at /admin/content.
  *
  * The about line comes from the same table, so the sentence under the logo can
  * be changed without a developer or a deploy.

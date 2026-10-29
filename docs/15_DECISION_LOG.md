@@ -1953,3 +1953,6 @@ Latest founder instruction supersedes older fixed level bands: Easy ~+10, Modera
 28 October2026 — OPT-CLARITY-002: approve clearer levels, per-suggestion priority/evidence/owner and explicit final change labels/originals, following competitor research. Preserve score goals, candidate facts and all service logic.
 
 28October2026 — Approve OPT-JD-SCORE-003 and PROCESSING-CYBER-001 above. Application-scoped skills override previous links requiring master-profile edits. New weighted scoring is versioned; preserve historical reports and truthful screening. Light cyber animation with stable layout and truthful step statuses.
+
+## 29 October 2026 — legal/trust pages
+Founder authorized five policies dated 29 October 2026 and delivery on feat/legal-policies through a PR, never direct main. Reuse site_content and preserve existing service logic. Seed only missing/empty policy rows; retain founder-authored copy.

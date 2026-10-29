@@ -27,8 +27,8 @@ export interface SiteContent {
   updatedAt: string
 }
 
-/** The three pages the footer will link to once they are written. */
-export const LEGAL_SLUGS = ['privacy', 'terms', 'refund'] as const
+/** Fixed legal route allowlist; content and publication remain in site_content. */
+export const LEGAL_SLUGS = ['privacy', 'terms', 'cookies', 'refund', 'disclaimer'] as const
 export type LegalSlug = (typeof LEGAL_SLUGS)[number]
 
 export function isLegalSlug(v: string): v is LegalSlug {

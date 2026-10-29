@@ -44,10 +44,9 @@ export default async function AdminContentPage({
       {params.error ? <Alert variant="danger">{decodeURIComponent(params.error)}</Alert> : null}
       {params.saved ? <Alert variant="success">Saved.</Alert> : null}
 
-      <Alert variant="warning" title="Nothing here is written for you">
-        These pages are empty until you write them. Describe only what the product actually
-        does with a user&apos;s data — inventing terms is the one thing this product must
-        never do. Have a lawyer read them before you publish.
+      <Alert variant="warning" title="Keep policies accurate">
+        Approved policy copy is supplied by the legal content seed. Review existing drafts before publishing.
+        Keep each policy consistent with actual data handling and obtain legal review for material changes.
       </Alert>
 
       <section className="flex flex-col gap-4">

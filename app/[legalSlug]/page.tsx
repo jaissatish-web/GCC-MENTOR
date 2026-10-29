@@ -1,29 +1,12 @@
+import { AppFooter } from '@/components/layout/AppFooter'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { getPublishedPage, isLegalSlug, LEGAL_SLUGS } from '@/lib/admin/siteContent'
+import { getPublishedPage, isLegalSlug } from '@/lib/admin/siteContent'
 
 export const dynamic = 'force-dynamic'
 
-/**
- * The legal pages — privacy, terms and refund — rendered from whatever the
- * founder has written at `/admin/content` (migration 046).
- *
- * ONE ROUTE, NOT THREE. The three pages differ only in their text, so three
- * files would be the same file three times and would drift the moment one was
- * edited. The slug is validated against a fixed list rather than passed
- * through, so this cannot become an accidental catch-all that swallows every
- * unmatched URL in the app.
- *
- * 404 UNTIL WRITTEN, on purpose. `getPublishedPage` returns null for an
- * unpublished or empty page, and the footer only links to what is published.
- * A blank legal page is worse than a missing one: it reads as though the
- * policy says nothing, and it is exactly the kind of hollow claim this product
- * exists not to make.
- *
- * Public: no session needed, and `middleware.ts` never sees these paths.
- */
-
+/** All legal pages use the existing founder-editable site_content publication gate. */
 export async function generateMetadata({
   params,
 }: {
@@ -61,7 +44,7 @@ function renderBody(body: string) {
         )
       }
       return (
-        <p key={i} className="text-[15px] leading-relaxed text-ink-soft">
+        <p key={i} className="whitespace-pre-line break-words text-[15px] leading-relaxed text-ink-soft">
           {block}
         </p>
       )
@@ -83,6 +66,7 @@ export default async function LegalPage({
     day: 'numeric',
     month: 'long',
     year: 'numeric',
+    timeZone: 'UTC',
   })
 
   return (
@@ -112,29 +96,12 @@ export default async function LegalPage({
           <h1 className="font-display text-[26px] font-bold leading-tight tracking-[-0.02em] text-ink sm:text-[30px]">
             {page.title}
           </h1>
-          <p className="text-[13px] text-ink-muted type-helper">Last updated {updated}</p>
+          <p className="text-[13px] text-ink-muted type-helper">Last updated: {updated}</p>
         </div>
         <div className="h-px w-full bg-line" />
         <article className="flex flex-col gap-4">{renderBody(page.body)}</article>
-
-        <nav className="mt-6 flex flex-wrap gap-x-5 gap-y-2 border-t border-line pt-5">
-          {LEGAL_SLUGS.filter((s) => s !== legalSlug).map((s) => (
-            <Link
-              key={s}
-              href={`/${s}`}
-              className="text-[13px] font-medium text-teal underline-offset-2 hover:underline"
-            >
-              {s === 'privacy' ? 'Privacy' : s === 'terms' ? 'Terms' : 'Refunds'}
-            </Link>
-          ))}
-          <Link
-            href="/"
-            className="text-[13px] font-medium text-teal underline-offset-2 hover:underline"
-          >
-            Home
-          </Link>
-        </nav>
       </main>
+      <AppFooter variant="compact" />
     </div>
   )
 }

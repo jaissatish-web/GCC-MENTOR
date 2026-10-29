@@ -21,7 +21,7 @@ export function LandingSectionMenu({ anchors }: { anchors: ReadonlyArray<readonl
       </summary>
       <nav aria-label="Page sections" className={p.menuNav}>
         {anchors.map(([label, href]) => <a key={href} href={href} onClick={close}>{label}</a>)}
-        <a href="#privacy" onClick={close}>Privacy & data control</a>
+        <Link href="/privacy" onClick={close}>Privacy & data control</Link>
         <a href="#faq" onClick={close}>Common questions</a>
         <Link href="/signup" onClick={close}>Create an account</Link>
         <Link href="/gulf-readiness-score" onClick={close}>Check My Free GCC Readiness</Link>

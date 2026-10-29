@@ -70,7 +70,7 @@ try{
   assert.ok(question.width>(width<768?width-65:(width*.5)),`Question must lead at ${width}`)
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`Voice overflow at ${width}`)
   if(width===390)await page.screenshot({path:'artifacts/preparation-experience/voice-390.png',fullPage:true})
-  await goto('signup');assert.equal(await page.$eval('a[href="/#privacy"]',e=>e.target),'_blank')
+  await goto('signup');assert.equal(await page.$eval('a[href="/privacy"]',e=>e.target),'_blank')
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`Signup overflow at ${width}`)
   await goto('password');await page.waitForSelector('input[name=confirm]')
   assert.equal(await page.$eval('h1',e=>getComputedStyle(e).fontSize),'24px')
