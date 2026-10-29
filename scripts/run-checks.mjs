@@ -122,6 +122,8 @@ run('verify-voice-db.mjs', [join('scripts', 'verify-voice-db.mjs')])
 run('verify-interview-history-db.mjs', [join('scripts', 'verify-interview-history-db.mjs')])
 run('verify-interview-progress-api.mjs', [join('scripts', 'verify-interview-progress-api.mjs')])
 
+run('verify-legal-policies.mjs', [join(root, 'scripts', 'verify-legal-policies.mjs')])
+
 run('verify-typography-source.mjs', [join(root, 'scripts', 'verify-typography-source.mjs')])
 
 const failed = results.filter((r) => !r.ok)

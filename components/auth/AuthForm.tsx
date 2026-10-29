@@ -154,7 +154,7 @@ export function AuthForm({
         <div className="min-w-0 text-[13px] leading-relaxed text-ink-soft">
           <p className="font-semibold text-ink">Your career information, in your control</p>
           <p className="mt-1">Your profile helps prepare your resumes and interview practice. Learn how your information is used before getting started.</p>
-          <Link href="/#privacy" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center font-semibold text-teal underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">Privacy &amp; data control<span className="sr-only"> (opens in a new tab)</span></Link>
+          <Link href="/privacy" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center font-semibold text-teal underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal">Privacy &amp; data control<span className="sr-only"> (opens in a new tab)</span></Link>
         </div>
       </div> : null}
       <Button type="submit" variant="primary" disabled={isPending} className="mt-1 w-full text-[15px]">
