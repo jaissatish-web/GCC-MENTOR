@@ -119,6 +119,8 @@ run('verify-db-security.mjs', [join('scripts', 'verify-db-security.mjs')])
 run('verify-dashboard-overview.mjs', [join('scripts', 'verify-dashboard-overview.mjs')])
 run('verify-profile-categories-db.mjs', [join(root, 'scripts', 'verify-profile-categories-db.mjs')])
 run('verify-voice-db.mjs', [join('scripts', 'verify-voice-db.mjs')])
+run('verify-voice-retention.mjs', [join('scripts', 'verify-voice-retention.mjs')])
+run('verify-voice-audio-lifecycle.ts', [sucrase, join('scripts', 'verify-voice-audio-lifecycle.ts')])
 run('verify-interview-history-db.mjs', [join('scripts', 'verify-interview-history-db.mjs')])
 run('verify-interview-progress-api.mjs', [join('scripts', 'verify-interview-progress-api.mjs')])
 

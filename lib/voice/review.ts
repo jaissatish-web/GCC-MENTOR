@@ -8,7 +8,8 @@ import { reserveAiAction } from '@/lib/ai/serviceGuard'
 import { incrementRateLimit, LIMIT_ACTION_MOCK_ANSWER, LIMIT_ACTION_MOCK_REPORT, LIMIT_ACTION_MOCK_TRANSCRIPTION } from '@/lib/rateLimit'
 import { completeMockRunAtomic, recordMockAnswerAtomic } from '@/lib/packages/serverWrites'
 import { voiceAdmin, voiceAnswers, voiceEnabled, voiceTranscriptionAuth } from './server'
-import { VOICE_BUCKET, type VoiceSession, type VoiceFeedback, type VoiceAnswer } from './types'
+import { NO_SPEECH_TRANSCRIPT, VOICE_BUCKET, type VoiceSession, type VoiceFeedback, type VoiceAnswer } from './types'
+import { deleteTranscribedAudio } from './audioDeletion'
 import { transcribeRecording } from './transcribe'
 import type { MockInterviewRun } from '@/types/package'
 
@@ -66,7 +67,6 @@ async function guardedBatch<T>(userId: string, action: string, items: T[], start
 }
 
 /** A recording with no clear speech is not scored, and no longer stops the rest of the review. */
-const NO_SPEECH_TRANSCRIPT = '[No clear speech was detected in this recording.]'
 const NO_SPEECH_FEEDBACK: VoiceFeedback = {
   score: 0,
   feedback: 'We could not hear a clear answer in this recording, so it was not scored. Check your microphone, then practise this question again.',
@@ -75,10 +75,10 @@ const NO_SPEECH_FEEDBACK: VoiceFeedback = {
   grammar: [],
 }
 async function updateAnswer(session: VoiceSession, questionId: string, fields: Record<string, unknown>) {
-  const { data: lease, error: leaseError } = await voiceAdmin().from('voice_interview_sessions').select('id').eq('id', session.id).eq('lease_token', session.lease_token).gt('lease_until', new Date().toISOString()).maybeSingle()
+  const { data: lease, error: leaseError } = await voiceAdmin().from('voice_interview_sessions').select('id').eq('id', session.id).eq('user_id', session.user_id).eq('status', 'processing').eq('lease_token', session.lease_token).gt('lease_until', new Date().toISOString()).maybeSingle()
   if (leaseError || !lease) throw new Error('Review lease expired. Retry to continue from saved work.')
-  const { error } = await voiceAdmin().from('voice_interview_answers').update(fields).eq('session_id', session.id).eq('question_id', questionId)
-  if (error) throw new Error('Could not save review progress. Please retry.')
+  const { data: saved, error } = await voiceAdmin().from('voice_interview_answers').update(fields).eq('session_id', session.id).eq('question_id', questionId).select('question_id').maybeSingle()
+  if (error || !saved) throw new Error('Could not save review progress. Please retry.')
 }
 async function feedbackFor(session: VoiceSession, answer: VoiceAnswer): Promise<VoiceFeedback> {
   const q = session.run_snapshot.questions.find(q => q.id === answer.question_id)!
@@ -142,6 +142,11 @@ export async function processVoiceReview(userId?: string, sessionId?: string): P
     let answers = await voiceAnswers(session.id)
     const ordered = session.run_snapshot.questions.map(q => answers.find(a => a.question_id === q.id))
     if (ordered.some(a => !a?.saved_at)) throw new Error('An answer recording has not been saved.')
+    // A prior request may have persisted a transcript before cleanup was interrupted.
+    // Retry cleanup without downloading/retranscribing and before further coaching.
+    for (const answer of ordered as VoiceAnswer[]) {
+      if (answer.transcript && !answer.audio_deleted_at) await deleteTranscribedAudio(session, answer)
+    }
     const pending = (ordered as VoiceAnswer[]).filter(a => !a.feedback)
     if (pending.length) {
       let lastError: string | null = null
@@ -161,7 +166,11 @@ export async function processVoiceReview(userId?: string, sessionId?: string): P
             const silent = { transcript: NO_SPEECH_TRANSCRIPT, delivery: null, feedback: NO_SPEECH_FEEDBACK }
             await updateAnswer(session, a.question_id, silent)
             Object.assign(a, silent)
+            return // A no-speech fallback is not a successful transcription.
           }
+          // Only a real, successfully persisted transcript crosses this checkpoint.
+          // Cleanup failure never enters the STT/no-speech error domain.
+          await deleteTranscribedAudio(session, a)
         })
         lastError = r.error
       }

@@ -1,6 +1,12 @@
 # OPEN ITEMS — every known defect and every undecided decision
 
-> **2026-10-22 status:** Historical issue register, not the active task list. PROGRESS.md now owns active work. Older open/resolved labels need source verification before acting; they are not fresh release certification.
+## AUDIO-DELETE-001 — release verification
+
+- Configure a server-only `CRON_SECRET` for the production Vercel project and redeploy after the protected PR is approved/merged. Metadata inspection on 30 October2026 found no variable with that name; do not expose or commit the value.
+- After release, verify one owned successful-transcription deletion, retained transcript/coaching history and playback410, failed-STT retry, delayed upload-token cleanup and a real authenticated retention run with the persisted before/after summary. Offline checks do not establish live provider or scheduler operation.
+- Decide the scoped copy correction for existing “recordings are saved/safe” failure text now that successfully transcribed audio is disposable; preserve the current410 text. No copy change is silently included.
+
+> **2026-10-30 authority:** This is the only to-do surface, per the founder’s current instruction. PROGRESS.md records implementation and verification evidence. Older issue entries still require source verification; they are not fresh release certification.
 
 **This is the only to-do surface.** Anything not here is either done or not agreed.
 

@@ -1,6 +1,7 @@
 import type { CareerProfileFull } from '@/types/careerProfile'
 import type { MockInterviewRun, MockInterviewFinalReport } from '@/types/package'
 
+export const NO_SPEECH_TRANSCRIPT = '[No clear speech was detected in this recording.]'
 export const VOICE_BUCKET = 'mock-interview-audio'
 export const VOICE_RUBRIC = 'recorded-voice-v1'
 export const MAX_AUDIO_BYTES = 8 * 1024 * 1024
