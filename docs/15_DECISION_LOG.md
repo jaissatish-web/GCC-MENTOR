@@ -1,7 +1,8 @@
-Warning: truncated output (original token count: 50699)
-Total output lines: 3277
-
 # DECISION LOG — what was decided, when, and why
+
+## 2026-10-30 — Voice audio auto-deleted on successful transcription; retention sweep enabled + backlog-draining
+
+Founder approves deleting raw mock-interview audio immediately after a successful transcript is persisted, per answer. Founder clarified that later coaching failure retries from that transcript; it does not require retained audio. Keep transcript/coaching/history and existing410 semantics. Failed transcription or persistence and no-speech fallback preserve retry audio until existing abandonment expiry. Reuse leases, private Storage and expiry fields. Drain cleanup in bounded batches and report before/after counts through one existing maintenance record. Preserve auth, scoring and payment behavior. Deliver through protected-main PR; no production merge/deployment is implied.
 
 ## 2026-10-22 — Persistent project memory and main-only workflow
 

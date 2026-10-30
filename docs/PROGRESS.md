@@ -264,3 +264,9 @@ Final review follow-up: resume-only skill matches explicitly say Skills section,
 Implemented in source, publication pending: five legal/trust pages through site_content, shared/public footer links and truthful data/checkout disclosures. See LEGAL_POLICIES.md. No backend service or schema changes.
 
 LEGAL-001 verification: clean install/typecheck/lint/build passed; seed tests and five actual Next HTTP route/footer/date tests passed with local fixture content. Full repository suite:86/86 checks passed. Content seed requires target-database execution and cache invalidation through existing admin save; no production publication/merge is claimed.
+
+## AUDIO-DELETE-001 — 30 October2026 implementation record
+
+Founder authorized transcript-save audio deletion and bounded retention reporting, clarified through the explicit checkpoint choice. Domain acceptance criteria were recorded before source edits. Existing tables/leases/expiry/queue are reused; no schema, auth, scoring or payment change. The only to-do surface is docs/14_OPEN_ITEMS.md; this entry records implementation/verification evidence only.
+
+AUDIO-DELETE-001 local evidence: npm run check passed88/88 suites including the new lifecycle/retention suites (59 focused lifecycle assertions); npm run build passed. Production maintenance_runs columns were read back and matched the existing schema. Vercel metadata read found22 variable entries,13 production entries and no CRON_SECRET; no value was decrypted and no production data/configuration was changed. UI-copy conflicts are deliberately preserved and recorded in the PR/open-items. Source is prepared for protected-main PR review; no merge/live audio deletion is claimed.
