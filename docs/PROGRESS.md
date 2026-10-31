@@ -278,3 +278,5 @@ TERM-001 approved: standardize customer-facing service/action terminology using 
 TERM-001 implemented: canonical new-job and selected-job actions, Resume Library, Career Profile Resume and service capitalization across customer UI; existing editor wording unified. Build/typecheck/lint and focused dashboard render checks passed. Final full suite/remote required CI pending. Local navigation browser launch failed in this runtime; no live verification claimed. See TERMINOLOGY.md.
 
 TERM-001 final verification: npm run check passed (typecheck, lint, 88/88 suites); production build passed. Automatic approval review rejected push to origin for publication authorization. Local commit 6149384 retained; no PR/merge/deployment, no bypass. Pending explicit publication confirmation; browser fixture remains locally unavailable.
+
+TERM-001 publication: explicit founder merge authorization received; PR59 published using GitHub connector. Required CI exposed a stale Update Career Profile selector; changed both browser selectors to canonical Edit Career Profile with navigation assertions preserved. Final CI/merge pending. Earlier publication-authorization blocker resolved.

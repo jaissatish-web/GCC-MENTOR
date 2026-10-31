@@ -100,9 +100,9 @@ try{
   checks.push('Cancel and versioned Save '+width)
   await state('saved');await go('/profile?view=settings');await canonical();await reflow('Legacy visibility link '+width)
   await state('missing');await go('/profile?view=completeness');await page.waitForFunction(()=>document.body.innerText.includes('Profile completeness'))
-  await page.evaluate(()=>{const bs=[...document.querySelectorAll('main button')];const target=bs.find(b=>/Update Career Profile/.test(b.textContent))||bs.find(b=>/Email/i.test(b.textContent));if(!target)throw Error('Missing details action missing');target.click()});await canonical();assert.ok((await page.url()).includes('view=details'),'Missing-detail shortcut reaches same editor');checks.push('Completeness shortcut '+width)
+  await page.evaluate(()=>{const bs=[...document.querySelectorAll('main button')];const target=bs.find(b=>/Edit Career Profile/.test(b.textContent))||bs.find(b=>/Email/i.test(b.textContent));if(!target)throw Error('Missing details action missing');target.click()});await canonical();assert.ok((await page.url()).includes('view=details'),'Missing-detail shortcut reaches same editor');checks.push('Completeness shortcut '+width)
   await state('saved');await go('/profile?view=readiness');await page.waitForFunction(()=>document.body.innerText.includes('Gulf Readiness'))
-  await page.evaluate(()=>{const target=[...document.querySelectorAll('main button')].find(b=>/Update Career Profile|Add or confirm/.test(b.textContent));if(!target)throw Error('Readiness update action missing');target.click()});await canonical();checks.push('Readiness shortcut '+width)
+  await page.evaluate(()=>{const target=[...document.querySelectorAll('main button')].find(b=>/Edit Career Profile|Add or confirm/.test(b.textContent));if(!target)throw Error('Readiness update action missing');target.click()});await canonical();checks.push('Readiness shortcut '+width)
   await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));await page.screenshot({path:output+'/editor-'+width+'.png',fullPage:false})
  }
  await state('new-import');await go('/profile/review');await page.waitForSelector('[data-ui-service="resume-review"]');
