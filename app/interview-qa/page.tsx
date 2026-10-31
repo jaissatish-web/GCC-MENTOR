@@ -15,7 +15,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { ProcessingInline } from '@/components/ui/Processing'
 import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton'
 import { cn } from '@/lib/utils'
-import { CTA } from '@/lib/serviceLabels'
+import { CTA, NAMES } from '@/lib/serviceLabels'
 import { usePackagePicker } from '@/lib/usePackagePicker'
 import { SAVED_PER_PACKAGE, savedQaSets, type PackageSummary } from '@/lib/packageSummary'
 import type { InterviewQuestionAnswer, InterviewQuestionCategory, InterviewQuestionSet } from '@/types/package'
@@ -172,7 +172,7 @@ function InterviewQaScreen() {
       eyebrow={stageEyebrow('apply')}
       title="Interview Q&A"
       subtitle={isRaw ? 'Practise questions based on your Career Profile.' : 'Job-specific practice, grounded in your experience.'}
-      uses={isRaw ? ['Profile Resume', 'Saved Career Profile'] : ['Optimized Resume', 'Job You’re Applying For', 'Career Profile']}
+      uses={isRaw ? [NAMES.careerProfileResume, 'Saved Career Profile'] : ['Optimized Resume', 'Job You’re Applying For', 'Career Profile']}
     >
       <Card tone="light" className="qa-setup-panel">
         {total === 0 ? (
@@ -328,7 +328,7 @@ function InterviewQaScreen() {
             {generating ? (
               <ProcessingInline
                 steps={[
-                  isRaw ? 'Reading your saved Profile Resume' : 'Reading the optimized resume',
+                  isRaw ? 'Reading your saved Career Profile Resume' : 'Reading the optimized resume',
                   isRaw ? 'Preparing for your professional field' : 'Studying the target role and job description',
                   'Writing Gulf-focused practice answers',
                   'Checking every number against your resume and profile',

@@ -1,5 +1,7 @@
 'use client'
 
+import { CTA } from '@/lib/serviceLabels'
+
 import Image from 'next/image'
 import { REVIEW_RECOVERY_KEY, reviewSource, reviewStorage, readReviewRecovery, writeReviewRecovery, clearReviewRecovery } from '@/lib/resumeReviewRecovery'
 import { ChevronRightIcon } from '@heroicons/react/24/outline'
@@ -2267,7 +2269,7 @@ function ProfileScreen() {
         <ViewHeader
           eyebrow="Completeness"
           title="Profile completeness"
-          description="Review missing details. Update Career Profile to make changes."
+          description="Review missing details. Edit Career Profile to make changes."
           onBack={() => showView('summary')}
           backLabel="Profile"
         />
@@ -2344,7 +2346,7 @@ function ProfileScreen() {
           <button type="button" className="studio-text-link" onClick={() => showView('completeness')}>{readiness.missing.length ? `Review ${readiness.missing.length} missing details` : 'Review profile details'}</button>
           <button type="button" className="studio-text-link" onClick={() => showView('readiness')}>Gulf preparation<ChevronRightIcon className="size-4" aria-hidden="true" /></button>
           <hr />{hasSavedProfile ? <CareerProfileResumeButton showHint={false} /> : null}
-          {hasSavedProfile ? <button type="button" className="studio-text-link" disabled={submitting} onClick={() => router.push('/optimize/target')}>Optimize Resume</button> : null}
+          {hasSavedProfile ? <button type="button" className="studio-text-link" disabled={submitting} onClick={() => router.push('/optimize/target')}>{CTA.addTargetJob}</button> : null}
         </aside>
       </div>
       {claimedScan ? <details className="studio-profile-scan"><summary>Your last resume scan · {claimedScan.overall_score}/100</summary><p>Structure {claimedScan.category_scores.structure} · Clarity {claimedScan.category_scores.clarity_and_impact} · Gulf readiness {claimedScan.category_scores.gulf_readiness}</p><button type="button" className="studio-text-link" onClick={() => setClaimedScan(null)}>Dismiss scan result</button></details> : null}

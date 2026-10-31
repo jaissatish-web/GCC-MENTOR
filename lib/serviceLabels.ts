@@ -13,6 +13,9 @@
 export const NAMES = {
   careerProfile: 'Career Profile',
   resume: 'Resume',
+  careerProfileResume: 'Career Profile Resume',
+  linkedin: 'LinkedIn Optimization',
+  naukrigulf: 'NaukriGulf Optimization',
   gccReadiness: 'GCC Readiness',
   resumeTemplates: 'Resume Templates',
   targetJob: 'Job You’re Applying For',
@@ -21,23 +24,23 @@ export const NAMES = {
   optimizedCv: 'Optimized Resume',
   atsScore: 'ATS score',
   level: 'Optimization level',
-  coverLetter: 'Cover letter',
+  coverLetter: 'Cover Letter',
   interviewQa: 'Interview Q&A',
-  mockInterview: 'Mock interview',
+  mockInterview: 'Mock Interview',
   library: 'Resume Library',
 } as const
 
 export const CTA = {
-  addTargetJob: 'Add Job Details',
+  addTargetJob: 'Optimize Resume for a New Job',
   chooseLevel: 'Next: choose level',
   optimizeCv: 'Optimize Resume for This Job',
   viewOptimizedCv: 'View Optimized Resume',
   editCv: 'Edit Resume',
   downloadPdf: 'Download PDF',
   seeChanges: 'Review and edit changes',
-  writeCoverLetter: 'Write cover letter',
-  prepareInterviewQa: 'Prepare interview Q&A',
-  startMockInterview: 'Start mock interview',
+  writeCoverLetter: 'Write Cover Letter',
+  prepareInterviewQa: 'Prepare Interview Q&A',
+  startMockInterview: 'Start Mock Interview',
   viewTargetJob: 'View Job Details',
 } as const
 

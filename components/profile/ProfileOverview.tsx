@@ -1,6 +1,6 @@
 'use client'
 
-import { NAMES } from '@/lib/serviceLabels'
+import { CTA, NAMES } from '@/lib/serviceLabels'
 import { useEffect, useState } from 'react'
 import {
   AdjustmentsHorizontalIcon,
@@ -118,7 +118,7 @@ const HOW_IT_WORKS = [
   },
 ] as const
 
-const USED_BY = ['Optimize Resume', 'Job match', 'Cover letter', 'Interview Q&A', 'Mock interview'] as const
+const USED_BY = [CTA.addTargetJob, 'Job match', NAMES.coverLetter, NAMES.interviewQa, NAMES.mockInterview] as const
 
 /**
  * "This is the source GCC Mentor writes from" — said in plain words, on the

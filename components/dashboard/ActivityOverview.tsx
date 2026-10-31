@@ -104,7 +104,7 @@ export function OverallProgress({ overview }: { overview: DashboardOverview }) {
           <h3 className="type-card text-ink">Application status</h3>
           <Link href="/dashboard/library" className="type-helper font-semibold text-teal">Manage in Resume Library →</Link>
         </div>
-        <p className="mt-1 type-helper text-ink-muted">{overview.target_job_count} job workspaces. Profile Resume is separate from applications.</p>
+        <p className="mt-1 type-helper text-ink-muted">{overview.target_job_count} job workspaces. Career Profile Resume is separate from applications.</p>
         <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {PACKAGE_STATUSES.map((stage) => <div key={stage.value} className="min-w-0 rounded-ctl bg-canvas p-3"><dt className="type-caption leading-snug text-ink-muted">{stage.label}</dt><dd className="mt-1 text-xl font-semibold text-ink">{overview.stages[stage.value]}</dd></div>)}
         </dl>

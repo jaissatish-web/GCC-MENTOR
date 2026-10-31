@@ -1,3 +1,4 @@
+import { NAMES } from '@/lib/serviceLabels'
 import Link from 'next/link'
 import { ArrowUpRightIcon, ChatBubbleLeftRightIcon, EnvelopeIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline'
 import { workspaceServiceCounts } from '@/lib/workspaceServiceCounts'
@@ -9,7 +10,7 @@ export function WorkspaceServiceCards({ pkg }: { pkg: Package }) {
   const id = encodeURIComponent(pkg.id)
   const services = [
     { label: 'Cover letters', count: counts.coverLetters, unit: 'letters generated', icon: EnvelopeIcon, href: `/cover-letter?package=${id}` },
-    { label: 'Interview Q&A', count: counts.qaSets, unit: 'Q&A sets generated', icon: QuestionMarkCircleIcon, href: `/interview-qa?package=${id}` },
+    { label: NAMES.interviewQa, count: counts.qaSets, unit: 'Q&A sets generated', icon: QuestionMarkCircleIcon, href: `/interview-qa?package=${id}` },
     { label: 'Mock interviews', count: counts.mockInterviews, unit: 'sessions started', icon: ChatBubbleLeftRightIcon, href: `/mock-interview?package=${id}` },
   ]
   return <section aria-label="Services for this workspace" className="studio-workspace-services">

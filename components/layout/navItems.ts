@@ -1,3 +1,4 @@
+import { CTA, NAMES } from '@/lib/serviceLabels'
 import {
   Squares2X2Icon,
   ChatBubbleLeftRightIcon,
@@ -89,14 +90,14 @@ export const NAV_ITEMS: readonly NavItem[] = [
   // "Target Jobs" from 2026-09-09 to 2026-09-11, then "Resume Library" again by
   // founder decision. Only the name went back: each row still leads with the
   // job — title, employer, country — and carries its stage, applied → offer.
-  { label: 'Resume Library', href: '/dashboard/library', iconClass: 'ui-nav-library', icon: BriefcaseIcon, shortLabel: 'Resumes' },
+  { label: NAMES.library, href: '/dashboard/library', iconClass: 'ui-nav-library', icon: BriefcaseIcon, shortLabel: 'Resumes' },
   { label: 'Resume Templates', href: '/templates', iconClass: 'ui-nav-templates', icon: RectangleStackIcon, shortLabel: 'Templates' },
-  { label: 'Cover Letter', href: '/cover-letter', iconClass: 'ui-nav-letter', icon: EnvelopeIcon },
-  { label: 'Optimize Resume', href: '/optimize', iconClass: 'ui-nav-tailor', icon: DocumentTextIcon, shortLabel: 'Optimize' },
-  { label: 'Interview Q&A', href: '/interview-qa', iconClass: 'ui-nav-qa', icon: QuestionMarkCircleIcon, shortLabel: 'Q&A' },
-  { label: 'Mock Interview', href: '/mock-interview', iconClass: 'ui-nav-mock', icon: ChatBubbleLeftRightIcon, shortLabel: 'Mock' },
-  { label: 'NaukriGulf Optimization', href: '/naukrigulf-optimization', iconClass: 'ui-nav-naukrigulf', icon: IdentificationIcon },
-  { label: 'LinkedIn Optimization', href: '/linkedin-optimization', iconClass: 'ui-nav-linkedin', icon: IdentificationIcon },
+  { label: NAMES.coverLetter, href: '/cover-letter', iconClass: 'ui-nav-letter', icon: EnvelopeIcon },
+  { label: CTA.addTargetJob, href: '/optimize', iconClass: 'ui-nav-tailor', icon: DocumentTextIcon, shortLabel: 'Optimize' },
+  { label: NAMES.interviewQa, href: '/interview-qa', iconClass: 'ui-nav-qa', icon: QuestionMarkCircleIcon, shortLabel: 'Q&A' },
+  { label: NAMES.mockInterview, href: '/mock-interview', iconClass: 'ui-nav-mock', icon: ChatBubbleLeftRightIcon, shortLabel: 'Mock' },
+  { label: NAMES.naukrigulf, href: '/naukrigulf-optimization', iconClass: 'ui-nav-naukrigulf', icon: IdentificationIcon },
+  { label: NAMES.linkedin, href: '/linkedin-optimization', iconClass: 'ui-nav-linkedin', icon: IdentificationIcon },
   { label: 'Career Profile', href: '/profile', iconClass: 'ui-nav-profile', icon: UserCircleIcon, shortLabel: 'Profile' },
   { label: 'Settings', href: '/settings', iconClass: 'ui-nav-settings', icon: Cog6ToothIcon },
 ] as const
@@ -154,8 +155,8 @@ export const NAV_GROUPS: readonly NavGroup[] = [
 /** Stable workspace destinations; all other services remain in the shared menu. */
 export const WORKSPACE_PRIMARY_ITEMS = [
   { ...NAV_ITEMS.find(item => item.href === '/dashboard')!, label: 'Home', shortLabel: 'Home', icon: HomeIcon },
-  { ...NAV_ITEMS.find(item => item.href === '/dashboard/library')!, label: 'Resume Library', shortLabel: 'Resumes', icon: DocumentTextIcon },
-  { ...NAV_ITEMS.find(item => item.href === '/mock-interview')!, label: 'Mock Interview', shortLabel: 'Practice' },
+  { ...NAV_ITEMS.find(item => item.href === '/dashboard/library')!, label: NAMES.library, shortLabel: 'Resumes', icon: DocumentTextIcon },
+  { ...NAV_ITEMS.find(item => item.href === '/mock-interview')!, label: NAMES.mockInterview, shortLabel: 'Practice' },
   { ...NAV_ITEMS.find(item => item.href === '/profile')!, label: 'Career Profile', shortLabel: 'Profile' },
 ] as const
 

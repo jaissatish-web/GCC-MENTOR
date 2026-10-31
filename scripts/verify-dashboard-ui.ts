@@ -91,9 +91,9 @@ const followJob = {id:'active-job',name:'My saved job',target_job_title:'Lead En
 const followAction = {state:'job_needs_mock',href:'/mock-interview?package=active-job',title:'Practice',body:'Practice',cta:'Start mock interview'}
 const continueHtml = renderToStaticMarkup(React.createElement(HomeNextStep,{action:followAction,packages:[followJob],ready:true,error:false,onRetry:()=>{}}))
 assert.ok(continueHtml.includes('Continue your interview') && continueHtml.includes('My saved job'))
-assert.ok(continueHtml.includes('Mock interview: In progress') && continueHtml.includes('href="/mock-interview?package=active-job"'))
+assert.ok(continueHtml.includes('Mock Interview: In progress') && continueHtml.includes('href="/mock-interview?package=active-job"'))
 const returningPractice = renderToStaticMarkup(React.createElement(HomeNextStep,{action:{...followAction,state:'add_next_job'},packages:[{...followJob,created_at:'2026-10-01',updated_at:'2026-10-17',mock_completed_run_id:'earlier-report'}],ready:true,error:false,onRetry:()=>{}}))
-assert.ok(returningPractice.includes('Continue your interview') && returningPractice.includes('Mock interview: In progress'), 'An earlier report cannot conceal a newer unfinished attempt')
+assert.ok(returningPractice.includes('Continue your interview') && returningPractice.includes('Mock Interview: In progress'), 'An earlier report cannot conceal a newer unfinished attempt')
 const missingLetter = renderToStaticMarkup(React.createElement(HomeNextStep,{action:{...followAction,state:'job_needs_letter',href:'/cover-letter?package=active-job',cta:'Write cover letter'},packages:[{...followJob,cover_letter_count:0}],ready:true,error:false,onRetry:()=>{}}))
 assert.ok(missingLetter.includes('Continue your interview') && missingLetter.includes('Next suggested step') && missingLetter.includes('href="/cover-letter?package=active-job"'),'Unfinished interview is primary even with a missing cover letter, which remains a secondary action')
 const otherJob = renderToStaticMarkup(React.createElement(HomeNextStep,{action:{...followAction,state:'job_needs_qa',href:'/interview-qa?package=other-job',cta:'Prepare answers'},packages:[{...followJob,updated_at:'2026-10-17'},{...followJob,id:'other-job',target_job_title:'Other role',mock_in_progress:false}],ready:true,error:false,onRetry:()=>{}}))

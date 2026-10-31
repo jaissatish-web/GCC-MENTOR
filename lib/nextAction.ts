@@ -173,7 +173,7 @@ export function computeNextAction(
   if (packages.length === 0) {
     return {
       state: 'no_target_job',
-      title: 'Add the job you are applying for',
+      title: CTA.addTargetJob,
       body: 'Give us the role and we build a resume against it. Everything you do for that job stays with it.',
       cta: CTA.addTargetJob,
       href: '/optimize/target',
@@ -255,7 +255,7 @@ export function computeNextAction(
 
   return {
     state: 'add_next_job',
-    title: 'Optimize a Resume for Another Job',
+    title: CTA.addTargetJob,
     body: `${packages.length} job${packages.length === 1 ? '' : 's'} set up so far. Each new one reuses the profile you have already built.`,
     cta: CTA.addTargetJob,
     href: '/optimize/target',

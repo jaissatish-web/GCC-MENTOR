@@ -236,7 +236,7 @@ function TargetScreen() {
       <FlowHeader
         step={1}
         onBack={() => router.back()}
-        title="Add Job Details"
+        title={CTA.addTargetJob}
         subtitle={
           <>
             Add a job title. Include the advert for a closer match.

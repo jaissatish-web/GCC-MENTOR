@@ -1957,3 +1957,7 @@ Latest founder instruction supersedes older fixed level bands: Easy ~+10, Modera
 
 ## 29 October 2026 — legal/trust pages
 Founder authorized five policies dated 29 October 2026 and delivery on feat/legal-policies through a PR, never direct main. Reuse site_content and preserve existing service logic. Seed only missing/empty policy rows; retain founder-authored copy.
+
+
+## 31 October 2026
+TERM-001: Founder requests one consistent term for each destination/action. Use Optimize Resume for a New Job for new-target entry points, retain Optimize Resume for This Job for generation on a selected target. Preserve distinct assessments and existing behavior; see TERMINOLOGY.md.

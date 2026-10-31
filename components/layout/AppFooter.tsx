@@ -1,3 +1,4 @@
+import { CTA, NAMES } from '@/lib/serviceLabels'
 import Link from 'next/link'
 import { GULF_COUNTRIES } from '@/lib/utils'
 import { getPublishedValue, listPublishedLegal } from '@/lib/admin/siteContent'
@@ -36,12 +37,12 @@ import { GulfFlag, isGulfFlagCountry } from '@/components/ui/GulfFlag'
 // separate link here.
 const LIVE_SERVICES = [
   { label: 'Career Profile', href: '/profile' },
-  { label: 'Optimize Resume', href: '/optimize/target' },
-  { label: 'Cover Letter', href: '/cover-letter' },
-  { label: 'Interview Q&A', href: '/interview-qa' },
-  { label: 'Mock Interview', href: '/mock-interview' },
+  { label: CTA.addTargetJob, href: '/optimize/target' },
+  { label: NAMES.coverLetter, href: '/cover-letter' },
+  { label: NAMES.interviewQa, href: '/interview-qa' },
+  { label: NAMES.mockInterview, href: '/mock-interview' },
   { label: 'Resume Templates', href: '/templates' },
-  { label: 'My Resumes', href: '/dashboard/library' },
+  { label: NAMES.library, href: '/dashboard/library' },
 ]
 
 /**

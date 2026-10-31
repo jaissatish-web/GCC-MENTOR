@@ -15,7 +15,7 @@ type Step = 'resume' | 'letter' | 'qa' | 'mock' | 'report'
  * THE JOB THIS SCREEN IS FOR, AND HOW FAR ITS PACK HAS GOT — in one card.
  *
  * 2026-09-24 simplification. This used to be two stacked cards: a target-job
- * card with a note, then a five-tile grid ("1. Optimized CV · Saved" …) and a
+ * card with a note, then a five-tile grid ("1. Optimized Resume · Saved" …) and a
  * paragraph about application stages. On a phone that was ~650px before the
  * service's own form began, and the founder's read was that people could not
  * tell what to do. Now: the job, its ATS score, and four chips — done, here,
@@ -60,10 +60,10 @@ export function PreparationJourney({
   const here: Step = current === 'report' ? 'mock' : current
 
   return (
-    <section aria-label={isRaw ? 'Profile Resume' : NAMES.targetJob} className={bare ? '' : 'rounded-card border border-line bg-white p-4 shadow-m-1'}>
+    <section aria-label={isRaw ? NAMES.careerProfileResume : NAMES.targetJob} className={bare ? '' : 'rounded-card border border-line bg-white p-4 shadow-m-1'}>
       <div className={cn('flex items-start justify-between gap-3', bare && 'sr-only')}>
         <div className="min-w-0">
-          <p className="type-helper font-semibold uppercase tracking-[0.1em] text-ink-muted">{isRaw ? 'Profile Resume' : NAMES.targetJob}</p>
+          <p className="type-helper font-semibold uppercase tracking-[0.1em] text-ink-muted">{isRaw ? NAMES.careerProfileResume : NAMES.targetJob}</p>
           <p className="mt-0.5 break-words font-display type-card leading-tight text-ink">{pkg.name || pkg.target_job_title}</p>
           <p className="mt-1 flex flex-wrap items-center gap-x-2 type-helper text-ink-soft">
             {isRaw ? 'Based only on your saved profile · No job description' : [pkg.target_company, country].filter(Boolean).join(' · ')}

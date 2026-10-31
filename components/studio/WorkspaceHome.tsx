@@ -1,5 +1,7 @@
 'use client'
 
+import { CTA, NAMES } from '@/lib/serviceLabels'
+
 import Link from 'next/link'
 import { FirstResumeDialog } from '@/components/dashboard/FirstResumeDialog'
 import { shouldOfferFirstResume } from '@/lib/firstResumeOnboarding'
@@ -49,7 +51,7 @@ export function WorkspaceHome(p: Props) {
   const work = [
     { label: 'Resumes', href: '/dashboard/library', count: p.overview?.resume_count, Icon: DocumentTextIcon },
     { label: 'Cover letters', href: '/cover-letter', count: p.overview?.cover_letter_count, Icon: EnvelopeIcon },
-    { label: 'Interview Q&A', href: '/interview-qa', count: p.overview?.qa_set_count, Icon: QuestionMarkCircleIcon },
+    { label: NAMES.interviewQa, href: '/interview-qa', count: p.overview?.qa_set_count, Icon: QuestionMarkCircleIcon },
     { label: 'Mock interviews', href: '/mock-interview', count: p.overview?.mock_interview_count, Icon: ChatBubbleLeftRightIcon },
   ]
   const latestRole = p.profile?.work_experience?.slice().sort((a, b) => (b.start_date || '').localeCompare(a.start_date || '') || a.sort_order - b.sort_order)[0]?.role
@@ -60,10 +62,9 @@ export function WorkspaceHome(p: Props) {
     { key: 'interview', label: 'Interview' }, { key: 'visa_processing', label: 'Visa' }, { key: 'offer', label: 'Offer' },
   ] as const
   const actions = [
-    { label: 'Optimize for a new job', detail: 'Use your saved Career Profile', href: '/optimize/target', Icon: SparklesIcon },
-    { label: 'My resumes', detail: 'Open your saved resumes', href: '/dashboard/library', Icon: DocumentTextIcon },
-    { label: 'Update Career Profile', detail: 'Keep your details current', href: '/profile?view=details', Icon: PencilSquareIcon },
-    { label: 'Add a job application', detail: 'Set up a job workspace', href: '/optimize/target', Icon: PlusIcon },
+    { label: CTA.addTargetJob, detail: 'Use your saved Career Profile', href: '/optimize/target', Icon: SparklesIcon },
+    { label: NAMES.library, detail: 'Open your saved resumes', href: '/dashboard/library', Icon: DocumentTextIcon },
+    { label: 'Edit Career Profile', detail: 'Keep your details current', href: '/profile?view=details', Icon: PencilSquareIcon },
   ]
   const offerFirstResume = shouldOfferFirstResume({pendingDraftAbsent:p.pendingDraftAbsent === true,ready:p.ready,error:p.error,profileExists:Boolean(p.profile),profileLoaded:p.profileLoaded,profileError:p.profileError,packagesLoaded:p.packagesLoaded,packagesError:p.packagesError,packageCount:p.packages.length,overviewLoading:p.overviewLoading,overviewError:p.overviewError,resumeCount:p.overview?.resume_count,nextActionState:p.nextAction.state})
   return <main className={`studio-page studio-home ${styles.dashboard}`}>

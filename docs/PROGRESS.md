@@ -270,3 +270,11 @@ LEGAL-001 verification: clean install/typecheck/lint/build passed; seed tests an
 Founder authorized transcript-save audio deletion and bounded retention reporting, clarified through the explicit checkpoint choice. Domain acceptance criteria were recorded before source edits. Existing tables/leases/expiry/queue are reused; no schema, auth, scoring or payment change. The only to-do surface is docs/14_OPEN_ITEMS.md; this entry records implementation/verification evidence only.
 
 AUDIO-DELETE-001 local evidence: npm run check passed88/88 suites including the new lifecycle/retention suites (59 focused lifecycle assertions); npm run build passed. Production maintenance_runs columns were read back and matched the existing schema. Vercel metadata read found22 variable entries,13 production entries and no CRON_SECRET; no value was decrypted and no production data/configuration was changed. UI-copy conflicts are deliberately preserved and recorded in the PR/open-items. Source is prepared for protected-main PR review; no merge/live audio deletion is claimed.
+
+
+## 31 October 2026
+TERM-001 approved: standardize customer-facing service/action terminology using existing shared labels. Scope and acceptance in TERMINOLOGY.md; implementation pending. Backend/scoring/prompts/auth/schema/payments/document formatting protected.
+
+TERM-001 implemented: canonical new-job and selected-job actions, Resume Library, Career Profile Resume and service capitalization across customer UI; existing editor wording unified. Build/typecheck/lint and focused dashboard render checks passed. Final full suite/remote required CI pending. Local navigation browser launch failed in this runtime; no live verification claimed. See TERMINOLOGY.md.
+
+TERM-001 final verification: npm run check passed (typecheck, lint, 88/88 suites); production build passed. Automatic approval review rejected push to origin for publication authorization. Local commit 6149384 retained; no PR/merge/deployment, no bypass. Pending explicit publication confirmation; browser fixture remains locally unavailable.

@@ -250,7 +250,7 @@ export function GulfReadinessView({
                       onClick={() => onFix(m.field)}
                       className="-mx-1 inline-flex min-h-11 items-center px-1 type-button font-bold text-teal underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
                     >
-                      Update Career Profile →
+                      Edit Career Profile →
                     </button>
                   </div>
                 </li>
@@ -296,7 +296,7 @@ export function GulfReadinessView({
                         </span>
                         <SectionChip tag={tag} />
                         <span className="ml-auto inline-flex items-center gap-1 text-[12.5px] font-bold text-teal">
-                          Update Career Profile
+                          Edit Career Profile
                           <ArrowRightIcon className="size-3.5 transition-transform group-hover:translate-x-0.5 motion-reduce:transition-none" aria-hidden="true" />
                         </span>
                       </span>

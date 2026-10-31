@@ -189,7 +189,7 @@ export function CompletenessView({
                   </span>
                   <span className="flex shrink-0 flex-col items-end gap-0.5">
                     {m.points > 0 ? <span className="font-mono type-caption font-semibold text-gold-ink">+{m.points} pts</span> : null}
-                    <span className="type-helper font-semibold text-teal">Update Career Profile →</span>
+                    <span className="type-helper font-semibold text-teal">Edit Career Profile →</span>
                   </span>
                 </button>
               </li>

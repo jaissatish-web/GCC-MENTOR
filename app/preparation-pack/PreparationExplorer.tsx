@@ -1,4 +1,7 @@
 'use client'
+
+import { NAMES } from '@/lib/serviceLabels'
+
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -9,7 +12,7 @@ import { JourneyResume } from './JourneyResume'
 import s from './explorer.module.css'
 type Output = (typeof OUTPUTS)[number]['id']
 const ICONS = [ClipboardCheck, FileText, Mail, BookOpen, Mic, FolderOpen]
-const LABELS = ['Job match','Optimized Resume','Cover letter','Interview Q&A','Mock interview','Review & improve']
+const LABELS = ['Job match','Optimized Resume','Cover letter',NAMES.interviewQa,'Mock interview','Review & improve']
 const JOB_IMAGES = ['/landing/hero-plant-night.jpg','/landing/service-optimized-resume.png','/landing/founder-refinery-night.jpg']
 const SERVICE_IMAGES: Record<Output,string> = {match:'/landing/service-readiness.png',cv:'/landing/service-optimized-resume.png',letter:'/landing/service-cover-letter.png',qa:'/landing/service-interview-qa.png',mock:'/landing/interview-practice-v1.webp',review:'/landing/service-mock-interview.png'}
 function StageHeading({number,title,hint}:{number:number;title:string;hint:string}) {return <div className={s.stageHeading}><span>{number}</span><div><h2>{title}</h2><p>{hint}</p></div></div>}
