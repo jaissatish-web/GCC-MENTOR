@@ -1,3 +1,4 @@
+import { CTA, NAMES } from '@/lib/serviceLabels'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { listServiceCreditsForUser } from '@/lib/admin/servicePackages'
@@ -39,8 +40,8 @@ type TabId = (typeof TABS)[number]['id']
 
 /** Friendly names for the service keys that exist today; unknown keys degrade to a readable form. */
 const SERVICE_LABELS: Record<string, string> = {
-  cover_letter: 'Cover Letter',
-  resume_optimization: 'Resume Optimization',
+  cover_letter: NAMES.coverLetter,
+  resume_optimization: CTA.addTargetJob,
 }
 
 function serviceLabel(key: string): string {

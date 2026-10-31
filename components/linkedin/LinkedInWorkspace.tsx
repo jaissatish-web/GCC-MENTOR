@@ -816,7 +816,7 @@ export function LinkedInWorkspace({ platform = 'linkedin' }: { platform?: Profes
                       href="/profile"
                       className="font-semibold text-teal underline"
                     >
-                      Update Career Profile
+                      Edit Career Profile
                     </Link>
                     , then prepare a fresh version here.
                   </p>

@@ -1,6 +1,6 @@
 'use client'
 
-import { NAMES } from '@/lib/serviceLabels'
+import { CTA, NAMES } from '@/lib/serviceLabels'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { loadHomeInterview, unfinishedInterviewWorkspace, type HomeInterview } from '@/lib/homeInterview'
@@ -15,13 +15,13 @@ const GUIDANCE: Record<NextAction['state'], { label: string; title: string; body
   no_profile: { label: 'Start here · Step 1', title: 'Create your Career Profile', body: 'Add your career details once. Then use them to optimize a resume and prepare for each job.' },
   draft_waiting: { label: 'Continue your saved import', title: 'Review the resume you uploaded', body: 'Your imported details are waiting. Review them and save your Career Profile to continue.' },
   profile_thin: { label: 'Continue your Career Profile', title: 'Add the missing career details', body: 'Your details are saved. Complete the missing information so each new resume has a stronger foundation.' },
-  no_target_job: { label: 'Start your first job workspace · Step 2', title: 'Add the job you want to apply for', body: 'Your Career Profile is saved. Add a job title and, if available, its job description to optimize your first job-specific resume.' },
+  no_target_job: { label: 'Start your first job workspace · Step 2', title: CTA.addTargetJob, body: 'Your Career Profile is saved. Add a job title and, if available, its job description to optimize your first job-specific resume.' },
   job_unpaid: { label: 'Continue saved preparation', title: 'Finish the resume you started', body: 'Your job details are saved. Continue the setup for this workspace.' },
   job_not_generated: { label: 'Continue saved preparation', title: 'Finish your resume optimization', body: 'This workspace is ready to build. Continue to prepare its optimized resume.' },
   job_needs_letter: { label: 'Continue saved preparation · Step 3', title: 'Your resume is ready. Prepare its cover letter.', body: 'Use the same resume and job details to explain your fit in a cover letter.' },
   job_needs_qa: { label: 'Continue saved preparation · Step 3', title: 'Prepare answers for this job', body: 'Your resume and cover letter are saved. Prepare interview questions and suggested answers next.' },
   job_needs_mock: { label: 'Continue saved preparation · Step 3', title: 'Practise the interview for this workspace', body: 'Your resume, cover letter and Q&A are saved. Practise your answers and review your feedback.' },
-  add_next_job: { label: 'Ready for your next opportunity', title: 'Prepare for another job', body: 'Your saved workspaces are ready. Reuse your Career Profile to create a resume for your next job opening.' },
+  add_next_job: { label: 'Ready for your next opportunity', title: CTA.addTargetJob, body: 'Your saved workspaces are ready. Reuse your Career Profile to create a resume for your next job opening.' },
 }
 
 export function HomeNextStep({ action, packages, ready, error, onRetry }: {
@@ -43,7 +43,7 @@ export function HomeNextStep({ action, packages, ready, error, onRetry }: {
   const savedInterview = interview?.packageId === ongoingId ? interview : null
   if (ongoing) action = { ...action, state: 'job_needs_mock', href: savedInterview?.href ?? `/mock-interview?package=${encodeURIComponent(ongoing.id)}`, cta: 'Continue interview' }
   const copy = GUIDANCE[action.state]
-  const mobileCopy = action.state === 'no_target_job' ? { title: 'Match your next opportunity', body: 'Add a job to prepare a tailored resume.' } : copy
+  const mobileCopy = action.state === 'no_target_job' ? { title: CTA.addTargetJob, body: 'Optimize a resume for a new job using your Career Profile.' } : copy
   const workspace = ongoing ?? nextActionWorkspace(action, packages)
   const resumeInterview = Boolean(ongoing)
   const secondary = resumeInterview && ['job_needs_letter', 'job_needs_qa', 'job_not_generated', 'job_unpaid'].includes(suggestedAction.state)

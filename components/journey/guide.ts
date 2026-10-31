@@ -2,9 +2,9 @@
 export const GUIDE_SERVICES: Record<string, { purpose: string; outputs: string; uses: string }> = {
   '/dashboard': { purpose: 'See your next step and progress.', outputs: 'Your profile status, readiness and saved job preparation.', uses: 'Your saved profile and resumes.' },
   '/profile': { purpose: 'Build the source for your resumes and preparation.', outputs: 'Contact details, experience, education, skills and import corrections.', uses: 'Upload a PDF/DOCX, paste your resume, or enter your details.' },
-  '/dashboard/library': { purpose: 'Return to everything you prepared for each resume.', outputs: 'Saved resumes, documents, preparation and application progress.', uses: 'Your Profile Resume and optimized resumes.' },
+  '/dashboard/library': { purpose: 'Return to everything you prepared for each resume.', outputs: 'Saved resumes, documents, preparation and application progress.', uses: 'Your Career Profile Resume and optimized resumes.' },
   '/templates': { purpose: 'Find the layout that suits your application.', outputs: 'Browse layouts, then apply a template to your resume in its design screen.', uses: 'Your saved resume; templates format your content.' },
-  '/cover-letter': { purpose: 'Prepare a letter consistent with your background.', outputs: 'A cover letter to review, edit and download.', uses: 'Select a saved Profile Resume or optimized resume.' },
+  '/cover-letter': { purpose: 'Prepare a letter consistent with your background.', outputs: 'A cover letter to review, edit and download.', uses: 'Select a saved Career Profile Resume or optimized resume.' },
   '/optimize': { purpose: 'Optimize your resume for a specific job.', outputs: 'Job-match findings and a resume to review, edit and format.', uses: 'Your saved Career Profile and the job description.' },
   '/interview-qa': { purpose: 'Understand the questions you may face.', outputs: 'Practice questions and suggested answers to review.', uses: 'A saved resume; job-specific preparation uses the job description.' },
   '/mock-interview': { purpose: 'Practise answering and learn from feedback.', outputs: 'A practice session, answer review and improvement feedback.', uses: 'Choose a saved resume and the practice options available to you.' },

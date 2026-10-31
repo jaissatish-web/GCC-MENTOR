@@ -1,3 +1,4 @@
+import { CTA, NAMES } from '@/lib/serviceLabels'
 import { PROFESSION_EXAMPLES } from '../landing-v3/professionExamples'
 export type DemoProfile = { department: string; role: string; country: string; name: string; initials: string; focus: string; source: string; original: string; targeted: string; summary: string; skills: readonly string[]; question: string; answer: string }
 const extra = (department: string, role: string, skills: string[], question: string, answer: string): DemoProfile => ({ department, role, country: 'Saudi Arabia', name: 'Sam Ali', initials: 'SA', focus: skills.join(' · '), source: `Practical experience in ${skills.join(', ').toLowerCase()}.`, original: `Helped with ${skills[0].toLowerCase()} and kept records for the team.`, targeted: `Supported ${skills[0].toLowerCase()}, coordinated ${skills[1].toLowerCase()} and maintained ${skills[2].toLowerCase()} for the team.`, summary: `${role} with practical experience in ${skills.join(', ').toLowerCase()}.`, skills, question, answer })
@@ -11,12 +12,12 @@ export const profiles: DemoProfile[] = [...PROFESSION_EXAMPLES,
 export const services = [
  ['GCC Readiness','Understand your preparation gaps.','/gulf-readiness-score','readiness'],
  ['ATS Job Match','Compare your resume with a job description.','/optimize/target','match'],
- ['Resume Optimization','Present your real experience for the role.','/optimize/target','cv'],
- ['Cover Letter','Introduce your relevance to this job.','/cover-letter','letter'],
- ['Interview Q&A','Prepare role-specific answer structures.','/interview-qa','qa'],
- ['Mock Interview','Practise and review your next step.','/mock-interview','interview'],
+ [CTA.addTargetJob,'Present your real experience for the role.','/optimize/target','cv'],
+ [NAMES.coverLetter,'Introduce your relevance to this job.','/cover-letter','letter'],
+ [NAMES.interviewQa,'Prepare role-specific answer structures.','/interview-qa','qa'],
+ [NAMES.mockInterview,'Practise and review your next step.','/mock-interview','interview'],
  ['Resume Templates','Choose from 50+ real resume designs.','/templates','templates'],
- ['Saved Reports','Revisit applications and preparation.','/dashboard/library','reports'],
+ [NAMES.library,'Revisit applications and preparation.','/dashboard/library','reports'],
 ] as const
 export const problems = [
  ['Late applications','The shortlist may already be moving.','Reuse your Career Profile to prepare for an active vacancy. Applying early can help; selection still depends on employer criteria.'],

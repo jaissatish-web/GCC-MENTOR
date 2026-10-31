@@ -32,7 +32,7 @@ import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton'
 /**
  * Resume Library — route /dashboard/library.
  *
- * NAMED "TARGET JOBS" 2026-09-09 → 2026-09-11, then "Resume Library" again by
+ * NAMED "TARGET JOBS" 2026-09-09 → 2026-09-11, then NAMES.library again by
  * founder decision. The row is the JOB — role, employer, country, stage — and
  * the CV and letters are things that job has.
  *
@@ -586,8 +586,8 @@ export default function TargetJobsPage() {
       ) : null}
 
       <div className="grid gap-5 xl:grid-cols-2 xl:gap-6">
-        {careerResume.state === 'loading' ? <div role="status" className="rounded-card border border-line bg-white p-5 type-helper text-ink-soft">Opening your Profile Resume…</div> : null}
-        {careerResume.state === 'error' ? <div role="alert" className="rounded-card border border-line bg-white p-5"><p className="type-helper text-alert">Could not open your Profile Resume.</p><button type="button" className={buttonVariants({ variant: 'secondary', size: 'sm' })} onClick={careerResume.reload}>Try again</button></div> : null}
+        {careerResume.state === 'loading' ? <div role="status" className="rounded-card border border-line bg-white p-5 type-helper text-ink-soft">Opening your Career Profile Resume…</div> : null}
+        {careerResume.state === 'error' ? <div role="alert" className="rounded-card border border-line bg-white p-5"><p className="type-helper text-alert">Could not open your Career Profile Resume.</p><button type="button" className={buttonVariants({ variant: 'secondary', size: 'sm' })} onClick={careerResume.reload}>Try again</button></div> : null}
         {resumeList.map((pkg) => (
           <ApplicationCard
             key={pkg.id}

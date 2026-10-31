@@ -1,5 +1,7 @@
 'use client'
 
+import { CTA, NAMES } from '@/lib/serviceLabels'
+
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
@@ -83,7 +85,7 @@ export function HomeProfile({ profile, loading, error, missingLabels = [], score
       <div className={styles.profileNext}>
       <p>{missingLabels.length ? <><strong>Next to add:</strong> {missingLabels.slice(0, 2).join(', ')}{missingLabels.length > 2 ? ` + ${missingLabels.length - 2} more` : ''}. More complete details give every new resume a stronger starting point.</> : <>Your profile is saved and ready to reuse. Keep it current as your experience changes.</>}</p>
       </div>
-      <Link href="/optimize/target" className={styles.action}>Optimize Resume for a Job <ArrowRightIcon aria-hidden="true" className="size-4 shrink-0" /></Link>
+      <Link href="/optimize/target" className={styles.action}>{CTA.addTargetJob} <ArrowRightIcon aria-hidden="true" className="size-4 shrink-0" /></Link>
       <ProfileWorkflow />
       <p className={styles.profileNote}>Your profile stays saved for future jobs. Updating it does not rewrite previously saved optimized resumes.</p>
       <div aria-label="Profile actions" className={styles.footer}><CareerProfileResumeButton showHint={false} /></div>
@@ -95,7 +97,7 @@ export function HomeSavedWork({ overview, loading, error, onRetry }: { overview:
   const rows = [
     { label: 'Resumes', href: '/dashboard/library', tone: 'tailor', count: overview?.resume_count, Icon: DocumentTextIcon },
     { label: 'Cover letters', href: '/cover-letter', tone: 'letter', count: overview?.cover_letter_count, Icon: EnvelopeIcon },
-    { label: 'Interview Q&A', href: '/interview-qa', tone: 'qa', count: overview?.qa_set_count, Icon: QuestionMarkCircleIcon },
+    { label: NAMES.interviewQa, href: '/interview-qa', tone: 'qa', count: overview?.qa_set_count, Icon: QuestionMarkCircleIcon },
     { label: 'Mock interviews', href: '/mock-interview', tone: 'mock', count: overview?.mock_interview_count, Icon: ChatBubbleLeftRightIcon },
   ]
   return <section aria-labelledby="saved-work-heading" className={styles.savedPanel}><div className={styles.savedHeading}><h2 id="saved-work-heading"><span className="md:hidden">Your preparation</span><span className="hidden md:inline">Your saved work</span></h2><Link href="/dashboard/library" aria-label="View your Resume Library" className={styles.action}><ChevronRightIcon aria-hidden="true" className="size-5" /></Link></div>

@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/Button'
 import { ProcessingInline } from '@/components/ui/Processing'
 import { COVER_LETTER_NOTES } from '@/lib/processingNotes'
 import { cn } from '@/lib/utils'
-import { CTA } from '@/lib/serviceLabels'
+import { CTA, NAMES } from '@/lib/serviceLabels'
 import { usePackagePicker } from '@/lib/usePackagePicker'
 import type { PackageSummary } from '@/lib/packageSummary'
 import { SAVED_PER_PACKAGE } from '@/lib/packageSummary'
@@ -207,7 +207,7 @@ function CoverLetterScreen() {
       eyebrow={stageEyebrow('apply')}
       title="Cover Letter"
       subtitle={isRaw ? 'A letter from your saved Career Profile.' : 'A focused letter for your next application.'}
-      uses={isRaw ? ['Profile Resume', 'Saved Career Profile'] : ['Optimized Resume', 'Job You’re Applying For', 'Career Profile']}
+      uses={isRaw ? [NAMES.careerProfileResume, 'Saved Career Profile'] : ['Optimized Resume', 'Job You’re Applying For', 'Career Profile']}
     >
 
       {/* Centered generation form (720px, §C) */}
@@ -363,7 +363,7 @@ function CoverLetterScreen() {
             {generating ? (
               <ProcessingInline
                 steps={[
-                  isRaw ? 'Reading your saved Profile Resume' : 'Reading the saved resume for this job',
+                  isRaw ? 'Reading your saved Career Profile Resume' : 'Reading the saved resume for this job',
                   'Drawing on your Career Profile',
                   `Writing in the ${tone} tone`,
                   'Checking every line against your profile',

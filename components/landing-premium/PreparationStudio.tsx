@@ -1,4 +1,7 @@
 'use client'
+
+import { NAMES } from '@/lib/serviceLabels'
+
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
@@ -7,12 +10,12 @@ import { PROFESSIONS } from '@/app/preparation-pack/catalog'
 import s from './premium.module.css'
 import { WrappedSelect } from '@/components/ui/WrappedSelect'
 const previews = [
- { title: 'ATS resume', route: '/optimize/target', icon: FileText },
- { title: 'Cover letter', route: '/cover-letter', icon: FileText },
- { title: 'Interview Q&A', route: '/interview-qa', icon: BookOpen },
- { title: 'Mock interview', route: '/mock-interview', icon: Mic },
- { title: 'LinkedIn', route: '/linkedin-optimization', icon: UserRound },
- { title: 'NaukriGulf', route: '/naukrigulf-optimization', icon: UserRound },
+ { title: NAMES.optimizedCv, route: '/optimize/target', icon: FileText },
+ { title: NAMES.coverLetter, route: '/cover-letter', icon: FileText },
+ { title: NAMES.interviewQa, route: '/interview-qa', icon: BookOpen },
+ { title: NAMES.mockInterview, route: '/mock-interview', icon: Mic },
+ { title: NAMES.linkedin, route: '/linkedin-optimization', icon: UserRound },
+ { title: NAMES.naukrigulf, route: '/naukrigulf-optimization', icon: UserRound },
 ] as const
 const rolesByPath: readonly (readonly string[])[] = [
  ['Maintenance Engineer', 'Mechanical Commissioning Engineer', 'Facilities Engineer'],

@@ -66,7 +66,7 @@ export const JOURNEY_STEPS: readonly JourneyStep[] = [
   {
     id: 'match',
     name: NAMES.targetJob,
-    action: 'Add the job you want',
+    action: CTA.addTargetJob,
     give: 'The job title, and the job description if you have it',
     get: 'What the job asks for, matched against your profile',
     why: 'A resume is judged against one job. Knowing what it asks for tells you what to bring forward.',

@@ -16,7 +16,7 @@ import { ProcessingInline } from '@/components/ui/Processing'
 import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton'
 import { ArrowLeft, ChevronRight, Mic, MessageSquare, CheckCircle2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { CTA } from '@/lib/serviceLabels'
+import { CTA, NAMES } from '@/lib/serviceLabels'
 import { MOCK_ANSWER_MAX_CHARS } from '@/lib/mockInterviewLimits'
 import { usePackagePicker } from '@/lib/usePackagePicker'
 import type { PackageSummary } from '@/lib/packageSummary'
@@ -321,7 +321,7 @@ function MockInterviewScreen() {
       title="Prepare your mock interview"
       className="mock-interview-page"
       subtitle="Practise, get feedback and improve your next answer."
-      uses={isRaw ? ['Profile Resume', 'Saved Career Profile'] : ['Optimized Resume', 'Job You’re Applying For', 'Career Profile']}
+      uses={isRaw ? [NAMES.careerProfileResume, 'Saved Career Profile'] : ['Optimized Resume', 'Job You’re Applying For', 'Career Profile']}
     >
       <Card tone="light" className="p-4 sm:p-6">
         {total === 0 ? (
@@ -416,7 +416,7 @@ function MockInterviewScreen() {
             <div className="ui-action-row sm:justify-between">
               <p className="type-helper text-ink-muted">
                 {detailLoading && !detail
-                  ? (isRaw ? 'Loading your Profile Resume…' : 'Loading this job…')
+                  ? (isRaw ? 'Loading your Career Profile Resume…' : 'Loading this job…')
                   : run
                     ? 'Your earlier attempts stay in history.'
                     : 'Your first practice starts here.'}

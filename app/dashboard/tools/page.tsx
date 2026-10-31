@@ -1,15 +1,16 @@
+import { CTA, NAMES } from '@/lib/serviceLabels'
 import Link from 'next/link'
 import { SparklesIcon } from '@heroicons/react/24/outline'
 import { NAV_ITEMS, navHref } from '@/components/layout/navItems'
 
 const SERVICES = [
-  { href: '/optimize', detail: 'Match your CV to a job.', action: 'Optimize my resume' },
+  { href: '/optimize', detail: 'Match your CV to a job.', action: CTA.addTargetJob },
   { href: '/templates', detail: 'Choose your resume’s look.', action: 'Explore templates' },
-  { href: '/cover-letter', detail: 'Write a role-specific letter.', action: 'Prepare a cover letter' },
-  { href: '/interview-qa', detail: 'Prepare relevant interview answers.', action: 'Prepare my answers' },
-  { href: '/mock-interview', detail: 'Practise and review your answers.', action: 'Start practising' },
-  { href: '/linkedin-optimization', detail: 'Strengthen your LinkedIn profile.', action: 'Improve LinkedIn' },
-  { href: '/naukrigulf-optimization', detail: 'Improve your Gulf job profile.', action: 'Improve NaukriGulf' },
+  { href: '/cover-letter', detail: 'Write a role-specific letter.', action: CTA.writeCoverLetter },
+  { href: '/interview-qa', detail: 'Prepare relevant interview answers.', action: CTA.prepareInterviewQa },
+  { href: '/mock-interview', detail: 'Practise and review your answers.', action: CTA.startMockInterview },
+  { href: '/linkedin-optimization', detail: 'Strengthen your LinkedIn profile.', action: NAMES.linkedin },
+  { href: '/naukrigulf-optimization', detail: 'Improve your Gulf job profile.', action: NAMES.naukrigulf },
 ] as const
 
 export default function ToolsPage() {

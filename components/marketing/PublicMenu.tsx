@@ -1,5 +1,7 @@
 'use client'
 
+import { CTA, NAMES } from '@/lib/serviceLabels'
+
 import Link from 'next/link'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
@@ -56,12 +58,12 @@ import { cn } from '@/lib/utils'
 const SERVICES = [
   { label: 'Gulf Readiness Score', href: '/gulf-readiness-score', icon: ChartBarIcon, blurb: 'Free, no login — one upload', tag: 'Free' },
   { label: 'Career Profile', href: '/profile', icon: UserCircleIcon, blurb: 'Your career, read once and kept', tag: 'Free' },
-  { label: 'Resume Library', href: '/dashboard/library', icon: BriefcaseIcon, blurb: 'Every application and its stage', tag: 'Free' },
-  { label: 'Optimize Resume', href: '/optimize/target', icon: DocumentTextIcon, blurb: 'Rewritten for the Gulf, never invented', tag: '₹499' },
+  { label: NAMES.library, href: '/dashboard/library', icon: BriefcaseIcon, blurb: 'Every application and its stage', tag: 'Free' },
+  { label: CTA.addTargetJob, href: '/optimize/target', icon: DocumentTextIcon, blurb: 'Rewritten for the Gulf, never invented', tag: '₹499' },
   { label: 'Resume Templates', href: '/templates', icon: RectangleStackIcon, blurb: 'Fifteen Gulf formats', tag: 'Included' },
-  { label: 'Cover Letter', href: '/cover-letter', icon: EnvelopeIcon, blurb: 'Four tones, same profile', tag: '₹999' },
-  { label: 'Interview Q&A', href: '/interview-qa', icon: QuestionMarkCircleIcon, blurb: '25 answers from your optimized resume', tag: 'Live' },
-  { label: 'Mock Interview', href: '/mock-interview', icon: ChatBubbleLeftRightIcon, blurb: 'Text practice and saved report', tag: 'Live' },
+  { label: NAMES.coverLetter, href: '/cover-letter', icon: EnvelopeIcon, blurb: 'Four tones, same profile', tag: '₹999' },
+  { label: NAMES.interviewQa, href: '/interview-qa', icon: QuestionMarkCircleIcon, blurb: '25 answers from your optimized resume', tag: 'Live' },
+  { label: NAMES.mockInterview, href: '/mock-interview', icon: ChatBubbleLeftRightIcon, blurb: 'Text practice and saved report', tag: 'Live' },
 ] as const
 
 export function PublicMenu({ anchors }: { anchors: ReadonlyArray<readonly [string, string]> }) {

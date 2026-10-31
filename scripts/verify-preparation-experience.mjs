@@ -55,7 +55,7 @@ try{
    await page.type('[aria-label="Cover letter text (editable)"]',' Additional real experience.')
    await page.$$eval('button',es=>es.find(e=>e.textContent==='Save changes').click())
    await page.waitForFunction(()=>[...document.querySelectorAll('button')].some(e=>e.textContent==='Saved'))
-   await page.$$eval('button',es=>es.find(e=>e.textContent==='Write cover letter').click())
+   await page.$$eval('button',es=>es.find(e=>e.textContent==='Write Cover Letter').click())
    await page.waitForSelector('main > details [role="alert"]')
    assert.equal(await page.$eval('main > details',e=>e.open),true,'Generation failure must stay visible')
   }

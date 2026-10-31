@@ -685,10 +685,10 @@ function PackageScreenInner({ id }: { id: string }) {
         {tab === 'overview' ? <>
           <section className="studio-document-summary">
             {previewDocument && profile ? <div className="studio-document-thumbnail" data-document-preview><ResumeDocumentView reader={false}><Template document={documentWithLivePhoto} profile={profile} optimizedContent={(pkg.optimized_content ?? { summary: { generated: '', source_profile_summary: '' }, experience_blocks: [] }) as OptimizedContent} skillsOrder={pkg.skills_order ?? []} fieldVisibility={pkg.field_visibility_snapshot ?? null} styleOverrides={draftStyle} /></ResumeDocumentView></div> : <DocumentTextIcon className="size-10 text-teal" aria-hidden="true" />}
-            <div><h2>{previewDocument?.header.displayName || pkg.name || pkg.target_job_title}</h2><p>{isRaw ? 'Profile Resume · Not optimized' : pkg.target_job_title}</p><button type="button" className="studio-text-link" onClick={() => setTab('design')}>Preview resume<ArrowUpRightIcon aria-hidden="true" /></button></div>
+            <div><h2>{previewDocument?.header.displayName || pkg.name || pkg.target_job_title}</h2><p>{isRaw ? 'Career Profile Resume · Not optimized' : pkg.target_job_title}</p><button type="button" className="studio-text-link" onClick={() => setTab('design')}>Preview resume<ArrowUpRightIcon aria-hidden="true" /></button></div>
           </section>
           <WorkspaceServiceCards pkg={pkg} />
-          <details className="studio-workspace-analysis"><summary>{isRaw ? 'About your Profile Resume' : 'Job details & match report'}</summary><div>
+          <details className="studio-workspace-analysis"><summary>{isRaw ? 'About your Career Profile Resume' : 'Job details & match report'}</summary><div>
         {isRaw ? <ProfileResumeOverview /> : null}
         {!isRaw && !showOverview ? <TargetJobOverview pkg={pkg} /> : null}
         {showOverview ? (
