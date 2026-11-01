@@ -137,6 +137,8 @@ try{
  const finalVerification=async()=>{if(!await page.$('#resume-final-preview-title')){await click('Continue to improvement summary');await page.waitForSelector('#improvement-summary-title');await click('Verify final Career Profile');await page.waitForSelector('#resume-final-preview-title')}}
  await click('Review and Improve My Career Profile');await page.waitForSelector('#guided-field-title');
  assert.equal(await page.$$eval('[id^="review-content-"]',els=>els.length),0,'A factual issue takes priority over optional wording');
+ assert.ok(await page.$$eval('button',bs=>bs.some(b=>b.textContent.trim()==='Confirm this is my current role')),'Unknown end-date confirmation explicitly names the current-role decision');
+ assert.equal(await page.$$eval('button',bs=>bs.some(b=>b.textContent.trim()==='I verified this value')),false,'Generic verification cannot silently mean current employment');
  await click('Correct this field');await page.waitForSelector('#profile-editor');
  assert.ok(await page.$eval('#sec_work_experience',el=>el.textContent.includes('Larsen')),'Field correction opens the canonical structured employment controls');
  for(const width of [320,375,390,430]){await page.setViewport({width,height:900,deviceScaleFactor:1});await openContact();await lightContrast('Imported canonical editor '+width,['main h1','#f_full_name','#f_email']);await reflow('Imported canonical editor '+width)}
