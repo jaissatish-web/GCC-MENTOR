@@ -21,10 +21,10 @@ type Step = 'upload' | 'intake' | 'analyzing' | 'result'
 const MAX_TEXT = 20000
 const MIN_TEXT = 50
 
-const ANALYZE_STEPS = ['Reading your resume', 'Organising your career history', 'Finding details to confirm']
+const ANALYZE_STEPS = ['Resume input selected', 'Reading and organizing your career information', 'Preparing your review after the response arrives']
 
 const Shell = ({ children, wide }: { children: React.ReactNode; wide?: boolean }) => (
-  <main className="min-h-dvh bg-canvas text-ink">
+  <main data-career-builder="true" className="min-h-dvh bg-canvas text-ink">
     <header className="border-b border-line bg-canvas/95">
       <div className="page-gutter mx-auto flex min-h-[64px] max-w-[1100px] flex-wrap items-center justify-between gap-2 py-2 sm:min-h-[72px] sm:px-8">
         <Link href="/" className="flex items-center gap-2.5">
@@ -174,9 +174,7 @@ export default function GulfReadinessScorePage() {
   if (step === 'analyzing') {
     return (
       <Shell>
-        {/* All three steps used to pulse at once, so the screen never looked
-            like it was getting anywhere. They now advance in order and hold on
-            the last until the score arrives. */}
+        {/* This request returns once; no timed backend-stage claims. */}
         <div className="flex flex-col items-center gap-6 py-12 text-center">
           <ProcessingOrbit size={168} />
           <div>
@@ -184,7 +182,8 @@ export default function GulfReadinessScorePage() {
             <h1 className="mt-3 type-title">Reading your career details</h1>
           </div>
           <div className="w-full max-w-sm text-left">
-            <ProcessingSteps steps={ANALYZE_STEPS} stepMs={1600} notes={SCAN_NOTES} />
+            <ProcessingSteps steps={ANALYZE_STEPS} activeIndex={1} completedIndices={[0]} notes={SCAN_NOTES} />
+            <p className="mt-3 type-helper text-ink-muted">We are checking your extracted details for missing or unclear information. This step stays active until your reading is ready.</p>
           </div>
         </div>
       </Shell>

@@ -132,7 +132,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const parsed = await extractProfile(read.text, { route: '/api/parse/upload', userId: user.id, layout: read.layout, startedAt })
     if (!parsed.ok) {
-      console.error('parse upload: read failed user=' + user.id + ' code=' + parsed.code + (parsed.detail ? ' ' + parsed.detail : ''))
+      console.error('parse upload: read failed user=' + user.id + ' code=' + parsed.code)
       return NextResponse.json({ error: READ_FAILED, code: parsed.code }, { status: 502 })
     }
     const { draft, report } = parsed

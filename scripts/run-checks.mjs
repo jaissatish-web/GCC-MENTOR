@@ -51,6 +51,7 @@ const TS_CHECKS = [
   'verify-resume-parse.ts',
   'verify-import-review.ts',
   'verify-import-review-checks.ts',
+  'verify-career-diagnostic.ts',
   'verify-review-before-profile.ts',
   'verify-resume-review-recovery.ts',
   'verify-unknown-employment-status.ts',

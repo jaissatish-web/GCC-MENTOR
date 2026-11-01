@@ -52,7 +52,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // lib/resumeParse (2026-10-01): fast read, checks, at most one re-read.
     const parsed = await extractProfile(text.replace(/\r\n?/g, '\n').trim(), { route: '/api/parse/text', userId: user.id })
     if (!parsed.ok) {
-      console.error('parse text: read failed user=' + user.id + ' code=' + parsed.code + (parsed.detail ? ' ' + parsed.detail : ''))
+      console.error('parse text: read failed user=' + user.id + ' code=' + parsed.code)
       return NextResponse.json({ error: READ_FAILED, code: parsed.code }, { status: 502 })
     }
     const { draft, report } = parsed

@@ -79,6 +79,7 @@ export function ResumeImport({
   const [error, setError] = useState<string | null>(null)
   const [checkSaved, setCheckSaved] = useState(false)
   const [text, setText] = useState('')
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [dragging, setDragging] = useState(false)
   // A deep link (?import=upload|paste) is an explicit intent, so it opens the
   // panel even when a profile exists.
@@ -118,6 +119,7 @@ export function ResumeImport({
     setMode('idle')
     setError(null)
     setText('')
+    setSelectedFile(null)
   }
 
   const run = async (call: () => Promise<Response>) => {
@@ -139,6 +141,7 @@ export function ResumeImport({
         onDraft(result.draft, result.warnings, result.review)
         setMode('idle')
         setText('')
+        setSelectedFile(null)
       } catch {
         setError(IMPORT_DISPLAY_FAILED)
         setCheckSaved(true)
@@ -150,7 +153,10 @@ export function ResumeImport({
   }
 
   const chooseFile = (file: File | null) => {
-    if (file) void run(() => uploadResumeFile(file))
+    if (file) {
+      setSelectedFile(file)
+      void run(() => uploadResumeFile(file))
+    }
   }
 
   const submitText = () => {
@@ -253,16 +259,17 @@ export function ResumeImport({
         ) : null}
       </div>
 
+      {parsing ? <p className="mt-3 type-helper text-ink-soft">We are reading your details and checking for missing or unclear information. Only completed steps receive a checkmark.</p> : null}
       {parsing ? (
         <ProcessingInline
           className="mt-3"
           steps={[
-            'Reading your resume',
-            'Finding your roles and dates',
-            'Picking out skills and certifications',
-            'Getting it ready for you to check',
+            'Resume input selected',
+            'Reading and organizing your career information',
+            'Preparing your review after the response arrives',
           ]}
-          stepMs={5000}
+          activeIndex={1}
+          completedIndices={[0]}
           notes={EXTRACTION_NOTES}
         />
       ) : exhausted ? (
@@ -394,6 +401,7 @@ export function ResumeImport({
       {error ? (
         <div role="alert" className="mt-3 rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-2.5 text-[12px] text-alert">
           <p>{error}</p>
+          {mode === 'upload' && selectedFile && !checkSaved ? <button type="button" disabled={parsing} onClick={() => chooseFile(selectedFile)} className="mt-2 inline-block min-h-11 font-semibold underline">Try the selected file again</button> : null}
           {checkSaved ? <button type="button" onClick={() => window.location.assign('/profile')} className="mt-2 inline-block font-semibold underline">Refresh and check saved resume</button> : null}
         </div>
       ) : null}
