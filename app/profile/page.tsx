@@ -10,9 +10,11 @@ import { validProfileEmail, validProfilePhone } from '@/lib/profileFieldValidity
 import { rebaseImportField } from '@/lib/resumeParse/reviewPlan'
 import { INTAKE_KEY, contextFromProfile } from '@/lib/careerIntake/shared'
 import { ResumeAcceptanceReview } from '@/components/profile/ResumeAcceptanceReview'
+import { CareerDiagnostic } from '@/components/profile/CareerDiagnostic'
 import { ResumeImportFindings } from '@/components/profile/ResumeImportFindings'
 import { ProfilePhotoDraft } from '@/components/profile/ProfilePhotoDraft'
 import { resumeReviewChecks } from '@/lib/resumeParse/reviewChecks'
+import { confirmationDigest } from '@/lib/resumeParse/reviewConfirmations'
 import { importReviewPlan } from '@/lib/resumeParse/reviewPlan'
 import { currentImportValue, applyImportChange } from '@/lib/resumeParse/reviewEditor'
 import { WorkExperienceItem } from '@/components/profile/WorkExperienceItem'
@@ -1039,7 +1041,7 @@ function ProfileScreen() {
     const importId = importReview?.id
     if (!importId) {
       if (!originalReviewRef.current) originalReviewRef.current = editor
-      setRecoveryNotice('Your original pending resume can be reopened after refresh. Edited selections cannot be recovered for this older import; keep this tab open until you save.')
+      setRecoveryNotice('Recovery of edited selections is unavailable for this review. Keep this tab open until you save.')
       return
     }
     if (recoveryImportRef.current !== importId) {
@@ -1557,7 +1559,13 @@ function ProfileScreen() {
     }
     const byId = (id: string) => document.getElementById(id)
     // PhoneField ids its number input `f_<key>_number` (its dial code is `_dial`).
-    const input = pendingFocus.field ? (byId(`f_${pendingFocus.field}`) ?? byId(`f_${pendingFocus.field}_number`)) : null
+    const nested = pendingFocus.field?.match(/^(work_experience|education|skills|certifications)\.(\d+)\.(.+)$/)
+    const row = nested && editor ? editor[nested[1] as 'work_experience' | 'education' | 'skills' | 'certifications'][Number(nested[2])] : null
+    const nestedField = nested?.[3] === 'date_order' ? (nested[1] === 'education' ? 'end_year' : 'end_date') : nested?.[3] === 'current_status' ? 'end_date' : nested?.[3]?.startsWith('highlights') ? 'highlights' : nested?.[3]
+    const nestedId = row && nested ? `f_${nested[1]}_${row.key}_${nestedField}` : null
+    const legacyWorkId = row && nested?.[1] === 'work_experience' ? `f_work_${nestedField === 'start_date' ? 'start' : nestedField === 'end_date' ? 'end' : nestedField}_${row.key}` : null
+    const legacyCertId = row && nested?.[1] === 'certifications' ? `f_cert_${nestedField === 'issue_date' ? 'issue' : 'expiry'}_${row.key}` : null
+    const input = pendingFocus.field ? (byId(`f_${pendingFocus.field}`) ?? byId(`f_${pendingFocus.field}_number`) ?? (nestedId ? byId(nestedId) : null) ?? (legacyWorkId ? byId(legacyWorkId) : null) ?? (legacyCertId ? byId(legacyCertId) : null)) : null
     const target = input ?? (pendingFocus.sectionId ? byId(pendingFocus.sectionId) : null)
     setPendingFocus(null)
     if (!target) return
@@ -1567,7 +1575,7 @@ function ProfileScreen() {
     while (disclosure) { disclosure.open = true; disclosure = disclosure.parentElement?.closest('details') ?? null }
     target.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: input ? 'center' : 'start' })
     if (input) input.focus({ preventScroll: true })
-  }, [pendingFocus, view])
+  }, [pendingFocus, view, editor])
 
   // ---- Section status (2026-09-23) -------------------------------------------
   // Complete / Needs attention / Missing / Optional, from what is actually in
@@ -1667,7 +1675,49 @@ function ProfileScreen() {
 
   useEffect(() => { setImportConfirmed(false) }, [currentBody])
   const activeReview: ImportReview = importReview ?? { version: 1, id: 'pending-import', createdAt: '', sourceText: '', imported: { roles: 0, skills: 0, qualifications: 0, certificates: 0 }, wordingStatus: 'not_needed', changes: parseNotes.map((note, i) => ({ id: `note-${i}`, field: note.field, label: 'Please verify', kind: 'check', before: '', after: '', reason: note.message })) }
-  const reviewChecks = editor ? resumeReviewChecks({ ...activeReview, currentRoles: [...(activeReview.currentRoles ?? []), ...editor.work_experience.filter(job => !job.end_date && !job.end_date_unconfirmed).map(currentRoleFingerprint)] }, editor, change => currentImportValue(editor, change)) : []
+  const rawReviewChecks = editor ? resumeReviewChecks({ ...activeReview, currentRoles: [...(activeReview.currentRoles ?? []), ...editor.work_experience.filter(job => !job.end_date && !job.end_date_unconfirmed).map(currentRoleFingerprint)] }, editor, change => currentImportValue(editor, change)) : []
+  const [fieldConfirmations, setFieldConfirmations] = useState<Record<string, string>>({})
+  const confirmationScope = `${activeReview.id}:${savedVersionRef.current ?? 'new'}`
+  const checkSignature = JSON.stringify(rawReviewChecks.filter(check => check.confirmable).map(check => [check.id, check.value, check.reason]))
+  useEffect(() => {
+    let cancelled = false
+    setFieldConfirmations({})
+    if (!importReview?.id) return
+    void (async () => {
+      try {
+        const stored = JSON.parse(sessionStorage.getItem(`${REVIEW_RECOVERY_KEY}:fields`) ?? 'null')
+        if (stored?.scope !== confirmationScope || !stored.values || typeof stored.values !== 'object') return
+        const restored: Record<string, string> = {}
+        for (const check of JSON.parse(checkSignature) as string[][]) {
+          const [id, value, reason] = check
+          if (stored.values[id] === await confirmationDigest(confirmationScope, id, JSON.stringify([value, reason]))) restored[id] = JSON.stringify([value, reason])
+        }
+        if (!cancelled) setFieldConfirmations(restored)
+      } catch { /* A fresh explicit review remains available without storage. */ }
+    })()
+    return () => { cancelled = true }
+  }, [confirmationScope, checkSignature, importReview?.id])
+  const reviewChecks = rawReviewChecks.map(check => check.confirmable && fieldConfirmations[check.id] === JSON.stringify([check.value, check.reason]) ? { ...check, status: 'passed' as const, reason: 'You explicitly verified this captured value against your source.' } : check)
+  const verifyReviewField = async (id: string) => {
+    const check = rawReviewChecks.find(item => item.id === id && item.confirmable && item.value.trim())
+    if (!check || submitting) return
+    const currentRole = check.field.match(/^work_experience\.(\d+)\.current_status$/)
+    if (currentRole) {
+      setEditor(previous => previous && ({ ...previous, work_experience: previous.work_experience.map((job, index) => index === Number(currentRole[1]) ? { ...job, end_date_unconfirmed: false } : job) }))
+      return
+    }
+    const value = JSON.stringify([check.value, check.reason])
+    setFieldConfirmations(previous => ({ ...previous, [id]: value }))
+    setImportConfirmed(false)
+    if (importReview?.id) {
+      try {
+        const digest = await confirmationDigest(confirmationScope, id, value)
+        const stored = JSON.parse(sessionStorage.getItem(`${REVIEW_RECOVERY_KEY}:fields`) ?? 'null')
+        const values = stored?.scope === confirmationScope && stored.values && typeof stored.values === 'object' ? stored.values : {}
+        sessionStorage.setItem(`${REVIEW_RECOVERY_KEY}:fields`, JSON.stringify({ scope: confirmationScope, values: { ...values, [id]: digest } }))
+      } catch { /* The current tab still retains the explicit decision. */ }
+    }
+  }
   const reviewPlan = importReviewPlan(reviewChecks, {})
   const [guidedSections, setGuidedSections] = useState<string[]>([])
   const issueSection = (field: string) => ['date_of_birth', 'linkedin_url', 'passport_type'].includes(field) ? 'sec_identity' : sectionOfField(field) ?? sectionOfField(field.split('.')[0]) ?? 'sec_additional'
@@ -1680,6 +1730,11 @@ function ProfileScreen() {
   useEffect(() => { if (!orderedIssues.length) setShowImportIssues(false) }, [orderedIssues.length])
   const guidedState = (id: string): 'attention' | 'resolved' | undefined => !guidedSections.includes(id) ? undefined : orderedIssues.some(check => issueSection(check.field) === id) ? 'attention' : 'resolved'
   const guidedMessage = (id: string) => { const issue = orderedIssues.find(check => issueSection(check.field) === id); return issue ? `${issue.title}: ${issue.reason}` : undefined }
+  const goToReviewField = (field: string) => {
+    const sectionId = issueSection(field)
+    setGuidedSections(previous => [...new Set([...previous, sectionId])])
+    goToProfilePart({ field, sectionId })
+  }
   const guideToFirstIssue = () => {
     const first = orderedIssues[0]
     if (!first) return
@@ -1809,7 +1864,7 @@ function ProfileScreen() {
             ...e,
             work_experience: [
               ...e.work_experience,
-              { key, company: '', role: '', start_date: '', end_date: '', location: '', description: '', highlights: '', gcc_country: '' },
+              { key, company: '', role: '', start_date: '', end_date: '', end_date_unconfirmed: true, location: '', description: '', highlights: '', gcc_country: '' },
             ],
           }
         : e
@@ -1992,7 +2047,7 @@ function ProfileScreen() {
           setShowImport(false)
           setParseNotes([])
           setSubmitting(false)
-          if (isReviewRoute) router.replace('/profile')
+          if (isReviewRoute) router.replace('/dashboard')
           else showView('summary')
           window.scrollTo({ top: 0 })
           return
@@ -2213,6 +2268,16 @@ function ProfileScreen() {
     else showView('summary')
   }
   const saveChanges = (defer = false) => {
+    if (!hasSavedProfile && !reviewingImport && !loadError) {
+      originalReviewRef.current = editor
+      setReviewingImport(true)
+      setReviewEditing(false)
+      setImportConfirmed(false)
+      // The existing reviewingImport effect updates the URL in place so typed
+      // facts stay in this canonical editor until explicit confirmation.
+      window.scrollTo({ top: 0 })
+      return
+    }
     if (reviewingImport) {
       if (!importConfirmed || loadError) return
       if (reviewPlan.outstanding.length && !defer) { setShowImportIssues(true); guideToFirstIssue(); return }
@@ -2240,13 +2305,12 @@ function ProfileScreen() {
 
   if (isReviewRoute && reviewingImport && !reviewEditing) {
     const text = (values: Array<string | null | undefined>) => values.filter(value => value?.trim()).join(' · ')
-    const status = (id: string) => sectionStatuses.find(section => section.id === id)?.status ?? 'optional'
     const reviewSections = (data: EditorData) => {
       const additional = (kind: string) => data.additional_information.filter(row => profileBlockForCategory(row.category_name ?? row.label) === kind).map(row => text([row.label, row.level, row.value])).join('\n')
       const sections = [
         { id:'sec_identity', title:'Personal Information', content:[['Name',data.full_name],['Email',data.email],['Phone',data.phone],['WhatsApp',data.whatsapp],['Location',data.current_location],['Nationality',data.nationality],['Date of birth',data.date_of_birth],['LinkedIn',data.linkedin_url],['Passport type',data.passport_type],['Passport validity',data.passport_validity_date]].filter(([,value])=>value).map(([label,value])=>`${label}: ${value}`).join('\n'), field:'identity' },
         { id:'sec_summary', title:'Professional Summary', content:data.professional_summary, field:'professional_summary' },
-        { id:'sec_work_experience', title:'Experience', content:data.work_experience.map(job => [text([job.role,job.company,job.start_date,job.end_date,job.location]),job.description,job.highlights].filter(Boolean).join('\n')).join('\n\n'), field:'work_experience' },
+        { id:'sec_work_experience', title:'Experience', content:data.work_experience.map(job => [text([job.role,job.company,job.start_date,job.end_date || (job.end_date_unconfirmed ? 'End/current status unconfirmed' : 'Current role confirmed'),job.location]),job.description,job.highlights].filter(Boolean).join('\n')).join('\n\n'), field:'work_experience' },
         { id:'sec_skills', title:'Skills', content:text([data.skills.map(row=>row.name).join(' · '),additional('skills')]), field:'skills' },
         { id:'sec_certifications', title:'Certifications', content:data.certifications.map(row=>text([row.name,row.issuer,row.issue_date,row.expiry_date])).join('\n'), field:'certifications' },
         { id:'sec_education', title:'Education', content:text([data.education.map(row=>text([row.degree,row.institution,row.field_of_study,row.start_year,row.end_year])).join('\n'),additional('education')]), field:'education' },
@@ -2254,12 +2318,21 @@ function ProfileScreen() {
         { id:'sec_status', title:'Gulf Preferences & Availability', content:text([data.target_job_title,data.target_country,data.target_industry,data.target_company,data.current_employer,data.current_project,data.notice_period,data.visa_status,data.visa_transferable===true?'Visa transferable':data.visa_transferable===false?'Visa not transferable':'',data.degree_attestation,data.saudi_verification,data.arabic_level,additional('gulf')]),field:'status' },
         { id:'sec_additional',title:'Additional Information',content:data.additional_information.filter(row=>!profileBlockForCategory(row.category_name??row.label) && !['Preparation details (private)','Profile headline'].includes(row.category_name??row.label)).map(row=>text([row.label,row.value])).join('\n'),field:'additional_information' },
       ]
-      return sections.map(section => ({ ...section, status: section.id.startsWith('sec_') && section.id !== 'sec_additional' ? status(section.id) : section.content ? 'complete' as const : 'optional' as const, hint:sectionStatuses.find(item=>item.id===section.id)?.hint,
+      return sections.map(section => ({ ...section, status: reviewChecks.some(check => check.status === 'attention' && (section.field === 'identity' ? (SECTION_FIELDS.sec_identity as readonly string[]).includes(check.field) : section.field !== 'additional_information' && section.field !== 'status' && (check.field === section.field || check.field.startsWith(section.field + '.')))) ? 'attention' as const : section.content.trim() ? 'complete' as const : 'optional' as const,
+        hint: section.field === 'status' ? 'Optional destination preferences are separate from general career facts.' : 'Review only details that apply to your career. Missing optional information can be added later.',
         changes: activeReview.changes.filter(change => section.field === 'identity' ? (SECTION_FIELDS.sec_identity as readonly string[]).includes(change.field) : section.field === 'status' ? (SECTION_FIELDS.sec_status as readonly string[]).includes(change.field) : change.field === section.field || change.field.startsWith(section.field+'.')).filter(change => section.field !== 'additional_information' || (section.id === 'sec_additional' ? !profileBlockForCategory(change.label) : profileBlockForCategory(change.label) === section.id)) }))
     }
     const sections = reviewSections(editor)
     const originalContents = Object.fromEntries(reviewSections(originalReviewRef.current ?? editor).map(section=>[section.id,section.content]))
-    return <ResumeAcceptanceReview candidateName={editor.full_name} recoveryKey={importReview?.id ? REVIEW_RECOVERY_KEY : undefined} originalContents={originalContents} sections={sections} review={activeReview} score={claimedScan?.overall_score} strengths={claimedScan?.strengths} improvements={claimedScan?.improvements} profileExists={hasSavedProfile} currentValue={change=>currentImportValue(editor,change)} onChoose={(change,value)=>setEditor(applyImportChange(editor,change,value,uid))} onEdit={id=>goToProfilePart({sectionId:id.startsWith('sec_')?id:'sec_additional',categoryBlock:id.startsWith('sec_')?undefined:id})} confirmed={importConfirmed} onConfirm={setImportConfirmed} busy={submitting} error={saveError ?? loadError} saveDisabled={Boolean(loadError)} onSave={()=>saveChanges()} issues={<>{recoveryNotice ? <p role="status" className="mt-3 type-helper text-ink-soft">{recoveryNotice}</p> : null}{showImportIssues ? <section ref={importIssueRef} tabIndex={-1} className="rounded-card border border-alert bg-alert-soft p-4"><h2 className="type-section text-alert">Some details still need attention</h2><p className="mt-2 type-helper text-ink-soft">Update them now, or save with missing details and complete them later. Invalid supplied values must be corrected or cleared.</p><div className="mt-3 flex flex-wrap gap-2"><Button variant="secondary" size="sm" onClick={()=>goToProfilePart({field:reviewPlan.outstanding[0]?.field ?? 'full_name'})}>Update now</Button><Button size="sm" disabled={submitting || reviewPlan.invalid.length>0} onClick={()=>saveChanges(true)}>Skip and save</Button></div></section> : null}</>} />
+    const baseline = originalReviewRef.current ?? editor
+    const baselineChecks = resumeReviewChecks({ ...activeReview, currentRoles: [...(activeReview.currentRoles ?? []), ...baseline.work_experience.filter(job => !job.end_date && !job.end_date_unconfirmed).map(currentRoleFingerprint)] }, baseline, change => currentImportValue(baseline, change))
+    const diagnosticProfile = { ...editor, professional_headline: profileHeadline(editor.additional_information)?.value }
+    const diagnosticOriginal = { ...baseline, professional_headline: profileHeadline(baseline.additional_information)?.value }
+    const diagnosticEdit = (id: string) => {
+      const mapped: Record<string, string> = { contact: 'sec_identity', summary: 'sec_summary', experience: 'sec_work_experience', education: 'sec_education', skills: 'sec_skills', training: 'sec_certifications' }
+      goToProfilePart(mapped[id] ? { sectionId: mapped[id] } : { sectionId: 'sec_additional', categoryBlock: id })
+    }
+    return <ResumeAcceptanceReview fieldIssues={reviewChecks.filter(check => check.status === 'attention')} onFixField={goToReviewField} onVerifyField={id => { void verifyReviewField(id) }} diagnostic={<CareerDiagnostic profile={diagnosticProfile} originalProfile={diagnosticOriginal} review={activeReview} checks={reviewChecks} onEdit={diagnosticEdit} onFix={goToReviewField} busy={submitting} />} suppliedFieldCount={baselineChecks.filter(check => !check.value.trim() && rawReviewChecks.some(current => current.id === check.id && current.status === 'passed' && current.value.trim())).length} verifiedFieldCount={rawReviewChecks.filter(check => check.confirmable && fieldConfirmations[check.id] === JSON.stringify([check.value, check.reason])).length} originalIssueIds={baselineChecks.filter(check => check.status === 'attention').map(check => check.id)} currentIssueIds={reviewChecks.filter(check => check.status === 'attention').map(check => check.id)} candidateName={editor.full_name} recoveryKey={importReview?.id ? REVIEW_RECOVERY_KEY : undefined} originalContents={originalContents} sections={sections} review={activeReview} score={claimedScan?.overall_score} strengths={claimedScan?.strengths} improvements={claimedScan?.improvements} profileExists={hasSavedProfile} currentValue={change=>currentImportValue(editor,change)} onChoose={(change,value)=>setEditor(applyImportChange(editor,change,value,uid))} onEdit={id=>goToProfilePart({sectionId:id.startsWith('sec_')?id:'sec_additional',categoryBlock:id.startsWith('sec_')?undefined:id})} confirmed={importConfirmed} onConfirm={setImportConfirmed} busy={submitting} error={saveError ?? loadError} saveDisabled={Boolean(loadError)} onSave={()=>saveChanges()} issues={<>{recoveryNotice ? <p role="status" className="mt-3 type-helper text-ink-soft">{recoveryNotice}</p> : null}{showImportIssues ? <section ref={importIssueRef} tabIndex={-1} className="rounded-card border border-alert bg-alert-soft p-4"><h2 className="type-section text-alert">Some details still need attention</h2><p className="mt-2 type-helper text-ink-soft">Update them now, or save with missing details and complete them later. Invalid supplied values must be corrected or cleared.</p><div className="mt-3 flex flex-wrap gap-2"><Button variant="secondary" size="sm" onClick={()=>goToProfilePart({field:reviewPlan.outstanding[0]?.field ?? 'full_name'})}>Update now</Button><Button size="sm" disabled={submitting || reviewPlan.invalid.length>0} onClick={()=>saveChanges(true)}>Skip and save</Button></div></section> : null}</>} />
   }
 
   // ---- Completeness ---------------------------------------------------------
@@ -2355,7 +2428,7 @@ function ProfileScreen() {
 
   // ---- The full profile (view === 'details') --------------------------------
   return (
-    <main data-ui-service="profile" className={MAIN_CLASS}>
+    <main data-ui-service="profile" data-career-builder={reviewingImport || !hasSavedProfile ? "true" : undefined} className={MAIN_CLASS}>
       <ViewHeader eyebrow={isReviewRoute ? "Resume Review" : "Career Profile"} title="Edit Career Profile" description="Update your information here, then save your changes." onBack={cancelEditing} backLabel="Career Profile" />
       {isReviewRoute ? <div className="page-gutter py-3"><Button variant="secondary" onClick={()=>{setReviewEditing(false);window.scrollTo({top:0})}}>Back to Resume Review</Button></div> : null}
       {loadErrorBlock}
@@ -2865,7 +2938,7 @@ function ProfileScreen() {
                   </button>
                 </div>
                 <Input id={`f_work_role_${w.key}`} tone="light" label="Role" placeholder="e.g. Senior Instrument Engineer" value={w.role} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { role: e.target.value }) }))} />
-                <Input tone="light" label="Employer / your business" placeholder="e.g. Bechtel · use Self-employed if applicable" value={w.company} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { company: e.target.value }) }))} />
+                <Input id={`f_work_experience_${w.key}_company`} tone="light" label="Employer / your business" placeholder="e.g. Bechtel · use Self-employed if applicable" value={w.company} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { company: e.target.value }) }))} />
                 <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                   <DateField id={`f_work_start_${w.key}`} label="Start" value={w.start_date} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { start_date: e.target.value }) }))} />
                   <DateField id={`f_work_end_${w.key}`} label="End" helper="Leave blank if this is your current role." value={w.end_date} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { end_date: e.target.value, end_date_unconfirmed: e.target.value ? false : w.end_date_unconfirmed }) }))} />
@@ -2904,6 +2977,7 @@ function ProfileScreen() {
                   <textarea
                     rows={3}
                     className={textareaClass}
+                    id={`f_work_experience_${w.key}_description`}
                     placeholder="Include employment type (e.g. internship or freelance), client/project where relevant, and what you actually did."
                     value={w.description}
                     onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { description: e.target.value }) }))}
@@ -2915,6 +2989,7 @@ function ProfileScreen() {
                     rows={3}
                     className={textareaClass}
                     placeholder={'One per line, e.g.\nCut rework by 18% with a new isometric check\nZero LTI across 1.2M man-hours'}
+                    id={`f_work_experience_${w.key}_highlights`}
                     value={w.highlights}
                     onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { highlights: e.target.value }) }))}
                   />
@@ -2978,12 +3053,12 @@ function ProfileScreen() {
                     Remove
                   </button>
                 </div>
-                <Input tone="light" label="Degree" placeholder="e.g. B.Tech" value={x.degree} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { degree: e.target.value }) }))} />
-                <Input tone="light" label="Institution" placeholder="e.g. UPTU" value={x.institution} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { institution: e.target.value }) }))} />
+                <Input id={`f_education_${x.key}_degree`} tone="light" label="Degree" placeholder="e.g. B.Tech" value={x.degree} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { degree: e.target.value }) }))} />
+                <Input id={`f_education_${x.key}_institution`} tone="light" label="Institution" placeholder="e.g. UPTU" value={x.institution} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { institution: e.target.value }) }))} />
                 <Input tone="light" label="Field of study / study status" placeholder="e.g. Electronics · Ongoing, expected 2027" value={x.field_of_study} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { field_of_study: e.target.value }) }))} />
                 <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-                  <Input tone="light" label="Start year" inputMode="numeric" placeholder="2005" value={x.start_year} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { start_year: e.target.value }) }))} />
-                  <Input tone="light" label="End year" inputMode="numeric" placeholder="2009" value={x.end_year} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { end_year: e.target.value }) }))} />
+                  <Input id={`f_education_${x.key}_start_year`} tone="light" label="Start year" inputMode="numeric" placeholder="2005" value={x.start_year} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { start_year: e.target.value }) }))} />
+                  <Input id={`f_education_${x.key}_end_year`} tone="light" label="End year" inputMode="numeric" placeholder="2009" value={x.end_year} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { end_year: e.target.value }) }))} />
                 </div>
               </div>
             ))}
@@ -3012,7 +3087,7 @@ function ProfileScreen() {
             {editor.skills.map((s, i) => (
               <div key={s.key} className="flex items-center gap-2">
                 <span className="w-5 shrink-0 text-right type-caption font-semibold text-sec-skills">{i + 1}</span>
-                <Input tone="light"
+                <Input tone="light" id={`f_skills_${s.key}_name`}
                   value={s.name}
                   placeholder="e.g. Piping stress analysis (CAESAR II)"
                   aria-label={`Skill ${i + 1}`}
@@ -3068,7 +3143,7 @@ function ProfileScreen() {
                     Remove
                   </button>
                 </div>
-                <Input tone="light" label="Name" placeholder="e.g. Functional Safety (IEC 61511)" value={c.name} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { name: e.target.value }) }))} />
+                <Input id={`f_certifications_${c.key}_name`} tone="light" label="Name" placeholder="e.g. Functional Safety (IEC 61511)" value={c.name} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { name: e.target.value }) }))} />
                 <Input tone="light" label="Issuer" placeholder="e.g. TÜV Rheinland" value={c.issuer} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { issuer: e.target.value }) }))} />
                 <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                   <DateField id={`f_cert_issue_${c.key}`} label="Issued" value={c.issue_date} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { issue_date: e.target.value }) }))} />

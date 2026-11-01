@@ -25,5 +25,5 @@ export function writeReviewRecovery<T>(storage: Pick<Storage, 'setItem'> | null,
   try { if (!storage) return false; storage.setItem(REVIEW_RECOVERY_KEY, JSON.stringify(value)); return true } catch { return false }
 }
 export function clearReviewRecovery(storage: Pick<Storage, 'removeItem'> | null): void {
-  try { storage?.removeItem(REVIEW_RECOVERY_KEY); storage?.removeItem(REVIEW_RECOVERY_KEY + ':markers') } catch { /* Review stays usable without browser storage. */ }
+  try { storage?.removeItem(REVIEW_RECOVERY_KEY); storage?.removeItem(REVIEW_RECOVERY_KEY + ':markers'); storage?.removeItem(REVIEW_RECOVERY_KEY + ':fields') } catch { /* Review stays usable without browser storage. */ }
 }

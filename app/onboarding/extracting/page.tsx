@@ -11,34 +11,9 @@ import { CAREER_PROFILE_DRAFT_KEY, CAREER_PROFILE_PARSE_NOTES_KEY, CLAIMED_RESUM
 import { EXTRACTION_NOTES } from '@/lib/processingNotes'
 import { uploadResumeFile, requestResumeImport, IMPORT_DISPLAY_FAILED } from '@/lib/resumeParse/clientImport'
 
-/**
- * Extraction progress screen — screen 03 (TASK-023), route /onboarding/extracting.
- *
- * Conversion of the "03 · Extracting (transient)" screen in
- * design-reference/MVP Screens.dc.html — sweep-animated "CV" badge and an
- * itemised four-row checklist. Not a spinner. The mockup's "usually takes
- * ~20s" and its "nothing is saved until you confirm" footer are gone
- * (2026-09-11): the estimate was a local number production runs well past,
- * and a first-time profile IS saved straight after extraction (2026-08-18).
- *
- * TASK-082 light restyle (2026-08-12, PAGE_SPECS.md §B): the dark navy
- * full-screen mockup frame becomes a single light centered card on the
- * paper `--bg` (the extract/collect surface is a 640px card; the
- * extracting progress is a narrow centered card). Logic is untouched —
- * collect → extracting → error/success, the client timer, the /api/parse
- * calls, the session-storage handoff, and the error path are unchanged.
- *
- * TRANSIENT SCREEN — not streaming: POST /api/parse/upload and /api/parse/text
- * each return the full CareerProfileDraft once. The four checklist rows advance
- * on a client-side timer to approx. a typical read (ROW_MS); there is no server-sent
- * per-field progress. If the response arrives first, the checklist is skipped
- * straight to done.
- *
- * On success the draft is stored in SESSIONSTORAGE under the single documented
- * key CAREER_PROFILE_DRAFT_KEY, then routed to /profile. TASK-024 reads/clears.
- *
- * On API error the server's own message is shown (e.g. 429), with a way back to
- * /onboarding — never a stranded screen.
+/** Existing parse routes return one complete result, without stage events.
+ * The selected input is known; internal extraction/check steps remain pending
+ * until the actual response. This screen never advances backend progress on a timer.
  */
 
 /**
@@ -50,21 +25,13 @@ import { uploadResumeFile, requestResumeImport, IMPORT_DISPLAY_FAILED } from '@/
  */
 type Path = 'upload' | 'paste' | 'claimed'
 
-// "4 work experience entries" used to be the second row, shown to everyone —
-// a fresher with one job and a veteran with nine were both told four. It was a
-// small invented fact on the screen that exists to promise nothing is invented.
 const CHECKLIST = [
-  'Contact & identity fields',
-  'Work experience entries',
-  'Skills & certifications',
-  'Education',
+  'Resume input selected',
+  'Reading and organizing your career information',
+  'Preparing your review after the response arrives',
 ]
 
 type Stage = 'collect' | 'extracting' | 'error'
-
-// 4 rows × 2s ≈ a typical read since lib/resumeParse (2026-10-01: median 5s,
-// slowest ~13s on the resume-lab set). Was 5s per row for a ~20s read.
-const ROW_MS = 2000
 
 function ExtractingScreen() {
   const router = useRouter()
@@ -76,7 +43,6 @@ function ExtractingScreen() {
   const [file, setFile] = useState<File | null>(null)
   const [text, setText] = useState('')
   const [stage, setStage] = useState<Stage>('collect')
-  const [rowCount, setRowCount] = useState(0)
   const [serverMessage, setServerMessage] = useState('')
   const [checkSaved, setCheckSaved] = useState(false)
   const importBusy = useRef(false)
@@ -98,12 +64,6 @@ function ExtractingScreen() {
     setStage('extracting')
     setServerMessage('')
     setCheckSaved(false)
-
-    // Client-side timer advances the four rows (~20s). Started at 1 (active).
-    setRowCount(1)
-    const timer = window.setInterval(() => {
-      setRowCount((c) => Math.min(c + 1, CHECKLIST.length))
-    }, ROW_MS)
 
     try {
       const result = await requestResumeImport(() =>
@@ -127,7 +87,6 @@ function ExtractingScreen() {
         setStage('error')
       }
     } finally {
-      clearInterval(timer)
       importBusy.current = false
     }
   }, [file, path, router, text])
@@ -158,7 +117,7 @@ function ExtractingScreen() {
   // this the paste card would flash for one frame before the effect above runs.
   if (path === 'claimed' && stage === 'collect') {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-canvas px-6 py-12 font-redesign-sans">
+      <main data-career-builder="true" className="flex min-h-dvh items-center justify-center bg-canvas px-6 py-12 font-redesign-sans">
         <p className="text-sm text-ink-soft type-helper">Picking up your scan…</p>
       </main>
     )
@@ -167,7 +126,7 @@ function ExtractingScreen() {
   // ---- Collect stage (deferred upload/paste interaction) -------------------
   if (stage === 'collect') {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-canvas px-6 py-12 font-redesign-sans">
+      <main data-career-builder="true" className="flex min-h-dvh items-center justify-center bg-canvas px-6 py-12 font-redesign-sans">
         <Card tone="light" className="w-full max-w-[560px] p-6 sm:p-8">
           <Link
             href="/onboarding"
@@ -222,7 +181,7 @@ function ExtractingScreen() {
   // ---- Error stage: give the user a way back, never strand on the screen
   if (stage === 'error') {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-canvas px-6 py-12 font-redesign-sans">
+      <main data-career-builder="true" className="flex min-h-dvh items-center justify-center bg-canvas px-6 py-12 font-redesign-sans">
         <Card tone="light" className="w-full max-w-[480px] p-8 text-center">
           <div className="mx-auto flex size-24 items-center justify-center rounded-card border border-line bg-canvas font-display text-3xl text-teal">
             !
@@ -251,7 +210,7 @@ function ExtractingScreen() {
 
   // ---- Extracting stage: single centered card with the step checklist ------
   return (
-    <main className="flex min-h-dvh flex-col bg-canvas font-redesign-sans">
+    <main data-career-builder="true" className="flex min-h-dvh flex-col bg-canvas font-redesign-sans">
       <div className="mx-auto flex w-full max-w-[520px] flex-1 flex-col items-center justify-center gap-6 px-6 py-12">
         {/* The shared processing orbit, with "CV" in its core. It replaces a
             static badge with a light sweeping across it, which on a slow phone
@@ -261,15 +220,13 @@ function ExtractingScreen() {
         <div className="text-center">
           <h1 className="font-display text-[27px] leading-tight text-ink">Reading your resume</h1>
           <p className="mt-2 type-helper leading-relaxed text-ink-soft">
-            Finding your roles, dates, skills and certifications.
+            Reading your details and checking for missing or unclear information. This step stays active until your reading is ready.
           </p>
         </div>
 
-        <ProcessingSteps steps={CHECKLIST} activeIndex={Math.max(0, rowCount - 1)} notes={EXTRACTION_NOTES} />
+        <ProcessingSteps steps={CHECKLIST} activeIndex={1} completedIndices={[0]} notes={EXTRACTION_NOTES} />
 
-        {/* Was "— nothing is saved until you confirm". Not true for a
-            first-time profile, which is auto-saved straight after this
-            (2026-08-18). What IS true in every case is below. */}
+        {/* The response is a pending reading; final facts still require review. */}
         <p className="text-center type-helper leading-relaxed text-ink-muted">
           You&apos;ll review and correct everything on the next screen.
         </p>

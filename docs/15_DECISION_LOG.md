@@ -1961,3 +1961,6 @@ Founder authorized five policies dated 29 October 2026 and delivery on feat/lega
 
 ## 31 October 2026
 TERM-001: Founder requests one consistent term for each destination/action. Use Optimize Resume for a New Job for new-target entry points, retain Optimize Resume for This Job for generation on a selected target. Preserve distinct assessments and existing behavior; see TERMINOLOGY.md.
+
+## 1 November 2026 — Universal Career Profile Builder 2.0
+Satish authorizes implementation and CI-approved PR merge of globally applicable visual diagnostics and guided correction on the existing profile journey. Source facts require explicit user decisions; extracted does not mean verified. No new readiness/scoring formula, schema migration, paid infrastructure or manual production redeployment is authorized. Country advice remains neutral without verified sources.
