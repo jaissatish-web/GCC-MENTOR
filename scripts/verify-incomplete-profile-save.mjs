@@ -47,6 +47,20 @@ try {
   assert.equal(updated.id,role.id);assert.equal(updated.end_date_unconfirmed,false);assert.equal(updated.start_date.toISOString().slice(0,10),'2020-01-01')
   assert.equal((await put({...complete,full_name:'Stale edit',expected_updated_at:'2000-01-01T00:00:00Z'})).status,409)
   assert.equal((await asUser(db,owner,()=>db.query('select full_name from public.career_profiles'))).rows[0].full_name,'Example Person')
+  // Optional profile addresses remain candidate text, even when malformed.
+  // The frontend warns; this route already stores strings without correction.
+  for (const linkedin_url of ['linkedin.com/in/example-person', 'Wrong LinkedIn address', 'javascript:alert(1)', '<script>candidate supplied text</script>']) {
+    const accepted=await put({...complete,expected_updated_at:undefined,linkedin_url})
+    assert.equal(accepted.status,200,'Optional LinkedIn text must not block an otherwise valid profile')
+    assert.equal((await asUser(db,owner,()=>db.query('select linkedin_url from public.career_profiles'))).rows[0].linkedin_url,linkedin_url,'Supplied LinkedIn text is stored unchanged')
+    assert.equal((await asUser(db,other,()=>db.query('select linkedin_url from public.career_profiles'))).rows.length,0,'Optional text remains owner isolated')
+  }
+  const beforeLinkedInRejection=rpcCalls
+  for (const patch of [{linkedin_url:42},{linkedin_url:'Wrong LinkedIn',email:'invalid'},{linkedin_url:'Wrong LinkedIn',phone:'not a number'}]) {
+    assert.equal((await put({...complete,expected_updated_at:undefined,...patch})).status,400,'Optional URL warning does not allow malformed required facts or scalar types')
+  }
+  assert.equal(rpcCalls,beforeLinkedInRejection,'Invalid supplied types/required values still cannot reach storage')
+  console.log('PASS LinkedIn save: exact malformed text round-trip, owner isolation and unchanged type/email/phone validation')
   // The exact reported failure: same group identity, divergent item metadata.
   const categoryId='10000000-0000-4000-8000-000000000001'
   const conflicting=[

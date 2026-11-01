@@ -4,7 +4,7 @@ import type { ReviewCheck } from './reviewChecks'
  * The explicit defer/save action uses `invalid`, not this legacy grouping.
  */
 export function isBlockingImportCheck(check: ReviewCheck): boolean {
-  if (check.status !== 'attention') return false
+  if (check.status !== 'attention' || check.blocking === false) return false
   if (check.confirmable) return true
   if (/^(full_name|email|phone)$/.test(check.field)) return true
   if (/^work_experience\.\d+\.(company|role|start_date|end_date|date_order)$/.test(check.field)) return true
@@ -17,9 +17,10 @@ export function importReviewPlan(checks: ReviewCheck[], confirmations: Record<st
   const outstanding = checks.filter(check => check.status === 'attention' && !(check.confirmable && confirmations[check.id] === check.value))
   return {
     outstanding,
-    // A missing fact can be deferred. A malformed supplied value must be
-    // corrected or cleared; skipping never confirms an uncertain extraction.
-    invalid: outstanding.filter(check => !check.confirmable && !!check.value.trim()),
+    // A missing fact can be deferred. Malformed supplied values need correction
+    // except explicit optional advisories (currently LinkedIn). Skipping never
+    // confirms an uncertain extraction or changes the saved text.
+    invalid: outstanding.filter(check => check.blocking !== false && !check.confirmable && !!check.value.trim()),
     blocking: outstanding.filter(isBlockingImportCheck),
     later: outstanding.filter(check => !isBlockingImportCheck(check)),
     passed: checks.filter(check => check.status === 'passed' || (check.confirmable && confirmations[check.id] === check.value)).length,

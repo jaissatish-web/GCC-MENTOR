@@ -27,15 +27,27 @@ body .app-type [data-ui-service="resume-review"] .review-progress {
 /* Canonical editor correction feedback; no scoring or validation changes. */
 body .app-type [data-guided-validation="attention"] {
   border: 2px solid rgb(var(--ui-error-rgb)) !important;
-  animation: profile-issue-pulse 1s ease-in-out 3;
+  animation: none;
 }
 body .app-type [data-guided-validation="resolved"] {
   border: 2px solid rgb(var(--ui-success-rgb)) !important;
   animation: none;
 }
-@keyframes profile-issue-pulse {
-  50% { box-shadow: 0 0 0 4px rgb(var(--ui-error-rgb) / .2); }
-}
 @media (prefers-reduced-motion: reduce) {
   body .app-type [data-guided-validation] { animation: none; }
+}
+
+/* Keep the actionable message readable without blinking or recolouring fields. */
+body .app-type [data-guided-validation="attention"] > [role="status"] {
+  background-color: rgb(var(--ui-error-soft-rgb));
+  padding-top: 12px;
+}
+body .app-type [data-guided-validation="resolved"] > [role="status"] {
+  background-color: rgb(var(--ui-success-soft-rgb));
+  padding-top: 12px;
+}
+
+/* Optional link warnings remain red despite workspace paragraph defaults. */
+body .app-type [data-linkedin-warning] {
+  color: rgb(var(--ui-error-rgb)) !important;
 }

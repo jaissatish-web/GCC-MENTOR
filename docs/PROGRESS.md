@@ -304,3 +304,10 @@ THEME-CONSISTENCY-002 PR61 review follow-up: implement awaited pending-reading c
 PR61 review follow-up local verification: typecheck/lint and89/89 suites passed;90 profile browser groups passed, including held cleanup/reload and failure/retry. Production build and corrected-head required CI/release remain gates.
 
 Final PR61 review-correction production build passed locally. Required remote checks on the resulting head remain mandatory before merge.
+
+## PROFILE-INTAKE-003 — 1 November 2026 — approved, implementation pending
+Founder authorizes focused intake/processing/review screens, no editor below input choices; optional malformed LinkedIn is a red non-blocking warning, preserved unchanged; issue links focus owning block with stable red boundary that clears on correction. Scope/acceptance in PROFILE_INTAKE_SEPARATION.md. Reuse existing editor/import/save; protect required validation, scoring/schema/auth/business/provider/document behavior. Temporary branch feat/separate-profile-intake; required CI before merge, automatic deployment verification.
+
+PROFILE-INTAKE-003 implemented/local verification: standalone canonical input/progress/review presentation; no editor beneath intake; manual/cancel routing; non-blocking red LinkedIn warning with unchanged storage; exact issue focus/stable boundaries and corrected-state green. npm run check89/89, workspace83 and profile116 browser groups passed with synthetic APIs; atomic exact-string/owner isolation tests passed. Warning helper-colour conflict fixed and rerun. Final source build/required CI/PR/automatic production deployment pending. See PROFILE_INTAKE_SEPARATION.md for evidence and live-account/provider limits.
+
+Final source production build passed, including /profile/import. Publication remains gated on required corrected-head CI; no live authenticated/provider claim.
