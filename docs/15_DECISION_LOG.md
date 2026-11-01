@@ -1964,3 +1964,6 @@ TERM-001: Founder requests one consistent term for each destination/action. Use 
 
 ## 1 November 2026 — Universal Career Profile Builder 2.0
 Satish authorizes implementation and CI-approved PR merge of globally applicable visual diagnostics and guided correction on the existing profile journey. Source facts require explicit user decisions; extracted does not mean verified. No new readiness/scoring formula, schema migration, paid infrastructure or manual production redeployment is authorized. Country advice remains neutral without verified sources.
+
+## 1 November 2026 — Shared visual consistency repair
+Satish rejects the mixed light/dark presentation after PR60. Repair shared theme consistency across app/auth/public UI using one central light palette and existing blue actions; remove isolated builder theme exception. Resolve the inline processing/save-bar collision without changing AI/service/scoring/persistence logic. Verify actual rendered screens, not only reflow or local token values.

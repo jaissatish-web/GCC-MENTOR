@@ -11,7 +11,7 @@ const root=process.cwd(), require=createRequire(import.meta.url), dir=mkdtempSyn
 const fixture=JSON.parse(readFileSync(root+'/scripts/fixtures/studioFixture.json','utf8')).profile
 const output=root+'/artifacts/single-profile-editor'
 mkdirSync(output,{recursive:true})
-let pageForDebug,browser,server,profile=structuredClone(fixture),scenario='saved',writes=[],failPhoto=false,pending=null,failProfileOnce=false
+let pageForDebug,browser,server,profile=structuredClone(fixture),scenario='saved',writes=[],failPhoto=false,pending=null,failProfileOnce=false,resumeImportReply=null,holdProfileLookup=false,profileLookupReply=null
 const errors=[],external=[],checks=[]
 const reviewBefore=fixture.professional_summary.replace('experience','experiance')
 const makeReview=()=>({version:1,id:'fixture-review-'+scenario,createdAt:'2026-10-27T10:00:00Z',sourceText:'Fictional resume',changes:[...(scenario==='verify-import'?[{id:'fixture-name-check',field:'full_name',label:'Source spelling',kind:'check',before:'Imported Maya Thomas',after:'Imported Maya Thomas',reason:'Verify source spelling against the original resume.'}]:[]),{id:'fixture-summary-change',field:'professional_summary',label:'Professional summary',kind:'spelling',before:reviewBefore,after:fixture.professional_summary,reason:'Corrected a spelling error without adding candidate facts.',suggested:true,restorable:true}],imported:{roles:fixture.work_experience.length,skills:fixture.skills.length,qualifications:fixture.education.length,certificates:fixture.certifications.length},wordingStatus:'checked'})
@@ -34,12 +34,25 @@ function serve(){
   const url=new URL(req.url,'http://fixture'),p=url.pathname
   const send=(body,status=200)=>{res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify(body))}
   if(p==='/__scenario'){
-   scenario=url.searchParams.get('state')||'saved';profile=['new-import','retry-import','incomplete-import','invalid-import','manual','verify-import'].includes(scenario)?null:structuredClone(fixture);writes=[];failPhoto=scenario==='photo-error';failProfileOnce=scenario==='retry-import';pending=['new-import','retry-import','existing-import','incomplete-import','invalid-import','verify-import'].includes(scenario)?{draft:freshDraft(),report:{review:makeReview()}}:null
+   scenario=url.searchParams.get('state')||'saved';holdProfileLookup=false;profileLookupReply=null;profile=['new-import','retry-import','incomplete-import','invalid-import','manual','verify-import'].includes(scenario)?null:structuredClone(fixture);writes=[];failPhoto=scenario==='photo-error';failProfileOnce=scenario==='retry-import';pending=['new-import','retry-import','existing-import','incomplete-import','invalid-import','verify-import'].includes(scenario)?{draft:freshDraft(),report:{review:makeReview()}}:null
    if(scenario==='incomplete-import')Object.assign(pending.draft,{full_name:'',email:'',phone:'',whatsapp:'',work_experience:[{company:'Fictional employer',role:'Engineer',start_date:null,end_date:null,description:'Maintained equipment.',highlights:[]}],education:[],skills:[],certifications:[]})
    if(scenario==='invalid-import')pending.draft.email='not-an-email'
    if(scenario==='missing')profile.email=''
    if(scenario==='with-photo')profile.photo_url='/fixture-photo.png'
    return send({scenario})
+  }
+  if(p==='/__resolve-import'){
+   assert.ok(resumeImportReply,'A synthetic import request must be pending before resolution')
+   const respond=resumeImportReply;resumeImportReply=null
+   if(url.searchParams.get('outcome')==='success'){holdProfileLookup=url.searchParams.get('holdProfile')==='1';const imported={draft:freshDraft(),report:{review:makeReview(),warnings:[]}};pending=imported;respond(imported)}
+   else respond({error:'Fictional parser refusal. Your selected text is retained.'},422)
+   return send({resolved:true})
+  }
+  if(p==='/__handoff-state')return send({pending:!!profileLookupReply})
+  if(p==='/__resolve-handoff'){
+   assert.ok(profileLookupReply,'A synthetic saved-profile lookup must be waiting')
+   const respond=profileLookupReply;profileLookupReply=null;holdProfileLookup=false;respond(profile)
+   return send({resolved:true})
   }
   if(p==='/__writes')return send(writes)
   if(p==='/__profile')return send(profile)
@@ -48,6 +61,7 @@ function serve(){
     const chunks=[];for await(const chunk of req)chunks.push(chunk)
     const raw=Buffer.concat(chunks).toString();let body={};try{body=JSON.parse(raw)}catch{}
     writes.push({path:p,method:req.method,body})
+    if(['/api/parse/text','/api/parse/upload'].includes(p)&&scenario==='processing-import'){resumeImportReply=send;return}
     if(p==='/api/profile'&&req.method==='PUT'&&failProfileOnce){failProfileOnce=false;return send({error:'Temporary save failure. Please try again.'},503)}
     if(p==='/api/profile'&&req.method==='PUT'&&scenario==='save-conflict')return send({error:'Fictional stale profile conflict. Reload before saving.'},409)
     if(p==='/api/profile'&&req.method==='PUT'){profile={...fixture,...profile,...body,id:fixture.id,updated_at:'2026-10-25T20:00:00Z'};return send({updated_at:profile.updated_at})}
@@ -59,7 +73,7 @@ function serve(){
     if(p==='/api/profile/import-review'&&req.method==='DELETE')return send({ok:true})
     return send({error:'External writes disabled'},409)
    }
-   if(p==='/api/profile')return profile?send(profile):send({error:'No profile'},404)
+   if(p==='/api/profile'){if(holdProfileLookup){profileLookupReply=send;return}return profile?send(profile):send({error:'No profile'},404)}
    if(p==='/api/profile/pending-draft')return send({pending})
    if(p==='/api/profile/import-review')return send({review:pending?.report?.review??null})
    if(p==='/api/parse/recreate-status')return send({allowed:true,remaining:3,limit:3,used:0})
@@ -97,11 +111,25 @@ try{
   for(const item of measured.ratios){assert.ok(!item.missing,name+' has '+item.selector);assert.ok(item.ratio>=4.5,name+' readable contrast for '+item.selector+': '+item.ratio)}
   checks.push(name+' light surfaces and text/control contrast');
  }
+ const sharedShell=async name=>{
+  const measured=await page.evaluate(()=>{
+   const color=el=>getComputedStyle(el).backgroundColor
+   const visible=el=>el&&getComputedStyle(el).display!=='none'&&el.getBoundingClientRect().width>0
+   const header=document.querySelector('[data-mobile-header]'), nav=document.querySelector('[data-mobile-navigation]'), sidebar=document.querySelector('.studio-sidebar')
+   return {header:color(header),nav:visible(nav)?color(nav):null,sidebar:visible(sidebar)?color(sidebar):null,rootSurface:getComputedStyle(document.documentElement).getPropertyValue('--ui-surface-rgb').trim(),contentSurface:getComputedStyle(document.querySelector('main')).getPropertyValue('--ui-surface-rgb').trim(),brandSoft:'rgb('+getComputedStyle(document.documentElement).getPropertyValue('--ui-brand-soft-rgb').trim().split(/\s+/).join(', ')+')'}
+  })
+  assert.equal(measured.header,'rgb(255, 255, 255)',name+' header uses the shared white surface')
+  if(measured.nav)assert.equal(measured.nav,'rgb(255, 255, 255)',name+' mobile navigation uses the shared white surface')
+  if(measured.sidebar)assert.ok(['rgb(255, 255, 255)',measured.brandSoft].includes(measured.sidebar),name+' sidebar uses the shared white or pale accent surface')
+  assert.equal(measured.contentSurface,measured.rootSurface,name+' content cannot declare a separate theme')
+  await lightContrast(name+' shared shell',['[data-mobile-header] a',...(measured.nav?['[data-mobile-navigation] a[aria-current="page"]']:['.studio-sidebar a[aria-current="page"]'])])
+  checks.push(name+' header/navigation/content palette consistency')
+ }
  const photo=async()=>{const input=await page.$('input[aria-label="Choose profile photo"]');assert.ok(input,'Photo input lives in canonical editor');await input.uploadFile(dir+'/photo.png')}
  writeFileSync(dir+'/photo.png',Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aGfEAAAAASUVORK5CYII=','base64'))
  for(const width of [390,1440]){
   await page.setViewport({width,height:900,deviceScaleFactor:1});await state('saved');await go('/profile');await page.waitForSelector('.studio-profile-summary')
-  assert.equal(await page.$('main input'),null,'Summary is read-only');assert.equal(await page.$$eval('main button',bs=>bs.filter(b=>b.textContent.trim()==='Edit Career Profile').length),1,'One clear entry action');await reflow('Read-only summary '+width);await page.screenshot({path:output+'/summary-'+width+'.png',fullPage:false})
+  assert.equal(await page.$('main input'),null,'Summary is read-only');assert.equal(await page.$$eval('main button',bs=>bs.filter(b=>b.textContent.trim()==='Edit Career Profile').length),1,'One clear entry action');await sharedShell('Saved profile '+width);await reflow('Read-only summary '+width);await page.screenshot({path:output+'/summary-'+width+'.png',fullPage:false})
   await click('Edit Career Profile');await canonical();await reflow('Canonical editor '+width)
   await type('#f_full_name','Maya Unsaved Draft');await photo();assert.equal((await allWrites()).length,0,'Editing and choosing photo must not save')
   await click('Cancel');await page.waitForSelector('.studio-profile-summary');assert.ok(await page.$eval('.studio-profile-identity',el=>el.textContent.includes('Maya Thomas')),'Cancel restores saved identity');assert.equal((await allWrites()).length,0,'Cancel performs no writes')
@@ -117,6 +145,59 @@ try{
   await page.evaluate(()=>{const target=[...document.querySelectorAll('main button')].find(b=>/Edit Career Profile|Add or confirm/.test(b.textContent));if(!target)throw Error('Readiness update action missing');target.click()});await canonical();checks.push('Readiness shortcut '+width)
   await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));await page.screenshot({path:output+'/editor-'+width+'.png',fullPage:false})
  }
+ // Hold the actual import request open: this reproduces the founder's processing/save-bar collision.
+ for(const width of [320,375,390,430,1440]){
+  await page.setViewport({width,height:900,deviceScaleFactor:1});await state('processing-import');await go('/profile?view=details');await canonical();await openContact();
+  await type('#f_full_name','Maya Unsaved During Import');
+  await click('Update from resume');await click('Paste text');
+  const resumeText='Synthetic candidate resume. Software engineer at Example Company, 2020 to 2025. Built tested applications with real project responsibilities.'
+  await page.type('textarea[placeholder="Paste your resume text (50–20,000 characters)"]',resumeText)
+  await click('Read this text');await page.waitForSelector('[data-processing-inline]');
+  await page.waitForFunction(()=>!document.querySelector('[data-profile-save-bar]'));
+  assert.equal(await page.$('[data-profile-save-bar]'),null,'Profile Save/status bar cannot overlap an active import')
+  assert.equal(await page.$$eval('main button',bs=>bs.some(b=>b.textContent.trim()==='Save changes')),false,'Unrelated profile Save is absent while importing')
+  assert.ok(await page.$eval('#f_full_name',el=>el.matches(':disabled')),'Canonical fact inputs are locked while importing')
+  assert.equal(await page.$eval('#f_full_name',el=>el.value),'Maya Unsaved During Import','Unsaved facts remain in memory during import')
+  assert.equal(await page.$$eval('[data-processing-state="done"]',els=>els.length),1,'Only selected input is completed')
+  assert.equal(await page.$$eval('[data-processing-state="active"]',els=>els.length),1,'One actual backend operation remains active')
+  await page.$eval('[data-processing-inline]',el=>el.scrollIntoView({block:'center',behavior:'instant'}));
+  await sharedShell('Import processing '+width);await reflow('Import processing '+width)
+  assert.ok(await page.$eval('[data-processing-inline]',el=>el.getBoundingClientRect().height<=520),'Inline import wait is compact enough for mobile')
+  assert.ok(await page.$eval('[data-processing-steps] li:last-child',el=>{const row=el.getBoundingClientRect(),nav=document.querySelector('[data-mobile-navigation]');const floor=nav&&getComputedStyle(nav).display!=='none'?nav.getBoundingClientRect().top:innerHeight;return row.top>=70&&row.bottom<floor}),'All actual workflow rows remain visible above navigation')
+  await page.evaluate(()=>{for(const animation of document.querySelector('[data-processing-inline]').getAnimations({subtree:true})){if(Number.isFinite(animation.effect?.getComputedTiming().endTime)){try{animation.finish()}catch{}}}});await lightContrast('Processing text '+width,['[data-processing-inline] > div > p','[data-processing-state="active"] > span:nth-child(2)','[data-processing-notes] p[aria-hidden="false"]']);await page.screenshot({path:output+'/import-processing-'+width+'.png',fullPage:false})
+  await fetch(origin+'/__resolve-import?outcome=error');await page.waitForFunction(()=>document.body.textContent.includes('Fictional parser refusal'));
+  assert.ok(await page.$('[data-profile-save-bar]'),'Normal editor actions return after import refusal')
+  assert.equal(await page.$eval('#f_full_name',el=>el.matches(':disabled')),false,'Facts unlock after import refusal')
+  assert.equal(await page.$eval('#f_full_name',el=>el.value),'Maya Unsaved During Import','Import refusal preserves unsaved fact edits')
+  assert.equal(await page.$eval('textarea[placeholder="Paste your resume text (50–20,000 characters)"]',el=>el.value),resumeText,'Import refusal preserves pasted input')
+  assert.equal((await allWrites()).filter(w=>w.path==='/api/profile').length,0,'Processing/refusal never writes profile data')
+  await click('Read this text');await page.waitForSelector('[data-processing-inline]');await page.waitForFunction(()=>!document.querySelector('[data-profile-save-bar]'));
+  await fetch(origin+'/__resolve-import?outcome=success&holdProfile=1');
+  await page.waitForFunction(async()=>{const response=await fetch('/__handoff-state');return(await response.json()).pending});
+  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+  assert.equal(await page.$('[data-profile-save-bar]'),null,'Save/status remain absent after parsing while the saved-profile handoff is pending')
+  assert.ok(await page.$('[data-processing-inline]'),'Import remains visibly busy through the saved-profile lookup')
+  assert.ok(await page.$eval('#f_full_name',el=>el.matches(':disabled')),'Profile facts remain locked through the saved-profile handoff')
+  await fetch(origin+'/__resolve-handoff');await page.waitForFunction(()=>document.body.textContent.includes('You already have a profile'));
+  assert.equal(await page.$('[data-processing-inline]'),null,'A successful response ends the processing view')
+  assert.equal((await allWrites()).filter(w=>w.path==='/api/profile').length,0,'Successful import still needs the existing add/replace decision')
+  await page.evaluate(()=>[...document.querySelectorAll('main button')].find(b=>b.textContent.includes('Keep my profile as it is')).click());await page.waitForSelector('.studio-profile-summary');assert.equal(new URL(page.url()).pathname,'/profile','Keeping the saved profile returns directly to its summary');
+  checks.push('Pending import hides Save, preserves input, recovers failure and hands off success '+width)
+ }
+ await page.setViewport({width:390,height:900,deviceScaleFactor:1});await state('processing-import');await go('/profile?view=details');await canonical();
+ await click('Update from resume');await click('Upload resume');
+ // Transport fixture only: actual PDF/DOCX parsing is covered by the separate intake browser suite.
+ writeFileSync(dir+'/synthetic-resume.pdf','%PDF-1.4\nSynthetic local transport fixture\n%%EOF')
+ await (await page.$('input[type="file"][accept=".pdf,.doc,.docx"]')).uploadFile(dir+'/synthetic-resume.pdf');
+ await page.waitForSelector('[data-processing-inline]');await page.waitForFunction(()=>!document.querySelector('[data-profile-save-bar]'));
+ await fetch(origin+'/__resolve-import?outcome=error');await page.waitForFunction(()=>document.body.textContent.includes('Try the selected file again'));
+ assert.ok(await page.$('[data-profile-save-bar]'),'A refused file import restores profile actions')
+ await click('Try the selected file again');await page.waitForSelector('[data-processing-inline]');await page.waitForFunction(()=>!document.querySelector('[data-profile-save-bar]'));
+ await fetch(origin+'/__resolve-import?outcome=success');await page.waitForFunction(()=>document.body.textContent.includes('You already have a profile'));
+ assert.equal((await allWrites()).filter(w=>w.path==='/api/parse/upload').length,2,'File retry reuses the selected buffered upload only after explicit action')
+ assert.equal((await allWrites()).filter(w=>w.path==='/api/profile').length,0,'File transport never implicitly saves profile facts')
+ await page.evaluate(()=>[...document.querySelectorAll('main button')].find(b=>b.textContent.includes('Keep my profile as it is')).click());await page.waitForSelector('.studio-profile-summary');
+ checks.push('Upload wait hides Save and explicit selected-file retry restores the same handoff')
  await state('new-import');await go('/profile/review');await page.waitForSelector('[data-ui-service="resume-review"]');
  assert.equal((await allWrites()).length,0,'New review page never creates profile on load');
  await page.waitForSelector('#career-diagnostic-title');
@@ -180,7 +261,7 @@ try{
  await reviewAction('sec_summary','Accept suggestion');
  assert.equal((await allWrites()).length,0,'Confirm, skip, accept, original and refresh perform no server writes');
  checks.push('Diagnostic-first review, one section, back/next, explicit confirmation, safe skip and recovered selections');
- for(const width of [320,375,390,430,1440]){await page.setViewport({width,height:900,deviceScaleFactor:1});await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));await reflow('Career diagnostic and guided review '+width);await lightContrast('Career report '+width,['main h1','#career-diagnostic-title','#career-diagnostic-title + p','nav[aria-label="Resume review sections"] button','main button.ui-button.bg-teal']);await page.screenshot({path:output+'/resume-review-'+width+'.png',fullPage:false})}
+ for(const width of [320,375,390,430,1440]){await page.setViewport({width,height:900,deviceScaleFactor:1});await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));await reflow('Career diagnostic and guided review '+width);await sharedShell('Career report '+width);await lightContrast('Career report '+width,['main h1','#career-diagnostic-title','#career-diagnostic-title + p','nav[aria-label="Resume review sections"] button','main button.ui-button.bg-teal']);await page.screenshot({path:output+'/resume-review-'+width+'.png',fullPage:false})}
  await page.$eval('button[aria-label="Edit Professional Summary manually"]',button=>button.click());await canonical();
  await page.$eval('#f_professional_summary',el=>{Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value').set.call(el,'User reviewed summary with only real career details.');el.dispatchEvent(new Event('input',{bubbles:true}))});
  await click('Back to Resume Review');await page.waitForSelector('[data-ui-service="resume-review"]');

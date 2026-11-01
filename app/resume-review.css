@@ -1,64 +1,21 @@
 /* Resume review only: preserve the brand's surfaces and type, with explicit
    semantic feedback independent of the legacy gold-to-cyan accent mapping. */
-/* Builder-local light palette: shared semantic roles and typography are reused.
-   The rest of the application retains its existing theme. */
-body :is([data-ui-service="resume-review"], [data-career-builder="true"]) {
-  color-scheme: light;
-  --ui-canvas-rgb: 247 249 252;
-  --ui-surface-rgb: 255 255 255;
-  --ui-ink-rgb: 24 37 58;
-  --ui-ink-soft-rgb: 65 81 103;
-  --ui-ink-muted-rgb: 83 99 122;
-  --ui-brand-rgb: 37 99 235;
-  --ui-brand-hover-rgb: 29 78 216;
-  --ui-brand-soft-rgb: 235 242 255;
-  --ui-line-rgb: 217 226 237;
-  --ui-line-strong-rgb: 156 173 195;
-  --ui-accent-rgb: 3 105 133;
-  --ui-accent-ink-rgb: 3 105 133;
-  --ui-accent-soft-rgb: 231 246 250;
-  --ui-info-rgb: 3 105 133;
-  --ui-info-soft-rgb: 231 246 250;
-  --ui-success-rgb: 21 112 65;
-  --ui-success-soft-rgb: 234 248 240;
-  --ui-error-rgb: 180 35 50;
-  --ui-error-soft-rgb: 255 241 242;
-  --ui-canvas: rgb(var(--ui-canvas-rgb));
-  --ui-surface: rgb(var(--ui-surface-rgb));
-  --ui-ink: rgb(var(--ui-ink-rgb));
-  --ui-ink-soft: rgb(var(--ui-ink-soft-rgb));
-  --ui-muted: rgb(var(--ui-ink-muted-rgb));
-  --ui-brand: rgb(var(--ui-brand-rgb));
-  --ui-brand-hover: rgb(var(--ui-brand-hover-rgb));
-  --ui-brand-soft: rgb(var(--ui-brand-soft-rgb));
-  --ui-line: rgb(var(--ui-line-rgb));
-  --ui-line-strong: rgb(var(--ui-line-strong-rgb));
-  --ui-accent: rgb(var(--ui-accent-rgb));
-  --ui-accent-ink: rgb(var(--ui-accent-ink-rgb));
-  --ui-info: rgb(var(--ui-info-rgb));
-  --ui-error: rgb(var(--ui-error-rgb));
-  --ui-card-shadow: 0 4px 18px rgb(24 37 58 / .04);
-  --review-attention: #8a5100;
-  --review-attention-soft: #fff7e6;
-  background-color: var(--ui-canvas);
-  color: var(--ui-ink);
-}
 body .app-type [data-ui-service="resume-review"] .review-status-ok {
   color: rgb(var(--ui-success-rgb)) !important;
 }
 body .app-type [data-ui-service="resume-review"] .review-status-attention,
 body .app-type [data-ui-service="resume-review"] .text-gold-ink {
-  color: var(--review-attention) !important;
+  color: rgb(var(--ui-warning-rgb)) !important;
 }
 body .app-type [data-ui-service="resume-review"] .review-status-missing {
   color: rgb(var(--ui-error-rgb)) !important;
 }
 body .app-type [data-ui-service="resume-review"] .bg-gold {
-  background-color: var(--review-attention) !important;
+  background-color: rgb(var(--ui-warning-rgb)) !important;
 }
 body .app-type [data-ui-service="resume-review"] .bg-gold-soft {
-  background-color: var(--review-attention-soft);
-  border-color: var(--review-attention) !important;
+  background-color: rgb(var(--ui-warning-soft-rgb));
+  border-color: rgb(var(--ui-warning-rgb)) !important;
 }
 body .app-type [data-ui-service="resume-review"] .review-progress {
   accent-color: rgb(var(--ui-success-rgb)) !important;

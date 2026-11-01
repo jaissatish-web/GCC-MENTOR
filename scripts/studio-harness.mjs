@@ -37,6 +37,14 @@ return createServer(async(req,res)=>{
   if(req.method!=='GET'){
    const chunks=[];for await(const chunk of req)chunks.push(chunk);let body={};try{body=JSON.parse(Buffer.concat(chunks).toString())}catch{}
    writes.push({path:p,method:req.method,body})
+   // The real library obtains its pinned base resume through this idempotent POST.
+   // Model only that owned synthetic profile; all other unexpected mutations stay blocked.
+   if(p==='/api/packages/career-profile'&&req.method==='POST'){
+    if(scenario==='error')return send({error:'Fictional unavailable profile resume'},500)
+    if(scenario==='empty')return send({package:null,needs_profile:true})
+    const summary={id:'studio-profile-resume',profile_id:data.profile.id,tier:'free',name:'Career Profile Resume',template_id:data.pkg.template_id??null,target_job_title:'Career Profile Resume',target_company:null,target_country:null,target_industry:null,status:'saved',optimization_level:'easy',is_paid:false,created_at:data.pkg.created_at,updated_at:data.pkg.updated_at??null,job_url:null,application_deadline:null,interview_date:null,application_notes:null,has_resume:true,cover_letter_count:0,qa_question_count:0,mock_completed_run_id:null,mock_in_progress:false}
+    return send({package:{id:summary.id,name:summary.name,template_id:summary.template_id,tier:'free'},summary})
+   }
    if(p==='/api/profile'&&req.method==='PUT'){data.profile={...data.profile,...body,updated_at:'2026-10-24T09:00:00Z'};return send({updated_at:data.profile.updated_at})}
    if(p.endsWith('/answer')){const run=data.pkg.mock_interview_runs.find(run=>run.id==='run-active'),q=run.questions.find(q=>q.id===body.questionId);if(q){q.answer=body.answer;q.feedback='Example review: explain the result more precisely.';q.score=7;run.current_index++}return send({run})}
    return send({error:'Generation and external changes are disabled in the fictional design review.'},409)

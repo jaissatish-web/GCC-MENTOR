@@ -291,17 +291,17 @@ export function ProcessingSteps({
 
   return (
     <div data-processing-steps className={cn('flex w-full min-w-0 flex-col gap-3', className)}>
-      <p className={cn('text-center text-[11px] font-semibold uppercase tracking-[0.14em]', dark ? 'text-cyan-100/80' : 'text-ink-soft')}>
-        {allDone ? 'Processing complete' : 'Processing workflow'}
+      <p className={cn('type-helper font-semibold', dark ? 'text-white/80' : 'text-ink-soft')}>
+        {allDone ? 'Processing complete' : 'Progress'}
       </p>
       <ol className="flex flex-col gap-2.5">
         {steps.map((label, i) => {
           const state = completed || done.has(i) ? 'done' : !allDone && i === active ? 'active' : 'todo'
           return (
             <li key={`${i}:${label}`} data-processing-state={state} aria-current={state === 'active' ? 'step' : undefined}
-              className={cn('flex min-h-[52px] items-center gap-3 rounded-ctl border px-3.5 py-3 text-[14px] font-medium transition-colors duration-500', state === 'active' ? 'border-cyan-200/40 bg-cyan-100/[0.08]' : 'border-transparent')}>
-              <span aria-hidden="true" className={cn('relative flex size-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold', state === 'done' && 'bg-ok text-void', state === 'active' && 'border-2 border-cyan-200', state === 'todo' && (dark ? 'border border-white/25 text-white/65' : 'border border-line-strong text-ink-muted'))}>
-                {state === 'done' ? <CheckIcon className="size-3.5" strokeWidth={3} /> : state === 'active' ? <span className="size-2 rounded-full bg-cyan-200 animate-breathe motion-reduce:animate-none" /> : i + 1}
+              className={cn('processing-step flex min-h-11 items-center gap-3 rounded-ctl border px-3 py-2 type-helper transition-colors duration-150', state === 'active' ? 'border-teal/25 bg-teal-soft' : 'border-transparent')}>
+              <span aria-hidden="true" className={cn('relative flex size-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold', state === 'done' && 'bg-ok text-white', state === 'active' && 'border-2 border-teal', state === 'todo' && (dark ? 'border border-white/25 text-white/65' : 'border border-line-strong text-ink-muted'))}>
+                {state === 'done' ? <CheckIcon className="size-3.5" strokeWidth={3} /> : state === 'active' ? <span className="size-2 rounded-full bg-teal animate-breathe motion-reduce:animate-none" /> : i + 1}
               </span>
               <span className={cn('min-w-0 flex-1 break-words', dark ? state === 'todo' ? 'text-white/65' : 'text-white' : state === 'todo' ? 'text-ink-muted' : 'text-ink')}>{label}</span>
               <span className="sr-only">{state === 'done' ? 'Completed' : state === 'active' ? 'Current workflow stage' : 'Not confirmed complete'}</span>
@@ -310,8 +310,8 @@ export function ProcessingSteps({
         })}
       </ol>
       {notes && notes.length > 0 ? (
-        <div data-processing-notes className="grid min-h-[4.5em] w-full min-w-0 items-start rounded-ctl border border-cyan-200/15 px-3 py-3">
-          {notes.map((text, index) => <p key={`${index}:${text}`} aria-hidden={index !== note} className={cn('col-start-1 row-start-1 break-words text-center text-[13px] leading-relaxed', index === note ? 'visible' : 'invisible', dark ? 'text-white/80' : 'text-ink-soft')}><span className={index === note ? 'animate-fade-in motion-reduce:animate-none' : undefined}>{text}</span></p>)}
+        <div data-processing-notes className="grid min-h-[4.5em] w-full min-w-0 items-start border-t border-line px-1 py-3">
+          {notes.map((text, index) => <p key={`${index}:${text}`} aria-hidden={index !== note} className={cn('col-start-1 row-start-1 break-words text-center text-[13px] leading-relaxed', index === note ? 'visible' : 'invisible', dark ? 'text-white/80' : 'text-ink-soft')}><span>{text}</span></p>)}
         </div>
       ) : null}
       <p role="status" aria-live="polite" className="sr-only">{allDone ? 'Processing complete' : steps[active] ?? 'Processing'}</p>
@@ -338,8 +338,8 @@ export function ProcessingInline({
   className?: string
 }) {
   return (
-    <div data-processing-inline className={cn('flex min-w-0 flex-col items-center gap-5 rounded-card border border-cyan-200/25 px-4 py-5 shadow-m-1', className)} style={{ background: 'linear-gradient(135deg, var(--ui-surface) 0%, var(--ui-brand-soft) 100%)' }}>
-      <ProcessingOrbit size={104} glyph="AI" />
+    <div data-processing-inline className={cn('flex w-full min-w-0 flex-col gap-3 py-2', className)}>
+      <div className="flex min-w-0 items-center gap-3"><ProcessingOrbit size={72} glyph="AI" /><p className="min-w-0 type-label font-semibold text-ink">Working on your request</p></div>
       <ProcessingSteps steps={steps} stepMs={stepMs} notes={notes} activeIndex={activeIndex} completedIndices={completedIndices} completed={completed} />
     </div>
   )

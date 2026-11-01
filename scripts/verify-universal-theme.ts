@@ -12,6 +12,13 @@ import { NAV_ITEMS } from '../components/layout/navItems'
 ;(globalThis as unknown as {React: unknown}).React = React
 const theme = parse(readFileSync('app/ui-system.css', 'utf8'))
 const typography = parse(readFileSync('app/typography.css', 'utf8'))
+const rootTokens = new Map<string,string>()
+theme.walkRules(':root',rule=>rule.walkDecls(decl=>{if(decl.prop.startsWith('--ui-'))rootTokens.set(decl.prop,decl.value)}))
+assert.equal(rootTokens.get('--ui-surface-rgb'),'255 255 255','One central white working surface')
+assert.equal(rootTokens.get('--ui-canvas-rgb'),'247 249 252','One central pale canvas')
+assert.equal(rootTokens.get('--ui-brand-rgb'),'37 99 235','One central blue action palette')
+const reviewTheme=parse(readFileSync('app/resume-review.css','utf8'))
+reviewTheme.walkDecls(decl=>assert.ok(!/^--ui-(?:canvas|surface|ink|brand|line|accent|success|error)(?:-|$)/.test(decl.prop),'Review must consume the shared theme instead of redeclaring palette roles'))
 const declared = new Set<string>()
 const unresolved: string[] = []
 for (const sheet of [theme, typography]) sheet.walkDecls(d => { if(d.prop.startsWith('--ui-')) declared.add(d.prop) })
@@ -37,7 +44,7 @@ assert.ok(render(React.createElement(Card,null,"Editable content")).includes('bo
 for(const item of NAV_ITEMS) assert.ok(theme.toString().includes(`.${item.iconClass} {`),`Navigation color missing: ${item.label}`)
 console.log('PASS: resolved universal theme variables, protected document boundaries, useful containers, unboxed guidance, accessible states and navigation accents')
 
-// Interaction states must retain the dark surface when legacy controls focus.
+// Interaction states must retain the shared semantic surface when legacy controls focus.
 const globals = parse(readFileSync('app/globals.css', 'utf8'))
 const focusedField: string[] = []
 globals.walkRules('.field:focus', rule => { rule.walkDecls(d => { if(d.prop === 'background-color') focusedField.push(d.value) }); rule.walkAtRules('apply', at => assert.ok(!/\bbg-white\b/.test(at.params),'Focused fields cannot emit a literal white utility')) })

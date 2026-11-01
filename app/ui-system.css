@@ -1,7 +1,8 @@
-/* SKILLPILOT-BRAND-001 — 26 October 2026. Navy surfaces, blue actions, cyan details.
+/* THEME-CONSISTENCY-002 — 1 November 2026. Shared light surfaces and blue actions.
    SINGLE UI CONFIGURATION. Edit tokens here; do not add page-specific type scales.
    Code-owned only: no public settings, database storage or user preference UI. */
 :root {
+  color-scheme: light;
   --ui-inverse-rgb: 255 255 255;
   --ui-info: rgb(var(--ui-info-rgb));
   --ui-accent-ink: rgb(var(--ui-accent-ink-rgb));
@@ -10,29 +11,31 @@
   --ui-page-gutter: 16px;
   --ui-card-padding: 16px;
   --ui-card-radius: 16px;
-  --ui-card-shadow: 0 10px 28px rgb(0 0 0 / .22);
-  --ui-keyword-rgb: 34 211 238;
-  --ui-keyword-soft-rgb: 12 45 63;
-  --ui-info-rgb: 34 211 238;
-  --ui-info-soft-rgb: 12 45 63;
+  --ui-card-shadow: 0 4px 18px rgb(24 37 58 / .04);
+  --ui-keyword-rgb: 3 105 133;
+  --ui-keyword-soft-rgb: 231 246 250;
+  --ui-info-rgb: 3 105 133;
+  --ui-info-soft-rgb: 231 246 250;
   /* Semantic palette: RGB triplets allow shared opacity utilities. */
-  --ui-canvas-rgb: 7 13 27;
-  --ui-surface-rgb: 13 21 38;
-  --ui-ink-rgb: 241 246 253;
-  --ui-ink-soft-rgb: 194 205 220;
-  --ui-ink-muted-rgb: 148 164 187;
-  --ui-brand-rgb: 59 130 246;
-  --ui-brand-hover-rgb: 37 99 235;
-  --ui-brand-soft-rgb: 17 39 70;
-  --ui-line-rgb: 41 55 78;
-  --ui-line-strong-rgb: 78 95 121;
-  --ui-accent-rgb: 34 211 238;
-  --ui-accent-ink-rgb: 103 232 249;
-  --ui-accent-soft-rgb: 12 45 63;
-  --ui-success-rgb: 74 222 128;
-  --ui-success-soft-rgb: 16 48 36;
-  --ui-error-rgb: 248 113 113;
-  --ui-error-soft-rgb: 58 25 31;
+  --ui-canvas-rgb: 247 249 252;
+  --ui-surface-rgb: 255 255 255;
+  --ui-ink-rgb: 24 37 58;
+  --ui-ink-soft-rgb: 65 81 103;
+  --ui-ink-muted-rgb: 83 99 122;
+  --ui-brand-rgb: 37 99 235;
+  --ui-brand-hover-rgb: 29 78 216;
+  --ui-brand-soft-rgb: 235 242 255;
+  --ui-line-rgb: 217 226 237;
+  --ui-line-strong-rgb: 156 173 195;
+  --ui-accent-rgb: 3 105 133;
+  --ui-accent-ink-rgb: 3 105 133;
+  --ui-accent-soft-rgb: 231 246 250;
+  --ui-success-rgb: 21 112 65;
+  --ui-success-soft-rgb: 234 248 240;
+  --ui-error-rgb: 180 35 50;
+  --ui-error-soft-rgb: 255 241 242;
+  --ui-warning-rgb: 138 81 0;
+  --ui-warning-soft-rgb: 255 247 230;
   --ui-canvas: rgb(var(--ui-canvas-rgb));
   --ui-surface: rgb(var(--ui-surface-rgb));
   --ui-ink: rgb(var(--ui-ink-rgb));
@@ -45,7 +48,7 @@
   --ui-line-strong: rgb(var(--ui-line-strong-rgb));
   --ui-inverse: #fff;
   --ui-hero-background: var(--ui-canvas);
-  --ui-hero-gradient: linear-gradient(135deg, #0b1425 0%, #10264a 100%);
+  --ui-hero-gradient: linear-gradient(135deg, var(--ui-surface) 0%, var(--ui-brand-soft) 100%);
   --ui-hero-label: var(--ui-brand);
   --ui-hero-copy: var(--ui-ink-soft);
   --ui-control-radius: 10px;
@@ -226,7 +229,7 @@ body .ui-button:not(:where([data-document-preview], [data-document-preview] *, #
 .workspace-panel { background:var(--ui-surface); border:1px solid var(--ui-line); border-radius:var(--ui-card-radius); box-shadow:var(--ui-card-shadow); }
 .app-type { background:var(--ui-canvas); }
 /* Compact application headings keep the working controls above the fold. */
-.app-type { --ui-card-shadow:0 2px 12px rgb(20 24 28 / .035); }
+
 .app-type .workspace-heading {
   padding:0 0 16px;
   border:0;
@@ -1138,5 +1141,5 @@ body .bg-field:not(:where([data-document-preview], [data-document-preview] *, #r
   color: var(--ui-ink);
   border-color: var(--ui-field-border);
 }
-.app-type.internal-ui :is(input, select, textarea):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, [data-typography="document"], [data-typography="document"] *)) { color-scheme: dark; }
+.app-type.internal-ui :is(input, select, textarea):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, [data-typography="document"], [data-typography="document"] *)) { color-scheme: light; }
 .app-type.internal-ui select:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, [data-typography="document"], [data-typography="document"] *)) :is(option, optgroup) { background-color: var(--ui-surface); color: var(--ui-ink); }
