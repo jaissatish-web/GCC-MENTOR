@@ -289,3 +289,18 @@ UNIVERSAL-PROFILE-002 implemented in source: deterministic diagnostic projection
 UNIVERSAL-PROFILE-002 final local validation: npm run check passed (TypeScript, lint,89/89 registered suites); final production build passed. Updated processing retry/state/prompt/logging focused test passed. Browser review48/48 groups passed with computed light surface/contrast checks and manual first-profile/source-verification recovery. Real PDF/DOCX/paste intake browser regression passed at320/390/768/1440 (actual document parsers, synthetic AI response), including invalid/oversized files, preserved input and retries. Production dependency audit reported0 vulnerabilities. Reviewed diff is limited to builder/review/input processing, prompt scope/log redaction, tests and documentation. GitHub required CI, PR merge and resulting Vercel deployment remain pending; no live provider/account test claimed.
 
 UNIVERSAL-PROFILE-002 release review: initial remote CI643 passed all steps. Final review then clarified the unknown-end-date action to explicitly say Confirm this is my current role; generic source verification cannot imply current employment. Typecheck/lint and48/48 browser scenario groups passed again, including the explicit-label assertion. Final head must receive its own green required CI before merge.
+
+## THEME-CONSISTENCY-002 — 1 November 2026
+Approved: repair PR60's light-builder/dark-shell mismatch and processing/save-bar collision, following Satish's mobile screenshot. Source/screenshot audit and acceptance in SHARED_THEME_REPAIR.md. One central light palette with existing blue actions; remove builder palette duplication, simplify processing presentation, hide unrelated profile save controls while importing. Preserve facts, scores, APIs, auth, subscriptions and documents. Implementation pending; temporary branch fix/shared-light-theme-and-processing.
+
+THEME-CONSISTENCY-002 implemented/local verification: one root light theme, builder palette duplication removed, compact shared processing and no profile Save/statusbar throughout parse+handoff. Restores input/edits on error; Keep my profile returns directly to saved summary.89/89 registered checks, typecheck/lint/build, focused import tests,88 profile/83 workspace browser groups, shared processing/readiness-input/theme/document-isolation checks passed. Real parsers with synthetic AI; no live authenticated save claimed. Final CI/merge/automatic deployment pending. Full evidence/limits in SHARED_THEME_REPAIR.md.
+
+THEME-CONSISTENCY-002 release gate: CI648 passed89 suites but failed next/font's unused Plus Jakarta download in layout. Source audit found no --font-jakarta consumers; remove only that unused declaration, retain current Inter/document settings, and revalidate final head. No merge/deployment yet.
+
+THEME-CONSISTENCY-002 unused-font correction: local production build, typecheck/lint and responsive/enlarged-text/document-typography browser checks passed after removing the unconsumed Jakarta variable. Shared Inter remains bundled and all44px controls/typographic roles verified. Final remote CI must run on the corrected head.
+
+THEME-CONSISTENCY-002 PR61 review follow-up: implement awaited pending-reading cleanup before Keep my profile navigation, with busy/error recovery and delayed/failure browser coverage. Final corrected-head CI remains required.
+
+PR61 review follow-up local verification: typecheck/lint and89/89 suites passed;90 profile browser groups passed, including held cleanup/reload and failure/retry. Production build and corrected-head required CI/release remain gates.
+
+Final PR61 review-correction production build passed locally. Required remote checks on the resulting head remain mandatory before merge.

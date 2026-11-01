@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Inter, Instrument_Serif, Plus_Jakarta_Sans, IBM_Plex_Mono } from 'next/font/google'
+import { Inter, Instrument_Serif, IBM_Plex_Mono } from 'next/font/google'
 import './globals.css'
 import { SITE_URL } from '@/lib/siteUrl'
 
@@ -15,17 +15,6 @@ const instrumentSerif = Instrument_Serif({
   subsets: ['latin'],
   weight: '400',
   variable: '--font-instrument-serif',
-  display: 'swap',
-  // Not preloaded (2026-09-30): no class in the app uses this family any more,
-  // so preloading it made every phone download a font it never draws. It stays
-  // declared as a fallback; it would still load, with swap, if something used it.
-  preload: false,
-})
-
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-jakarta',
   display: 'swap',
   // Not preloaded (2026-09-30): no class in the app uses this family any more,
   // so preloading it made every phone download a font it never draws. It stays
@@ -133,7 +122,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body
-        className={`${inter.variable} ${instrumentSerif.variable} ${jakarta.variable} ${plexMono.variable} font-redesign-sans bg-white text-ink antialiased`}
+        className={`${inter.variable} ${instrumentSerif.variable} ${plexMono.variable} font-redesign-sans bg-white text-ink antialiased`}
       >
         {children}
       </body>

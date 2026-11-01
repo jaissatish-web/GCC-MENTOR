@@ -981,15 +981,17 @@ function ProfileScreen() {
   const initialImportMode = importParam === 'upload' ? 'upload' : importParam === 'paste' ? 'paste' : 'idle'
   const requestedView = viewFromParams(searchParams)
   const [showImport, setShowImport] = useState(Boolean(importParam))
+  const [importProcessing, setImportProcessing] = useState(false)
 
   // ---- Moving between the screens (see PROFILE_VIEWS) -----------------------
   // pushState, not router.push: Next syncs useSearchParams with the native
   // history API without a server round trip, and the editor stays mounted.
   const showView = useCallback(
     (next: ProfileView) => {
+      if (importProcessing) return
       if (next !== requestedView) window.history.pushState(null, '', `${isReviewRoute ? '/profile/review' : '/profile'}?view=${next}`)
     },
-    [requestedView, isReviewRoute],
+    [requestedView, isReviewRoute, importProcessing],
   )
 
   const [editor, setEditor] = useState<EditorData | null>(null)
@@ -1289,7 +1291,7 @@ function ProfileScreen() {
     // Add or Replace — an empty box asking for another CV (seen live
     // 2026-09-12) instead of folding to "Your profile is already created".
     if (importParam) router.replace('/profile?view=details', { scroll: false })
-    fetch('/api/profile', { cache: 'no-store' })
+    return fetch('/api/profile', { cache: 'no-store' })
       .then((res) => { if (res.status === 404) return null; if (!res.ok) throw new Error('Profile lookup failed'); return res.json() })
       .then((data) => {
         const saved = data as CareerProfileFull | null
@@ -1928,7 +1930,7 @@ function ProfileScreen() {
 
   const onSubmit = useCallback(
     async (destination: 'stay' | 'review', reviewedEditor?: EditorData) => {
-      if (!editor || submitting || loadError || (reviewingImport && destination !== 'review')) return
+      if (!editor || submitting || importProcessing || loadError || (reviewingImport && destination !== 'review')) return
       const saveEditor = reviewedEditor ?? editor
       if (reviewedEditor) setEditor(reviewedEditor)
       setSaveError(null)
@@ -2066,31 +2068,31 @@ function ProfileScreen() {
         setSubmitting(false)
       }
     },
-    [editor, showView, submitting, reviewingImport, sectionOfField, photoChange, loadError, isReviewRoute, router]
+    [editor, showView, submitting, importProcessing, reviewingImport, sectionOfField, photoChange, loadError, isReviewRoute, router]
   )
 
   useEffect(() => {
-    if (!isDirty) return
+    if (!isDirty && !importProcessing) return
     const protectReview = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = '' }
     window.addEventListener('beforeunload', protectReview)
     return () => window.removeEventListener('beforeunload', protectReview)
-  }, [isDirty, submitting])
+  }, [isDirty, submitting, importProcessing])
 
   // Next client-side navigation does not fire beforeunload. Guard app links too.
   useEffect(() => {
-    if (view !== 'details' || (!isDirty && !submitting)) return
+    if (view !== 'details' || (!isDirty && !submitting && !importProcessing)) return
     const protectLink = (event: MouseEvent) => {
       const link = event.target instanceof Element ? event.target.closest('a[href]') : null
       if (!(link instanceof HTMLAnchorElement) || link.target === '_blank' || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return
       const next = new URL(link.href, window.location.href)
       if (next.pathname === '/profile' && viewFromParams(next.searchParams) === 'details') return
-      if (submitting || !window.confirm('Leave without saving your Career Profile changes?')) {
+      if (submitting || importProcessing || !window.confirm('Leave without saving your Career Profile changes?')) {
         event.preventDefault(); event.stopImmediatePropagation()
       }
     }
     document.addEventListener('click', protectLink, true)
     return () => document.removeEventListener('click', protectLink, true)
-  }, [view, isDirty, submitting])
+  }, [view, isDirty, submitting, importProcessing])
 
   // An extraction is a pending draft, never a Career Profile. Only the
   // explicit review confirmation below calls the existing profile save API.
@@ -2100,17 +2102,33 @@ function ProfileScreen() {
 
   // "Keep my profile as it is": the reading is discarded on the user's word,
   // and nothing in the saved profile changes.
-  const keepCurrentProfile = useCallback(() => {
-    if (!pendingDraft) return
-    clearReviewRecovery(reviewStorage())
-    setEditor(fromFull(pendingDraft.existing))
-    reviewRequest.current++
-    setImportReview(null)
-    void fetch('/api/profile/import-review', { method: 'DELETE' }).catch(() => {})
-    setPendingDraft(null)
-    resolvesPendingRef.current = false
-    void fetch('/api/profile/pending-draft', { method: 'DELETE' }).catch(() => {})
-  }, [pendingDraft])
+  const keepCurrentProfile = useCallback(async () => {
+    if (!pendingDraft || submitting) return
+    setSubmitting(true)
+    setSaveError(null)
+    try {
+      // A new profile mount restores persisted readings. Finish deletion before
+      // navigating, and preserve the local decision/recovery state on failure.
+      for (const endpoint of ['/api/profile/pending-draft', '/api/profile/import-review']) {
+        const response = await fetch(endpoint, { method: 'DELETE' })
+        if (!response.ok) throw new Error('Reading cleanup failed')
+      }
+      clearReviewRecovery(reviewStorage())
+      setEditor(fromFull(pendingDraft.existing))
+      reviewRequest.current++
+      setImportReview(null)
+      setPendingDraft(null)
+      resolvesPendingRef.current = false
+      setShowImport(false)
+      setReviewingImport(false)
+      setImportConfirmed(false)
+      router.replace('/profile')
+    } catch {
+      setSaveError('We could not discard this resume reading. Your saved profile is unchanged. Please try again.')
+    } finally {
+      setSubmitting(false)
+    }
+  }, [pendingDraft, router, submitting])
 
   // Do not flash the ordinary editor while its existing draft moves to review.
   if (!isReviewRoute && (reviewingImport || pendingDraft)) return <main className={MAIN_CLASS}><PageSkeleton label="Opening Resume Review" /></main>
@@ -2139,6 +2157,7 @@ function ProfileScreen() {
 
         <button
           type="button"
+          disabled={submitting}
           onClick={() => {
             if (importReview) {
               reviewRequest.current++
@@ -2173,6 +2192,7 @@ function ProfileScreen() {
 
         <button
           type="button"
+          disabled={submitting}
           onClick={() => {
             setSavedBaseline(JSON.stringify(buildPutBody(fromFull(pendingDraft.existing))))
             setEditor(fromDraft(pendingDraft.draft))
@@ -2210,6 +2230,7 @@ function ProfileScreen() {
             not want would be offered on every visit forever. */}
         <button
           type="button"
+          disabled={submitting}
           onClick={keepCurrentProfile}
           className="mt-3 rounded-card border border-line bg-canvas p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
         >
@@ -2218,6 +2239,9 @@ function ProfileScreen() {
             Discards this resume reading. Nothing in your profile changes.
           </span>
         </button>
+
+        {submitting ? <p role="status" className="mt-3 type-helper text-ink-soft">Discarding this resume reading…</p> : null}
+        {saveError ? <p role="alert" className="mt-3 type-helper text-alert">{saveError}</p> : null}
 
         {/* Was "Nothing is saved either way until you press Save on the next
             screen." Both halves are now the other way round (2026-09-11). */}
@@ -2245,7 +2269,7 @@ function ProfileScreen() {
       .map(row => row.key ? row : { ...row, key: uid() }),
   }))
   const cancelEditing = () => {
-    if (submitting) return
+    if (submitting || importProcessing) return
     if (reviewingImport) {
       clearReviewRecovery(reviewStorage())
       resolvesPendingRef.current = false
@@ -2268,6 +2292,7 @@ function ProfileScreen() {
     else showView('summary')
   }
   const saveChanges = (defer = false) => {
+    if (importProcessing) return
     if (!hasSavedProfile && !reviewingImport && !loadError) {
       originalReviewRef.current = editor
       setReviewingImport(true)
@@ -2285,7 +2310,7 @@ function ProfileScreen() {
       void onSubmit('review')
     } else void onSubmit('stay')
   }
-  const saveBar = <div data-profile-save-bar className="profile-save-bar page-gutter sticky bottom-[76px] z-20 flex flex-wrap items-center justify-between gap-3 border-t border-line bg-white/95 py-3 backdrop-blur md:bottom-0">
+  const saveBar = importProcessing ? null : <div data-profile-save-bar className="profile-save-bar page-gutter sticky bottom-[76px] z-20 flex flex-wrap items-center justify-between gap-3 border-t border-line bg-white/95 py-3 backdrop-blur md:bottom-0">
     <p role="status" aria-live="polite" className={cn('type-helper', saveError ? 'text-alert' : 'text-ink-muted')}>{saveError ?? (submitting ? 'Saving…' : isDirty ? 'You have unsaved changes' : 'All changes saved')}</p>
     <div className="flex gap-2"><Button variant="secondary" size="sm" disabled={submitting} onClick={cancelEditing}>Cancel</Button><Button size="sm" busy={submitting} busyLabel="Saving…" disabled={!!loadError || (reviewingImport && !importConfirmed)} onClick={() => saveChanges()}>Save changes</Button></div>
   </div>
@@ -2430,17 +2455,17 @@ function ProfileScreen() {
   return (
     <main data-ui-service="profile" data-career-builder={reviewingImport || !hasSavedProfile ? "true" : undefined} className={MAIN_CLASS}>
       <ViewHeader eyebrow={isReviewRoute ? "Resume Review" : "Career Profile"} title="Edit Career Profile" description="Update your information here, then save your changes." onBack={cancelEditing} backLabel="Career Profile" />
-      {isReviewRoute ? <div className="page-gutter py-3"><Button variant="secondary" onClick={()=>{setReviewEditing(false);window.scrollTo({top:0})}}>Back to Resume Review</Button></div> : null}
+      {isReviewRoute ? <div className="page-gutter py-3"><Button variant="secondary" disabled={importProcessing} onClick={()=>{setReviewEditing(false);window.scrollTo({top:0})}}>Back to Resume Review</Button></div> : null}
       {loadErrorBlock}
-      {reviewingImport ? <ResumeImportFindings review={activeReview} currentValue={change => currentImportValue(editor, change)} onChoose={(change, value) => setEditor(applyImportChange(editor, change, value, uid))} checks={reviewChecks} confirmed={importConfirmed} busy={submitting} onConfirm={setImportConfirmed} onFix={field => goToProfilePart({ field })} /> : null}
-      {showImportIssues && reviewingImport ? <section ref={importIssueRef} tabIndex={-1} aria-labelledby="review-issues-title" className="mx-3 my-4 rounded-card border border-alert bg-alert-soft p-4 text-alert sm:mx-5">
+      {reviewingImport && !importProcessing ? <ResumeImportFindings review={activeReview} currentValue={change => currentImportValue(editor, change)} onChoose={(change, value) => setEditor(applyImportChange(editor, change, value, uid))} checks={reviewChecks} confirmed={importConfirmed} busy={submitting || importProcessing} onConfirm={setImportConfirmed} onFix={field => goToProfilePart({ field })} /> : null}
+      {showImportIssues && reviewingImport && !importProcessing ? <section ref={importIssueRef} tabIndex={-1} aria-labelledby="review-issues-title" className="mx-3 my-4 rounded-card border border-alert bg-alert-soft p-4 text-alert sm:mx-5">
         <h2 id="review-issues-title" className="type-section">Some details still need attention</h2><p className="mt-2 type-helper">Update them now, or save with missing details and complete them later. Invalid supplied values must be corrected or cleared.</p>
         <div className="mt-3 flex flex-wrap gap-2"><Button variant="secondary" size="sm" onClick={guideToFirstIssue}>Next issue</Button><Button size="sm" disabled={submitting || reviewPlan.invalid.length > 0} onClick={() => saveChanges(true)}>Skip and save</Button></div>
       </section> : null}
-      <fieldset disabled={submitting} className="min-w-0">
+      <fieldset disabled={submitting || importProcessing} className="min-w-0">
       <div className="page-gutter py-4"><Button variant="secondary" size="sm" aria-expanded={showImport} onClick={() => setShowImport(value => !value)}>Update from resume</Button>
-      {showImport ? <ResumeImport initialMode={initialImportMode} collapsible={false} onDraft={ingestDraft} onFillManually={() => setShowImport(false)} /> : null}</div>
-      {parseNotesBlock}
+      {showImport ? <ResumeImport initialMode={initialImportMode} collapsible={false} onDraft={ingestDraft} onFillManually={() => setShowImport(false)} onProcessingChange={setImportProcessing} /> : null}</div>
+      {!importProcessing ? parseNotesBlock : null}
 
       {/* Editor body */}
       <div id="profile-editor" className="page-gutter flex scroll-mt-4 flex-col gap-2.5 py-4">

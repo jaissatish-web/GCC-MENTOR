@@ -321,19 +321,18 @@ function SetupScreen() {
   // Phase A is a row insert — a short wait.
   if (submitting) {
     return (
-      <main className="relative flex min-h-dvh flex-col overflow-hidden bg-ink font-redesign-sans">
+      <main className="relative flex min-h-dvh flex-col overflow-hidden bg-canvas font-redesign-sans">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_45%_at_50%_26%,rgba(201,150,46,0.16),transparent_70%)]"
+          className="pointer-events-none absolute inset-0 bg-teal-soft/30"
         />
         <div className="relative mx-auto flex w-full max-w-[460px] flex-1 flex-col items-center justify-center gap-6 px-6 py-12">
-          <ProcessingOrbit tone="dark" size={168} />
-          <h1 className="text-center font-display text-[30px] leading-tight text-white">
+          <ProcessingOrbit size={128} />
+          <h1 className="text-center font-display type-title leading-tight text-ink">
             Saving your job details
             <span className="block text-gold">{draft.target_job_title}</span>
           </h1>
           <ProcessingSteps
-            tone="dark"
             steps={['Saving your job details', 'Starting the optimization']}
             activeIndex={0}
             notes={setupNotes(hasJobDescription)}

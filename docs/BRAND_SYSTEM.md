@@ -1,3 +1,7 @@
+# Shared light theme — 1 November 2026
+
+THEME-CONSISTENCY-002 supersedes the historical palette descriptions below. One root palette in app/ui-system.css serves landing, authentication, app shell/navigation, profile/review and services: white surfaces, pale canvas #F7F9FC, slate ink #18253A, blue actions #2563EB, semantic success/warning/error. Resume review consumes these same roles rather than redefining a local palette. Existing app typography/spacing stay centrally owned; authored documents retain their own paint/fonts. See [SHARED_THEME_REPAIR.md](SHARED_THEME_REPAIR.md) for scope and verification; release state is governed by the protected PR/deployment.
+
 # Compact shared brand — 26 October 2026
 
 COMPACT-BRAND-001 replaces duplicate public/internal palette literals with one root configuration: indigo#4F46E5 (hover#4338CA), slate#202536, secondary#4B5365, muted#62697A, white surfaces, canvas#F8F9FC, borders#E1E4EC. Cards16px/control10px radii,44px minimum controls,16/20px card insets. Status colours and authored documents remain independent. Implemented/local verification complete; protected-main release pending. See COMPACT_BRAND_2026-10-26.md. Earlier specifications below are historical.

@@ -63,17 +63,23 @@ export function ResumeImport({
   collapsible = false,
   onDraft,
   onFillManually,
+  onProcessingChange,
 }: {
   /** Deep-link intent, e.g. ?import=upload opens the file panel. */
   initialMode?: Mode
   /** A saved profile already exists — show "Recreate my profile" instead. */
   collapsible?: boolean
   /** `notes`: the reader's "please check" list (lib/resumeParse), when it sent one. */
-  onDraft: (draft: CareerProfileDraft, notes?: ParseWarning[], review?: ImportReview) => void
+  onDraft: (draft: CareerProfileDraft, notes?: ParseWarning[], review?: ImportReview) => void | Promise<void>
   onFillManually: () => void
+  /** Lets the canonical editor pause conflicting actions while the reader runs. */
+  onProcessingChange?: (processing: boolean) => void
 }) {
   const fileInput = useRef<HTMLInputElement>(null)
   const importBusy = useRef(false)
+  const processingObserver = useRef(onProcessingChange)
+  useEffect(() => { processingObserver.current = onProcessingChange }, [onProcessingChange])
+  useEffect(() => () => { processingObserver.current?.(false) }, [])
   const [mode, setMode] = useState<Mode>(initialMode)
   const [parsing, setParsing] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -126,6 +132,7 @@ export function ResumeImport({
     // React state updates are asynchronous; this also blocks a second drop/click.
     if (importBusy.current) return
     importBusy.current = true
+    processingObserver.current?.(true)
     setParsing(true)
     setError(null)
     setCheckSaved(false)
@@ -138,7 +145,7 @@ export function ResumeImport({
         return
       }
       try {
-        onDraft(result.draft, result.warnings, result.review)
+        await onDraft(result.draft, result.warnings, result.review)
         setMode('idle')
         setText('')
         setSelectedFile(null)
@@ -149,6 +156,7 @@ export function ResumeImport({
     } finally {
       setParsing(false)
       importBusy.current = false
+      processingObserver.current?.(false)
     }
   }
 
@@ -186,7 +194,7 @@ export function ResumeImport({
   // ── Collapsed: the profile exists, so say so, and offer one way to redo it ──
   if (collapsible && !expanded) {
     return (
-      <div className="mx-5 mt-4 flex flex-col gap-3 rounded-card border border-line bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mt-3 flex min-w-0 flex-col gap-3 rounded-card border border-line bg-white p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
         <div className="flex items-start gap-3">
           <span aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-ctl bg-ok-soft text-ok">
             <CheckCircleIcon className="size-5" />
@@ -225,20 +233,20 @@ export function ResumeImport({
   const recreating = collapsible
 
   return (
-    // A TINTED PANEL, not one more white card. It is a shortcut that fills the
-    // form below, so it must not look like part of the form — on the same white
-    // as the fields it read as a tenth section with three identical buttons.
-    <div className="mx-5 mt-4 rounded-card border border-teal/15 bg-teal-soft/70 p-4">
+    // The parent already supplies page gutters; avoid nesting a second inset.
+    <div data-resume-import aria-busy={parsing} className="mt-3 min-w-0 rounded-card border border-line bg-white p-3 sm:p-4">
       <div className="flex items-start gap-3">
         <span aria-hidden="true" className="flex size-10 shrink-0 items-center justify-center rounded-ctl bg-teal text-white shadow-m-1">
           {recreating ? <ArrowPathIcon className="size-5" /> : <DocumentArrowUpIcon className="size-5" />}
         </span>
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <h2 className="text-[14.5px] font-bold text-ink">
-            {recreating ? 'Recreate your profile' : 'Fill this in from your resume'}
+            {parsing ? 'Reading your resume' : recreating ? 'Recreate your profile' : 'Fill this in from your resume'}
           </h2>
           <p className="type-helper leading-relaxed text-ink-soft">
-            {recreating
+            {parsing
+              ? 'You’ll review the extracted details next.'
+              : recreating
               ? 'Upload or paste a newer resume, or edit the form yourself. Nothing changes until you choose what to keep.'
               : 'Upload or paste your resume and we fill the form in for you.'}
           </p>
@@ -259,7 +267,6 @@ export function ResumeImport({
         ) : null}
       </div>
 
-      {parsing ? <p className="mt-3 type-helper text-ink-soft">We are reading your details and checking for missing or unclear information. Only completed steps receive a checkmark.</p> : null}
       {parsing ? (
         <ProcessingInline
           className="mt-3"
