@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { REVIEW_RECOVERY_KEY, reviewSource, reviewStorage, readReviewRecovery, writeReviewRecovery, clearReviewRecovery } from '@/lib/resumeReviewRecovery'
 import { ChevronRightIcon } from '@heroicons/react/24/outline'
 
-import { validProfileEmail, validProfilePhone } from '@/lib/profileFieldValidity'
+import { validProfileEmail, validProfilePhone, validProfileLinkedIn } from '@/lib/profileFieldValidity'
 import { rebaseImportField } from '@/lib/resumeParse/reviewPlan'
 import { INTAKE_KEY, contextFromProfile } from '@/lib/careerIntake/shared'
 import { ResumeAcceptanceReview } from '@/components/profile/ResumeAcceptanceReview'
@@ -843,7 +843,7 @@ function CardSection({
           </span>
         </button>
       </h2>
-      {validationState ? <p role="status" className={cn('px-4 pb-3 type-helper', validationState === 'attention' ? 'text-alert' : 'text-ok')}>{validationState === 'resolved' ? 'Checks passed for this block.' : validationMessage}</p> : null}
+      {validationState ? <p role="status" className={cn('px-4 pb-3 type-helper', validationState === 'attention' ? 'text-alert' : 'text-ok')}>{validationState === 'resolved' ? 'The highlighted checks are resolved.' : validationMessage}</p> : null}
 
       {open ? (
         <div id={panelId} className="ui-panel-padding border-t border-line p-4 sm:p-5">
@@ -972,7 +972,9 @@ function ConfirmToggle({
 
 function ProfileScreen() {
   const router = useRouter()
-  const isReviewRoute = usePathname() === '/profile/review'
+  const pathname = usePathname()
+  const isReviewRoute = pathname === '/profile/review'
+  const isImportRoute = pathname === '/profile/import'
   const [reviewEditing, setReviewEditing] = useState(false)
   const searchParams = useSearchParams()
   // Deep-link intent from the dashboard nudge / CTA (?import=upload|paste) so the
@@ -980,7 +982,7 @@ function ProfileScreen() {
   const importParam = searchParams.get('import')
   const initialImportMode = importParam === 'upload' ? 'upload' : importParam === 'paste' ? 'paste' : 'idle'
   const requestedView = viewFromParams(searchParams)
-  const [showImport, setShowImport] = useState(Boolean(importParam))
+  const [manualEntry, setManualEntry] = useState(searchParams.get('manual') === '1')
   const [importProcessing, setImportProcessing] = useState(false)
 
   // ---- Moving between the screens (see PROFILE_VIEWS) -----------------------
@@ -1001,7 +1003,9 @@ function ProfileScreen() {
   const [loadError, setLoadError] = useState<string | null>(null)
   // Imported facts use this same editor and require explicit review acknowledgement.
   const [reviewingImport, setReviewingImport] = useState(false)
-  const view = reviewingImport ? 'details' : requestedView
+  // Intake is a presentation of the same editing session, not a switch to
+  // the read-only summary. Keep unsaved facts and staged photos in memory.
+  const view = reviewingImport || isImportRoute || importProcessing || Boolean(importParam) ? 'details' : requestedView
   const [importConfirmed, setImportConfirmed] = useState(false)
   const [showImportIssues, setShowImportIssues] = useState(false)
   const importIssueRef = useRef<HTMLElement>(null)
@@ -1259,6 +1263,23 @@ function ProfileScreen() {
    * effect that sets it — safe, because an effect runs after render.
    */
   const [hasSavedProfile, setHasSavedProfile] = useState(false)
+  const manualRequested = manualEntry || searchParams.get('manual') === '1'
+  const showIntake = !reviewingImport && !pendingDraft && (importProcessing || isImportRoute || Boolean(importParam) || (!hasSavedProfile && !manualRequested && !loadError))
+  useEffect(() => {
+    if (!loaded || !editor || !showIntake || isImportRoute) return
+    window.history.replaceState(null, '', `/profile/import${initialImportMode === 'idle' ? '' : `?import=${initialImportMode}`}`)
+  }, [loaded, editor, showIntake, isImportRoute, initialImportMode])
+  const observeImportProcessing = useCallback((processing: boolean) => {
+    setImportProcessing(processing)
+    if (processing) window.scrollTo({ top: 0 })
+    if (window.location.pathname === '/profile/import') {
+      const params = new URLSearchParams(window.location.search)
+      if (processing) params.set('stage', 'processing')
+      else params.delete('stage')
+      window.history.replaceState(null, '', `/profile/import${params.size ? `?${params}` : ''}`)
+    }
+  }, [])
+
 
   /**
    * This page has loaded the CV reading kept on the server (migration 047) and
@@ -1290,7 +1311,7 @@ function ProfileScreen() {
     // the URL, the import panel reopened in paste mode after the user chose
     // Add or Replace — an empty box asking for another CV (seen live
     // 2026-09-12) instead of folding to "Your profile is already created".
-    if (importParam) router.replace('/profile?view=details', { scroll: false })
+    // Keep the input/processing screen mounted through the saved-profile lookup.
     return fetch('/api/profile', { cache: 'no-store' })
       .then((res) => { if (res.status === 404) return null; if (!res.ok) throw new Error('Profile lookup failed'); return res.json() })
       .then((data) => {
@@ -1313,7 +1334,7 @@ function ProfileScreen() {
         setReviewingImport(true)
         setLoadError('We could not check your existing profile. Reload before confirming to protect saved details.')
       })
-  }, [importParam, router, refreshImportReview])
+  }, [refreshImportReview])
 
   // ---- Live readiness from the current editor state ------------------------
   const readiness: ReadinessResult = useMemo(() => {
@@ -1480,7 +1501,7 @@ function ProfileScreen() {
    * as the same thing.
    */
   const sectionOfField = useCallback(
-    (field: string) => field === 'photo_url' ? 'sec_identity' : Object.entries(SECTION_FIELDS).find(([, fields]) => fields.includes(field))?.[0],
+    (field: string) => field === 'photo_url' ? 'sec_identity' : Object.entries(SECTION_FIELDS).find(([, fields]) => fields.includes(field.split('.')[0]))?.[0],
     [],
   )
   const sectionTag = useCallback((sectionId: string | undefined) => {
@@ -1534,7 +1555,10 @@ function ProfileScreen() {
       const sectionId = target.sectionId ?? (target.field ? sectionOfField(target.field) ?? (target.field.startsWith('work_experience') ? 'sec_work_experience' : target.field.startsWith('education') ? 'sec_education' : target.field.startsWith('skills') ? 'sec_skills' : target.field.startsWith('certifications') ? 'sec_certifications' : 'sec_additional') : undefined)
       const roleIndex = target.field?.match(/^work_experience\.(\d+)/)?.[1]
       if (roleIndex !== undefined && editor?.work_experience[Number(roleIndex)]) setExpandedWorkKey(editor.work_experience[Number(roleIndex)].key)
-      if (sectionId) setOpenSections((prev) => ({ ...prev, [sectionId]: true }))
+      if (sectionId) {
+        setOpenSections((prev) => ({ ...prev, [sectionId]: true }))
+        if (target.field) setGuidedSections(previous => [...new Set([...previous, sectionId])])
+      }
       setPendingFocus({ field: target.field, sectionId, categoryBlock: target.categoryBlock })
       showView('details')
     },
@@ -1722,6 +1746,14 @@ function ProfileScreen() {
   }
   const reviewPlan = importReviewPlan(reviewChecks, {})
   const [guidedSections, setGuidedSections] = useState<string[]>([])
+  useEffect(() => {
+    if (!editor || !invalidFields.size) return
+    if (requiredMissing(editor).every(item => !invalidFields.has(String(item.key)))) {
+      setInvalidFields(new Set())
+      setSaveError(null)
+    }
+  }, [editor, invalidFields])
+
   const issueSection = (field: string) => ['date_of_birth', 'linkedin_url', 'passport_type'].includes(field) ? 'sec_identity' : sectionOfField(field) ?? sectionOfField(field.split('.')[0]) ?? 'sec_additional'
   const orderedIssues = [...reviewPlan.outstanding].sort((a, b) => {
     const sectionDifference = FORM_SECTIONS.findIndex(s => s.id === issueSection(a.field)) - FORM_SECTIONS.findIndex(s => s.id === issueSection(b.field))
@@ -1730,7 +1762,7 @@ function ProfileScreen() {
     return fields.indexOf(a.field.split('.')[0]) - fields.indexOf(b.field.split('.')[0]) || a.field.localeCompare(b.field, undefined, { numeric: true })
   })
   useEffect(() => { if (!orderedIssues.length) setShowImportIssues(false) }, [orderedIssues.length])
-  const guidedState = (id: string): 'attention' | 'resolved' | undefined => !guidedSections.includes(id) ? undefined : orderedIssues.some(check => issueSection(check.field) === id) ? 'attention' : 'resolved'
+  const guidedState = (id: string): 'attention' | 'resolved' | undefined => !guidedSections.includes(id) && !(id === 'sec_identity' && editor?.linkedin_url.trim() && !validProfileLinkedIn(editor.linkedin_url)) ? undefined : orderedIssues.some(check => issueSection(check.field) === id) ? 'attention' : 'resolved'
   const guidedMessage = (id: string) => { const issue = orderedIssues.find(check => issueSection(check.field) === id); return issue ? `${issue.title}: ${issue.reason}` : undefined }
   const goToReviewField = (field: string) => {
     const sectionId = issueSection(field)
@@ -1847,6 +1879,7 @@ function ProfileScreen() {
   // "Finish these to reach 100" → scroll/focus the inline field (never a route).
   const setField = useCallback((patch: Partial<EditorData>) => {
     setEditor((e) => (e ? { ...e, ...patch } : e))
+    setSaveError(null)
   }, [])
 
   // ---- Row adders -----------------------------------------------------------
@@ -1955,6 +1988,7 @@ function ProfileScreen() {
         // target_industry/target_job_title live in Status & target; contact
         // fields in Identity. Fall back to opening both if a key is unmapped.
         if (owning.size === 0) { owning.add('sec_status'); owning.add('sec_identity') }
+        setGuidedSections(previous => [...new Set([...previous, ...owning])])
         setOpenSections((prev) => {
           const next = { ...prev }
           owning.forEach((id) => { next[id] = true })
@@ -1984,7 +2018,11 @@ function ProfileScreen() {
           let msg = 'Saving failed. Please try again.'
           try {
             const body = await res.json()
-            if (body?.error) msg = String(body.error)
+            if (body?.error) {
+              msg = String(body.error)
+              const invalid = /^Invalid field: ([\w.\[\]]+)/.exec(msg)?.[1]?.replace(/\[(\d+)\]/g, '.$1')
+              if (invalid) goToProfilePart({ field: invalid })
+            }
           } catch {
             /* keep default */
           }
@@ -2046,7 +2084,6 @@ function ProfileScreen() {
           clearReviewRecovery(reviewStorage())
           try { sessionStorage.removeItem(INTAKE_KEY); sessionStorage.removeItem('gulf_readiness_answers') } catch { /* Storage may be unavailable. */ }
           setReviewingImport(false)
-          setShowImport(false)
           setParseNotes([])
           setSubmitting(false)
           if (isReviewRoute) router.replace('/dashboard')
@@ -2056,7 +2093,6 @@ function ProfileScreen() {
         }
         if (destination === 'stay') {
           setSubmitting(false)
-          setShowImport(false)
           showView('summary')
           window.scrollTo({ top: 0 })
           return
@@ -2068,7 +2104,7 @@ function ProfileScreen() {
         setSubmitting(false)
       }
     },
-    [editor, showView, submitting, importProcessing, reviewingImport, sectionOfField, photoChange, loadError, isReviewRoute, router]
+    [editor, showView, submitting, importProcessing, reviewingImport, sectionOfField, photoChange, loadError, isReviewRoute, router, goToProfilePart]
   )
 
   useEffect(() => {
@@ -2115,11 +2151,11 @@ function ProfileScreen() {
       }
       clearReviewRecovery(reviewStorage())
       setEditor(fromFull(pendingDraft.existing))
+      setPhotoChange(undefined)
       reviewRequest.current++
       setImportReview(null)
       setPendingDraft(null)
       resolvesPendingRef.current = false
-      setShowImport(false)
       setReviewingImport(false)
       setImportConfirmed(false)
       router.replace('/profile')
@@ -2284,11 +2320,11 @@ function ProfileScreen() {
     setReviewingImport(false)
     setImportConfirmed(false)
     setShowImportIssues(false)
-    setShowImport(false)
     setSaveError(null)
     setInvalidFields(new Set())
     setSavedBaseline(JSON.stringify(buildPutBody(savedSnapshotRef.current ?? emptyEditor())))
-    if (isReviewRoute) router.replace('/profile')
+    if (!hasSavedProfile) { setManualEntry(false); window.history.replaceState(null, '', '/profile/import') }
+    else if (isReviewRoute) router.replace('/profile')
     else showView('summary')
   }
   const saveChanges = (defer = false) => {
@@ -2305,13 +2341,13 @@ function ProfileScreen() {
     }
     if (reviewingImport) {
       if (!importConfirmed || loadError) return
-      if (reviewPlan.outstanding.length && !defer) { setShowImportIssues(true); guideToFirstIssue(); return }
+      if (reviewPlan.outstanding.some(check => check.blocking !== false) && !defer) { setShowImportIssues(true); guideToFirstIssue(); return }
       if (reviewPlan.invalid.length) { setShowImportIssues(true); guideToFirstIssue(); return }
       void onSubmit('review')
     } else void onSubmit('stay')
   }
   const saveBar = importProcessing ? null : <div data-profile-save-bar className="profile-save-bar page-gutter sticky bottom-[76px] z-20 flex flex-wrap items-center justify-between gap-3 border-t border-line bg-white/95 py-3 backdrop-blur md:bottom-0">
-    <p role="status" aria-live="polite" className={cn('type-helper', saveError ? 'text-alert' : 'text-ink-muted')}>{saveError ?? (submitting ? 'Saving…' : isDirty ? 'You have unsaved changes' : 'All changes saved')}</p>
+    <p role="status" aria-live="polite" className={cn('type-helper', saveError ? 'text-alert' : 'text-ink-muted')}>{saveError ?? (submitting ? 'Saving…' : isDirty ? 'You have unsaved changes' : !hasSavedProfile ? 'Not saved yet' : 'All changes saved')}</p>
     <div className="flex gap-2"><Button variant="secondary" size="sm" disabled={submitting} onClick={cancelEditing}>Cancel</Button><Button size="sm" busy={submitting} busyLabel="Saving…" disabled={!!loadError || (reviewingImport && !importConfirmed)} onClick={() => saveChanges()}>Save changes</Button></div>
   </div>
   const parseNotesBlock = importReview ? null : (
@@ -2325,6 +2361,28 @@ function ProfileScreen() {
   const loadErrorBlock = loadError ? (
     <div className="mx-3 sm:mx-5 mt-4 rounded-ctl border border-alert/30 bg-alert-soft px-3.5 py-3 type-caption text-alert">{loadError}</div>
   ) : null
+
+  if (showIntake) {
+    const enterManual = () => {
+      if (importProcessing) return
+      setManualEntry(true)
+      window.history.replaceState(null, '', '/profile?view=details&manual=1')
+      window.scrollTo({ top: 0 })
+    }
+    return <main data-ui-service="profile-intake" data-career-builder="true" className="ui-page-form page-gutter mx-auto w-full bg-canvas py-6 sm:py-8">
+      <header className="mb-5">
+        <p className="type-helper font-semibold text-teal">Career Profile</p>
+        <h1 className="mt-1 type-title text-ink">{importProcessing ? 'Preparing your review' : hasSavedProfile ? 'Update from your resume' : 'Start with your experience'}</h1>
+        <p className="mt-2 type-body text-ink-soft">{importProcessing ? 'Your saved profile changes only after you review and confirm.' : 'Choose how to add your details. You’ll review them before saving.'}</p>
+      </header>
+      <ol aria-label="Career Profile stages" className="mb-5 grid grid-cols-3 gap-2">
+        {['Resume input', 'AI processing', 'Your review'].map((label, index) => <li key={label} aria-current={index === (importProcessing ? 1 : 0) ? 'step' : undefined} className={cn('flex min-w-0 flex-col gap-1 border-t-2 pt-2 type-caption', index < (importProcessing ? 1 : 0) ? 'border-ok text-ok' : index === (importProcessing ? 1 : 0) ? 'border-teal font-semibold text-teal' : 'border-line text-ink-muted')}><span aria-hidden="true">{index < (importProcessing ? 1 : 0) ? '✓' : index + 1}</span>{label}</li>)}
+      </ol>
+      {loadErrorBlock}
+      <ResumeImport initialMode={initialImportMode} collapsible={false} onDraft={ingestDraft} onFillManually={enterManual} onProcessingChange={observeImportProcessing} />
+      {hasSavedProfile && !importProcessing ? <Button className="mt-4" variant="secondary" onClick={enterManual}>Cancel import</Button> : null}
+    </main>
+  }
 
   if (isReviewRoute && !reviewingImport) return <main className={MAIN_CLASS}><div className="page-gutter py-8"><h1 className="type-title text-ink">Resume Review</h1><p className="mt-3 type-body text-ink-soft">No resume reading is waiting for confirmation. Your saved profile is unchanged.</p><Link className={buttonVariants({ variant: 'secondary' })+' mt-4'} href="/profile">Open Career Profile</Link></div></main>
 
@@ -2463,8 +2521,7 @@ function ProfileScreen() {
         <div className="mt-3 flex flex-wrap gap-2"><Button variant="secondary" size="sm" onClick={guideToFirstIssue}>Next issue</Button><Button size="sm" disabled={submitting || reviewPlan.invalid.length > 0} onClick={() => saveChanges(true)}>Skip and save</Button></div>
       </section> : null}
       <fieldset disabled={submitting || importProcessing} className="min-w-0">
-      <div className="page-gutter py-4"><Button variant="secondary" size="sm" aria-expanded={showImport} onClick={() => setShowImport(value => !value)}>Update from resume</Button>
-      {showImport ? <ResumeImport initialMode={initialImportMode} collapsible={false} onDraft={ingestDraft} onFillManually={() => setShowImport(false)} onProcessingChange={setImportProcessing} /> : null}</div>
+      {!reviewingImport ? <div className="page-gutter py-4"><Button variant="secondary" size="sm" onClick={() => { window.history.pushState(null, '', '/profile/import'); window.scrollTo({ top: 0 }) }}>Update from resume</Button></div> : null}
       {!importProcessing ? parseNotesBlock : null}
 
       {/* Editor body */}
@@ -2518,7 +2575,7 @@ function ProfileScreen() {
               hint="The role you want next. Every resume you build is aimed at it."
               value={editor.target_job_title}
               onChange={(e) => setField({ target_job_title: e.target.value })}
-              error={invalidFields.has('target_job_title') ? 'Job Title You’re Applying For is required.' : undefined}
+              error={invalidFields.has('target_job_title') && requiredMissing(editor).some(item => item.key === 'target_job_title') ? 'Job Title You’re Applying For is required.' : undefined}
             />
             <Input tone="light"
               id="f_target_industry"
@@ -2526,7 +2583,7 @@ function ProfileScreen() {
               placeholder="e.g. Oil & Gas, Power, Construction"
               value={editor.target_industry}
               onChange={(e) => setField({ target_industry: e.target.value })}
-              error={invalidFields.has('target_industry') ? 'Target industry is required.' : undefined}
+              error={invalidFields.has('target_industry') && requiredMissing(editor).some(item => item.key === 'target_industry') ? 'Target industry is required.' : undefined}
             />
             <div className="flex flex-col gap-1.5">
               <FieldLabel htmlFor="f_target_country" optional>
@@ -2600,14 +2657,14 @@ function ProfileScreen() {
               helper="Use your name as it appears on your passport."
               value={editor.full_name}
               onChange={(e) => setField({ full_name: e.target.value })}
-              error={invalidFields.has('full_name') ? 'Full name is required.' : undefined}
+              error={invalidFields.has('full_name') && requiredMissing(editor).some(item => item.key === 'full_name') ? 'Full name is required.' : undefined}
               className="sm:col-span-2"
             />
             <PhoneField
               id="f_phone"
               label="Phone"
               required
-              error={invalidFields.has('phone') ? 'Phone number is required.' : undefined}
+              error={invalidFields.has('phone') && requiredMissing(editor).some(item => item.key === 'phone') ? 'Enter a valid phone number.' : undefined}
               helper="Pick your country code, then the number without it."
               dial={phoneParts.dial}
               number={phoneParts.number}
@@ -2643,7 +2700,7 @@ function ProfileScreen() {
               inputMode="email"
               autoComplete="email"
               placeholder="you@example.com"
-              error={invalidFields.has('email') ? 'Email is required.' : undefined}
+              error={invalidFields.has('email') && requiredMissing(editor).some(item => item.key === 'email') ? 'Enter a valid email address.' : undefined}
               helper="Use one you check daily."
               value={editor.email}
               onChange={(e) => setField({ email: e.target.value })}
@@ -2691,11 +2748,16 @@ function ProfileScreen() {
               id="f_linkedin_url"
               label="LinkedIn URL"
               optional
-              type="url"
+              type="text"
+              inputMode="url"
+              aria-invalid={editor.linkedin_url.trim() && !validProfileLinkedIn(editor.linkedin_url) ? true : undefined}
+              aria-describedby={editor.linkedin_url.trim() && !validProfileLinkedIn(editor.linkedin_url) ? 'linkedin-format-warning' : undefined}
+              className={editor.linkedin_url.trim() && !validProfileLinkedIn(editor.linkedin_url) ? 'border-alert' : undefined}
               placeholder="linkedin.com/in/your-name"
               value={editor.linkedin_url}
-              onChange={(e) => setField({ linkedin_url: e.target.value })}
+              onChange={(e) => { setGuidedSections(previous => [...new Set([...previous, 'sec_identity'])]); setField({ linkedin_url: e.target.value }) }}
             />
+            {editor.linkedin_url.trim() && !validProfileLinkedIn(editor.linkedin_url) ? <p id="linkedin-format-warning" data-linkedin-warning role="status" className="type-helper text-alert">This does not look like a LinkedIn address. You can keep it and still save your profile.</p> : null}
             <DateField
               id="f_date_of_birth"
               label="Date of birth"

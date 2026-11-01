@@ -12,7 +12,7 @@ const fixture=JSON.parse(readFileSync(root+'/scripts/fixtures/studioFixture.json
 const output=root+'/artifacts/single-profile-editor'
 mkdirSync(output,{recursive:true})
 let pageForDebug,browser,server,profile=structuredClone(fixture),scenario='saved',writes=[],failPhoto=false,pending=null,failProfileOnce=false,resumeImportReply=null,holdProfileLookup=false,profileLookupReply=null,pendingDeleteReply=null,failDeleteOnce=false
-const errors=[],external=[],checks=[]
+const errors=[],external=[],checks=[],dialogs=[]
 const reviewBefore=fixture.professional_summary.replace('experience','experiance')
 const makeReview=()=>({version:1,id:'fixture-review-'+scenario,createdAt:'2026-10-27T10:00:00Z',sourceText:'Fictional resume',changes:[...(scenario==='verify-import'?[{id:'fixture-name-check',field:'full_name',label:'Source spelling',kind:'check',before:'Imported Maya Thomas',after:'Imported Maya Thomas',reason:'Verify source spelling against the original resume.'}]:[]),{id:'fixture-summary-change',field:'professional_summary',label:'Professional summary',kind:'spelling',before:reviewBefore,after:fixture.professional_summary,reason:'Corrected a spelling error without adding candidate facts.',suggested:true,restorable:true}],imported:{roles:fixture.work_experience.length,skills:fixture.skills.length,qualifications:fixture.education.length,certificates:fixture.certifications.length},wordingStatus:'checked'})
 const freshDraft=()=>({...structuredClone(fixture),id:undefined,user_id:undefined,full_name:'Imported Maya Thomas',professional_summary:reviewBefore,additional_information:[{label:'Gas plant controls',value:'Configured field instrument loops.',category_name:'Projects'},{label:'Water treatment upgrade',value:'Supported loop checks.',category_name:'Projects'},{label:'English',value:'Working language',level:'Professional',category_name:'Languages'},{label:'Portfolio note',value:'Candidate supplied note.',category_name:'Other information'}],work_experience:fixture.work_experience.map(w=>({...w,id:undefined})),skills:fixture.skills.map(s=>({...s,id:undefined})),education:fixture.education.map(e=>({...e,id:undefined})),certifications:fixture.certifications.map(c=>({...c,id:undefined}))})
@@ -34,9 +34,11 @@ function serve(){
   const url=new URL(req.url,'http://fixture'),p=url.pathname
   const send=(body,status=200)=>{res.writeHead(status,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end(JSON.stringify(body))}
   if(p==='/__scenario'){
-   scenario=url.searchParams.get('state')||'saved';holdProfileLookup=false;profileLookupReply=null;profile=['new-import','retry-import','incomplete-import','invalid-import','manual','verify-import'].includes(scenario)?null:structuredClone(fixture);writes=[];failPhoto=scenario==='photo-error';failProfileOnce=scenario==='retry-import';pending=['new-import','retry-import','existing-import','incomplete-import','invalid-import','verify-import'].includes(scenario)?{draft:freshDraft(),report:{review:makeReview()}}:null
+   scenario=url.searchParams.get('state')||'saved';holdProfileLookup=false;profileLookupReply=null;profile=['new-import','retry-import','incomplete-import','invalid-import','manual','verify-import','linkedin-import'].includes(scenario)?null:structuredClone(fixture);writes=[];failPhoto=scenario==='photo-error';failProfileOnce=scenario==='retry-import';pending=['new-import','retry-import','existing-import','incomplete-import','invalid-import','verify-import','linkedin-import'].includes(scenario)?{draft:freshDraft(),report:{review:makeReview()}}:null
    if(scenario==='incomplete-import')Object.assign(pending.draft,{full_name:'',email:'',phone:'',whatsapp:'',work_experience:[{company:'Fictional employer',role:'Engineer',start_date:null,end_date:null,description:'Maintained equipment.',highlights:[]}],education:[],skills:[],certifications:[]})
    if(scenario==='invalid-import')pending.draft.email='not-an-email'
+   if(scenario==='linkedin-import')pending.draft.linkedin_url='javascript:alert(1)'
+   if(scenario==='linkedin-warning')profile.linkedin_url='not a LinkedIn address'
    if(scenario==='missing')profile.email=''
    if(scenario==='with-photo')profile.photo_url='/fixture-photo.png'
    if(['held-discard','failed-discard'].includes(scenario))pending={draft:freshDraft(),report:{review:makeReview()}}
@@ -100,7 +102,7 @@ function serve(){
 try{
  await bundle();server=serve();await new Promise(yes=>server.listen(0,'127.0.0.1',yes));const origin='http://127.0.0.1:'+server.address().port
  browser=await puppeteer.launch({executablePath:process.env.CHROME_PATH||await puppeteer.executablePath(),headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--disable-gpu']})
- const page=pageForDebug=await browser.newPage();page.setDefaultTimeout(12000);page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>void d.accept())
+ const page=pageForDebug=await browser.newPage();page.setDefaultTimeout(12000);page.on('pageerror',e=>errors.push(e.message));page.on('dialog',d=>{dialogs.push({type:d.type(),message:d.message()});void d.accept()})
  await page.setRequestInterception(true);page.on('request',r=>{const url=new URL(r.url());if(['data:','blob:'].includes(url.protocol)||url.origin===origin)void r.continue();else{external.push(r.url());void r.abort()}})
  const state=async name=>{await page.evaluate(()=>sessionStorage.clear()).catch(()=>{});await fetch(origin+'/__scenario?state='+name)}
  const go=async path=>{console.log('CHECK '+scenario+' '+path);await page.goto(origin+path,{waitUntil:'domcontentloaded'});await page.waitForNetworkIdle({idleTime:100,timeout:5000}).catch(()=>{})}
@@ -156,19 +158,50 @@ try{
   await page.evaluate(()=>{const target=[...document.querySelectorAll('main button')].find(b=>/Edit Career Profile|Add or confirm/.test(b.textContent));if(!target)throw Error('Readiness update action missing');target.click()});await canonical();checks.push('Readiness shortcut '+width)
   await page.evaluate(()=>window.scrollTo({top:0,behavior:'instant'}));await page.screenshot({path:output+'/editor-'+width+'.png',fullPage:false})
  }
+ // A first-time user sees only input choices until explicitly choosing manual entry.
+ for(const width of [320,375,390,430,1440]){
+  await page.setViewport({width,height:900,deviceScaleFactor:1});await state('manual');await go('/profile');await page.waitForSelector('[data-resume-import]');
+  assert.equal(new URL(page.url()).pathname,'/profile/import','First-time profile creation starts on dedicated input screen');
+  assert.equal(await page.$('#profile-editor'),null,'Input choices have no profile editor underneath');
+  assert.equal(await page.$('[data-profile-save-bar]'),null,'Input choices have no Save/status bar');
+  assert.equal(await page.$('nav[aria-label="Career Profile blocks"]'),null,'Input choices have no section finder underneath');
+  assert.equal(await page.$$eval('main input:not([type="file"]), main textarea',els=>els.length),0,'Unselected intake shows no unrelated typing boxes');
+  await sharedShell('Resume input '+width);await reflow('Resume input '+width);await page.screenshot({path:output+'/input-choice-'+width+'.png',fullPage:false});
+  await click('Type it myself');await canonical();
+  assert.equal(new URL(page.url()).pathname,'/profile','Manual choice opens the one existing profile editor');
+  assert.equal(new URL(page.url()).searchParams.get('manual'),'1','Manual intent is explicit and refreshable');
+  assert.equal(await page.$('[data-resume-import]'),null,'Manual editor does not mount import choices above its fields');
+  assert.equal((await allWrites()).length,0,'Choosing manual input creates no profile or import writes');
+  await click('Cancel');await page.waitForSelector('[data-resume-import]');assert.equal(new URL(page.url()).pathname,'/profile/import','Cancelling a first manual profile returns to input choices');assert.equal(await page.$('#profile-editor'),null,'Cancelled manual form is no longer rendered below choices');
+  checks.push('First-time input-only page, explicit canonical manual entry and safe cancellation '+width);
+ }
+ for(const mode of ['upload','paste']){
+  await state('saved');await go('/profile?import='+mode);await page.waitForSelector('[data-resume-import]');
+  assert.equal(new URL(page.url()).pathname,'/profile/import','Legacy '+mode+' link reaches dedicated intake');
+  assert.equal(await page.$('#profile-editor'),null,'Deep-linked '+mode+' intake renders no profile fields');
+  assert.ok(await page.$(mode==='paste'?'textarea[placeholder="Paste your resume text (50–20,000 characters)"]':'input[type="file"]'),'Deep-linked '+mode+' choice is opened');
+  await click('Cancel import');await canonical();
+  checks.push('Legacy '+mode+' import deep link isolates input and returns to canonical editor');
+ }
  // Hold the actual import request open: this reproduces the founder's processing/save-bar collision.
  for(const width of [320,375,390,430,1440]){
   await page.setViewport({width,height:900,deviceScaleFactor:1});await state('processing-import');await go('/profile?view=details');await canonical();await openContact();
-  await type('#f_full_name','Maya Unsaved During Import');
-  await click('Update from resume');await click('Paste text');
+  await type('#f_full_name','Maya Unsaved During Import');await photo();await page.waitForSelector('img[alt="Profile photo preview"]');
+  const selectedPhoto=await page.$eval('img[alt="Profile photo preview"]',el=>el.getAttribute('src'));const dialogsBeforeImport=dialogs.length;
+  await click('Update from resume');await page.waitForSelector('[data-resume-import]');
+  assert.equal(new URL(page.url()).pathname,'/profile/import','Resume import uses the dedicated input route');
+  assert.equal(await page.$('#profile-editor'),null,'No profile form is rendered below input choices');
+  assert.equal(await page.$('nav[aria-label="Career Profile blocks"]'),null,'The form section finder is absent from intake');
+  assert.equal(await page.$('[data-profile-save-bar]'),null,'Input choices do not show an unrelated Save bar');
+  await click('Paste text');
   const resumeText='Synthetic candidate resume. Software engineer at Example Company, 2020 to 2025. Built tested applications with real project responsibilities.'
   await page.type('textarea[placeholder="Paste your resume text (50–20,000 characters)"]',resumeText)
   await click('Read this text');await page.waitForSelector('[data-processing-inline]');
   await page.waitForFunction(()=>!document.querySelector('[data-profile-save-bar]'));
   assert.equal(await page.$('[data-profile-save-bar]'),null,'Profile Save/status bar cannot overlap an active import')
   assert.equal(await page.$$eval('main button',bs=>bs.some(b=>b.textContent.trim()==='Save changes')),false,'Unrelated profile Save is absent while importing')
-  assert.ok(await page.$eval('#f_full_name',el=>el.matches(':disabled')),'Canonical fact inputs are locked while importing')
-  assert.equal(await page.$eval('#f_full_name',el=>el.value),'Maya Unsaved During Import','Unsaved facts remain in memory during import')
+  assert.equal(await page.$('#profile-editor'),null,'Profile facts are absent from the dedicated processing screen')
+  assert.equal(await page.$('#f_full_name'),null,'No unrelated typing field is below processing')
   assert.equal(await page.$$eval('[data-processing-state="done"]',els=>els.length),1,'Only selected input is completed')
   assert.equal(await page.$$eval('[data-processing-state="active"]',els=>els.length),1,'One actual backend operation remains active')
   await page.$eval('[data-processing-inline]',el=>el.scrollIntoView({block:'center',behavior:'instant'}));
@@ -177,23 +210,33 @@ try{
   assert.ok(await page.$eval('[data-processing-steps] li:last-child',el=>{const row=el.getBoundingClientRect(),nav=document.querySelector('[data-mobile-navigation]');const floor=nav&&getComputedStyle(nav).display!=='none'?nav.getBoundingClientRect().top:innerHeight;return row.top>=70&&row.bottom<floor}),'All actual workflow rows remain visible above navigation')
   await page.evaluate(()=>{for(const animation of document.querySelector('[data-processing-inline]').getAnimations({subtree:true})){if(Number.isFinite(animation.effect?.getComputedTiming().endTime)){try{animation.finish()}catch{}}}});await lightContrast('Processing text '+width,['[data-processing-inline] > div > p','[data-processing-state="active"] > span:nth-child(2)','[data-processing-notes] p[aria-hidden="false"]']);await page.screenshot({path:output+'/import-processing-'+width+'.png',fullPage:false})
   await fetch(origin+'/__resolve-import?outcome=error');await page.waitForFunction(()=>document.body.textContent.includes('Fictional parser refusal'));
-  assert.ok(await page.$('[data-profile-save-bar]'),'Normal editor actions return after import refusal')
-  assert.equal(await page.$eval('#f_full_name',el=>el.matches(':disabled')),false,'Facts unlock after import refusal')
-  assert.equal(await page.$eval('#f_full_name',el=>el.value),'Maya Unsaved During Import','Import refusal preserves unsaved fact edits')
+  assert.equal(await page.$('[data-profile-save-bar]'),null,'Refused parsing remains in the dedicated retry screen')
+  assert.equal(await page.$('#profile-editor'),null,'A parsing error does not expose the profile form below intake')
   assert.equal(await page.$eval('textarea[placeholder="Paste your resume text (50–20,000 characters)"]',el=>el.value),resumeText,'Import refusal preserves pasted input')
   assert.equal((await allWrites()).filter(w=>w.path==='/api/profile').length,0,'Processing/refusal never writes profile data')
+  await click('Cancel import');await canonical();await openContact();
+  assert.equal(await page.$eval('#f_full_name',el=>el.value),'Maya Unsaved During Import','Cancelling a refused import restores prior unsaved editor facts');
+  assert.equal(await page.$eval('img[alt="Profile photo preview"]',el=>el.getAttribute('src')),selectedPhoto,'Cancelling import preserves the same staged photo preview');
+  assert.equal(dialogs.length,dialogsBeforeImport,'Entering input, processing and cancelling does not discard or ask to discard unsaved text/photo');
+  assert.equal((await allWrites()).filter(w=>w.path==='/api/profile/photo').length,0,'Staged photo is never uploaded by intake navigation or refusal');
+  await click('Update from resume');await click('Paste text');
+  await page.type('textarea[placeholder="Paste your resume text (50–20,000 characters)"]',resumeText);
   await click('Read this text');await page.waitForSelector('[data-processing-inline]');await page.waitForFunction(()=>!document.querySelector('[data-profile-save-bar]'));
+  await fetch(origin+'/__resolve-import?outcome=error');await page.waitForFunction(()=>document.body.textContent.includes('Fictional parser refusal'));
+  assert.equal(await page.$eval('textarea[placeholder="Paste your resume text (50–20,000 characters)"]',el=>el.value),resumeText,'A repeated failure preserves pasted input for explicit retry');
+  await click('Read this text');await page.waitForSelector('[data-processing-inline]');
   await fetch(origin+'/__resolve-import?outcome=success&holdProfile=1');
   await page.waitForFunction(async()=>{const response=await fetch('/__handoff-state');return(await response.json()).pending});
   await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
   assert.equal(await page.$('[data-profile-save-bar]'),null,'Save/status remain absent after parsing while the saved-profile handoff is pending')
   assert.ok(await page.$('[data-processing-inline]'),'Import remains visibly busy through the saved-profile lookup')
-  assert.ok(await page.$eval('#f_full_name',el=>el.matches(':disabled')),'Profile facts remain locked through the saved-profile handoff')
+  assert.equal(await page.$('#profile-editor'),null,'Profile facts stay absent through the saved-profile handoff')
   await fetch(origin+'/__resolve-handoff');await page.waitForFunction(()=>document.body.textContent.includes('You already have a profile'));
   assert.equal(await page.$('[data-processing-inline]'),null,'A successful response ends the processing view')
   assert.equal((await allWrites()).filter(w=>w.path==='/api/profile').length,0,'Successful import still needs the existing add/replace decision')
   await page.evaluate(()=>[...document.querySelectorAll('main button')].find(b=>b.textContent.includes('Keep my profile as it is')).click());await page.waitForSelector('.studio-profile-summary');assert.equal(new URL(page.url()).pathname,'/profile','Keeping the saved profile returns directly to its summary');
-  checks.push('Pending import hides Save, preserves input, recovers failure and hands off success '+width)
+  await click('Edit Career Profile');await canonical();await openContact();assert.equal(await page.$eval('#f_full_name',el=>el.value),'Maya Thomas','Explicitly keeping saved profile discards prior unsaved name');assert.equal(await page.$('img[alt="Profile photo preview"]'),null,'Explicitly keeping saved profile clears the staged photo');
+  checks.push('Focused input/processing, preserved retry/cancel state and protected review handoff '+width)
  }
  await page.setViewport({width:390,height:900,deviceScaleFactor:1});await state('processing-import');await go('/profile?view=details');await canonical();
  await click('Update from resume');await click('Upload resume');
@@ -202,7 +245,8 @@ try{
  await (await page.$('input[type="file"][accept=".pdf,.doc,.docx"]')).uploadFile(dir+'/synthetic-resume.pdf');
  await page.waitForSelector('[data-processing-inline]');await page.waitForFunction(()=>!document.querySelector('[data-profile-save-bar]'));
  await fetch(origin+'/__resolve-import?outcome=error');await page.waitForFunction(()=>document.body.textContent.includes('Try the selected file again'));
- assert.ok(await page.$('[data-profile-save-bar]'),'A refused file import restores profile actions')
+ assert.equal(await page.$('[data-profile-save-bar]'),null,'Refused file import stays in focused input/retry screen')
+ assert.equal(await page.$('#profile-editor'),null,'No form fields appear below the file retry')
  await click('Try the selected file again');await page.waitForSelector('[data-processing-inline]');await page.waitForFunction(()=>!document.querySelector('[data-profile-save-bar]'));
  await fetch(origin+'/__resolve-import?outcome=success');await page.waitForFunction(()=>document.body.textContent.includes('You already have a profile'));
  assert.equal((await allWrites()).filter(w=>w.path==='/api/parse/upload').length,2,'File retry reuses the selected buffered upload only after explicit action')
@@ -343,7 +387,7 @@ try{
  assert.equal(await page.$eval('#guided-field-title',el=>el.textContent),'Your name','Changing a verified fact invalidates its earlier confirmation');
  assert.equal((await allWrites()).length,0,'Confirming and changing a field never implicitly saves the profile');
  checks.push('Source-warning confirmation persists as digest and changed facts require verification again');
- await state('manual');await go('/profile?view=details');await canonical();
+ await state('manual');await go('/profile');await page.waitForSelector('[data-resume-import]');await click('Type it myself');await canonical();
  await type('#f_full_name','Manual Example Candidate');await type('#f_email','manual.candidate@example.com');
  await click('Save changes');await page.waitForSelector('[data-ui-service="resume-review"]');
  assert.equal((await allWrites()).length,0,'Manual first-profile entry enters review before any write');
@@ -367,7 +411,40 @@ try{
  await click('Save changes');await page.waitForFunction(()=>!document.querySelector('#profile-editor')||document.querySelector('#review-issues-title'));if(await page.$('#review-issues-title')){assert.equal((await allWrites()).filter(w=>w.path==='/api/profile').length,0,'Import warning precedes any profile write');await click('Skip and save');await page.waitForFunction(()=>!document.querySelector('#profile-editor'))}assert.equal((await allWrites()).filter(w=>w.path==='/api/profile').length,1);checks.push('Imported draft uses same acknowledged editor')
  for(const reviewWidth of [390,1440]){await page.setViewport({width:reviewWidth,height:900,deviceScaleFactor:1});
  await state('incomplete-import');await go('/profile');await canonical();await page.evaluate(label=>[...document.querySelectorAll('label')].find(l=>l.textContent.includes(label)).querySelector('input').click(),reviewLabel);await click('Save changes');await page.waitForSelector('#review-issues-title');assert.equal((await allWrites()).filter(w=>w.path==='/api/profile').length,0,'Incomplete import requires explicit skip');await page.waitForFunction(()=>{const panel=document.querySelector('[aria-labelledby="review-issues-title"]'),bar=document.querySelector('[data-profile-save-bar]');const active=document.activeElement;const rect=active?.getBoundingClientRect();return !!active?.closest('[data-guided-validation="attention"]')&&rect.top>=72&&rect.bottom<innerHeight-150});await reflow('Deferred import warning '+reviewWidth);await page.screenshot({path:output+'/import-warning-'+reviewWidth+'.png',fullPage:false});await click('Skip and save');await page.waitForFunction(()=>!document.querySelector('#profile-editor'));const incomplete=(await allWrites()).find(w=>w.path==='/api/profile').body;assert.equal(incomplete.full_name,'');assert.equal(incomplete.email,'');assert.ok(!incomplete.work_experience[0].start_date);assert.equal(incomplete.work_experience[0].end_date_unconfirmed,true,'Skipping unknown dates must not invent current employment');checks.push('Incomplete facts explicitly deferred without invention');
- await state('invalid-import');await go('/profile');await canonical();await page.evaluate(label=>[...document.querySelectorAll('label')].find(l=>l.textContent.includes(label)).querySelector('input').click(),reviewLabel);await click('Save changes');await page.waitForSelector('#review-issues-title');assert.equal(await page.$$eval('main button',bs=>bs.find(b=>b.textContent.trim()==='Skip and save').disabled),true,'Malformed supplied email cannot be deferred');assert.equal((await allWrites()).filter(w=>w.path==='/api/profile').length,0,'Malformed values are never written');await page.$eval('#f_email',el=>{Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(el,'qa.fixed@example.com');el.dispatchEvent(new Event('input',{bubbles:true}))});await page.waitForFunction(()=>document.querySelector('#sec_identity')?.dataset.guidedValidation==='resolved');checks.push('Invalid field focuses red block and correction turns it green '+reviewWidth);}
+ await state('invalid-import');await go('/profile');await canonical();await page.evaluate(label=>[...document.querySelectorAll('label')].find(l=>l.textContent.includes(label)).querySelector('input').click(),reviewLabel);await click('Save changes');await page.waitForSelector('#review-issues-title');assert.equal(await page.$$eval('main button',bs=>bs.find(b=>b.textContent.trim()==='Skip and save').disabled),true,'Malformed supplied email cannot be deferred');assert.equal((await allWrites()).filter(w=>w.path==='/api/profile').length,0,'Malformed values are never written');await page.waitForFunction(()=>document.activeElement?.id==='f_email');await page.waitForFunction(()=>getComputedStyle(document.querySelector('#sec_identity')).borderTopColor==='rgb(180, 35, 50)');assert.equal(await page.$eval('#sec_identity',el=>getComputedStyle(el).borderTopColor),'rgb(180, 35, 50)','Focused invalid field has a visible red boundary around its owning block');await page.$eval('#f_email',el=>{Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(el,'qa.fixed@example.com');el.dispatchEvent(new Event('input',{bubbles:true}))});await page.waitForFunction(()=>document.querySelector('#sec_identity')?.dataset.guidedValidation==='resolved');checks.push('Invalid field focuses red block and correction turns it green '+reviewWidth);}
+ for(const warningWidth of [390,1440]){
+  await page.setViewport({width:warningWidth,height:900,deviceScaleFactor:1});await state('linkedin-warning');await go('/profile?view=details');await canonical();await openContact();
+  assert.equal(await page.$eval('#f_linkedin_url',el=>el.value),'not a LinkedIn address','Malformed optional LinkedIn is retained as supplied');
+  await page.$eval('#f_linkedin_url',el=>{let disclosure=el.closest('details');while(disclosure){if(!disclosure.open)disclosure.querySelector('summary').click();disclosure=disclosure.parentElement?.closest('details')}});
+  await page.waitForSelector('[data-linkedin-warning]',{visible:true});
+  assert.equal(await page.$eval('#f_linkedin_url',el=>el.getAttribute('aria-invalid')),'true','Malformed optional LinkedIn is visibly marked');
+  assert.equal(await page.$eval('#f_linkedin_url',el=>el.getAttribute('aria-describedby')),'linkedin-format-warning','LinkedIn warning is associated with its field');
+  assert.ok(await page.$eval('[data-linkedin-warning]',el=>/still save|save your profile/i.test(el.textContent)),'Optional warning explicitly says saving is allowed');
+  assert.equal(await page.$eval('[data-linkedin-warning]',el=>getComputedStyle(el).color),'rgb(180, 35, 50)','Optional LinkedIn warning uses readable semantic red');
+  if(warningWidth===390){
+   await type('#f_linkedin_url','linkedin.com/in/synthetic-candidate');
+   await page.waitForFunction(()=>!document.querySelector('[data-linkedin-warning]')&&!document.querySelector('#f_linkedin_url').hasAttribute('aria-invalid')&&document.querySelector('#sec_identity').dataset.guidedValidation==='resolved');
+   await page.waitForFunction(()=>getComputedStyle(document.querySelector('#sec_identity')).borderTopColor==='rgb(21, 112, 65)');
+   assert.equal((await allWrites()).filter(w=>w.path==='/api/profile').length,0,'Correcting optional LinkedIn remains local until explicit Save');
+   await type('#f_linkedin_url','not a LinkedIn address');await page.waitForSelector('[data-linkedin-warning]',{visible:true});
+   await page.waitForFunction(()=>document.querySelector('#sec_identity').dataset.guidedValidation==='attention');
+   checks.push('LinkedIn correction clears warning and aria error, resolves green, and recheck restores red without autosave');
+  }
+  assert.equal(await page.$$eval('a[href^="javascript:"],a[href^="data:"]',links=>links.length),0,'Malformed stored links are never executable anchors');
+  await type('#f_full_name','Maya LinkedIn Warning');await click('Save changes');await page.waitForSelector('.studio-profile-summary');
+  const write=(await allWrites()).find(w=>w.path==='/api/profile');assert.ok(write,'Optional LinkedIn warning does not prevent existing-profile Save');assert.equal(write.body.linkedin_url,'not a LinkedIn address','Save preserves malformed optional address without silent correction');
+  checks.push('Optional LinkedIn warning permits ordinary save and preserves exact value '+warningWidth);
+ }
+ await state('linkedin-import');await go('/profile/review');await page.waitForSelector('[data-ui-service="resume-review"]');
+ assert.ok(await page.$eval('main',el=>el.textContent.includes('LinkedIn')),'Imported optional LinkedIn finding remains visible');
+ assert.equal(await page.$$eval('a[href^="javascript:"],a[href^="data:"]',links=>links.length),0,'Imported unsafe-looking text is not an active link');
+ await finalVerification();await page.click('input[type="checkbox"]');await click('Save confirmed data');
+ await page.waitForFunction(()=>document.querySelector('.studio-profile-summary')||[...document.querySelectorAll('button')].some(b=>b.textContent.trim()==='Skip and save'));
+ if(await page.$$eval('button',bs=>bs.some(b=>b.textContent.trim()==='Skip and save'))){assert.equal(await page.$$eval('button',bs=>bs.find(b=>b.textContent.trim()==='Skip and save').disabled),false,'Optional LinkedIn warning does not make review Save invalid');await click('Skip and save')}
+ await page.waitForSelector('.studio-profile-summary');
+ assert.equal((await allWrites()).find(w=>w.path==='/api/profile').body.linkedin_url,'javascript:alert(1)','Imported malformed optional LinkedIn can be explicitly saved unchanged');
+ assert.equal(await page.$$eval('a[href^="javascript:"],a[href^="data:"]',links=>links.length),0,'Saved warning text remains non-executable in the profile');
+ checks.push('Imported optional LinkedIn remains visible and saves unchanged through final confirmation');
  await state('saved');await go('/profile?view=details');await canonical();await photo();assert.equal((await allWrites()).length,0,'Photo waits for Save');await click('Save changes');await page.waitForFunction(()=>!document.querySelector('#profile-editor'))
  const photoWrites=await allWrites();assert.deepEqual(photoWrites.filter(w=>['/api/profile','/api/profile/photo'].includes(w.path)).map(w=>w.path),['/api/profile','/api/profile/photo'],'Profile validates/saves before deferred photo upload');checks.push('Deferred photo commit')
  await state('with-photo');await go('/profile?view=details');await canonical();await click('Remove photo');assert.equal((await allWrites()).length,0,'Removing photo waits for Save');await click('Cancel');await page.waitForSelector('.studio-profile-summary');assert.ok(await page.$('main img[alt="Your profile photo"]'),'Cancelled removal keeps photo');await click('Edit Career Profile');await canonical();await click('Remove photo');await click('Save changes');await page.waitForFunction(()=>!document.querySelector('#profile-editor'));assert.deepEqual((await allWrites()).filter(w=>['/api/profile','/api/profile/photo'].includes(w.path)).map(w=>[w.path,w.method]),[['/api/profile','PUT'],['/api/profile/photo','DELETE']],'Photo deletion happens only on Save');checks.push('Deferred photo removal and cancellation');

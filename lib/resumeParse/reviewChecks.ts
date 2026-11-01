@@ -1,5 +1,5 @@
 import {currentRoleFingerprint,type ImportChange,type ImportReview} from './importReview'
-import { profileTextPresent, validProfileEmail, validProfilePhone } from '@/lib/profileFieldValidity'
+import { profileTextPresent, validProfileEmail, validProfilePhone, validProfileLinkedIn } from '@/lib/profileFieldValidity'
 import { parseCvDate } from './dates'
 
 export interface ReviewCheckEditor {
@@ -26,6 +26,8 @@ export interface ReviewCheck {
   status: 'passed' | 'attention' | 'optional'
   /** Only extraction warnings with usable values can be confirmed by the user. */
   confirmable?: boolean
+  /** Explicit optional advisory: visible attention, never a save prerequisite. */
+  blocking?: boolean
   change?: ImportChange
 }
 export const REVIEW_CATEGORIES: Array<{ id: ReviewCategory; label: string }> = [
@@ -58,9 +60,8 @@ export function resumeReviewChecks(review: ImportReview, editor: ReviewCheckEdit
   add('phone', 'Contact number', validProfilePhone(editor.phone), 'Enter a reachable phone number, including your country code. This value is missing or has an unexpected format.')
   const validDate = (s: string, present = false) => { const result = parseCvDate(s); if (result.kind !== 'date') return present && result.kind === 'present'; if (/^\d{4}-\d{2}-\d{2}$/.test(result.value)) { const date = new Date(`${result.value}T00:00:00Z`); return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === result.value } return true }
   if (editor.linkedin_url?.trim()) {
-    let valid = false
-    try { const url = new URL(editor.linkedin_url); valid = ['https:', 'http:'].includes(url.protocol) && /(^|\.)linkedin\.com$/i.test(url.hostname) } catch { /* Invalid URLs require manual correction. */ }
-    add('linkedin_url', 'LinkedIn address', valid, 'This does not look like a LinkedIn URL. Paste the full address of your profile.')
+    add('linkedin_url', 'LinkedIn address', validProfileLinkedIn(editor.linkedin_url), 'This does not look like a LinkedIn address. You can correct it now or save it as entered and update it later.')
+    checks[checks.length - 1].blocking = false
   }
   for (const [field, label] of [['date_of_birth', 'Date of birth'], ['passport_validity_date', 'Passport validity date']] as const) {
     if (editor[field]?.trim()) add(field, label, validDate(editor[field]!), 'This date has an unexpected format. Confirm the actual date from your source document.')
@@ -102,7 +103,7 @@ export function resumeReviewChecks(review: ImportReview, editor: ReviewCheckEdit
       // Unmapped/global warnings stay visible; a present value alone does not resolve them.
       const value = fieldValue(editor, change.field)
       if (existing) { existing.status = 'attention'; existing.confirmable = !!value; existing.reason = change.reason; continue }
-      checks.push({ id: `warning:${change.id}`, field: change.field, category: reviewCategory(change.field), title: `Verify · ${change.field.replace(/^work_experience\.(\d+)\./, (_, n) => `Role ${Number(n) + 1} · `).replace(/^education\.(\d+)\./, (_, n) => `Qualification ${Number(n) + 1} · `).replace(/_/g, ' ')}`, value, reason: change.reason, status: 'attention', confirmable: true })
+      checks.push({ id: `warning:${change.id}`, field: change.field, category: reviewCategory(change.field), title: `Verify · ${change.field.replace(/^work_experience\.(\d+)\./, (_, n) => `Role ${Number(n) + 1} · `).replace(/^education\.(\d+)\./, (_, n) => `Qualification ${Number(n) + 1} · `).replace(/_/g, ' ')}`, value, reason: change.reason, status: 'attention', confirmable: true, ...(change.field === 'linkedin_url' ? { blocking: false } : {}) })
     } else if (change.suggested) {
       const current = currentValue(change)
       checks.push({ id: `wording:${change.id}`, field: change.field, category: 'writing', title: change.label, value: current ?? '', reason: change.reason, status: 'optional', change })

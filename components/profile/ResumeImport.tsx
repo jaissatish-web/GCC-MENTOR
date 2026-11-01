@@ -17,31 +17,11 @@ import type { ImportReview } from '@/lib/resumeParse/importReview'
 import type { ParseWarning } from '@/lib/resumeParse/check'
 import { uploadResumeFile, requestResumeImport, IMPORT_DISPLAY_FAILED } from '@/lib/resumeParse/clientImport'
 
-/**
- * Inline resume import, on the Career Profile page (founder decision 2026-08-18).
- *
- * This replaces the old multi-screen "Create Resume" walk — /create-resume →
- * /onboarding/extracting → back to /profile — which dipped out of the app shell
- * and whose two "back" affordances went to different places. Everything now
- * happens on ONE screen inside the shell: pick a file or paste text, watch the
- * extraction here, and the resulting draft is handed to the parent, which runs
- * the SAME add-or-replace decision the page already had. No navigation, so no
- * inconsistent back button.
- *
- * It only produces a draft (POST /api/parse/upload | /api/parse/text). What
- * happens to that draft — merge, replace, or first-time load — is the parent's
- * call, exactly as when a draft used to arrive via sessionStorage.
- *
- * COLLAPSIBLE ONCE A PROFILE EXISTS (founder request 2026-09-11). A user who
- * had already uploaded a CV was still greeted by "Fill this in from your CV"
- * and three buttons, which reads as "you have not done this yet". With
- * `collapsible`, the panel is one line — "Your profile is already created" —
- * and one button, "Recreate my profile", which opens the same three ways in.
- * Recreating stays safe: the parent's add-or-replace choice still governs.
- *
- * AND LIMITED (founder decision, same day): 2 recreations a month on the free
- * plan, 5 for paid users. The server enforces it (lib/recreateLimit.ts); this
- * panel only says how many are left and, at zero, when they come back.
+/** Resume input and actual request progress, hosted on /profile/import.
+ * The canonical profile workspace owns the draft handoff and existing
+ * Add / Replace / Keep decision. This component never saves profile facts.
+ * A failed request retains the selected file or pasted text for explicit retry.
+ * Existing server recreation limits remain authoritative.
  */
 
 type Mode = 'idle' | 'upload' | 'paste'
@@ -188,7 +168,7 @@ export function ResumeImport({
 
   /** At zero: when they come back, and that editing by hand still works. */
   const limitReachedText = quota
-    ? `You've used all ${quota.limit} profile recreation${quota.limit === 1 ? '' : 's'} for this month. You can recreate it again from ${quota.resetsOnLabel} — and every field below can still be edited by hand.`
+    ? `You've used all ${quota.limit} profile recreation${quota.limit === 1 ? '' : 's'} for this month. You can recreate it again from ${quota.resetsOnLabel} — and you can still edit your profile by hand.`
     : ''
 
   // ── Collapsed: the profile exists, so say so, and offer one way to redo it ──
@@ -241,14 +221,14 @@ export function ResumeImport({
         </span>
         <div className="flex min-w-0 flex-1 flex-col gap-0.5">
           <h2 className="text-[14.5px] font-bold text-ink">
-            {parsing ? 'Reading your resume' : recreating ? 'Recreate your profile' : 'Fill this in from your resume'}
+            {parsing ? 'Reading your resume' : recreating ? 'Recreate your profile' : 'Add your resume'}
           </h2>
           <p className="type-helper leading-relaxed text-ink-soft">
             {parsing
               ? 'You’ll review the extracted details next.'
               : recreating
               ? 'Upload or paste a newer resume, or edit the form yourself. Nothing changes until you choose what to keep.'
-              : 'Upload or paste your resume and we fill the form in for you.'}
+              : 'Upload a file or paste text. You’ll check the extracted details next.'}
           </p>
           {recreating && quota && !exhausted ? (
             <p className="type-helper font-semibold text-ink-muted">
@@ -386,7 +366,9 @@ export function ResumeImport({
 
           {mode === 'paste' ? (
             <div className="mt-3">
+              <label htmlFor="resume-import-text" className="mb-2 block field-label">Your resume text</label>
               <textarea
+                id="resume-import-text"
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 maxLength={MAX_TEXT}
