@@ -298,3 +298,9 @@ THEME-CONSISTENCY-002 implemented/local verification: one root light theme, buil
 THEME-CONSISTENCY-002 release gate: CI648 passed89 suites but failed next/font's unused Plus Jakarta download in layout. Source audit found no --font-jakarta consumers; remove only that unused declaration, retain current Inter/document settings, and revalidate final head. No merge/deployment yet.
 
 THEME-CONSISTENCY-002 unused-font correction: local production build, typecheck/lint and responsive/enlarged-text/document-typography browser checks passed after removing the unconsumed Jakarta variable. Shared Inter remains bundled and all44px controls/typographic roles verified. Final remote CI must run on the corrected head.
+
+THEME-CONSISTENCY-002 PR61 review follow-up: implement awaited pending-reading cleanup before Keep my profile navigation, with busy/error recovery and delayed/failure browser coverage. Final corrected-head CI remains required.
+
+PR61 review follow-up local verification: typecheck/lint and89/89 suites passed;90 profile browser groups passed, including held cleanup/reload and failure/retry. Production build and corrected-head required CI/release remain gates.
+
+Final PR61 review-correction production build passed locally. Required remote checks on the resulting head remain mandatory before merge.

@@ -2102,21 +2102,33 @@ function ProfileScreen() {
 
   // "Keep my profile as it is": the reading is discarded on the user's word,
   // and nothing in the saved profile changes.
-  const keepCurrentProfile = useCallback(() => {
-    if (!pendingDraft) return
-    clearReviewRecovery(reviewStorage())
-    setEditor(fromFull(pendingDraft.existing))
-    reviewRequest.current++
-    setImportReview(null)
-    void fetch('/api/profile/import-review', { method: 'DELETE' }).catch(() => {})
-    setPendingDraft(null)
-    resolvesPendingRef.current = false
-    setShowImport(false)
-    setReviewingImport(false)
-    setImportConfirmed(false)
-    void fetch('/api/profile/pending-draft', { method: 'DELETE' }).catch(() => {})
-    router.replace('/profile')
-  }, [pendingDraft, router])
+  const keepCurrentProfile = useCallback(async () => {
+    if (!pendingDraft || submitting) return
+    setSubmitting(true)
+    setSaveError(null)
+    try {
+      // A new profile mount restores persisted readings. Finish deletion before
+      // navigating, and preserve the local decision/recovery state on failure.
+      for (const endpoint of ['/api/profile/pending-draft', '/api/profile/import-review']) {
+        const response = await fetch(endpoint, { method: 'DELETE' })
+        if (!response.ok) throw new Error('Reading cleanup failed')
+      }
+      clearReviewRecovery(reviewStorage())
+      setEditor(fromFull(pendingDraft.existing))
+      reviewRequest.current++
+      setImportReview(null)
+      setPendingDraft(null)
+      resolvesPendingRef.current = false
+      setShowImport(false)
+      setReviewingImport(false)
+      setImportConfirmed(false)
+      router.replace('/profile')
+    } catch {
+      setSaveError('We could not discard this resume reading. Your saved profile is unchanged. Please try again.')
+    } finally {
+      setSubmitting(false)
+    }
+  }, [pendingDraft, router, submitting])
 
   // Do not flash the ordinary editor while its existing draft moves to review.
   if (!isReviewRoute && (reviewingImport || pendingDraft)) return <main className={MAIN_CLASS}><PageSkeleton label="Opening Resume Review" /></main>
@@ -2145,6 +2157,7 @@ function ProfileScreen() {
 
         <button
           type="button"
+          disabled={submitting}
           onClick={() => {
             if (importReview) {
               reviewRequest.current++
@@ -2179,6 +2192,7 @@ function ProfileScreen() {
 
         <button
           type="button"
+          disabled={submitting}
           onClick={() => {
             setSavedBaseline(JSON.stringify(buildPutBody(fromFull(pendingDraft.existing))))
             setEditor(fromDraft(pendingDraft.draft))
@@ -2216,6 +2230,7 @@ function ProfileScreen() {
             not want would be offered on every visit forever. */}
         <button
           type="button"
+          disabled={submitting}
           onClick={keepCurrentProfile}
           className="mt-3 rounded-card border border-line bg-canvas p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
         >
@@ -2224,6 +2239,9 @@ function ProfileScreen() {
             Discards this resume reading. Nothing in your profile changes.
           </span>
         </button>
+
+        {submitting ? <p role="status" className="mt-3 type-helper text-ink-soft">Discarding this resume reading…</p> : null}
+        {saveError ? <p role="alert" className="mt-3 type-helper text-alert">{saveError}</p> : null}
 
         {/* Was "Nothing is saved either way until you press Save on the next
             screen." Both halves are now the other way round (2026-09-11). */}

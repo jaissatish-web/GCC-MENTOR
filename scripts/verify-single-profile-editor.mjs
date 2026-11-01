@@ -11,7 +11,7 @@ const root=process.cwd(), require=createRequire(import.meta.url), dir=mkdtempSyn
 const fixture=JSON.parse(readFileSync(root+'/scripts/fixtures/studioFixture.json','utf8')).profile
 const output=root+'/artifacts/single-profile-editor'
 mkdirSync(output,{recursive:true})
-let pageForDebug,browser,server,profile=structuredClone(fixture),scenario='saved',writes=[],failPhoto=false,pending=null,failProfileOnce=false,resumeImportReply=null,holdProfileLookup=false,profileLookupReply=null
+let pageForDebug,browser,server,profile=structuredClone(fixture),scenario='saved',writes=[],failPhoto=false,pending=null,failProfileOnce=false,resumeImportReply=null,holdProfileLookup=false,profileLookupReply=null,pendingDeleteReply=null,failDeleteOnce=false
 const errors=[],external=[],checks=[]
 const reviewBefore=fixture.professional_summary.replace('experience','experiance')
 const makeReview=()=>({version:1,id:'fixture-review-'+scenario,createdAt:'2026-10-27T10:00:00Z',sourceText:'Fictional resume',changes:[...(scenario==='verify-import'?[{id:'fixture-name-check',field:'full_name',label:'Source spelling',kind:'check',before:'Imported Maya Thomas',after:'Imported Maya Thomas',reason:'Verify source spelling against the original resume.'}]:[]),{id:'fixture-summary-change',field:'professional_summary',label:'Professional summary',kind:'spelling',before:reviewBefore,after:fixture.professional_summary,reason:'Corrected a spelling error without adding candidate facts.',suggested:true,restorable:true}],imported:{roles:fixture.work_experience.length,skills:fixture.skills.length,qualifications:fixture.education.length,certificates:fixture.certifications.length},wordingStatus:'checked'})
@@ -39,7 +39,14 @@ function serve(){
    if(scenario==='invalid-import')pending.draft.email='not-an-email'
    if(scenario==='missing')profile.email=''
    if(scenario==='with-photo')profile.photo_url='/fixture-photo.png'
+   if(['held-discard','failed-discard'].includes(scenario))pending={draft:freshDraft(),report:{review:makeReview()}}
+   pendingDeleteReply=null;failDeleteOnce=scenario==='failed-discard'
    return send({scenario})
+  }
+  if(p==='/__discard-state')return send({waiting:!!pendingDeleteReply})
+  if(p==='/__resolve-discard'){
+   assert.ok(pendingDeleteReply,'A pending-reading deletion must be waiting')
+   pending=null;const respond=pendingDeleteReply;pendingDeleteReply=null;respond({ok:true});return send({resolved:true})
   }
   if(p==='/__resolve-import'){
    assert.ok(resumeImportReply,'A synthetic import request must be pending before resolution')
@@ -69,7 +76,11 @@ function serve(){
      if(failPhoto)return send({error:'Fictional photo upload failed'},500)
      profile.photo_url=req.method==='DELETE'?null:'/fixture-photo.png';return send({photoUrl:profile.photo_url})
     }
-    if(p==='/api/profile/pending-draft'&&req.method==='DELETE'){pending=null;return send({ok:true})}
+    if(p==='/api/profile/pending-draft'&&req.method==='DELETE'){
+     if(scenario==='held-discard'){pendingDeleteReply=send;return}
+     if(failDeleteOnce){failDeleteOnce=false;return send({error:'Fictional cleanup failure'},503)}
+     pending=null;return send({ok:true})
+    }
     if(p==='/api/profile/import-review'&&req.method==='DELETE')return send({ok:true})
     return send({error:'External writes disabled'},409)
    }
@@ -198,6 +209,26 @@ try{
  assert.equal((await allWrites()).filter(w=>w.path==='/api/profile').length,0,'File transport never implicitly saves profile facts')
  await page.evaluate(()=>[...document.querySelectorAll('main button')].find(b=>b.textContent.includes('Keep my profile as it is')).click());await page.waitForSelector('.studio-profile-summary');
  checks.push('Upload wait hides Save and explicit selected-file retry restores the same handoff')
+ await state('held-discard');await go('/profile/review');
+ await page.waitForFunction(()=>document.body.textContent.includes('You already have a profile'));
+ await page.evaluate(()=>[...document.querySelectorAll('main button')].find(b=>b.textContent.includes('Keep my profile as it is')).click());
+ await page.waitForFunction(async()=> (await (await fetch('/__discard-state')).json()).waiting);
+ assert.equal(new URL(page.url()).pathname,'/profile/review','Navigation waits for persisted reading cleanup');
+ assert.ok(await page.$$eval('main button',buttons=>buttons.length===3&&buttons.every(b=>b.disabled)),'Decision controls pause during deletion');
+ assert.ok(await page.$('main [role="status"]'),'Cleanup waiting state is visible');
+ await fetch(origin+'/__resolve-discard');await page.waitForSelector('.studio-profile-summary');
+ await page.reload({waitUntil:'domcontentloaded'});await page.waitForSelector('.studio-profile-summary');
+ assert.equal((await allWrites()).filter(w=>w.path==='/api/profile').length,0,'Discard never writes saved profile');
+ checks.push('Keep profile waits for held persisted cleanup and stays discarded after reload');
+ await state('failed-discard');await go('/profile/review');
+ await page.waitForFunction(()=>document.body.textContent.includes('You already have a profile'));
+ await page.evaluate(()=>[...document.querySelectorAll('main button')].find(b=>b.textContent.includes('Keep my profile as it is')).click());
+ await page.waitForSelector('main [role="alert"]');
+ assert.equal(new URL(page.url()).pathname,'/profile/review','Failed cleanup retains retryable choice');
+ assert.ok(await page.$$eval('main button',buttons=>buttons.every(b=>!b.disabled)),'Choices recover after deletion failure');
+ await page.evaluate(()=>[...document.querySelectorAll('main button')].find(b=>b.textContent.includes('Keep my profile as it is')).click());await page.waitForSelector('.studio-profile-summary');
+ assert.equal((await allWrites()).filter(w=>w.path==='/api/profile').length,0,'Failed discard/retry never writes saved facts');
+ checks.push('Keep profile cleanup failure preserves decision and permits explicit retry');
  await state('new-import');await go('/profile/review');await page.waitForSelector('[data-ui-service="resume-review"]');
  assert.equal((await allWrites()).length,0,'New review page never creates profile on load');
  await page.waitForSelector('#career-diagnostic-title');

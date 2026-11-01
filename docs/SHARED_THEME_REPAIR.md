@@ -1,6 +1,6 @@
 # Shared visual consistency repair
 
-1 November 2026. Approved by Satish's complaint and screenshot following PR60. Status: approved, implementation pending.
+1 November 2026. Approved by Satish's complaint and screenshot following PR60. Status: implemented and locally verified; final CI/release pending.
 
 ## Observed evidence
 1. Supplied mobile screenshot: dark header and bottom navigation surround a separate light Career Profile/import area. Nested tinted panels restrict useful width. A fixed Save changes bar covers processing rows and says All changes saved while a new resume is being read.
@@ -27,3 +27,10 @@ Inspected current processing320/390 and normal pinned-library390 screenshots: li
 
 ## Release build blocker
 Initial remote CI648 passed89 suites but next/font failed compiling Plus_Jakarta_Sans in app/layout.tsx (Google font URL extension parsing). Source search confirms --font-jakarta has no consumer outside its own layout declaration/body class; the universal UI uses Inter. Approved scope-compatible repair: remove only that unused legacy font import/declaration/body variable, preserving Inter, Instrument Serif, IBM Plex Mono and all authored document font settings. Local/remote validation must run again on the new head; no protection bypass.
+
+## PR review correction
+Review identified a slow-delete race in Keep my profile: returning to /profile before pending-draft deletion completes can restore the discarded reading. Approved within this repair: await successful existing cleanup endpoints before clearing local recovery/navigation, pause decision buttons while waiting, and show a retryable error without changing saved facts on failure. Add held-delete and failed-delete/retry browser regressions. No endpoint/schema changes.
+
+Review follow-up verified: npm run check passed89/89; profile browser90 groups passed, including held persisted deletion followed by reload, failed deletion with retained decision and explicit retry, and no saved-profile writes. React review confirmed existing hook cleanup, async handoff, native disabled controls and semantic status/alert output; no added dependencies or requests beyond awaiting existing cleanup.
+
+Final PR61 review-correction production build passed locally. Required remote checks on the resulting head remain mandatory before merge.
