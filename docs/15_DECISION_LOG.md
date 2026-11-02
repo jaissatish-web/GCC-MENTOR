@@ -1969,3 +1969,5 @@ Satish authorizes implementation and CI-approved PR merge of globally applicable
 Satish rejects the mixed light/dark presentation after PR60. Repair shared theme consistency across app/auth/public UI using one central light palette and existing blue actions; remove isolated builder theme exception. Resolve the inline processing/save-bar collision without changing AI/service/scoring/persistence logic. Verify actual rendered screens, not only reflow or local token values.
 
 1 November 2026 — PROFILE-INTAKE-003: Satish explicitly requests separated resume input/processing/review presentation, non-blocking invalid LinkedIn warning, and actionable red-boundary issue navigation. Implement within existing canonical profile architecture; validation exception is limited to optional LinkedIn text. No unrelated product/scoring changes.
+
+1 November 2026 — PROFILE-REVIEW-004: founder explicitly requests a shorter, card-based, colour-coded review with small headings instead of long explanations. Presentation simplification authorized; validation, evidence, factual grounding and existing service/business logic remain protected.

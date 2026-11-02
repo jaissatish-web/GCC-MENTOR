@@ -2,6 +2,7 @@ import './resolve-paths'
 import assert from 'node:assert/strict'
 import * as React from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
+import { ReviewSectionContent } from '../components/profile/ReviewSectionContent'
 import { ResumeAcceptanceReview, type AcceptanceSection } from '../components/profile/ResumeAcceptanceReview'
 import { importReviewPlan, rebaseImportField } from '../lib/resumeParse/reviewPlan'
 import { resumeReviewChecks, type ReviewCheckEditor } from '../lib/resumeParse/reviewChecks'
@@ -67,19 +68,21 @@ const uiProps: React.ComponentProps<typeof ResumeAcceptanceReview> = {
 }
 const renderAcceptance = (overrides: Partial<typeof uiProps> = {}) => renderToStaticMarkup(React.createElement(ResumeAcceptanceReview,{...uiProps,...overrides}))
 const acceptanceMarkup = renderAcceptance()
-for (const title of sectionTitles) assert.ok(acceptanceMarkup.includes(`>${title}</h3>`),`Review keeps navigation to the ${title} section`)
-assert.ok(acceptanceMarkup.includes('value="73.25"') && acceptanceMarkup.includes('>73.25<span'),'Supplied score is displayed without recalculation or rounding')
+for (const title of sectionTitles) assert.ok(acceptanceMarkup.includes(`>${title}</span>`),`Compact cards keep navigation to the ${title} section`)
+assert.ok(acceptanceMarkup.includes('data-review-phase="diagnostic"'),'Initial view is diagnostic only')
+assert.ok(!acceptanceMarkup.includes('data-review-card') && !acceptanceMarkup.includes('improvement-summary-title') && !acceptanceMarkup.includes('resume-final-preview-title'),'Other phase bodies are absent initially')
+assert.ok(acceptanceMarkup.includes('value="73.25"') && acceptanceMarkup.includes('>73.25/100</span>'),'Supplied score is displayed without recalculation or rounding')
 for (const value of [...uiProps.strengths!,...uiProps.improvements!]) assert.ok(acceptanceMarkup.includes(value),'Existing analysis finding is preserved: '+value)
-assert.ok(acceptanceMarkup.includes('Review and Improve My Career Profile'),'Diagnostic-first screen has an explicit review start')
+assert.ok(acceptanceMarkup.includes('Review details'),'Diagnostic-first screen has an explicit review start')
 assert.ok(!acceptanceMarkup.includes('id="review-content-'),'No section is expanded before the user starts review')
-assert.ok(!acceptanceMarkup.includes('>Save confirmed data</button>'),'Save is unavailable until final verification')
-assert.ok(!renderAcceptance({confirmed:true}).includes('>Save confirmed data</button>'),'A stale confirmation alone cannot skip final verification')
+assert.ok(!acceptanceMarkup.includes('>Save Career Profile</button>'),'Save is unavailable until final verification')
+assert.ok(!renderAcceptance({confirmed:true}).includes('>Save Career Profile</button>'),'A stale confirmation alone cannot skip final verification')
 assert.ok(!acceptanceMarkup.includes(suggestion.after),'Suggestions remain within the applicable guided section')
 const noAnalysisMarkup = renderAcceptance({score:undefined,strengths:[],improvements:[],review:{...review,wordingStatus:'unavailable'},sections:acceptanceSections.map(section=>({...section,changes:[]}))})
-assert.ok(noAnalysisMarkup.includes('No analysis score was provided with this import.'),'Missing scores are not presented as zero or invented')
+assert.ok(!noAnalysisMarkup.includes('data-analysis-score'),'Unavailable analysis does not create a placeholder score card')
 assert.ok(!noAnalysisMarkup.includes('aria-label="Current resume analysis score"'),'Missing analysis has no misleading scored progress bar')
-assert.ok(noAnalysisMarkup.includes('No strengths were included in the existing analysis.') && noAnalysisMarkup.includes('No improvement areas were included in the existing analysis.'),'Missing analysis findings are stated honestly')
-assert.ok(noAnalysisMarkup.includes('Wording suggestions were unavailable for this import.'),'An unavailable wording pass is visible without blocking extracted data')
+assert.ok(!noAnalysisMarkup.includes('>Strengths</h3>') && !noAnalysisMarkup.includes('>Improvements</h3>'),'Unavailable findings do not create empty explanatory cards')
+assert.ok(noAnalysisMarkup.includes('Writing suggestions unavailable'),'An unavailable wording pass is visible without blocking extracted data')
 assert.ok(renderAcceptance({score:0}).includes('value="0"'),'An actual supplied zero score is not confused with unavailable analysis')
 const unsafeText = '<strong>candidate supplied text</strong>'
 const escapedMarkup = renderAcceptance({sections:[{...acceptanceSections[0],content:unsafeText,changes:[{...suggestion,after:unsafeText}]}],strengths:[unsafeText],improvements:[unsafeText],currentValue:()=>suggestion.before})
@@ -87,3 +90,21 @@ assert.ok(escapedMarkup.includes('&lt;strong&gt;candidate supplied text&lt;/stro
 assert.ok(!escapedMarkup.includes(unsafeText),'Raw extracted or suggested HTML cannot create elements')
 assert.equal(uiCallbackCalls,0,'Rendering the review does not call edits, choices, confirmation or save callbacks')
 console.log('PASS diagnostic-first acceptance UI: section navigation, unchanged analysis, honest unavailable states, gated review/save and escaped text; interactive safety covered by browser regression')
+
+// Structured cards preserve full evidence, escape candidate text and redact IDs.
+const displayGroups = [{title:'Synthetic employer',fields:[{label:'Role',value:'<script>not executable</script>'},{label:'Passport number',value:'A12345678'},{label:'Responsibilities',value:'Original responsibility. '.repeat(30)}]}]
+const displaySnapshot = JSON.stringify(displayGroups)
+const structuredMarkup = renderToStaticMarkup(React.createElement(ReviewSectionContent,{content:'original fallback',groups:displayGroups}))
+assert.ok(structuredMarkup.includes('data-review-display-group') && structuredMarkup.includes('<dl'),'Facts use labeled entry cards')
+assert.ok(structuredMarkup.includes('&lt;script&gt;not executable&lt;/script&gt;') && !structuredMarkup.includes('<script>'),'Structured values stay escaped')
+assert.ok(!structuredMarkup.includes('A12345678') && structuredMarkup.includes('[number removed]'),'Sensitive numbers stay redacted with split labels')
+assert.ok(structuredMarkup.includes('Read full responsibilities') && structuredMarkup.includes('Original responsibility. '.repeat(30)),'Full long facts remain available without a long initial paragraph')
+assert.ok(!structuredMarkup.includes('<a '),'Stored text never becomes a clickable unsafe URL')
+assert.equal(JSON.stringify(displayGroups),displaySnapshot,'Display projection never mutates candidate facts')
+console.log('PASS compact structured facts: cards, full evidence, escaped text, privacy and immutability')
+
+for (const [title,label,value] of [['Arabic','Level','Fluent'],['Water treatment project','Details','Supported commissioning'],['Safety award','Details','Candidate supplied award']]) {
+ const single = renderToStaticMarkup(React.createElement(ReviewSectionContent,{content:'',groups:[{title,fields:[{label,value}]}]}))
+ assert.ok(single.includes('>'+title+'</h4>') && single.includes(value),'A singleton record retains its identifying title and supplied value')
+}
+console.log('PASS single language/project/award identifiers remain in structured cards')

@@ -1,3 +1,6 @@
+## Current review presentation — 1 November 2026
+PROFILE-REVIEW-004 further simplifies the intake/review presentation: compact coloured cards, one active issue/section, structured facts and optional detail, then a short summary/final preview. See [COMPACT_PROFILE_REVIEW.md](COMPACT_PROFILE_REVIEW.md). The same canonical editor, source evidence and explicit save remain; earlier paragraph-heavy/inline-report descriptions below are historical.
+
 ## Current intake presentation — 1 November 2026
 PROFILE-INTAKE-003 supersedes the older inline-import presentation below: dedicated /profile/import input and request-progress views → existing /profile/review → the same canonical editor for corrections. No editor fields beneath input/processing. LinkedIn is optional warning-only and is retained as supplied; malformed required values retain their existing save checks. See [PROFILE_INTAKE_SEPARATION.md](PROFILE_INTAKE_SEPARATION.md) for current scope, verification and release gates.
 

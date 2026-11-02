@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { CheckCircleIcon, ExclamationTriangleIcon, PencilSquareIcon } from '@heroicons/react/24/outline'
 import { Button } from '@/components/ui/Button'
 import { ImportComparison } from './ImportComparison'
+import { ReviewSectionContent, type ReviewDisplayGroup } from './ReviewSectionContent'
 import { redactImportText, type ImportChange, type ImportReview } from '@/lib/resumeParse/importReview'
 
 export type AcceptanceStatus = 'complete' | 'attention' | 'missing' | 'optional'
@@ -14,6 +15,8 @@ export interface AcceptanceSection {
   status: AcceptanceStatus
   hint?: string
   changes: ImportChange[]
+  displayGroups?: ReviewDisplayGroup[]
+  field?: string
 }
 
 interface Props {
@@ -54,7 +57,7 @@ const suggestionsFor = (section: AcceptanceSection) => section.changes.filter(ch
 
 /** Presentation only. The canonical editor owns every factual value and the final save. */
 export function ResumeAcceptanceReview({ sections, review, candidateName, recoveryKey, originalContents, originalIssueIds, currentIssueIds, suppliedFieldCount, verifiedFieldCount, diagnostic, fieldIssues = [], onFixField, onVerifyField,
-  score, strengths = [], improvements = [], completion, currentValue, onChoose, onEdit,
+  score, strengths = [], improvements = [], currentValue, onChoose, onEdit,
   confirmed, onConfirm, busy, error, onSave, saveDisabled = false, issues, profileExists }: Props) {
   const [choices, setChoices] = useState<Record<string, string>>({})
   const [decisions, setDecisions] = useState<Record<string, SectionDecision>>({})
@@ -99,7 +102,8 @@ export function ResumeAcceptanceReview({ sections, review, candidateName, recove
   }
   const decide = (section: AcceptanceSection, mode: SectionDecision['mode']) => {
     setDecisions(previous => ({ ...previous, [section.id]: { content: section.content, mode } }))
-    const next = sections[sections.findIndex(item => item.id === section.id) + 1]
+    const currentIndex = visibleSections.findIndex(item => item.id === section.id)
+    const next = currentIndex < 0 ? undefined : visibleSections[currentIndex + 1]
     if (next) openSection(next.id)
     else setPhase('summary')
     onConfirm(false)
@@ -113,8 +117,17 @@ export function ResumeAcceptanceReview({ sections, review, candidateName, recove
   const openSection = (id: string) => {
     setPhase('review')
     setActiveId(id)
+    const section = sections.find(item => item.id === id)
+    const owner = (field: string) => {
+      if (/^(full_name|email|phone|whatsapp|linkedin_url|date_of_birth|nationality|passport|current_location)/.test(field)) return 'sec_identity'
+      if (field.startsWith('professional_summary')) return 'sec_summary'
+      const group = field.split('.')[0]
+      return `sec_${group}`
+    }
+    const issue = fieldIssues.find(item => deferredIssues[item.id] !== item.value && (owner(item.field) === id || section?.field === item.field.split('.')[0]))
+    setActiveIssueId(issue?.id ?? `section:${id}`)
     requestAnimationFrame(() => {
-      const target = document.getElementById(`review-section-${id}`)
+      const target = document.getElementById('guided-field-title') ?? document.getElementById(`review-section-${id}`)
       target?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' })
       target?.focus({ preventScroll: true })
     })
@@ -122,11 +135,10 @@ export function ResumeAcceptanceReview({ sections, review, candidateName, recove
   const needsAttention = (section: AcceptanceSection) => section.status === 'missing' || section.status === 'attention'
   const verifiedSection = (section: AcceptanceSection) => decisionFor(section) === 'reviewed' && !needsAttention(section)
   const pendingFieldIssues = fieldIssues.filter(issue => deferredIssues[issue.id] !== issue.value)
-  const activeIssue = pendingFieldIssues.find(issue => issue.id === activeIssueId) ?? pendingFieldIssues[0]
+  const activeIssue = activeIssueId?.startsWith('section:') ? undefined : pendingFieldIssues.find(issue => issue.id === activeIssueId) ?? pendingFieldIssues[0]
   const deferredFieldCount = fieldIssues.length - pendingFieldIssues.length
   const reviewed = sections.filter(section => decisionFor(section) === 'reviewed').length
   const skipped = sections.filter(section => decisionFor(section) === 'skipped').length
-  const completionItems = completion ?? sections
   const activeIndex = Math.max(0, sections.findIndex(section => section.id === activeId))
   const changed = sections.filter(section => originalContents?.[section.id] !== undefined && originalContents[section.id] !== section.content)
   const originalIssues = Array.from(new Set(originalIssueIds ?? []))
@@ -136,153 +148,87 @@ export function ResumeAcceptanceReview({ sections, review, candidateName, recove
   const suggestions = sections.flatMap(suggestionsFor)
   const accepted = suggestions.filter(change => choices[change.id] === change.after && currentValue(change) === change.after).length
   const kept = suggestions.filter(change => choices[change.id] === change.before && currentValue(change) === change.before).length
-  return <main data-ui-service="resume-review" className="page-gutter mx-auto w-full max-w-6xl min-w-0 py-6 text-ink sm:py-8">
-    <header className="mb-6">
-      <p className="type-helper font-semibold text-teal">Your resume · Your decision</p>
+  const activeSection = sections[activeIndex]
+  const visibleSections = sections.filter(section => section.content.trim() || needsAttention(section))
+  const emptySections = sections.filter(section => !visibleSections.includes(section))
+  const phaseIndex = ['diagnostic', 'review', 'summary', 'verify'].indexOf(phase)
+  const sectionCards = (items: AcceptanceSection[]) => <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">{items.map(section => {
+    const decision = decisionFor(section)
+    return <button key={section.id} type="button" data-review-target={section.id} data-review-status={needsAttention(section) ? 'attention' : decision ?? 'unreviewed'} disabled={busy} onClick={event => { const disclosure = event.currentTarget.closest('nav')?.closest('details'); if (disclosure) disclosure.open = false; openSection(section.id) }} className={`flex min-h-24 min-w-0 flex-col items-start justify-between gap-3 rounded-card border p-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal ${needsAttention(section) ? 'border-alert bg-alert-soft' : verifiedSection(section) ? 'border-ok bg-ok-soft' : 'border-line bg-white'}`}>
+      <span className="type-label font-semibold text-ink">{section.title}</span>
+      <span className={`inline-flex items-center gap-1.5 type-caption font-semibold ${needsAttention(section) ? 'review-status-missing' : verifiedSection(section) ? 'review-status-ok' : 'review-status-attention'}`}>
+        {verifiedSection(section) ? <CheckCircleIcon className="size-4" aria-hidden="true" /> : needsAttention(section) ? <ExclamationTriangleIcon className="size-4" aria-hidden="true" /> : <PencilSquareIcon className="size-4" aria-hidden="true" />}
+        {needsAttention(section) ? 'Check details' : verifiedSection(section) ? 'Reviewed' : decision === 'skipped' ? 'Review later' : section.status === 'optional' ? 'Optional' : 'Ready to review'}
+      </span>
+    </button>
+  })}</div>
+  const sectionNavigation = <nav aria-label="Resume review sections">{sectionCards(visibleSections)}{emptySections.length ? <details className="mt-3"><summary className="min-h-11 cursor-pointer py-2 type-helper font-semibold text-teal">Optional sections · {emptySections.length}</summary>{sectionCards(emptySections)}</details> : null}</nav>
+  return <main data-ui-service="resume-review" data-review-phase={phase} className="page-gutter mx-auto w-full max-w-4xl min-w-0 py-5 text-ink sm:py-7">
+    <header className="mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-2"><p className="type-helper font-semibold text-teal">Career Profile{candidateName?.trim() ? ` · ${candidateName}` : ''}</p><span className="type-caption text-ink-muted">{profileExists ? 'Changes not saved' : 'Not saved yet'}</span></div>
       <h1 className="mt-2 type-title text-ink">Review your resume</h1>
-      {candidateName?.trim() ? <p className="mt-2 type-card text-ink">{candidateName}</p> : null}
-      <p className="mt-2 max-w-2xl type-body text-ink-soft">Check the extracted details, choose any available suggestions, and confirm what goes into your Career Profile. {profileExists ? 'Your saved profile has not changed.' : 'Your profile has not been created yet.'}</p>
+      <ol aria-label="Review stages" className="mt-4 grid grid-cols-4 gap-2">{['Overview', 'Review', 'Summary', 'Save'].map((label, index) => <li key={label} aria-current={index === phaseIndex ? 'step' : undefined} className={`border-t-2 pt-2 type-caption ${index === phaseIndex ? 'border-teal font-semibold text-teal' : 'border-line text-ink-muted'}`}>{label}</li>)}</ol>
     </header>
+    {phase !== 'diagnostic' ? <div className="mb-4 flex flex-wrap items-center justify-between gap-2"><Button type="button" variant="ghost" size="sm" disabled={busy} onClick={() => setPhase('diagnostic')}>View diagnostic report</Button><span className="type-caption text-ink-muted">{reviewed} reviewed · {skipped} later</span></div> : null}
+    {review.wordingStatus === 'unavailable' ? <p role="status" className="mb-3 rounded-ctl border border-gold bg-gold-soft p-3 type-helper review-status-attention">Writing suggestions unavailable</p> : null}
+    {storageUnavailable || !recoveryKey ? <p role="status" className="mb-3 rounded-ctl border border-gold bg-gold-soft p-3 type-helper text-gold-ink">Keep this tab open until you save.</p> : null}
 
-    {diagnostic}
+    {phase === 'diagnostic' ? <>
+      {diagnostic}
+      {typeof score === 'number' && Number.isFinite(score) || strengths.length || improvements.length ? <details className="mt-3 rounded-card border border-line bg-white p-3"><summary className="min-h-11 cursor-pointer type-label font-semibold text-ink">Resume analysis</summary>{typeof score === 'number' && Number.isFinite(score) ? <div data-analysis-score className="mt-3"><span className="type-card">{score}/100</span><progress className="mt-2 h-2 w-full" max={100} value={score} aria-label="Current resume analysis score" /><p className="type-caption text-ink-muted">Existing analysis score</p></div> : null}{strengths.length ? <AnalysisList title="Strengths" items={strengths} /> : null}{improvements.length ? <AnalysisList title="Improvements" items={improvements} /> : null}</details> : null}
+      <section aria-labelledby="resume-analysis-title" className="mt-5">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2"><h2 id="resume-analysis-title" className="type-section text-ink">Choose a section</h2><span className="type-caption text-ink-muted">{visibleSections.filter(section => decisionFor(section) === 'reviewed').length}/{visibleSections.length} reviewed</span></div>
+        <Button type="button" className="mt-4 w-full" disabled={busy || !visibleSections.length} onClick={() => { openSection(visibleSections.find(section => !decisionFor(section))?.id ?? visibleSections[0].id); setActiveIssueId(pendingFieldIssues[0]?.id ?? null) }}>Review details</Button>
+        <div className="mt-3">{sectionNavigation}</div>
 
-    <section aria-labelledby="resume-analysis-title" className="rounded-card border border-line bg-white p-4 sm:p-5">
-      <h2 id="resume-analysis-title" className="type-section text-ink">1. Career Diagnostic Report</h2>
-      <div className="mt-4 grid min-w-0 gap-4 sm:grid-cols-3">
-        <div className="min-w-0 rounded-ctl border border-line bg-canvas p-4">
-          <p className="type-label font-semibold text-ink">Current analysis score</p>
-          {typeof score === 'number' && Number.isFinite(score) ? <><p className="mt-2 type-stat text-teal">{score}<span className="type-helper text-ink-muted"> /100</span></p><progress className="mt-2 h-2 w-full accent-teal" max={100} value={score} aria-label="Current resume analysis score" /><p className="mt-2 type-helper text-ink-muted">From your existing analysis. Review decisions do not change this score.</p></> : <p className="mt-2 type-helper text-ink-muted">No analysis score was provided with this import.</p>}
-        </div>
-        <AnalysisList title="Strengths" items={strengths} empty="No strengths were included in the existing analysis." />
-        <AnalysisList title="Improvement areas" items={improvements} empty="No improvement areas were included in the existing analysis." />
-      </div>
-      <div className="mt-4 rounded-ctl border border-line bg-canvas p-3">
-        <p className="type-label font-semibold text-ink">Review progress: {reviewed} of {sections.length} sections reviewed{skipped ? ` · ${skipped} skipped for now` : ''}</p>
-        <progress className="review-progress mt-2 h-2 w-full" max={Math.max(sections.length, 1)} value={reviewed} aria-label="Sections reviewed" />
-        <p className="mt-2 type-helper text-ink-muted">This tracks your decisions, not resume quality. You can save with skipped sections or keep your original wording.</p>
-      </div>
-      <nav aria-label="Resume review sections" className="mt-4 grid gap-2 sm:grid-cols-2">{sections.map(section => <button type="button" key={section.id} disabled={busy} onClick={() => openSection(section.id)} className={`min-h-11 min-w-0 rounded-ctl border bg-canvas p-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal ${needsAttention(section) ? 'border-alert' : verifiedSection(section) ? 'border-ok' : 'border-line'}`}>
-        <span className="flex flex-wrap justify-between gap-2 type-helper"><span className="font-semibold text-ink">{section.title}</span><span className={verifiedSection(section) ? 'review-status-ok' : needsAttention(section) ? 'review-status-missing' : section.status === 'complete' ? 'text-ink-soft' : section.status === 'missing' ? 'review-status-missing' : 'review-status-attention'}>{decisionFor(section) === 'reviewed' ? needsAttention(section) ? 'Reviewed · still needs attention' : 'Confirmed by you' : section.status === 'complete' ? 'Details captured · not yet verified' : section.status === 'optional' ? 'Optional' : 'Check details'}</span></span>
-      </button>)}</nav>
-      <p className="mt-2 type-helper text-ink-muted">Captured details still require your review. Select a section to check it using the same Career Profile editor.</p>
-      <Button type="button" className="mt-4 w-full sm:w-auto" disabled={busy || !sections.length} onClick={() => openSection(sections.find(section => !decisionFor(section))?.id ?? sections[0].id)}>Review and Improve My Career Profile</Button>
-    </section>
+        <Button type="button" variant="ghost" className="mt-2 w-full" disabled={busy} onClick={() => setPhase('summary')}>Review summary</Button>
+      </section>
+    </> : null}
 
-    <section aria-labelledby="resume-suggestions-title" className="mt-6">
-      <h2 id="resume-suggestions-title" className="type-section text-ink">2. Guided career review</h2>
-      <p className="mt-2 type-helper text-ink-soft">Suggestions shown here come from the existing resume processing. Keep only facts you can confirm. You can keep your wording or edit any section manually.</p>
-      {review.wordingStatus === 'unavailable' ? <p role="status" className="mt-3 rounded-ctl border border-gold/40 bg-gold-soft p-3 type-helper text-gold-ink">Wording suggestions were unavailable for this import. Your extracted details are still available to review and edit.</p> : null}
-      {storageUnavailable ? <p role="status" className="mt-3 rounded-ctl border border-gold/40 bg-gold-soft p-3 type-helper text-gold-ink">This browser could not retain review markers. Keep this tab open until you save.</p> : null}
-      {phase === 'review' ? <div role="status" className="mt-4 rounded-ctl border border-line bg-canvas p-3 type-helper text-ink">Step {activeIndex + 1} of {sections.length} · {reviewed} confirmed · {skipped} deferred. Check facts before choosing optional wording improvements.</div> : <p className="mt-3 type-helper text-ink-muted">{phase === 'diagnostic' ? 'Start when you are ready. You will review one section at a time.' : 'Your review decisions are retained. Select a section above to edit again.'}</p>}
-      {phase === 'review' && activeIssue ? <section aria-labelledby="guided-field-title" data-review-field={activeIssue.field} className="mt-4 min-w-0 rounded-card border-2 border-alert bg-white p-4 sm:p-5">
-        <p role="status" className="type-helper text-ink-soft">Factual checks first · {pendingFieldIssues.length} awaiting review · {deferredFieldCount} deferred. Corrected checks disappear only when the underlying information is valid.</p>
-        <h3 id="guided-field-title" className="mt-3 type-card text-ink">{activeIssue.title}</h3>
-        <p className="mt-2 type-helper text-ink-soft">{activeIssue.reason}</p>
-        {activeIssue.blocking === false ? <p className="mt-3 rounded-ctl bg-alert-soft p-3 type-helper font-semibold text-alert">Optional warning · you can keep this value and still save your Career Profile.</p> : null}
-        <div className="mt-3 min-w-0 rounded-ctl border border-line bg-canvas p-3"><p className="type-label font-semibold text-ink">Current field information</p><p className="mt-2 whitespace-pre-wrap break-words type-helper text-ink">{redactImportText(activeIssue.value) || 'Not recorded. Supply the fact only if you know it.'}</p></div>
-        <p className="mt-3 type-helper text-ink-muted">Open the matching Career Profile field to correct or verify this detail. We will keep your other review decisions. {activeIssue.blocking === false ? 'You can save with this warning; it remains visible until corrected.' : 'Deferring this check does not verify it or remove a save requirement.'}</p>
+    {phase === 'review' ? <section aria-labelledby="resume-suggestions-title">
+      <div className="mb-3 flex items-center justify-between gap-3"><h2 id="resume-suggestions-title" className="type-section text-ink">{activeIssue ? 'Check this detail' : visibleSections.includes(activeSection) ? `Section ${visibleSections.indexOf(activeSection) + 1} of ${visibleSections.length}` : 'Optional details' }</h2><span className="type-caption text-ink-muted">{activeIssue ? `${pendingFieldIssues.length} checks left` : `${reviewed} reviewed`}</span></div>
+      {activeIssue ? <section key={activeIssue.id} aria-labelledby="guided-field-title" data-review-field={activeIssue.field} className="min-w-0 rounded-card border-2 border-alert bg-white p-4 sm:p-5">
+        <span className="review-status-missing type-caption font-semibold">{activeIssue.blocking === false ? 'Optional · saving allowed' : 'Needs attention'}</span>
+        <h3 id="guided-field-title" tabIndex={-1} className="mt-2 type-card text-ink">{activeIssue.title}</h3>
+        <p className="mt-2 type-helper text-ink-soft">{activeIssue.reason.split(/(?<=[.!?])\s/)[0].slice(0, 180)}</p>
+        <div className="mt-4 rounded-ctl bg-canvas p-3"><p className="type-caption font-semibold text-ink-muted">Current detail</p><div className="mt-1"><ReviewSectionContent content={activeIssue.value} /></div></div>
+        {activeIssue.blocking === false ? <p className="mt-3 type-helper review-status-missing">You can keep this value and still save.</p> : null}
         <div className="mt-4 flex flex-wrap gap-2">{activeIssue.confirmable && activeIssue.value.trim() && onVerifyField ? <Button type="button" variant="secondary" disabled={busy} onClick={() => { onConfirm(false); onVerifyField(activeIssue.id) }}>{activeIssue.field.endsWith('.current_status') ? 'Confirm this is my current role' : 'I verified this value'}</Button> : null}<Button type="button" disabled={busy || !onFixField} onClick={() => { setActiveIssueId(activeIssue.id); onFixField?.(activeIssue.field) }}>Correct this field</Button><Button type="button" variant="ghost" disabled={busy} onClick={() => { setDeferredIssues(previous => ({ ...previous, [activeIssue.id]: activeIssue.value })); setActiveIssueId(null); onConfirm(false) }}>Review later</Button></div>
+        <details className="mt-3"><summary className="min-h-11 cursor-pointer py-2 type-helper text-teal">Why this matters</summary><p className="type-helper text-ink-soft">{activeIssue.reason}</p></details>
+      </section> : activeSection ? <section key={activeSection.id} data-review-card aria-labelledby={`review-section-${activeSection.id}`} className={`min-w-0 rounded-card border bg-white p-4 sm:p-5 ${needsAttention(activeSection) ? 'border-alert' : verifiedSection(activeSection) ? 'border-ok' : 'border-line'}`}>
+        <header className="flex flex-wrap items-center justify-between gap-2"><h3 id={`review-section-${activeSection.id}`} tabIndex={-1} className="type-card scroll-mt-24 text-ink">{activeSection.title}</h3><Button type="button" variant="ghost" size="sm" disabled={busy} onClick={() => onEdit(activeSection.id)} aria-label={`Edit ${activeSection.title} manually`}><PencilSquareIcon className="size-4" aria-hidden="true" />Edit manually</Button></header>
+        <p className="mt-2 type-caption text-ink-muted">{needsAttention(activeSection) ? 'Check missing or unclear details.' : activeSection.status === 'optional' ? 'Add only if relevant.' : 'Check these details match your experience.'}</p>
+        <div id={`review-content-${activeSection.id}`} className="mt-4">
+          <div data-review-content="selected"><ReviewSectionContent content={activeSection.content} groups={activeSection.displayGroups} /></div>
+          {activeSection.changes.filter(change => change.kind === 'check' || change.kind === 'privacy').length ? <details className="mt-3"><summary className="min-h-11 cursor-pointer py-2 type-helper text-teal">Import notes</summary>{activeSection.changes.filter(change => change.kind === 'check' || change.kind === 'privacy').map(change => <p key={change.id} className="mt-2 type-helper text-ink-soft">{change.label}: {change.reason}</p>)}</details> : null}
+          {suggestionsFor(activeSection).length ? <section className="mt-4 rounded-card border border-teal/30 bg-canvas p-3"><h4 className="type-label font-semibold text-teal">Suggested wording</h4>{suggestionsFor(activeSection).map(change => {
+            const current = currentValue(change), available = current !== null && (current === change.before || current === change.after), selected = choices[change.id] !== undefined && choices[change.id] === current
+            return <div key={change.id} className="mt-3 min-w-0"><p className="type-label font-semibold text-ink">{change.label}</p><p className="mt-2 whitespace-pre-wrap break-words type-helper text-ink">{redactImportText(change.after)}</p><div className="mt-3 flex flex-wrap gap-2" role="group" aria-label={`${activeSection.title}: ${change.label}`}><Button type="button" variant="secondary" size="sm" disabled={busy || !available} aria-pressed={selected && current === change.after} onClick={() => choose(activeSection, change, change.after)}>Accept suggestion</Button><Button type="button" variant="ghost" size="sm" disabled={busy || !available} aria-pressed={selected && current === change.before} onClick={() => choose(activeSection, change, change.before)}>Keep original</Button></div>{!available ? <p className="mt-2 type-caption text-ink-muted">Your manual edit is kept.</p> : selected ? <p role="status" className="mt-2 type-helper review-status-ok">{current === change.after ? 'Suggestion selected.' : 'Original wording selected.'}</p> : null}<details className="mt-2"><summary className="min-h-11 cursor-pointer py-2 type-helper text-teal">Compare & why</summary><p className="type-helper text-ink-soft">{change.reason}</p><ImportComparison change={change} applied={current === change.after} /></details></div>
+          })}</section> : null}
+          <details className="mt-3"><summary className="min-h-11 cursor-pointer py-2 type-helper text-teal">Original resume details</summary><div data-review-content="original"><ReviewSectionContent content={originalContents?.[activeSection.id] ?? activeSection.content} /></div></details>
+          <div className="mt-4 flex flex-wrap gap-2">{visibleSections.indexOf(activeSection) > 0 ? <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={() => openSection(visibleSections[visibleSections.indexOf(activeSection) - 1].id)}>Back</Button> : null}<Button type="button" disabled={busy} onClick={() => decide(activeSection, 'reviewed')}>Confirm current details</Button><Button type="button" variant="ghost" size="sm" disabled={busy} onClick={() => decide(activeSection, 'skipped')}>Skip for now</Button></div>
+        </div>
       </section> : null}
-      {phase === 'review' && !activeIssue && deferredFieldCount ? <p className="mt-3 type-helper text-ink-soft">{deferredFieldCount} factual checks are deferred and remain unresolved. <button type="button" className="min-h-11 font-semibold text-teal" disabled={busy} onClick={() => setDeferredIssues({})}>Revisit deferred checks</button></p> : null}
-      <div className="mt-4 flex min-w-0 flex-col gap-4">
-        {sections.map((section, sectionIndex) => {
-          const suggestions = suggestionsFor(section)
-          const decision = decisionFor(section)
-          const isExpanded = phase === 'review' && !activeIssue && sectionIndex === activeIndex
-          const original = originalContents?.[section.id] ?? section.content
-          return <section key={section.id} aria-labelledby={`review-section-${section.id}`} className={`min-w-0 rounded-card border bg-white p-4 sm:p-5 ${needsAttention(section) ? 'border-alert' : decision === 'reviewed' ? 'border-ok' : 'border-line'}`}>
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <h3 id={`review-section-${section.id}`} tabIndex={-1} className="type-card scroll-mt-24 text-ink">{section.title}</h3>
-              {decision ? <span role="status" className={`inline-flex items-center gap-1.5 type-helper ${decision === 'reviewed' && !needsAttention(section) ? 'review-status-ok' : needsAttention(section) ? 'review-status-missing' : 'review-status-attention'}`}>{decision === 'reviewed' && !needsAttention(section) ? <CheckCircleIcon className="size-5" aria-hidden="true" /> : <ExclamationTriangleIcon className="size-5" aria-hidden="true" />}{decision === 'reviewed' ? needsAttention(section) ? 'Reviewed · still needs attention' : 'Reviewed' : 'Skipped for now'}</span> : null}
-              <div className="flex flex-wrap gap-2">
-                {decision ? <Button type="button" variant="ghost" size="sm" disabled={busy} aria-expanded={Boolean(isExpanded)} aria-controls={`review-content-${section.id}`} onClick={() => isExpanded ? setPhase('summary') : openSection(section.id)}>{isExpanded ? 'Collapse' : 'Reopen'}</Button> : null}
-                <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={() => onEdit(section.id)} aria-label={`Edit ${section.title} manually`}><PencilSquareIcon className="size-4 shrink-0" aria-hidden="true" />Edit manually</Button>
-              </div>
-            </div>
-            {isExpanded ? <div id={`review-content-${section.id}`}>
-              <p className="mt-3 type-helper font-semibold text-ink">{section.status === 'missing' ? 'Some information is missing. Add only details you know, or defer it.' : section.status === 'attention' ? 'Check the unclear or incomplete details below.' : section.status === 'optional' ? 'This section is optional. Add it only when relevant to your career.' : 'Information was captured. Confirm it matches your actual career.'}</p>
-              {section.changes.filter(change => change.kind === 'check' || change.kind === 'privacy' || !suggestions.includes(change)).map(change => <p key={change.id} className="mt-3 rounded-ctl border border-gold/40 bg-gold-soft p-3 type-helper text-gold-ink"><span className="font-semibold">{change.label}: </span>{change.reason}</p>)}
-              <div className="mt-3 grid min-w-0 gap-3 sm:grid-cols-2">
-                <div className="min-w-0 rounded-ctl border border-line bg-canvas p-3">
-                  <h4 className="type-label font-semibold text-ink-soft">Original extracted content</h4>
-                  <p className="mt-2 whitespace-pre-wrap break-words type-helper leading-relaxed text-ink">{original.trim() ? redactImportText(original) : 'Not found in the extracted details.'}</p>
-                  {original !== section.content ? <><h4 className="mt-4 type-label font-semibold text-teal">Your selected content</h4><p className="mt-2 whitespace-pre-wrap break-words type-helper text-ink">{redactImportText(section.content) || 'No content selected.'}</p></> : null}
-                  {section.hint ? <p className="mt-3 type-helper text-ink-muted">{section.hint}</p> : null}
-                </div>
-                <div className="min-w-0 rounded-ctl border border-teal/30 bg-canvas p-3">
-                  <h4 className="type-label font-semibold text-teal">Optional wording suggestion</h4>
-                  {suggestions.length ? <div className="mt-2 space-y-4">{suggestions.map(change => {
-                    const current = currentValue(change)
-                    const available = current !== null && (current === change.before || current === change.after)
-                    const selected = choices[change.id] !== undefined && choices[change.id] === current
-                    return <div key={change.id} className="min-w-0 border-t border-line pt-3 first:border-t-0 first:pt-0">
-                      <p className="type-label font-semibold text-ink">{change.label}</p>
-                      <p className="mt-2 whitespace-pre-wrap break-words type-helper leading-relaxed text-ink">{redactImportText(change.after)}</p>
-                      <p className="mt-2 type-helper text-ink-muted">{change.reason}</p>
-                      <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label={`${section.title}: ${change.label}`}>
-                        <Button type="button" variant="secondary" size="sm" disabled={busy || !available} aria-pressed={selected && current === change.after} onClick={() => choose(section, change, change.after)}>Accept suggestion</Button>
-                        <Button type="button" variant="ghost" size="sm" disabled={busy || !available} aria-pressed={selected && current === change.before} onClick={() => choose(section, change, change.before)}>Keep original</Button>
-                      </div>
-                      {!available ? <p className="mt-2 type-helper text-ink-muted">This text was edited or could not be matched safely. Your current value is kept; use Edit manually to review it.</p> : selected ? <p role="status" className="mt-2 type-helper font-semibold text-ok">{current === change.after ? 'Suggestion selected.' : 'Original wording selected.'}</p> : null}
-                      <details className="mt-3"><summary className="min-h-11 cursor-pointer py-2 type-helper text-ink-soft">Compare original and suggested wording</summary><ImportComparison change={change} applied={current === change.after} /></details>
-                    </div>
-                  })}</div> : <>
-                    <p className="mt-2 type-helper text-ink-muted">No suggestion provided for this section. Keep the extracted details, or edit them manually.</p>
-                    <div className="mt-3 flex flex-wrap gap-2"><Button type="button" variant="secondary" size="sm" disabled>Accept suggestion</Button><Button type="button" variant="ghost" size="sm" disabled={busy} onClick={() => decide(section, 'reviewed')}>{original === section.content ? 'Keep original' : 'Keep current details'}</Button></div>
-                  </>}
-                </div>
-              </div>
-              <div className="mt-4 flex flex-wrap gap-2">{sectionIndex > 0 ? <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={() => openSection(sections[sectionIndex - 1].id)}>Back</Button> : null}<Button type="button" variant="secondary" size="sm" disabled={busy} onClick={() => decide(section, 'reviewed')}>Confirm current details</Button><Button type="button" variant="ghost" size="sm" disabled={busy} onClick={() => decide(section, 'skipped')}>Skip for now</Button></div>
-              <p className="mt-2 type-helper text-ink-muted">Skipping keeps your current information. You can return to this section anytime.</p>
-            </div> : null}
-          </section>
-        })}
-      </div>
-      {phase === 'review' ? <Button type="button" variant="ghost" className="mt-4" disabled={busy} onClick={() => setPhase('summary')}>See improvement summary</Button> : null}
-    </section>
-
-    {phase === 'summary' || phase === 'verify' ? <section aria-labelledby="improvement-summary-title" className="mt-6 rounded-card border border-line bg-white p-4 sm:p-5">
-      <h2 id="improvement-summary-title" className="type-section text-ink">Before and after your review</h2>
-      <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {[
-          ['Sections edited', changed.length], ['Sections confirmed', reviewed], ['Sections deferred', skipped],
-          ...(suppliedFieldCount === undefined ? [] : [['Missing fields supplied', suppliedFieldCount]]),
-          ...(verifiedFieldCount === undefined ? [] : [['Source values explicitly verified', verifiedFieldCount]]),
-          ['Writing suggestions accepted', accepted], ['Original wording retained', kept], ['Suggestions not selected', suggestions.length - accepted - kept],
-          ...(originalIssueIds && currentIssueIds ? [['Original validation findings', originalIssues.length], ['Validation findings resolved', resolved.length], ['Validation findings still requiring attention', currentIssues.length]] : [['Sections still needing attention', remaining.length]]),
-        ].map(([label, count]) => <div key={label} className="min-w-0 rounded-ctl bg-canvas p-3"><dt className="type-helper text-ink-soft">{label}</dt><dd className="mt-1 type-card font-semibold text-ink">{count}</dd></div>)}
-      </dl>
-      <p className="mt-3 type-helper text-ink-muted">Edits and confirmations count sections; findings count the actual validation conditions. A confirmation alone does not fix a missing field. Changes here do not change your original PDF or DOCX, repair its layout, or increase the existing analysis score.</p>
-      {changed.length ? <ul className="mt-4 space-y-3">{changed.map(section => <li key={section.id} className="border-t border-line pt-3"><button type="button" disabled={busy} className="min-h-11 text-left type-label font-semibold text-teal" onClick={() => openSection(section.id)}>{section.title} · Review changes</button><div className="grid min-w-0 gap-3 sm:grid-cols-2"><div className="min-w-0"><p className="type-helper font-semibold text-ink-soft">Before</p><p className="mt-1 whitespace-pre-wrap break-words type-helper text-ink">{redactImportText(originalContents?.[section.id] ?? '') || 'Not recorded'}</p></div><div className="min-w-0"><p className="type-helper font-semibold text-ink-soft">Now selected</p><p className="mt-1 whitespace-pre-wrap break-words type-helper text-ink">{redactImportText(section.content) || 'Not recorded'}</p></div></div></li>)}</ul> : <p className="mt-3 type-helper text-ink-soft">No changes to the original extracted section content have been detected.</p>}
-      <Button type="button" className="mt-4 w-full sm:w-auto" disabled={busy} onClick={() => setPhase('verify')}>Verify final Career Profile</Button>
+      {deferredFieldCount ? <p className="mt-3 type-caption text-ink-muted">{deferredFieldCount} checks for later <button type="button" className="min-h-11 px-2 font-semibold text-teal" disabled={busy} onClick={() => { setDeferredIssues({}); setActiveIssueId(null) }}>Revisit deferred checks</button></p> : null}
+      <Button type="button" variant="ghost" className="mt-4" disabled={busy} onClick={() => setPhase('summary')}>Review summary</Button>
     </section> : null}
 
-    <section aria-labelledby="resume-completion-title" className="mt-6 rounded-card border border-line bg-white p-4 sm:p-5">
-      <h2 id="resume-completion-title" className="type-section text-ink">3. Profile completion</h2>
-      <p className="mt-2 type-helper text-ink-muted">A visual checklist of your current details. It does not change your score.</p>
-      <ul className="mt-4 grid gap-2 sm:grid-cols-2">{completionItems.map(item => <li key={item.id} className="flex min-w-0 flex-wrap items-center justify-between gap-3 rounded-ctl border border-line bg-canvas px-3 py-3">
-        <span className="type-label text-ink">{item.title}</span>
-        <span className={`inline-flex shrink-0 items-center gap-1.5 type-helper ${decisions[item.id]?.mode === 'reviewed' && decisions[item.id]?.content === sections.find(section => section.id === item.id)?.content && item.status !== 'attention' && item.status !== 'missing' ? 'review-status-ok' : item.status === 'attention' || item.status === 'missing' ? 'review-status-missing' : 'text-ink-soft'}`}><span>{decisions[item.id]?.mode === 'reviewed' && decisions[item.id]?.content === sections.find(section => section.id === item.id)?.content && item.status !== 'attention' && item.status !== 'missing' ? 'Confirmed by you' : item.status === 'complete' ? 'Captured' : item.status === 'optional' ? 'Optional' : 'Needs review'}</span></span>
-      </li>)}</ul>
-    </section>
-
-    {phase === 'verify' ? <section aria-labelledby="resume-final-preview-title" className="mt-6 rounded-card border border-line bg-white p-4 sm:p-5">
-      <h2 id="resume-final-preview-title" className="type-section text-ink">Final Career Profile verification</h2>
-      <p className="mt-2 type-helper text-ink-soft">These are the selected career details that will be saved. Review each applicable section and edit anything that is incorrect.</p>
-      <div className="mt-4 space-y-4">{sections.map(section => <section key={section.id} className="min-w-0 border-t border-line pt-3"><div className="flex flex-wrap items-center justify-between gap-2"><h3 className="type-card text-ink">{section.title}</h3><Button type="button" variant="ghost" size="sm" disabled={busy} onClick={() => onEdit(section.id)}>Edit {section.title}</Button></div><p className="mt-2 whitespace-pre-wrap break-words type-helper text-ink">{redactImportText(section.content) || 'Not recorded. You can add this later when applicable.'}</p></section>)}</div>
+    {phase === 'summary' ? <section aria-labelledby="improvement-summary-title">
+      <h2 id="improvement-summary-title" className="type-section text-ink">Your review summary</h2>
+      <dl className="mt-4 grid grid-cols-3 gap-2">{[['Updated', changed.length, 'border-teal'], ['Reviewed', sections.filter(verifiedSection).length, 'border-ok'], ['Still open', currentIssues.length, 'border-alert']].map(([label, count, border]) => <div key={label} className={`min-w-0 rounded-card border bg-white p-3 ${border}`}><dt className="type-caption text-ink-muted">{label}</dt><dd className="mt-1 type-stat text-ink">{count}</dd></div>)}</dl>
+      {changed.length ? <div className="mt-4 space-y-2">{changed.map(section => <details key={section.id} className="rounded-card border border-line bg-white p-3"><summary className="min-h-11 cursor-pointer type-label font-semibold text-ink">{section.title} · Updated</summary><div className="mt-3 grid gap-3 sm:grid-cols-2"><div><h3 className="type-caption font-semibold text-ink-muted">Before</h3><ReviewSectionContent content={originalContents?.[section.id] ?? ''} /></div><div><h3 className="type-caption font-semibold text-teal">Now</h3><ReviewSectionContent content={section.content} groups={section.displayGroups} /></div></div><Button type="button" variant="ghost" size="sm" onClick={() => openSection(section.id)}>Review changes</Button></details>)}</div> : <p className="mt-3 type-helper text-ink-soft">Original details retained.</p>}
+      <details className="mt-3 rounded-card border border-line bg-white p-3"><summary className="min-h-11 cursor-pointer type-helper font-semibold text-teal">Review details</summary><dl className="mt-3 grid grid-cols-2 gap-3">{[['Sections deferred', skipped], ['Missing fields supplied', suppliedFieldCount ?? 0], ['Source values explicitly verified', verifiedFieldCount ?? 0], ['Writing suggestions accepted', accepted], ['Original wording retained', kept], ['Suggestions not selected', suggestions.length - accepted - kept], ['Original validation findings', originalIssues.length], ['Validation findings resolved', resolved.length], ['Validation findings still requiring attention', currentIssueIds ? currentIssues.length : remaining.length]].map(([label,count]) => <div key={label}><dt className="type-caption text-ink-muted">{label}</dt><dd className="type-label font-semibold text-ink">{count}</dd></div>)}</dl><p className="mt-3 type-caption text-ink-muted">Profile changes do not edit your uploaded file or increase its analysis score.</p></details>
+      <Button type="button" className="mt-4 w-full" disabled={busy} onClick={() => setPhase('verify')}>Preview profile</Button>
     </section> : null}
 
-    {phase === 'verify' ? <section aria-labelledby="resume-confirm-title" className="mt-6 rounded-card border border-line bg-white p-4 sm:p-5">
-      <h2 id="resume-confirm-title" className="type-section text-ink">4. Save confirmed data</h2>
-      <p className="mt-2 type-helper text-ink-soft">Your choices remain in this review until you save. You can continue editing everything in your Career Profile afterward.</p>
-      <label className="mt-4 flex min-h-11 cursor-pointer items-start gap-3 py-2 type-label text-ink"><input type="checkbox" className="mt-1 size-4 shrink-0 accent-teal" checked={confirmed} disabled={busy} onChange={event => onConfirm(event.target.checked)} /><span>I reviewed these details and confirm the selected values for my Career Profile.</span></label>
-      {error ? <p role="alert" className="mt-3 rounded-ctl border border-alert/40 bg-alert-soft p-3 type-helper text-alert">{error}</p> : null}
-      {issues}
-      <Button type="button" className="mt-4 w-full sm:w-auto" disabled={!confirmed || busy || saveDisabled} busy={busy} busyLabel="Saving confirmed data…" onClick={onSave}>Save confirmed data</Button>
-    </section> : <div className="mt-6"><Button type="button" variant="secondary" disabled={busy} onClick={() => setPhase('summary')}>Continue to improvement summary</Button></div>}
+    {phase === 'verify' ? <>
+      <section aria-labelledby="resume-final-preview-title"><h2 id="resume-final-preview-title" className="type-section text-ink">Final Career Profile verification</h2><div className="mt-4 space-y-2">{visibleSections.map(section => <details key={section.id} name="final-profile" className={`min-w-0 rounded-card border bg-white p-3 ${needsAttention(section) ? 'border-alert' : verifiedSection(section) ? 'border-ok' : 'border-line'}`}><summary className="min-h-11 cursor-pointer type-label font-semibold text-ink">{section.title}</summary><div className="mt-3"><ReviewSectionContent content={section.content} groups={section.displayGroups} /><Button type="button" variant="ghost" size="sm" disabled={busy} onClick={() => onEdit(section.id)}>Edit {section.title}</Button></div></details>)}</div></section>
+      <section aria-labelledby="resume-confirm-title" className="mt-4 rounded-card border border-line bg-white p-4"><h2 id="resume-confirm-title" className="type-card text-ink">Ready to save?</h2><label className="mt-3 flex min-h-11 cursor-pointer items-start gap-3 py-2 type-label text-ink"><input type="checkbox" className="mt-1 size-4 shrink-0 accent-teal" checked={confirmed} disabled={busy} onChange={event => onConfirm(event.target.checked)} /><span>I confirm these Career Profile details.</span></label>{error ? <p role="alert" className="mt-3 rounded-ctl border border-alert bg-alert-soft p-3 type-helper review-status-missing">{error}</p> : null}{issues}<Button type="button" className="mt-3 w-full" disabled={!confirmed || busy || saveDisabled} busy={busy} busyLabel="Saving…" onClick={onSave}>Save Career Profile</Button></section>
+    </> : null}
+    {phase !== 'diagnostic' ? <details key={phase} className="mt-4"><summary className="min-h-11 cursor-pointer py-2 type-helper font-semibold text-teal">All sections</summary>{sectionNavigation}</details> : null}
   </main>
 }
 
-function AnalysisList({ title, items, empty }: { title: string; items: string[]; empty: string }) {
-  return <div className="min-w-0 rounded-ctl border border-line bg-canvas p-4"><h3 className="type-label font-semibold text-ink">{title}</h3>{items.length ? <ul className="mt-2 list-disc space-y-2 pl-4 type-helper text-ink-soft">{items.map((item, index) => <li key={`${index}:${item}`}>{item}</li>)}</ul> : <p className="mt-2 type-helper text-ink-muted">{empty}</p>}</div>
+function AnalysisList({ title, items }: { title: string; items: string[] }) {
+  return <div className="mt-3"><h3 className="type-label font-semibold text-ink">{title}</h3><ul className="mt-2 list-disc space-y-1 pl-4 type-helper text-ink-soft">{items.map((item, index) => <li key={`${index}:${item}`}>{item}</li>)}</ul></div>
 }
