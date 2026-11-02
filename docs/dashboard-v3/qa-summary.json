@@ -1,0 +1,358 @@
+{
+  "baseline": "e12f44b28b628f1a41f64084f4afbe36fb468eb8",
+  "environment": "production-built actual dashboard with fictional read-only local API fixtures; Android Chrome mobile/touch emulation, not physical device or authenticated production",
+  "states": 51,
+  "widths": [
+    320,
+    360,
+    375,
+    390,
+    430,
+    768,
+    1024,
+    1440
+  ],
+  "scenarioCounts": {
+    "saved": 8,
+    "long": 16,
+    "empty": 3,
+    "new": 3,
+    "missing": 3,
+    "thin": 3,
+    "photo": 3,
+    "pending": 3,
+    "ongoing": 3,
+    "error": 3,
+    "loading": 3
+  },
+  "statesPassed": [
+    {
+      "state": "saved",
+      "width": 320,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "saved",
+      "width": 360,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "saved",
+      "width": 375,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "saved",
+      "width": 390,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "saved",
+      "width": 430,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "saved",
+      "width": 768,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "saved",
+      "width": 1024,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "saved",
+      "width": 1440,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "long",
+      "width": 320,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "long",
+      "width": 320,
+      "enlarged": true,
+      "issues": []
+    },
+    {
+      "state": "long",
+      "width": 360,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "long",
+      "width": 360,
+      "enlarged": true,
+      "issues": []
+    },
+    {
+      "state": "long",
+      "width": 375,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "long",
+      "width": 375,
+      "enlarged": true,
+      "issues": []
+    },
+    {
+      "state": "long",
+      "width": 390,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "long",
+      "width": 390,
+      "enlarged": true,
+      "issues": []
+    },
+    {
+      "state": "long",
+      "width": 430,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "long",
+      "width": 430,
+      "enlarged": true,
+      "issues": []
+    },
+    {
+      "state": "long",
+      "width": 768,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "long",
+      "width": 768,
+      "enlarged": true,
+      "issues": []
+    },
+    {
+      "state": "long",
+      "width": 1024,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "long",
+      "width": 1024,
+      "enlarged": true,
+      "issues": []
+    },
+    {
+      "state": "long",
+      "width": 1440,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "long",
+      "width": 1440,
+      "enlarged": true,
+      "issues": []
+    },
+    {
+      "state": "empty",
+      "width": 320,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "empty",
+      "width": 390,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "empty",
+      "width": 1440,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "new",
+      "width": 320,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "new",
+      "width": 390,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "new",
+      "width": 1440,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "missing",
+      "width": 320,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "missing",
+      "width": 390,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "missing",
+      "width": 1440,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "thin",
+      "width": 320,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "thin",
+      "width": 390,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "thin",
+      "width": 1440,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "photo",
+      "width": 320,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "photo",
+      "width": 390,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "photo",
+      "width": 1440,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "pending",
+      "width": 320,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "pending",
+      "width": 390,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "pending",
+      "width": 1440,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "ongoing",
+      "width": 320,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "ongoing",
+      "width": 390,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "ongoing",
+      "width": 1440,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "error",
+      "width": 320,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "error",
+      "width": 390,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "error",
+      "width": 1440,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "loading",
+      "width": 320,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "loading",
+      "width": 390,
+      "enlarged": false,
+      "issues": []
+    },
+    {
+      "state": "loading",
+      "width": 1440,
+      "enlarged": false,
+      "issues": []
+    }
+  ],
+  "functionalChecks": [
+    "retry recovery",
+    "saved counts12/8/6/5",
+    "two independent readiness links/results",
+    "pending draft priority",
+    "unfinished interview3/10 continuation",
+    "tracker civil date and Asia/Riyadh time",
+    "per-resume scores/metrics/report isolation",
+    "four existing shortcut destinations",
+    "guide Escape and focus restoration"
+  ],
+  "runtimeErrors": [],
+  "externalRequests": [],
+  "apiWrites": [],
+  "typecheck": "pass",
+  "lint": "pass",
+  "build": "pass",
+  "unitChecks": "89/89 pass",
+  "workspaceNavigation": "7 widths plus200% pass",
+  "dashboardTypography": "7 states pass",
+  "localStudio": "two intermittent final1440 unchanged profile/report timeouts; remote CI required",
+  "productionAuthenticatedVisualQA": "unverified:sign-in required"
+}

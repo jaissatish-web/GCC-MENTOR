@@ -138,7 +138,7 @@ assert.ok(personalHome.includes('Continue your interview') && personalHome.inclu
 assert.ok(personalHome.includes('Application pipeline') && personalHome.includes('>4</dd>'),'Use all-account current stages')
 assert.ok(personalHome.includes('>7</strong>') && personalHome.includes('Cover letters'),'Use aggregate saved activity')
 assert.ok(personalHome.includes('Tomorrow') && personalHome.includes('/package/active-job?tab=tracker'),'Retain real reminder and civil-date calculation')
-assert.ok(personalHome.includes('Add in Career Profile') && personalHome.includes('30 days'),'Missing document values stay unknown; saved availability is retained')
+assert.ok(personalHome.includes('Not added') && personalHome.includes('30 days'),'Missing document values stay unknown; saved availability is retained')
 assert.ok(!personalHome.includes('Open to work') && !personalHome.includes('Mar 2029') && !personalHome.includes('50%'),'Do not import sample facts or hiring claims')
 const staleHome = renderToStaticMarkup(React.createElement(WorkspaceHome,{...personalProps,overviewError:true,profileError:true,packagesError:true,error:true,ready:false}))
 assert.ok(!staleHome.includes('>7</strong>') && !staleHome.includes('>4</dd>'),'Failed totals cannot display stale counts')

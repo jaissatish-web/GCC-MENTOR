@@ -7,7 +7,7 @@ import { FirstResumeDialog } from '@/components/dashboard/FirstResumeDialog'
 import { shouldOfferFirstResume } from '@/lib/firstResumeOnboarding'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
-import { ArrowRightIcon, ChevronRightIcon, ChatBubbleLeftRightIcon, DocumentTextIcon, EnvelopeIcon, ExclamationTriangleIcon, QuestionMarkCircleIcon, SunIcon, SparklesIcon, PlusIcon, PencilSquareIcon, CalendarDaysIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline'
+import { ArrowRightIcon, ChevronRightIcon, ChatBubbleLeftRightIcon, DocumentTextIcon, EnvelopeIcon, QuestionMarkCircleIcon, SparklesIcon, PencilSquareIcon, CalendarDaysIcon, ArrowTopRightOnSquareIcon, MapPinIcon, GlobeAltIcon, IdentificationIcon } from '@heroicons/react/24/outline'
 import { buttonVariants } from '@/components/ui/Button'
 import { HowItWorks } from '@/components/journey/HowItWorks'
 import { InterviewProgressOverview } from '@/components/dashboard/InterviewProgressOverview'
@@ -65,81 +65,89 @@ export function WorkspaceHome(p: Props) {
     { label: CTA.addTargetJob, detail: 'Use your saved Career Profile', href: '/optimize/target', Icon: SparklesIcon },
     { label: NAMES.library, detail: 'Open your saved resumes', href: '/dashboard/library', Icon: DocumentTextIcon },
     { label: 'Edit Career Profile', detail: 'Keep your details current', href: '/profile?view=details', Icon: PencilSquareIcon },
+    { label: 'Start interview practice', detail: 'Practise for your next role', href: '/mock-interview', Icon: ChatBubbleLeftRightIcon },
   ]
   const offerFirstResume = shouldOfferFirstResume({pendingDraftAbsent:p.pendingDraftAbsent === true,ready:p.ready,error:p.error,profileExists:Boolean(p.profile),profileLoaded:p.profileLoaded,profileError:p.profileError,packagesLoaded:p.packagesLoaded,packagesError:p.packagesError,packageCount:p.packages.length,overviewLoading:p.overviewLoading,overviewError:p.overviewError,resumeCount:p.overview?.resume_count,nextActionState:p.nextAction.state})
-  return <main className={`studio-page studio-home ${styles.dashboard}`}>
+  return <main className={`studio-page studio-home ${styles.dashboard}`} aria-label="Career dashboard">
     <FirstResumeDialog eligible={offerFirstResume} />
-    <header className={styles.profile} aria-busy={!p.profileLoaded}>
-      <div className={styles.avatar}>{available && p.profile?.photo_url ? <Image src={p.profile.photo_url} width={80} height={80} unoptimized alt="" /> : <span aria-hidden="true">{p.profileLoaded && !p.profileError ? initials : '—'}</span>}</div>
+    <header className={styles.profile} aria-busy={!p.profileLoaded} data-dashboard-section="profile">
+      <div className={styles.avatar}>{available && p.profile?.photo_url ? <Image src={p.profile.photo_url} width={56} height={56} unoptimized alt="" /> : <span aria-hidden="true">{p.profileLoaded && !p.profileError ? initials : '—'}</span>}</div>
       <div className={styles.identity}>
-        <p className={styles.greeting}><SunIcon aria-hidden="true" />Your career workspace</p>
-        <h1>{!p.profileLoaded ? 'Loading your profile…' : p.profileError ? 'Your career workspace' : p.profile?.full_name || 'Welcome to GCC Mentor'}</h1>
-        {available ? <p className={styles.role}>{p.profile?.target_job_title || latestRole || 'Your Career Profile'}</p> : null}
-        {available && p.profile?.current_location ? <span className={styles.chip}>{p.profile.current_location}</span> : null}
+        <h1>{!p.profileLoaded ? 'Loading your profile…' : p.profileError ? 'Your Career Profile' : p.profile?.full_name || 'Welcome to GCC Mentor'}</h1>
+        {available ? <p className={`type-helper ${styles.role}`}>{p.profile?.target_job_title || latestRole || 'Your Career Profile'}</p> : null}
+        {available && p.profile?.current_location ? <p className={`type-caption ${styles.location}`}><MapPinIcon aria-hidden="true" />{p.profile.current_location}</p> : null}
         {p.profileError ? <button type="button" onClick={retry} className={styles.textLink}>Profile unavailable · Try again</button> : p.profileLoaded && !p.profile ? <Link className={styles.textLink} href="/profile?view=details">Create Career Profile<ArrowRightIcon aria-hidden="true" /></Link> : null}
       </div>
       <Link className={styles.profileLink} href={available ? '/profile' : '/profile?view=details'} aria-label={available ? 'View Career Profile' : 'Create Career Profile'}><ChevronRightIcon aria-hidden="true" /></Link>
     </header>
 
-    <div className={styles.pair}>
-      <section className={styles.card} aria-labelledby="dashboard-readiness" aria-busy={!p.profileLoaded}>
-        <div className={styles.heading}><h2 id="dashboard-readiness">Profile readiness</h2><Link href="/profile?view=completeness" className={styles.textLink}>View details<ChevronRightIcon aria-hidden="true" /></Link></div>
-        <div className={styles.scoreLine}><strong className="type-stat">{available ? p.score : '—'}<span className={styles.muted}> /100</span></strong><span className={styles.muted}>Profile completeness</span></div>
+    <section className={styles.readiness} aria-label="Readiness overview" aria-busy={!p.profileLoaded} data-dashboard-section="readiness">
+      <Link href="/profile?view=completeness" className={styles.readinessItem}>
+        <span className={styles.readinessLabel}><IdentificationIcon aria-hidden="true" /><span className="type-label">Profile completeness</span><ChevronRightIcon aria-hidden="true" /></span>
+        <span className={styles.scoreLine}><strong className="type-stat">{available ? p.score : '—'}<span className={`type-caption ${styles.muted}`}> /100</span></strong></span>
         <progress className={styles.readinessBar} data-level={p.score < 50 ? 'low' : p.score < 70 ? 'medium' : 'high'} max={100} value={available ? p.score : undefined} aria-label="Profile completeness" aria-valuetext={available ? undefined : 'Unavailable'} />
-        {p.profileError ? <button type="button" onClick={retry} className={styles.textLink}>Profile unavailable · Try again</button> : !p.profileLoaded ? <p role="status" className={styles.muted}>Loading profile…</p> : !p.profile ? <Link className={styles.textLink} href="/profile?view=details">Create your profile<ArrowRightIcon aria-hidden="true" /></Link> : <>
-          {p.missing.length ? <ul className={styles.missing}>{p.missing.slice(0, 3).map(label => <li key={label}><Link href="/profile?view=completeness"><ExclamationTriangleIcon aria-hidden="true" /><span>{label}</span><span className={styles.muted}>Review<ChevronRightIcon aria-hidden="true" /></span></Link></li>)}</ul> : <p className={styles.muted}>Your profile details are complete.</p>}
-          {p.missing.length > 3 ? <Link href="/profile?view=completeness" className={styles.textLink}>{p.missing.length - 3} more details to review<ArrowRightIcon aria-hidden="true" /></Link> : null}
-          <Link href="/profile?view=readiness" className={styles.dividedLink}>Gulf preparation<span>{p.gulf ? `${p.gulf.finalScore}/100` : 'Review'}<ChevronRightIcon aria-hidden="true" /></span></Link>
-        </>}
-      </section>
-      <section className={styles.card} aria-labelledby="dashboard-activity" aria-busy={p.overviewLoading}>
-        <div className={styles.heading}><h2 id="dashboard-activity">Your activity</h2><Link href="/dashboard/library" className={styles.textLink} aria-label="View saved work"><ChevronRightIcon aria-hidden="true" /></Link></div>
-        {p.overviewError ? <div role="alert" className={styles.notice}>Saved totals unavailable. <button type="button" onClick={p.onRetryOverview}>Try again</button></div> : null}
-        <div className={styles.activity}>{work.map(({label, href: destination, count, Icon}) => <Link href={destination} key={destination} className={styles.activityItem}><Icon aria-hidden="true" /><strong className="type-stat">{p.overviewLoading || p.overviewError || count === undefined ? '—' : count}</strong><span>{label}</span></Link>)}</div>
-        {p.overviewLoading ? <p role="status" className={styles.muted}>Loading activity…</p> : <p className={styles.muted}>Saved across your account</p>}
-      </section>
-    </div>
-
-    <section className={`studio-continue ${styles.continue}`} aria-label="Your next step" aria-busy={!p.ready && !p.error}>
-      <div className={styles.continueCopy}><ChatBubbleLeftRightIcon aria-hidden="true" /><div><h2>{p.error ? 'Saved progress unavailable' : !p.ready ? 'Loading your workspace…' : ongoing ? 'Continue your interview' : p.nextAction.title}</h2>{p.ready && ongoing ? <p>{savedInterview?.saved != null ? `${savedInterview.saved} of ${savedInterview.total} answers saved` : 'Saved interview · In progress'}</p> : p.ready && workspace ? <p>{workspace.target_job_title}</p> : null}</div></div>
-      {p.ready && savedInterview?.saved != null && savedInterview.total > 0 ? <progress max={savedInterview.total} value={savedInterview.saved} aria-label="Saved interview answers" /> : null}
-      {p.error ? <button type="button" onClick={retry} className={buttonVariants({variant:'primary',size:'sm'})}>Try again</button> : p.ready ? <Link href={href} className={buttonVariants({variant:'primary',size:'sm'})}>{ongoing ? 'Continue practice' : p.nextAction.cta}<ArrowRightIcon aria-hidden="true" className="size-4" /></Link> : null}
-      {p.ready && !ongoing && p.nextAction.state === 'no_profile' ? <div className={styles.inlineLinks}><Link href="/profile?import=paste">Paste resume</Link><Link href="/profile?view=details">Enter details</Link></div> : null}
+      </Link>
+      <Link href="/profile?view=readiness" className={`${styles.readinessItem} ${styles.gulf}`}>
+        <span className={styles.readinessLabel}><GlobeAltIcon aria-hidden="true" /><span className="type-label">Gulf preparation</span><ChevronRightIcon aria-hidden="true" /></span>
+        <span className={styles.scoreLine}><strong className="type-stat">{available && p.gulf ? p.gulf.finalScore : '—'}<span className={`type-caption ${styles.muted}`}> /100</span></strong></span>
+        <progress className={styles.readinessBar} max={100} value={available && p.gulf ? p.gulf.finalScore : undefined} aria-label="Gulf preparation" aria-valuetext={available && p.gulf ? undefined : 'Unavailable'} />
+      </Link>
+      {p.profileError ? <button type="button" onClick={retry} className={styles.readinessRetry}>Readiness unavailable · Try again</button> : null}
     </section>
-    {!p.overviewError && (p.overview?.mock_in_progress_count ?? 0) > 0 && !ongoing ? <Link href="/mock-interview" className={styles.textLink}>{p.overview!.mock_in_progress_count} saved interviews in progress<ArrowRightIcon aria-hidden="true" /></Link> : null}
 
-    <div className={styles.pair}>
-      <section className={styles.card} aria-label="My interview performance"><InterviewProgressOverview compact /></section>
-      <section className={styles.card} aria-labelledby="dashboard-actions"><div className={styles.heading}><h2 id="dashboard-actions">Quick actions</h2></div><div className={styles.actions}>{actions.map(({label, detail, href: destination, Icon}, index) => <Link className={`${styles.quickAction} ${index === 0 ? styles.primaryAction : ''}`} href={destination} key={label}><Icon aria-hidden="true" /><strong>{label}</strong><span>{detail}</span></Link>)}</div></section>
-    </div>
+    <section className={`studio-continue ${styles.continue}`} aria-label="Your next step" aria-busy={!p.ready && !p.error} data-dashboard-section="next-action">
+      <div className={styles.continueCopy}>
+        <span className={styles.actionIcon}><ArrowRightIcon aria-hidden="true" /></span>
+        <div><h2>Continue your journey</h2><p className={`type-card ${styles.actionTitle}`}>{p.error ? 'Saved progress unavailable' : !p.ready ? 'Loading your workspace…' : ongoing ? 'Continue your interview' : p.nextAction.title}</p>{p.ready && ongoing ? <p className="type-helper">{savedInterview?.saved != null ? `${savedInterview.saved} of ${savedInterview.total} answers saved` : 'Saved interview · In progress'}</p> : p.ready && workspace ? <p className="type-helper">{workspace.target_job_title}</p> : null}</div>
+      </div>
+      {p.ready && savedInterview?.saved != null && savedInterview.total > 0 ? <progress max={savedInterview.total} value={savedInterview.saved} aria-label="Saved interview answers" /> : null}
+      {p.error ? <button type="button" onClick={retry} className={buttonVariants({variant:'primary',size:'sm'})}>Try again</button> : p.ready ? <Link href={href} className={buttonVariants({variant:'primary',size:'sm'})}>{ongoing ? 'Continue practice' : p.nextAction.cta}<ArrowRightIcon aria-hidden="true" /></Link> : null}
+      {p.ready && !ongoing && p.nextAction.state === 'no_profile' ? <div className={styles.inlineLinks}><Link href="/profile?import=paste">Paste resume</Link><Link href="/profile?view=details">Enter details</Link></div> : null}
+      {!p.overviewError && (p.overview?.mock_in_progress_count ?? 0) > 0 && !ongoing ? <Link href="/mock-interview" className={styles.textLink}>{p.overview!.mock_in_progress_count} saved interviews in progress<ArrowRightIcon aria-hidden="true" /></Link> : null}
+    </section>
 
-    <section className={styles.card} aria-labelledby="dashboard-events" aria-busy={!p.packagesLoaded}>
+    <section className={`${styles.card} ${styles.activityCard}`} aria-labelledby="dashboard-activity" aria-busy={p.overviewLoading} data-dashboard-section="activity">
+      <div className={styles.heading}><div><h2 id="dashboard-activity">Your activity</h2><p className="type-caption">Saved across your account</p></div><Link href="/dashboard/library" className={styles.iconLink} aria-label="View saved work"><ChevronRightIcon aria-hidden="true" /></Link></div>
+      {p.overviewError ? <div role="alert" className={styles.notice}>Saved totals unavailable. <button type="button" onClick={p.onRetryOverview}>Try again</button></div> : null}
+      <div className={styles.activity}>{work.map(({label, href: destination, count, Icon}, index) => <Link href={destination} key={destination} className={styles.activityItem} data-tone={index}><span className={styles.serviceIcon}><Icon aria-hidden="true" /></span><strong className="type-stat">{p.overviewLoading || p.overviewError || count === undefined ? '—' : count}</strong><span className={`type-helper ${styles.activityLabel}`}>{label}</span></Link>)}</div>
+      {p.overviewLoading ? <p role="status" className={`type-helper ${styles.muted}`}>Loading activity…</p> : null}
+    </section>
+
+    <section className={`${styles.card} ${styles.quickActionsCard}`} aria-labelledby="dashboard-actions" data-dashboard-section="quick-actions">
+      <div className={styles.heading}><h2 id="dashboard-actions">Quick actions</h2><span className={`type-caption ${styles.muted}`}>Your tools</span></div>
+      <div className={styles.actions}>{actions.map(({label, href: destination, Icon}) => <Link className={styles.quickAction} href={destination} key={label}><span className={styles.serviceIcon}><Icon aria-hidden="true" /></span><span className="type-button">{label}</span></Link>)}</div>
+    </section>
+
+    <section className={`${styles.card} ${styles.performanceCard}`} aria-label="My interview performance" data-dashboard-section="interview"><InterviewProgressOverview compact /></section>
+
+    <section className={`${styles.card} ${styles.eventsCard}`} aria-labelledby="dashboard-events" aria-busy={!p.packagesLoaded} data-dashboard-section="events">
       <div className={styles.heading}><h2 id="dashboard-events">Upcoming events</h2><Link href="/dashboard/library" className={styles.textLink}>Tracker<ChevronRightIcon aria-hidden="true" /></Link></div>
-      <p className={styles.muted}>Interview times use your device’s time zone.</p>
-      {!p.packagesLoaded ? <p role="status" className={styles.empty}>Loading saved dates…</p> : p.packagesError ? <div role="alert" className={styles.notice}>Tracker dates unavailable. <button type="button" onClick={retry}>Try again</button></div> : reminders.length ? <ul className={styles.events}>{reminders.slice(0, 3).map(item => <li key={item.id}>
-        <div className={styles.eventDate}><span>{new Intl.DateTimeFormat(undefined, {day:'numeric'}).format(item.date)}</span><span>{new Intl.DateTimeFormat(undefined, {month:'short'}).format(item.date)}</span></div>
-        <div className={styles.eventCopy}><strong>{item.kind === 'interview' ? 'Interview' : 'Application deadline'}</strong><Link href={`/package/${encodeURIComponent(item.pkg.id)}?tab=tracker`}>{item.pkg.target_job_title}{item.pkg.target_company ? ` · ${item.pkg.target_company}` : ''}</Link><span className={styles.muted}><time dateTime={item.kind === 'deadline' ? item.pkg.application_deadline! : item.pkg.interview_date!}>{formatTrackerDate(item.kind === 'deadline' ? item.pkg.application_deadline! : item.pkg.interview_date!, item.kind === 'interview')}</time> · {reminderTiming(item)}</span></div>
-        <Link className={styles.eventAction} href={item.kind === 'interview' && item.pkg.has_resume && !item.earlierToday ? `/mock-interview?package=${encodeURIComponent(item.pkg.id)}` : `/package/${encodeURIComponent(item.pkg.id)}?tab=tracker`}>{item.kind === 'interview' && item.pkg.has_resume && !item.earlierToday ? 'Prepare' : 'Review'}<ArrowTopRightOnSquareIcon aria-hidden="true" /></Link>
-      </li>)}</ul> : <div className={styles.empty}><CalendarDaysIcon aria-hidden="true" /><p>No upcoming events saved.</p><Link href="/dashboard/library" className={styles.textLink}>Add dates in your job tracker<ArrowRightIcon aria-hidden="true" /></Link></div>}
+      {!p.packagesLoaded ? <p role="status" className={styles.empty}>Loading saved dates…</p> : p.packagesError ? <div role="alert" className={styles.notice}>Tracker dates unavailable. <button type="button" onClick={retry}>Try again</button></div> : reminders.length ? <>
+        <ul className={styles.events}>{reminders.slice(0, 3).map(item => <li key={item.id}>
+          <div className={styles.eventDate} aria-hidden="true"><span>{new Intl.DateTimeFormat(undefined, {day:'numeric'}).format(item.date)}</span><span>{new Intl.DateTimeFormat(undefined, {month:'short'}).format(item.date)}</span></div>
+          <div className={styles.eventCopy}><strong className="type-label">{item.kind === 'interview' ? 'Interview' : 'Application deadline'}</strong><Link href={`/package/${encodeURIComponent(item.pkg.id)}?tab=tracker`}>{item.pkg.target_job_title}</Link>{item.pkg.target_company ? <span className={`type-helper ${styles.muted}`}>{item.pkg.target_company}</span> : null}<span className={`type-caption ${styles.muted}`}><time dateTime={item.kind === 'deadline' ? item.pkg.application_deadline! : item.pkg.interview_date!}>{formatTrackerDate(item.kind === 'deadline' ? item.pkg.application_deadline! : item.pkg.interview_date!, item.kind === 'interview')}</time> · {reminderTiming(item)}</span></div>
+          <Link className={styles.eventAction} href={item.kind === 'interview' && item.pkg.has_resume && !item.earlierToday ? `/mock-interview?package=${encodeURIComponent(item.pkg.id)}` : `/package/${encodeURIComponent(item.pkg.id)}?tab=tracker`}>{item.kind === 'interview' && item.pkg.has_resume && !item.earlierToday ? 'Prepare' : 'Review'}<ArrowTopRightOnSquareIcon aria-hidden="true" /></Link>
+        </li>)}</ul>
+        <p className={`type-caption ${styles.muted}`}>Interview times use your device’s time zone.</p>
+      </> : <div className={styles.emptyRow}><CalendarDaysIcon aria-hidden="true" /><div><p className="type-helper">No upcoming events saved.</p><Link href="/dashboard/library" className={styles.textLink}>Add dates in your job tracker<ArrowRightIcon aria-hidden="true" /></Link></div></div>}
       {reminders.length > 3 ? <Link href="/dashboard/library" className={styles.textLink}>View all {reminders.length} saved dates<ArrowRightIcon aria-hidden="true" /></Link> : null}
     </section>
 
-    <div className={styles.pair}>
-      <section className={styles.card} aria-labelledby="dashboard-pipeline" aria-busy={p.overviewLoading}>
-        <div className={styles.heading}><h2 id="dashboard-pipeline">Application pipeline</h2><Link className={styles.textLink} href="/dashboard/library" aria-label="Manage applications"><ChevronRightIcon aria-hidden="true" /></Link></div>
-        {p.overviewError ? <div role="alert" className={styles.notice}>Application counts unavailable. <button type="button" onClick={p.onRetryOverview}>Try again</button></div> : null}
-        <dl className={styles.pipeline}>{stages.map(stage => <div key={stage.key}><dt className="type-caption">{stage.label}</dt><dd className="type-stat">{p.overviewLoading || p.overviewError || p.overview?.stages?.[stage.key] === undefined ? '—' : p.overview.stages[stage.key]}</dd></div>)}</dl>
-        <p className={styles.muted}>Current saved stages · Manage applications in your Resume Library.</p>
-      </section>
-      <section className={styles.card} aria-labelledby="dashboard-documents" aria-busy={!p.profileLoaded}>
-        <div className={styles.heading}><h2 id="dashboard-documents">Documents & availability</h2><Link href="/profile?view=details" className={styles.textLink} aria-label="Update documents and availability"><ChevronRightIcon aria-hidden="true" /></Link></div>
-        <dl className={styles.documents}>{[
-          { label: 'Passport validity', value: p.profile?.passport_validity_date ? formatTrackerDate(p.profile.passport_validity_date) : null },
-          { label: 'Visa / Iqama status', value: p.profile?.visa_status },
-          { label: 'Notice period', value: p.profile?.notice_period },
-        ].map(item => <div key={item.label}><dt>{item.label}</dt><dd>{!p.profileLoaded ? 'Loading…' : p.profileError ? 'Unavailable' : item.value || 'Add in Career Profile'}</dd></div>)}</dl>
-      </section>
-    </div>
-    <div className={styles.help}><HowItWorks /></div>
+    <section className={`${styles.card} ${styles.pipelineCard}`} aria-labelledby="dashboard-pipeline" aria-busy={p.overviewLoading} data-dashboard-section="pipeline">
+      <div className={styles.heading}><h2 id="dashboard-pipeline">Application pipeline</h2><Link className={styles.iconLink} href="/dashboard/library" aria-label="Manage applications"><ChevronRightIcon aria-hidden="true" /></Link></div>
+      {p.overviewError ? <div role="alert" className={styles.notice}>Application counts unavailable. <button type="button" onClick={p.onRetryOverview}>Try again</button></div> : null}
+      <dl className={styles.pipeline}>{stages.map(stage => <div key={stage.key} data-stage={stage.key}><dt className="type-helper">{stage.label}</dt><dd className="type-stat">{p.overviewLoading || p.overviewError || p.overview?.stages?.[stage.key] === undefined ? '—' : p.overview.stages[stage.key]}</dd></div>)}</dl>
+      <Link href="/dashboard/library" className={styles.textLink}>Manage applications<ArrowRightIcon aria-hidden="true" /></Link>
+    </section>
+
+    <section className={`${styles.card} ${styles.documentsCard}`} aria-labelledby="dashboard-documents" aria-busy={!p.profileLoaded} data-dashboard-section="documents">
+      <div className={styles.heading}><h2 id="dashboard-documents">Documents & availability</h2><Link href="/profile?view=details" className={styles.iconLink} aria-label="Update documents and availability"><PencilSquareIcon aria-hidden="true" /></Link></div>
+      <dl className={styles.documents}>{[
+        { label: 'Passport validity', value: p.profile?.passport_validity_date ? formatTrackerDate(p.profile.passport_validity_date) : null },
+        { label: 'Visa / Iqama status', value: p.profile?.visa_status },
+        { label: 'Notice period', value: p.profile?.notice_period },
+      ].map(item => <div key={item.label}><dt className="type-helper">{item.label}</dt><dd className="type-helper">{!p.profileLoaded ? 'Loading…' : p.profileError ? 'Unavailable' : item.value || 'Not added'}</dd></div>)}</dl>
+    </section>
+    <div className={styles.help} data-dashboard-section="guide"><HowItWorks /></div>
   </main>
 }
