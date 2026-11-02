@@ -35,6 +35,7 @@ export function ReviewSectionContent({ content, groups }: { content: string; gro
   return <div data-review-structured-content className="grid min-w-0 gap-3">
     {visibleGroups.map((group, index) => <Group key={index} data-review-display-group open={Group === 'details' && index === 0 ? true : undefined} className="min-w-0 rounded-ctl border border-line bg-white p-3">
       {Group === 'details' ? <summary className="min-h-11 cursor-pointer break-words type-label font-semibold text-ink">{group.title ?? `Entry ${index + 1}`}</summary> : null}
+      {Group !== 'details' && group.title ? <h4 className="mb-2 break-words type-label font-semibold text-ink">{group.title}</h4> : null}
       {group.kind === 'tags' ? <ul aria-label={group.title ?? 'Recorded skills'} className="flex min-w-0 flex-wrap gap-2">
         {group.fields.map((field, fieldIndex) => <li key={fieldIndex} className="max-w-full break-words rounded-ctl border border-line bg-canvas px-2 py-1 type-helper text-ink">{field.value}</li>)}
       </ul> : <dl className="grid min-w-0 gap-3">

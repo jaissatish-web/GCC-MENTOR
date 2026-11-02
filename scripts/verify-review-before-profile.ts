@@ -102,3 +102,9 @@ assert.ok(structuredMarkup.includes('Read full responsibilities') && structuredM
 assert.ok(!structuredMarkup.includes('<a '),'Stored text never becomes a clickable unsafe URL')
 assert.equal(JSON.stringify(displayGroups),displaySnapshot,'Display projection never mutates candidate facts')
 console.log('PASS compact structured facts: cards, full evidence, escaped text, privacy and immutability')
+
+for (const [title,label,value] of [['Arabic','Level','Fluent'],['Water treatment project','Details','Supported commissioning'],['Safety award','Details','Candidate supplied award']]) {
+ const single = renderToStaticMarkup(React.createElement(ReviewSectionContent,{content:'',groups:[{title,fields:[{label,value}]}]}))
+ assert.ok(single.includes('>'+title+'</h4>') && single.includes(value),'A singleton record retains its identifying title and supplied value')
+}
+console.log('PASS single language/project/award identifiers remain in structured cards')

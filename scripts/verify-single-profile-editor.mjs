@@ -368,6 +368,10 @@ try{
   assert.equal(await page.$eval('nav[aria-label="Resume review sections"]',nav=>nav.closest('details')?.open??false),false,'Switching to summary collapses optional section navigation');
  }
  const finalVerification=async()=>{if(!await page.$('#resume-final-preview-title')){await improvementSummary();await click('Preview profile');await page.waitForSelector('#resume-final-preview-title')}
+  await page.evaluate(()=>{const card=[...document.querySelectorAll('#resume-final-preview-title ~ div > details')].find(el=>el.querySelector('summary')?.textContent.trim()==='Languages');if(card)card.open=true});
+  const languageVisible=await page.evaluate(()=>{const card=[...document.querySelectorAll('#resume-final-preview-title ~ div > details')].find(el=>el.querySelector('summary')?.textContent.trim()==='Languages');return !card||[...card.querySelectorAll('h4')].some(h=>h.textContent==='English'&&h.getBoundingClientRect().height>0)});
+  // Some scenarios have no language entry; populated ones retain their title.
+  assert.ok(languageVisible,'Single language identifier remains visible in final preview');
   assert.equal(await page.$('#improvement-summary-title'),null,'Final verification does not repeat the improvement report');
   assert.equal(await page.$('#career-diagnostic-title'),null,'Final verification does not repeat diagnostics');
   assert.equal(await page.$('[data-review-card]'),null,'Final verification does not repeat guided section cards');
@@ -399,6 +403,9 @@ try{
  await reviewAction('sec_skills','Back');await page.waitForSelector('#review-content-sec_work_experience');
  assert.equal(await page.$$eval('#review-content-sec_work_experience [data-review-display-group]',groups=>groups.length),2,'Both actual employment entries have separate structured cards');
  assert.ok(await page.$eval('#review-content-sec_work_experience',el=>el.textContent.includes('Commissioning of DCS, SIS and field instruments')&&el.querySelectorAll('dt').length>0&&el.querySelectorAll('dd').length>0),'Responsibilities retain their supplied facts in labeled structured rows');
+ await openReviewSection('languages');
+ assert.ok(await page.$eval('#review-content-languages',el=>[...el.querySelectorAll('h4')].some(h=>h.textContent==='English'&&h.getBoundingClientRect().height>0)&&el.textContent.includes('Professional')),'Single language keeps its visible name and supplied level during review');
+ checks.push('Single specialist title remains visible in guided review');
  await openReviewSection('training');await reviewAction('training','Skip for now');await page.waitForFunction(()=>!document.querySelector('#review-content-training'));
  assert.equal(await page.$eval('[data-review-target="training"]',el=>el.dataset.reviewStatus),'skipped','Skipped section stays distinct from verified content in navigation');
  assert.equal(await page.$eval('[data-review-target="training"] span:last-child',el=>getComputedStyle(el).color),'rgb(138, 81, 0)','Deferred optional section retains shared amber status');
