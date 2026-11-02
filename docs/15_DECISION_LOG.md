@@ -1971,3 +1971,6 @@ Satish rejects the mixed light/dark presentation after PR60. Repair shared theme
 1 November 2026 — PROFILE-INTAKE-003: Satish explicitly requests separated resume input/processing/review presentation, non-blocking invalid LinkedIn warning, and actionable red-boundary issue navigation. Implement within existing canonical profile architecture; validation exception is limited to optional LinkedIn text. No unrelated product/scoring changes.
 
 1 November 2026 — PROFILE-REVIEW-004: founder explicitly requests a shorter, card-based, colour-coded review with small headings instead of long explanations. Presentation simplification authorized; validation, evidence, factual grounding and existing service/business logic remain protected.
+
+## 2 November 2026 — MENAJOBS-TYPE-001
+Founder explicitly authorizes MenaJobs-inspired global application typography and text hierarchy only, using approved fallback scale where appropriate, existing Inter/branding and document boundaries. No business, auth, scoring, animation or backend changes. Dedicated temporary branch + PR; self-merge only with successful required CI and mergeability; verify automatic Vercel deployment separately.

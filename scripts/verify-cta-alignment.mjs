@@ -81,6 +81,8 @@ try {
   const group=()=>page.evaluate(()=>{const nodes=[...document.querySelectorAll('.ui-choice-button')];return nodes.map(e=>{const r=e.getBoundingClientRect(),s=getComputedStyle(e);return {x:r.x,width:r.width,height:r.height,align:s.textAlign,border:s.borderStyle,background:s.backgroundColor,edge:s.borderColor,pressed:e.getAttribute('aria-pressed')}})})
   const typeRoles=await page.evaluate(()=>({label:getComputedStyle(document.querySelector('#whatsapp-choice-label')).fontSize,phone:getComputedStyle(document.querySelector('label[for="f_phone_number"]')).fontSize,hint:getComputedStyle(document.querySelector('.field-hint')).fontSize,helper:getComputedStyle(document.querySelector('.internal-ui')).getPropertyValue('--ui-helper-size').trim()}))
   assert.equal(typeRoles.label,typeRoles.phone,'Paragraph and label field headings must match')
+  assert.equal(typeRoles.label,'14px','Form labels use the shared label role')
+  assert.equal(typeRoles.hint,width>=768?'14px':'13px','Supporting form guidance uses the helper role')
   let before=await group();assert.equal(before.length,3)
   assert.ok(before.every(b=>b.width===before[0].width&&b.x===before[0].x&&b.height>=44&&b.height===before[0].height&&b.align==='left'&&b.border==='solid'),JSON.stringify(before))
   assert.ok(before.every(b=>b.pressed==='false'),'Empty saved number must not imply a declaration')

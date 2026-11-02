@@ -356,7 +356,7 @@
 .embedded{max-width:1000px;border:1px solid var(--ui-line);border-radius:14px;background:var(--ui-surface);overflow:hidden}
 .journeySummary{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:80px;padding:16px;cursor:pointer;list-style:none}
 .journeySummary::-webkit-details-marker{display:none}
-.embedded .journeySummary .editorialTitle{--ui-section-size:var(--ui-card-title-size);margin:0;flex:1;min-width:0;text-align:left}
+.embedded .journeySummary .editorialTitle{margin:0;flex:1;min-width:0;text-align:left}
 .expandMark{position:relative;display:block;width:32px;height:32px;flex:none;border-radius:9px;color:var(--ui-brand);background:var(--ui-brand-soft)}
 .expandMark::before,.expandMark::after{content:'';position:absolute;left:10px;right:10px;top:15px;height:2px;background:currentColor}
 .expandMark::after{transform:rotate(90deg)}
@@ -364,5 +364,3 @@
 .embedded[open]>.editorialHero{padding:8px 16px 20px}
 .embedded[open]>.journeyCanvas{margin-inline:16px}
 .embedded>.journeyAction{margin:16px}
-
-@media(max-width:767px){.embedded .journeySummary .editorialTitle{--ui-section-size:var(--ui-mobile-section-size)}}

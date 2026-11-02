@@ -27,7 +27,7 @@ export function CoverLetterEmail({ text, jobTitle, company, onChange }: {
         <textarea className="cover-letter-email-editor" aria-label="Cover letter text (editable)" value={text}
           onChange={(event) => onChange(event.target.value)} rows={20} />
       ) : (
-        <div className="cover-letter-email-body">
+        <div className="cover-letter-email-body" data-typography="document">
           {text.split(/\r?\n\s*\r?\n/).map((paragraph, index) => <p key={index}>{paragraph}</p>)}
         </div>
       )}
