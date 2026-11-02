@@ -59,7 +59,7 @@ try {
   const page = await browser.newPage()
   await page.setRequestInterception(true)
   page.on('request', r => r.url().startsWith('data:') ? r.continue() : r.abort())
-  for (const width of [320, 360, 390, 430, 768, 1280, 1366, 1440]) {
+  for (const width of [320, 360, 375, 390, 430, 768, 1280, 1366, 1440]) {
     for (const enlarged of [false, true]) {
       await page.setViewport({ width, height: 844 })
       await page.setContent(`<html style="font-size:${enlarged ? 32 : 16}px"><head><style>${css}</style></head><body class="${fontClass} app-type">${rendered.stdout}</body></html>`)
@@ -81,10 +81,10 @@ try {
       })
       assert.ok(result.scroll <= width + 1, `Overflow at ${width}, enlarged=${enlarged}: ${JSON.stringify(result)}`)
       const scale = enlarged ? 2 : 1
-      assert.equal(result.titleSize, `${(width >= 768 ? 26 : 22) * scale}px`)
+      assert.equal(result.titleSize, `${(width >= 768 ? 32 : 28) * scale}px`)
       assert.equal(result.weight, '700')
       assert.equal(result.inputSize, `${16 * scale}px`)
-      assert.equal(result.bodySize, `${15 * scale}px`)
+      assert.equal(result.bodySize, `${(width >= 768 ? 16 : 15) * scale}px`)
       assert.ok(result.buttonHeight >= 44)
       await page.$eval('details', element => { element.open = true })
       const choices = await page.evaluate(() => ({
@@ -135,12 +135,12 @@ try {
       captionSize: style('.caption-example').fontSize}
   })
   assert.deepEqual(configured, {title:'27px', section:'19px', body:'18px', family:'Arial',
-    radius:'9px', padding:'21px', documentTitle:'21px', documentWeight:'700', documentFamily:'Georgia', documentBody:'11px', utilitySize:'18px', utilityWeight:'400', captionSize:'14px'})
+    radius:'9px', padding:'21px', documentTitle:'21px', documentWeight:'700', documentFamily:'Georgia', documentBody:'11px', utilitySize:'18px', utilityWeight:'400', captionSize:'13px'})
   // Real public landing markup, production CSS and bundled Inter, without API calls.
   const publicMarkup = landing.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
     .replace(/<link\b[^>]*>/gi, '')
     .replace(/<img\b[^>]*>/gi, '<span aria-hidden="true"></span>')
-  for (const width of [360, 390, 430, 1280, 1366, 1440]) {
+  for (const width of [360, 375, 390, 430, 1280, 1366, 1440]) {
     for (const enlarged of [false, true]) {
       await page.setViewport({ width, height: width < 640 ? 844 : 900 })
       const bodyMarkup = publicMarkup.match(/<body[^>]*>([\s\S]*)<\/body>/i)?.[1] ?? publicMarkup
@@ -164,8 +164,8 @@ try {
       assert.equal(metrics.weight, '700')
       assert.ok(metrics.font.includes('Inter'), `Inter is not applied: ${metrics.font}`)
       const textScale = enlarged ? 2 : 1
-      const expectedHero = Math.max(26 * textScale, Math.min(width * .028, 40 * textScale))
-      const expectedSection = Math.max(22 * textScale, Math.min(width * .024, 30 * textScale))
+      const expectedHero = (width >= 768 ? 48 : 36) * textScale
+      const expectedSection = (width >= 768 ? 24 : 21) * textScale
       assert.ok(Math.abs(metrics.size - expectedHero) < .02, 'Marketing hero uses its responsive display scale')
       assert.ok(Math.abs(metrics.sectionSize - expectedSection) < .02, 'Marketing sections use their responsive display scale')
       await page.screenshot({ path: `artifacts/typography/landing-${width}${enlarged ? '-enlarged' : ''}.png`, fullPage: true })

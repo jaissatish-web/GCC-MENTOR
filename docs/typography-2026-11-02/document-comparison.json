@@ -1,0 +1,770 @@
+[
+  {
+    "name": "ats_professional",
+    "width": 390,
+    "elements": 50,
+    "unchanged": true
+  },
+  {
+    "name": "gcc_professional",
+    "width": 390,
+    "elements": 56,
+    "unchanged": true
+  },
+  {
+    "name": "senior_professional",
+    "width": 390,
+    "elements": 50,
+    "unchanged": true
+  },
+  {
+    "name": "gulf_premium",
+    "width": 390,
+    "elements": 59,
+    "unchanged": true
+  },
+  {
+    "name": "ats_classic",
+    "width": 390,
+    "elements": 42,
+    "unchanged": true
+  },
+  {
+    "name": "gcc_engineering",
+    "width": 390,
+    "elements": 47,
+    "unchanged": true
+  },
+  {
+    "name": "executive_gcc",
+    "width": 390,
+    "elements": 47,
+    "unchanged": true
+  },
+  {
+    "name": "modern_professional",
+    "width": 390,
+    "elements": 94,
+    "unchanged": true
+  },
+  {
+    "name": "senior_compact",
+    "width": 390,
+    "elements": 47,
+    "unchanged": true
+  },
+  {
+    "name": "gulf_minimal",
+    "width": 390,
+    "elements": 47,
+    "unchanged": true
+  },
+  {
+    "name": "corporate_band",
+    "width": 390,
+    "elements": 88,
+    "unchanged": true
+  },
+  {
+    "name": "technical_sidebar",
+    "width": 390,
+    "elements": 95,
+    "unchanged": true
+  },
+  {
+    "name": "graduate_entry",
+    "width": 390,
+    "elements": 94,
+    "unchanged": true
+  },
+  {
+    "name": "portrait_right",
+    "width": 390,
+    "elements": 88,
+    "unchanged": true
+  },
+  {
+    "name": "consultant_right",
+    "width": 390,
+    "elements": 94,
+    "unchanged": true
+  },
+  {
+    "name": "heritage_left",
+    "width": 390,
+    "elements": 88,
+    "unchanged": true
+  },
+  {
+    "name": "project_twocol",
+    "width": 390,
+    "elements": 95,
+    "unchanged": true
+  },
+  {
+    "name": "creative_gcc",
+    "width": 390,
+    "elements": 95,
+    "unchanged": true
+  },
+  {
+    "name": "desert_steel",
+    "width": 390,
+    "elements": 101,
+    "unchanged": true
+  },
+  {
+    "name": "pipeline_pro",
+    "width": 390,
+    "elements": 106,
+    "unchanged": true
+  },
+  {
+    "name": "blueprint_engineer",
+    "width": 390,
+    "elements": 95,
+    "unchanged": true
+  },
+  {
+    "name": "power_grid",
+    "width": 390,
+    "elements": 103,
+    "unchanged": true
+  },
+  {
+    "name": "offshore_navy",
+    "width": 390,
+    "elements": 94,
+    "unchanged": true
+  },
+  {
+    "name": "commissioning_lead",
+    "width": 390,
+    "elements": 103,
+    "unchanged": true
+  },
+  {
+    "name": "field_technician",
+    "width": 390,
+    "elements": 100,
+    "unchanged": true
+  },
+  {
+    "name": "workshop_pro",
+    "width": 390,
+    "elements": 95,
+    "unchanged": true
+  },
+  {
+    "name": "maintenance_master",
+    "width": 390,
+    "elements": 99,
+    "unchanged": true
+  },
+  {
+    "name": "skilled_trades",
+    "width": 390,
+    "elements": 100,
+    "unchanged": true
+  },
+  {
+    "name": "site_supervisor",
+    "width": 390,
+    "elements": 103,
+    "unchanged": true
+  },
+  {
+    "name": "hard_hat_pro",
+    "width": 390,
+    "elements": 59,
+    "unchanged": true
+  },
+  {
+    "name": "qs_precision",
+    "width": 390,
+    "elements": 89,
+    "unchanged": true
+  },
+  {
+    "name": "hse_shield",
+    "width": 390,
+    "elements": 100,
+    "unchanged": true
+  },
+  {
+    "name": "project_director",
+    "width": 390,
+    "elements": 90,
+    "unchanged": true
+  },
+  {
+    "name": "ledger_classic",
+    "width": 390,
+    "elements": 48,
+    "unchanged": true
+  },
+  {
+    "name": "riyadh_banker",
+    "width": 390,
+    "elements": 89,
+    "unchanged": true
+  },
+  {
+    "name": "audit_clarity",
+    "width": 390,
+    "elements": 103,
+    "unchanged": true
+  },
+  {
+    "name": "cfo_signature",
+    "width": 390,
+    "elements": 88,
+    "unchanged": true
+  },
+  {
+    "name": "marina_creative",
+    "width": 390,
+    "elements": 106,
+    "unchanged": true
+  },
+  {
+    "name": "spotlight_sales",
+    "width": 390,
+    "elements": 100,
+    "unchanged": true
+  },
+  {
+    "name": "brand_story",
+    "width": 390,
+    "elements": 104,
+    "unchanged": true
+  },
+  {
+    "name": "clinical_care",
+    "width": 390,
+    "elements": 101,
+    "unchanged": true
+  },
+  {
+    "name": "medical_pearl",
+    "width": 390,
+    "elements": 94,
+    "unchanged": true
+  },
+  {
+    "name": "care_compass",
+    "width": 390,
+    "elements": 105,
+    "unchanged": true
+  },
+  {
+    "name": "lab_precision",
+    "width": 390,
+    "elements": 100,
+    "unchanged": true
+  },
+  {
+    "name": "oasis_hospitality",
+    "width": 390,
+    "elements": 100,
+    "unchanged": true
+  },
+  {
+    "name": "retail_star",
+    "width": 390,
+    "elements": 95,
+    "unchanged": true
+  },
+  {
+    "name": "tech_horizon",
+    "width": 390,
+    "elements": 106,
+    "unchanged": true
+  },
+  {
+    "name": "data_clarity",
+    "width": 390,
+    "elements": 101,
+    "unchanged": true
+  },
+  {
+    "name": "office_elegance",
+    "width": 390,
+    "elements": 94,
+    "unchanged": true
+  },
+  {
+    "name": "people_partner",
+    "width": 390,
+    "elements": 105,
+    "unchanged": true
+  },
+  {
+    "name": "logistics_route",
+    "width": 390,
+    "elements": 102,
+    "unchanged": true
+  },
+  {
+    "name": "scholar_classic",
+    "width": 390,
+    "elements": 88,
+    "unchanged": true
+  },
+  {
+    "name": "falcon_executive",
+    "width": 390,
+    "elements": 97,
+    "unchanged": true
+  },
+  {
+    "name": "executive_navy",
+    "width": 390,
+    "elements": 103,
+    "unchanged": true
+  },
+  {
+    "name": "emerald_professional",
+    "width": 390,
+    "elements": 65,
+    "unchanged": true
+  },
+  {
+    "name": "royal_blue_modern",
+    "width": 390,
+    "elements": 102,
+    "unchanged": true
+  },
+  {
+    "name": "graphite_executive",
+    "width": 390,
+    "elements": 50,
+    "unchanged": true
+  },
+  {
+    "name": "teal_horizon",
+    "width": 390,
+    "elements": 100,
+    "unchanged": true
+  },
+  {
+    "name": "burgundy_prestige",
+    "width": 390,
+    "elements": 95,
+    "unchanged": true
+  },
+  {
+    "name": "industrial_pro",
+    "width": 390,
+    "elements": 94,
+    "unchanged": true
+  },
+  {
+    "name": "golden_executive",
+    "width": 390,
+    "elements": 94,
+    "unchanged": true
+  },
+  {
+    "name": "sapphire_edge",
+    "width": 390,
+    "elements": 101,
+    "unchanged": true
+  },
+  {
+    "name": "modern_skyline",
+    "width": 390,
+    "elements": 96,
+    "unchanged": true
+  },
+  {
+    "name": "generated-letter",
+    "width": 390,
+    "elements": 5,
+    "unchanged": true
+  },
+  {
+    "name": "ats_professional",
+    "width": 1440,
+    "elements": 50,
+    "unchanged": true
+  },
+  {
+    "name": "gcc_professional",
+    "width": 1440,
+    "elements": 56,
+    "unchanged": true
+  },
+  {
+    "name": "senior_professional",
+    "width": 1440,
+    "elements": 50,
+    "unchanged": true
+  },
+  {
+    "name": "gulf_premium",
+    "width": 1440,
+    "elements": 59,
+    "unchanged": true
+  },
+  {
+    "name": "ats_classic",
+    "width": 1440,
+    "elements": 42,
+    "unchanged": true
+  },
+  {
+    "name": "gcc_engineering",
+    "width": 1440,
+    "elements": 47,
+    "unchanged": true
+  },
+  {
+    "name": "executive_gcc",
+    "width": 1440,
+    "elements": 47,
+    "unchanged": true
+  },
+  {
+    "name": "modern_professional",
+    "width": 1440,
+    "elements": 94,
+    "unchanged": true
+  },
+  {
+    "name": "senior_compact",
+    "width": 1440,
+    "elements": 47,
+    "unchanged": true
+  },
+  {
+    "name": "gulf_minimal",
+    "width": 1440,
+    "elements": 47,
+    "unchanged": true
+  },
+  {
+    "name": "corporate_band",
+    "width": 1440,
+    "elements": 88,
+    "unchanged": true
+  },
+  {
+    "name": "technical_sidebar",
+    "width": 1440,
+    "elements": 95,
+    "unchanged": true
+  },
+  {
+    "name": "graduate_entry",
+    "width": 1440,
+    "elements": 94,
+    "unchanged": true
+  },
+  {
+    "name": "portrait_right",
+    "width": 1440,
+    "elements": 88,
+    "unchanged": true
+  },
+  {
+    "name": "consultant_right",
+    "width": 1440,
+    "elements": 94,
+    "unchanged": true
+  },
+  {
+    "name": "heritage_left",
+    "width": 1440,
+    "elements": 88,
+    "unchanged": true
+  },
+  {
+    "name": "project_twocol",
+    "width": 1440,
+    "elements": 95,
+    "unchanged": true
+  },
+  {
+    "name": "creative_gcc",
+    "width": 1440,
+    "elements": 95,
+    "unchanged": true
+  },
+  {
+    "name": "desert_steel",
+    "width": 1440,
+    "elements": 101,
+    "unchanged": true
+  },
+  {
+    "name": "pipeline_pro",
+    "width": 1440,
+    "elements": 106,
+    "unchanged": true
+  },
+  {
+    "name": "blueprint_engineer",
+    "width": 1440,
+    "elements": 95,
+    "unchanged": true
+  },
+  {
+    "name": "power_grid",
+    "width": 1440,
+    "elements": 103,
+    "unchanged": true
+  },
+  {
+    "name": "offshore_navy",
+    "width": 1440,
+    "elements": 94,
+    "unchanged": true
+  },
+  {
+    "name": "commissioning_lead",
+    "width": 1440,
+    "elements": 103,
+    "unchanged": true
+  },
+  {
+    "name": "field_technician",
+    "width": 1440,
+    "elements": 100,
+    "unchanged": true
+  },
+  {
+    "name": "workshop_pro",
+    "width": 1440,
+    "elements": 95,
+    "unchanged": true
+  },
+  {
+    "name": "maintenance_master",
+    "width": 1440,
+    "elements": 99,
+    "unchanged": true
+  },
+  {
+    "name": "skilled_trades",
+    "width": 1440,
+    "elements": 100,
+    "unchanged": true
+  },
+  {
+    "name": "site_supervisor",
+    "width": 1440,
+    "elements": 103,
+    "unchanged": true
+  },
+  {
+    "name": "hard_hat_pro",
+    "width": 1440,
+    "elements": 59,
+    "unchanged": true
+  },
+  {
+    "name": "qs_precision",
+    "width": 1440,
+    "elements": 89,
+    "unchanged": true
+  },
+  {
+    "name": "hse_shield",
+    "width": 1440,
+    "elements": 100,
+    "unchanged": true
+  },
+  {
+    "name": "project_director",
+    "width": 1440,
+    "elements": 90,
+    "unchanged": true
+  },
+  {
+    "name": "ledger_classic",
+    "width": 1440,
+    "elements": 48,
+    "unchanged": true
+  },
+  {
+    "name": "riyadh_banker",
+    "width": 1440,
+    "elements": 89,
+    "unchanged": true
+  },
+  {
+    "name": "audit_clarity",
+    "width": 1440,
+    "elements": 103,
+    "unchanged": true
+  },
+  {
+    "name": "cfo_signature",
+    "width": 1440,
+    "elements": 88,
+    "unchanged": true
+  },
+  {
+    "name": "marina_creative",
+    "width": 1440,
+    "elements": 106,
+    "unchanged": true
+  },
+  {
+    "name": "spotlight_sales",
+    "width": 1440,
+    "elements": 100,
+    "unchanged": true
+  },
+  {
+    "name": "brand_story",
+    "width": 1440,
+    "elements": 104,
+    "unchanged": true
+  },
+  {
+    "name": "clinical_care",
+    "width": 1440,
+    "elements": 101,
+    "unchanged": true
+  },
+  {
+    "name": "medical_pearl",
+    "width": 1440,
+    "elements": 94,
+    "unchanged": true
+  },
+  {
+    "name": "care_compass",
+    "width": 1440,
+    "elements": 105,
+    "unchanged": true
+  },
+  {
+    "name": "lab_precision",
+    "width": 1440,
+    "elements": 100,
+    "unchanged": true
+  },
+  {
+    "name": "oasis_hospitality",
+    "width": 1440,
+    "elements": 100,
+    "unchanged": true
+  },
+  {
+    "name": "retail_star",
+    "width": 1440,
+    "elements": 95,
+    "unchanged": true
+  },
+  {
+    "name": "tech_horizon",
+    "width": 1440,
+    "elements": 106,
+    "unchanged": true
+  },
+  {
+    "name": "data_clarity",
+    "width": 1440,
+    "elements": 101,
+    "unchanged": true
+  },
+  {
+    "name": "office_elegance",
+    "width": 1440,
+    "elements": 94,
+    "unchanged": true
+  },
+  {
+    "name": "people_partner",
+    "width": 1440,
+    "elements": 105,
+    "unchanged": true
+  },
+  {
+    "name": "logistics_route",
+    "width": 1440,
+    "elements": 102,
+    "unchanged": true
+  },
+  {
+    "name": "scholar_classic",
+    "width": 1440,
+    "elements": 88,
+    "unchanged": true
+  },
+  {
+    "name": "falcon_executive",
+    "width": 1440,
+    "elements": 97,
+    "unchanged": true
+  },
+  {
+    "name": "executive_navy",
+    "width": 1440,
+    "elements": 103,
+    "unchanged": true
+  },
+  {
+    "name": "emerald_professional",
+    "width": 1440,
+    "elements": 65,
+    "unchanged": true
+  },
+  {
+    "name": "royal_blue_modern",
+    "width": 1440,
+    "elements": 102,
+    "unchanged": true
+  },
+  {
+    "name": "graphite_executive",
+    "width": 1440,
+    "elements": 50,
+    "unchanged": true
+  },
+  {
+    "name": "teal_horizon",
+    "width": 1440,
+    "elements": 100,
+    "unchanged": true
+  },
+  {
+    "name": "burgundy_prestige",
+    "width": 1440,
+    "elements": 95,
+    "unchanged": true
+  },
+  {
+    "name": "industrial_pro",
+    "width": 1440,
+    "elements": 94,
+    "unchanged": true
+  },
+  {
+    "name": "golden_executive",
+    "width": 1440,
+    "elements": 94,
+    "unchanged": true
+  },
+  {
+    "name": "sapphire_edge",
+    "width": 1440,
+    "elements": 101,
+    "unchanged": true
+  },
+  {
+    "name": "modern_skyline",
+    "width": 1440,
+    "elements": 96,
+    "unchanged": true
+  },
+  {
+    "name": "generated-letter",
+    "width": 1440,
+    "elements": 5,
+    "unchanged": true
+  }
+]
