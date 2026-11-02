@@ -87,15 +87,15 @@ try{
    const data=await page.evaluate(()=>{
     const doc='[data-document-preview],#resume-render,.actual-template-orbit-face,[data-typography="document"]'
     const visible=e=>!e.closest(doc)&&e.getBoundingClientRect().width>0&&e.getBoundingClientRect().height>0
-    const headings=[...document.querySelectorAll('h1,h2,h3')].filter(visible).map(e=>({tag:e.tagName,text:e.textContent.slice(0,70),marketing:!!e.closest('[data-marketing="white"]'),footer:!!e.closest('footer'),class:e.className,size:getComputedStyle(e).fontSize,weight:getComputedStyle(e).fontWeight}))
+    const headings=[...document.querySelectorAll('h1,h2,h3')].filter(visible).map(e=>({tag:e.tagName,text:e.textContent.slice(0,70),dashboard:!!e.closest('[aria-label="Career dashboard"]'),section:e.closest('[data-dashboard-section]')?.getAttribute('data-dashboard-section'),marketing:!!e.closest('[data-marketing="white"]'),footer:!!e.closest('footer'),class:e.className,size:getComputedStyle(e).fontSize,weight:getComputedStyle(e).fontWeight}))
     const fields=[...document.querySelectorAll('input:not([type=checkbox]):not([type=radio]):not([type=hidden]),textarea,select')].filter(visible).map(e=>getComputedStyle(e).fontSize)
     return{actual:location.pathname,headings,fields,overflow:document.documentElement.scrollWidth>innerWidth+1,overflowNodes:[...document.querySelectorAll('main *')].filter(e=>visible(e)&&e.getBoundingClientRect().right>innerWidth+1).slice(0,5).map(e=>({tag:e.tagName,class:e.getAttribute('class')}))}
    })
    assert.equal(data.overflow,false,`Overflow ${path}/${width}: ${JSON.stringify(data.overflowNodes)}`)
    for(const h of data.headings){
-    const size=h.footer&&h.tag==='H2'?14:h.tag==='H1'?(h.marketing?(width>=768?48:36):(width>=768?32:28)):h.tag==='H2'?(width>=768?24:21):(width>=768?18:17)
+    const size=h.dashboard?(h.tag==='H1'?(width>=768?20:19):h.tag==='H2'&&h.section==='next-action'?14:(width>=768?18:17)):h.footer&&h.tag==='H2'?14:h.tag==='H1'?(h.marketing?(width>=768?48:36):(width>=768?32:28)):h.tag==='H2'?(width>=768?24:21):(width>=768?18:17)
     assert.equal(h.size,size+'px',`${path}/${width} ${h.tag}: ${h.text} (${h.class})`)
-    assert.equal(h.weight,h.tag==='H1'?'700':'600',`${path}/${width} heading emphasis: ${h.text}`)
+    assert.equal(h.weight,h.tag==='H1'&&!h.dashboard?'700':'600',`${path}/${width} heading emphasis: ${h.text}`)
    }
    for(const f of data.fields)assert.equal(f,'16px',`Input readability ${path}/${width}`)
    if(!data.headings.length)console.log(await page.evaluate(()=>document.body.innerText.slice(0,1200)))

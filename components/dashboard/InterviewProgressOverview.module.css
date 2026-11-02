@@ -1,0 +1,50 @@
+/* Compact dashboard presentation. Existing per-resume data/comparisons are unchanged. */
+.performance {
+  --ui-h2-size: var(--ui-card-title-size);
+  --ui-stat-size: var(--ui-section-size);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  color: var(--ui-ink);
+}
+.performance svg { width: 16px; height: 16px; flex: none; }
+.performance :is(h2,p) { margin: 0; }
+.heading { display: flex; align-items: center; justify-content: space-between; gap: 6px 12px; }
+.heading h2 { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.sectionIcon, .emptyIcon { display: grid; place-items: center; flex: none; color: var(--ui-accent-ink); background: rgb(var(--ui-accent-soft-rgb)); border-radius: 8px; }
+.sectionIcon { width: 28px; height: 28px; }
+.textLink, .reportLink { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-height: 44px; color: var(--ui-brand-hover); font-size: var(--ui-helper-size); font-weight: var(--ui-weight-label); border-radius: 8px; }
+.textLink { margin-left: auto; min-width: 44px; flex: none; }
+.allLabel { display: none; }
+@media (min-width: 600px) { .allLabel { display: inline; } }
+.textLink svg { width: 14px; height: 14px; }
+.muted { color: var(--ui-muted); }
+.result { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.performanceSummary { display: flex; align-items: baseline; gap: 6px 10px; flex-wrap: wrap; min-width: 0; }
+.performanceSummary strong { color: var(--ui-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.scoreUnit { color: var(--ui-muted); font-size: var(--ui-caption-size); font-weight: var(--ui-weight-regular); }
+.change { display: inline-flex; align-items: center; padding: 4px 8px; border-radius: 6px; background: var(--ui-canvas); color: var(--ui-muted); font-size: var(--ui-caption-size); font-weight: var(--ui-weight-label); }
+.change[data-trend=up] { color: rgb(var(--ui-success-rgb)); background: rgb(var(--ui-success-soft-rgb)); }
+.change[data-trend=down] { color: rgb(var(--ui-warning-rgb)); background: rgb(var(--ui-warning-soft-rgb)); }
+.practiceLabel { color: var(--ui-muted); }
+.practiceSelect { display: flex; flex-direction: column; gap: 6px; min-width: 0; color: var(--ui-muted); }
+.practiceSelect select { width: 100%; min-width: 0; min-height: 44px; padding: 8px 10px; border: 1px solid var(--ui-line-strong); border-radius: 8px; background: var(--ui-surface); color: var(--ui-ink); }
+.metrics { display: grid; gap: 12px; }
+.metric { display: grid; grid-template-columns: minmax(0,1.3fr) minmax(32px,1fr) 3ch; align-items: center; gap: 8px; min-width: 0; font-size: var(--ui-helper-size); color: var(--ui-ink-soft); }
+.metric>span:first-child { overflow-wrap: anywhere; }
+.metric>span:last-child { text-align: right; font-variant-numeric: tabular-nums; color: var(--ui-ink); }
+:global(.app-type.internal-ui.career-studio) .performance .metric progress { display: block; width: 100%; height: 6px; appearance: none; border: 0; border-radius: 99px; background: var(--ui-line); color: var(--ui-accent); }
+:global(.app-type.internal-ui.career-studio) .performance .metric progress::-webkit-progress-bar { background: var(--ui-line); border-radius: 99px; }
+:global(.app-type.internal-ui.career-studio) .performance .metric progress::-webkit-progress-value { background: var(--ui-accent); border-radius: 99px; }
+:global(.app-type.internal-ui.career-studio) .performance .metric progress::-moz-progress-bar { background: var(--ui-accent); border-radius: 99px; }
+.performanceFooter { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 12px; border-top: 1px solid var(--ui-line); padding-top: 12px; margin-top: 2px; }
+.performanceFooter>a { flex: 1 1 140px; min-width: 0; }
+.reportLink { padding: 8px; }
+.empty { display: grid; grid-template-columns: 32px minmax(0,1fr); align-items: center; gap: 10px; }
+.emptyIcon { width: 32px; height: 32px; }
+.empty>a { grid-column: 1/-1; justify-self: start; max-width: 100%; }
+.notice { display: flex; align-items: center; gap: 4px 10px; flex-wrap: wrap; color: var(--ui-ink-soft); font-size: var(--ui-helper-size); }
+.notice button { display: inline-flex; min-height: 44px; align-items: center; color: var(--ui-brand-hover); text-decoration: underline; }
+.performance :is(a,button,select):focus-visible { outline: 2px solid var(--ui-brand); outline-offset: 3px; }
+@media (max-width: 359px) { .metric { grid-template-columns: minmax(0,1.3fr) minmax(24px,1fr) 3ch; gap: 6px; } }
