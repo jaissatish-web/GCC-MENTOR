@@ -1,0 +1,5 @@
+# Conversion and privacy
+
+Free full result first, compact optional CTA below. Employment: changing jobs → prepare next resume; finance: compare offer → job-matched resume; resume: continue full review; interview: practice. Guest links /signup or existing /gulf-readiness-score; member links /dashboard, /optimize/target or /mock-interview. Determine user via existing client auth only; lookup failure keeps free tools operational. No Career Profile reads, result blur or signup wall.
+
+Emit optional custom events: tool_view, tool_use, tool_success, tool_error, cta_impression, cta_click. Only tool slug, event and non-sensitive error code; never salary, CV, names, email, text, dates or tracker content. Reuse existing consent-aware analytics if discovered; otherwise no third-party sink or database added and explicitly document lack of persisted reporting. Attribution/signup/service conversion requires existing supported tracking; do not claim it measured without end-to-end proof. Tracker stays local, warns browser clearing removes data and offers export/delete. Other calculator inputs stay in memory.
