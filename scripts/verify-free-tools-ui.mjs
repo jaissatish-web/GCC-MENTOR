@@ -36,7 +36,7 @@ try{
     if(tag==='SELECT')await page.select(selector,value)
     else await page.$eval(selector,(el,value)=>{const proto=el.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;Object.getOwnPropertyDescriptor(proto,'value').set.call(el,value);el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}))},value)
    }
-   if(fixture.id===29){const checks=await page.$$('input[type=checkbox]');for(const el of checks.slice(0,6))await el.click();await page.evaluate(()=>[...document.querySelectorAll('button')].find(e=>e.textContent==='Review checklist').click())}
+   if([29,49].includes(fixture.id)){const checks=await page.$$('input[type=checkbox]');for(const el of checks.slice(0,fixture.id===49?2:6))await el.click();await page.evaluate(()=>[...document.querySelectorAll('button')].find(e=>e.textContent==='Review checklist').click())}
    else if(fixture.id===30){await(await page.$('input[type=file]')).uploadFile(dir+'/dummy-resume.txt');await page.click('button[type=submit]')}
    else await page.click('button[type=submit]')
    await page.waitForSelector('[aria-label="Your result"]',{timeout:10000});const result=await page.$eval('[aria-label="Your result"]',e=>e.textContent);assert.ok(result.includes(fixture.expected),`Tool${fixture.id}: ${result.slice(0,500)}`)

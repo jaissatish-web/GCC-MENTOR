@@ -68,5 +68,98 @@
     "id": 30,
     "values": {},
     "expected": "MB"
+  },
+  {
+    "id": 41,
+    "values": {
+      "start": "2026-06-01",
+      "end": "2026-06-07",
+      "weekends": "0,6",
+      "holidays": "2026-06-01"
+    },
+    "expected": "4 working days"
+  },
+  {
+    "id": 42,
+    "values": {
+      "start": "2024-02-28",
+      "end": "2024-03-01",
+      "convention": "Elapsed \u2014 exclude start"
+    },
+    "expected": "2 calendar days"
+  },
+  {
+    "id": 43,
+    "values": {
+      "birthDate": "2000-02-29",
+      "asOf": "2025-02-28",
+      "leapPolicy": "1 March"
+    },
+    "expected": "24 completed years"
+  },
+  {
+    "id": 44,
+    "values": {
+      "mode": "Percentage of a value",
+      "first": "15",
+      "second": "8000"
+    },
+    "expected": "1,200.00"
+  },
+  {
+    "id": 45,
+    "values": {
+      "instant": "2026-11-03T12:00:00Z",
+      "zoneA": "Asia/Riyadh",
+      "zoneB": "Asia/Kolkata"
+    },
+    "expected": "150.00 minutes ahead"
+  },
+  {
+    "id": 46,
+    "values": {
+      "referenceDate": "2026-06-01",
+      "endDate": "2026-06-30"
+    },
+    "expected": "29 calendar days remaining"
+  },
+  {
+    "id": 47,
+    "values": {
+      "startDate": "2026-06-01",
+      "duration": "30",
+      "countingMode": "Inclusive \u2014 start is day 1"
+    },
+    "expected": "2026-06-30"
+  },
+  {
+    "id": 48,
+    "values": {
+      "start": "2026-06-01",
+      "end": "2026-06-05",
+      "weekends": "0,6",
+      "holidays": "",
+      "balance": "18",
+      "chargingMode": "Working days"
+    },
+    "expected": "13.00"
+  },
+  {
+    "id": 49,
+    "values": {
+      "title": "Application checklist"
+    },
+    "expected": "50.00% list complete",
+    "special": "Check first 2 of the 4 default tasks, click Review checklist."
+  },
+  {
+    "id": 50,
+    "values": {
+      "title": "Interview preparation",
+      "section": "My notes",
+      "body": "Review the project.\nPrepare examples.",
+      "checklist": "Read job description\nCheck meeting link\nPrepare questions"
+    },
+    "expected": "Your printable document is ready"
   }
 ]
