@@ -100,10 +100,10 @@ try{
      const selector=`#tool-${key}`;await run.page.waitForSelector(selector)
      const tag=await run.page.$eval(selector,el=>el.tagName)
      if(tag==='SELECT')await run.page.select(selector,String(value))
-     else await run.page.$eval(selector,(el,val)=>{const proto=el instanceof HTMLTextAreaElement?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;Object.getOwnPropertyDescriptor(proto,'value').set.call(el,val);el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}))},String(value))
+     else await run.page.$eval(selector,(el,val)=>{const proto=el instanceof HTMLTextAreaElement?HTMLTextAreaElement.prototype:el instanceof HTMLSelectElement?HTMLSelectElement.prototype:HTMLInputElement.prototype;Object.getOwnPropertyDescriptor(proto,'value').set.call(el,val);el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}))},String(value))
     }
-    if(t.id===29){
-     const checks=await run.page.$$(`[data-free-tool="${t.id}"] input[type="checkbox"]`);assert.equal(checks.length,8);for(const check of checks)await check.click()
+    if([29,49].includes(t.id)){
+     const checks=await run.page.$$(`[data-free-tool="${t.id}"] input[type="checkbox"]`);assert.equal(checks.length,t.id===29?8:4);for(const check of checks.slice(0,t.id===49?2:8))await check.click()
      await run.page.$$eval(`[data-free-tool="${t.id}"] button`,buttons=>buttons.find(b=>b.textContent==='Review checklist').click())
     }else if(t.id===30){
      await run.page.$eval('input[type="file"]',el=>{const data=new DataTransfer();data.items.add(new File([new Uint8Array(1000000)],'sample-resume.pdf',{type:'application/pdf'}));el.files=data.files;el.dispatchEvent(new Event('change',{bubbles:true}))})
@@ -125,16 +125,16 @@ try{
     }
     const eventPayloads=await run.page.evaluate(()=>window.__freeToolEvents)
     assert.ok(eventPayloads.every(e=>Object.keys(e).sort().join(',')==='event,slug'),'Telemetry contains event and slug only')
-    if(t.id===29)await run.page.click('input[type="checkbox"]')
+    if([29,49].includes(t.id))await run.page.click('input[type="checkbox"]')
     else if(t.id===30)await run.page.$eval('input[type="number"]',el=>{Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(el,'3');el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}))})
     else{
      const key=Object.keys(fixture.values)[0],selector=`#tool-${key}`
-     await run.page.$eval(selector,el=>{const proto=el instanceof HTMLTextAreaElement?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;Object.getOwnPropertyDescriptor(proto,'value').set.call(el,'');el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}))})
+     await run.page.$eval(selector,el=>{const proto=el instanceof HTMLTextAreaElement?HTMLTextAreaElement.prototype:el instanceof HTMLSelectElement?HTMLSelectElement.prototype:HTMLInputElement.prototype;Object.getOwnPropertyDescriptor(proto,'value').set.call(el,'');el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}))})
     }
     await run.page.waitForFunction(()=>!document.querySelector('[aria-label="Your result"]'))
     await run.page.$$eval(`[data-free-tool="${t.id}"] button`,buttons=>buttons.find(b=>b.textContent.includes('Reset')).click())
     assert.equal(await run.page.$('[aria-label="Your result"]'),null,'Reset clears result')
-    if(t.id===29)assert.equal(await run.page.$$eval('input[type="checkbox"]:checked',els=>els.length),0)
+    if([29,49].includes(t.id))assert.equal(await run.page.$$eval('input[type="checkbox"]:checked',els=>els.length),0)
     if(t.id===30)assert.equal(await run.page.$eval('input[type="file"]',el=>el.files.length),0)
     report.interactions.push({id:t.id,width,copy:true,print:true,staleResultCleared:true,reset:true,privateEvents:true})
    }else if(!report.missingFixtures.includes(t.id))report.missingFixtures.push(t.id)

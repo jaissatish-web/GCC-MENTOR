@@ -22,3 +22,7 @@ Legal transitions/regimes: explicit coverage matrix and fail closed. Thin SEO: b
 
 ## Release
 Follow QA-TEST-PLAN.md and tracker. Required checks context is checks; never bypass protection or merge pending/failed CI. Confirm automatic Vercel deployment after merge; distinguish source, fixture, preview and live account evidence. PR reports must include scope, tests, SEO, guest/member evidence and limits.
+
+
+## Founder staging decision — 3 November 2026
+Release only the20 locally tested Resume21–30 and General41–50 tools first. Merge through required CI and verify live so the founder can review. Remaining30 stay planned/unavailable, not indexable; resume implementation after this staged review. See RELEASE-1-STATUS.md and issue66. This supersedes the original instruction to finish all50 in one uninterrupted release.

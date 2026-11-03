@@ -1,6 +1,6 @@
 # Implementation tracker
 
-Planning only — no test/deployment claims.
+Release-source snapshot:20 locally verified tools,30 planned. Current CI/merge/live deployment status is maintained in [issue66](https://github.com/jaissatish-web/GCC-MENTOR/issues/66).
 
 |ID|Tool|Category|Route|Status|Country rules|SEO|Guest|Logged-in|Mobile|PR|Deployment|
 |---|---|---|---|---|---|---|---|---|---|---|---|

@@ -49,6 +49,9 @@ jobs:
       - run: npm run build
       - name: Install browser for typography verification
         run: npx puppeteer browsers install chrome
+      - name: Verify public free-tool pages and calculations
+        run: |
+          CHROME_PATH="$(node --input-type=module -e "import puppeteer from 'puppeteer'; console.log(await puppeteer.executablePath())")" node scripts/verify-free-tools-pages.mjs
       - name: Verify resume PDF compatibility after browser updates
         run: |
           node node_modules/sucrase/bin/sucrase-node scripts/verify-template-pdfs.ts ats_classic falcon_executive emerald_professional
@@ -84,4 +87,12 @@ jobs:
         with:
           name: typography-screenshots
           path: artifacts/typography
+          if-no-files-found: ignore
+
+      - name: Save free-tools browser evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: free-tools-browser-evidence
+          path: artifacts/free-tools
           if-no-files-found: ignore
