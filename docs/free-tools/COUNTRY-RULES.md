@@ -1,0 +1,7 @@
+# Country rule verification and publication gate
+
+No legal formula verified yet. Saudi Arabia, UAE, Qatar, Kuwait, Oman and Bahrain: Pending. Never substitute a generic GCC formula. Legal advice requires official-source research before activation. Country options may remain visible with clear unavailable explanation; unavailable tool pages excluded from index/sitemap until useful verified coverage exists.
+
+Each rule record: country, jurisdiction, worker category (private/public/domestic/free-zone), contract type, version, effective start/end, official URL and article, formula, wage basis, eligibility, exceptions, transitions, rounding, currency, verification date and reference fixtures. Verification must assess current amendments as of research date. UAE mainland/DIFC/ADGM and alternative savings schemes, Bahrain social-insurance arrangements, Oman social-protection transitions, Saudi resignation exceptions and worker exclusions must be assessed explicitly; these are research questions, not asserted formulas.
+
+Official authorities to research: Saudi HRSD/Qiwa; UAE MOHRE/u.ae and applicable free-zone authorities; Qatar Ministry of Labour/Al Meezan; Kuwait PAM; Oman Ministry of Labour/official legislation; Bahrain LMRA/SIO/official legislation. Record source text and effective date evidence, resolve conflicting versions before release. All output estimates show breakdown, assumptions, exclusions and source. Date arithmetic/service duration can be nonlegal when clearly labelled; wage and entitlement defaults cannot be guessed.
