@@ -1036,3 +1036,6 @@ body .bg-field:not(:where([data-document-preview], [data-document-preview] *, #r
 }
 .app-type.internal-ui :is(input, select, textarea):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, [data-typography="document"], [data-typography="document"] *)) { color-scheme: light; }
 .app-type.internal-ui select:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, [data-typography="document"], [data-typography="document"] *)) :is(option, optgroup) { background-color: var(--ui-surface); color: var(--ui-ink); }
+
+/* Public free tools: independent navigation treatment, using existing tokens. */
+.ui-nav-free-tools { background:rgb(var(--ui-accent-soft-rgb)); color:var(--ui-accent-ink); }

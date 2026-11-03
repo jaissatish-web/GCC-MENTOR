@@ -1,0 +1,53 @@
+/** Isolated real React controls, production CSS, synthetic auth. No external requests. */
+import assert from 'node:assert/strict'
+import {createRequire} from 'node:module'
+import {readFileSync,writeFileSync,mkdtempSync,readdirSync,rmSync,mkdirSync} from 'node:fs'
+import {tmpdir} from 'node:os'
+import {join} from 'node:path'
+import puppeteer from 'puppeteer-core'
+import chromium from '@sparticuz/chromium'
+const root=process.cwd(),require=createRequire(root+'/package.json'),dir=mkdtempSync(join(tmpdir(),'gcc-free-tools-ui-'))
+const foundation=process.argv.includes('--foundation')
+writeFileSync(dir+'/entry.mjs',`import React from 'react';import{createRoot}from'react-dom/client';import{ToolRunner}from'${root}/components/free-tools/ToolRunner.tsx';import{ToolCta}from'${root}/components/free-tools/ToolCta.tsx';import{ToolCatalog}from'${root}/components/free-tools/ToolCatalog.tsx';window.renderTool=(id=21)=>createRoot(document.getElementById('root')).render(React.createElement(React.Fragment,null,React.createElement(ToolRunner,{id,slug:'test-tool',name:'Test tool'}),React.createElement(ToolCta,{slug:'test-tool',category:'Resume'})));window.renderCatalog=()=>createRoot(document.getElementById('root')).render(React.createElement(ToolCatalog));`)
+writeFileSync(dir+'/link.js',`import React from'react';export default function Link({prefetch,replace,scroll,...p}){return React.createElement('a',p)}`)
+writeFileSync(dir+'/auth.js',`export function createClient(){return{auth:{getUser:async()=>({data:{user:window.fixtureMember?{id:'synthetic-member'}:null}})}}}`)
+writeFileSync(dir+'/specs.js',`export function getSpec(){return{fields:[{key:'amount',label:'Amount',type:'number',help:'Use a nonnegative number.'}],calculate:v=>{if(!v.amount.trim()||!Number.isFinite(Number(v.amount))||Number(v.amount)<0)throw Error('Enter a nonnegative amount.');return{headline:String(Number(v.amount)*2),rows:[['Amount',v.amount]],notes:['Synthetic formula fixture only.']}}}}`)
+writeFileSync(dir+'/loader.cjs',`module.exports=function(source){return require(${JSON.stringify(require.resolve('sucrase'))}).transform(source,{transforms:['typescript','jsx'],jsxRuntime:'automatic',production:true,filePath:this.resourcePath}).code}`)
+writeFileSync(dir+'/css-loader.cjs',`module.exports=function(source){return 'export default '+JSON.stringify(Object.fromEntries([...source.matchAll(/\\.([a-zA-Z][\\w-]*)/g)].map(m=>[m[1],m[1]])))}`)
+const webpack=require('next/dist/compiled/webpack/webpack');webpack.init()
+const alias={'next/link':dir+'/link.js','@/lib/supabase/client':dir+'/auth.js',...(foundation?{'@/lib/free-tools/specs':dir+'/specs.js'}:{}),'@':root}
+await new Promise((yes,no)=>webpack.webpack({mode:'development',devtool:false,entry:dir+'/entry.mjs',output:{path:dir,filename:'fixture.js',publicPath:''},resolve:{extensions:['.tsx','.ts','.js','.mjs'],alias,modules:[root+'/node_modules','node_modules']},plugins:[new webpack.LimitChunkCountPlugin({maxChunks:1}),new webpack.webpack.DefinePlugin({'process.env.NEXT_PUBLIC_SUPABASE_URL':JSON.stringify('https://fixture.invalid'),'process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY':JSON.stringify('fixture')})],module:{rules:[{test:/\.tsx?$/,exclude:/node_modules/,use:dir+'/loader.cjs'},{test:/\.css$/,use:dir+'/css-loader.cjs'}]}},(err,stats)=>err||stats.hasErrors()?no(err||Error(stats.toString({errors:true}))):yes()))
+const css=readdirSync('.next/static/css').filter(f=>f.endsWith('.css')).map(f=>readFileSync('.next/static/css/'+f,'utf8')).join('\n')+'\n'+readFileSync('components/free-tools/Tools.module.css','utf8')
+const browser=await puppeteer.launch({executablePath:process.env.CHROME_PATH,args:process.env.CHROME_PATH?.includes('gcc-chromium149')?chromium.args:['--no-sandbox','--disable-dev-shm-usage'],headless:true,pipe:true})
+try{
+ const page=await browser.newPage(),errors=[];page.on('pageerror',e=>{errors.push(e.message);console.log('BROWSER ERROR',e.message)});await page.setRequestInterception(true);page.on('request',r=>r.abort());
+ const load=async(member=false,view='tool',id=21)=>{console.log('LOAD',member,view,id);await page.setContent(`<html><head><style>${css}</style></head><body><div class="shell"><main class="main"><div id="root"></div></main></div></body></html>`);await page.evaluate(m=>{window.fixtureMember=m;window.print=()=>{window.printCalled=true}},member);await page.addScriptTag({content:readFileSync(dir+'/fixture.js','utf8')});await page.evaluate(({view,id})=>view==='catalog'?window.renderCatalog():window.renderTool(id),{view,id});await page.waitForSelector(view==='catalog'?'input':'[data-free-tool]',{timeout:10000});console.log('READY');}
+ mkdirSync('artifacts/free-tools',{recursive:true})
+ for(const width of [360,390,768,1440]){await page.setViewport({width,height:900});await load();assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));if(foundation){await page.click('button[type="submit"]');await page.waitForSelector('[role="alert"]');await page.waitForFunction(()=>document.querySelector('[role="alert"]')===document.activeElement);await page.type('#tool-amount','12.5');await page.click('button[type="submit"]');await page.waitForSelector('[aria-label="Your result"]');assert.ok(await page.$eval('[aria-label="Your result"]',e=>e.textContent.includes('25')));await page.evaluate(()=>[...document.querySelectorAll('button')].find(e=>e.textContent.includes('Print / Save PDF')).click());assert.ok(await page.evaluate(()=>window.printCalled));await page.evaluate(()=>[...document.querySelectorAll('button')].find(e=>e.textContent.includes('Reset')).click());assert.equal(await page.$('[aria-label="Your result"]'),null)}await page.screenshot({path:`artifacts/free-tools/foundation-${width}.png`,fullPage:true});console.log(`PASS foundation controls ${width}px`)}
+ await load(false);await page.waitForFunction(()=>document.body.textContent.includes('Create Free Career Profile'));await load(true);await page.waitForFunction(()=>document.body.textContent.includes('Optimize Resume for a New Job'));assert.equal(await page.$eval('.cta a',e=>e.getAttribute('href')),'/optimize/target');assert.equal(errors.length,0,errors.join('\n'))
+
+ if(!foundation){
+  const fixtures=JSON.parse(readFileSync('lib/free-tools/browser-fixtures.json','utf8'))
+  writeFileSync(dir+'/dummy-resume.txt','x'.repeat(1000000))
+  for(const fixture of fixtures)for(const width of [360,1440])for(const member of [false,true]){
+   await page.setViewport({width,height:900});await load(member,'tool',fixture.id)
+   for(const [key,value]of Object.entries(fixture.values)){
+    const selector='#tool-'+key,tag=await page.$eval(selector,e=>e.tagName)
+    if(tag==='SELECT')await page.select(selector,value)
+    else await page.$eval(selector,(el,value)=>{const proto=el.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;Object.getOwnPropertyDescriptor(proto,'value').set.call(el,value);el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}))},value)
+   }
+   if([29,49].includes(fixture.id)){const checks=await page.$$('input[type=checkbox]');for(const el of checks.slice(0,fixture.id===49?2:6))await el.click();await page.evaluate(()=>[...document.querySelectorAll('button')].find(e=>e.textContent==='Review checklist').click())}
+   else if(fixture.id===30){await(await page.$('input[type=file]')).uploadFile(dir+'/dummy-resume.txt');await page.click('button[type=submit]')}
+   else await page.click('button[type=submit]')
+   await page.waitForSelector('[aria-label="Your result"]',{timeout:10000});const result=await page.$eval('[aria-label="Your result"]',e=>e.textContent);assert.ok(result.includes(fixture.expected),`Tool${fixture.id}: ${result.slice(0,500)}`)
+   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`Tool${fixture.id} overflow${width}`)
+   await page.waitForFunction(m=>document.querySelector('.cta a')?.textContent.includes(m?'Optimize Resume':'Create Free'),{},member)
+   await page.evaluate(()=>[...document.querySelectorAll('button')].find(e=>e.textContent.includes('Copy result')).click());await page.waitForFunction(()=>document.querySelector('[role=status]')?.textContent.includes('Copy is unavailable')||document.querySelector('[role=status]')?.textContent.includes('copied'))
+   await page.evaluate(()=>[...document.querySelectorAll('button')].find(e=>e.textContent.includes('Print / Save PDF')).click());assert.ok(await page.evaluate(()=>window.printCalled))
+   if(width===360&&!member)await page.screenshot({path:`artifacts/free-tools/tool-${fixture.id}-360.png`,fullPage:true})
+   console.log(`PASS tool${fixture.id} ${width}px ${member?'member fixture':'guest'} result/copy/print`)
+  }
+ }
+ assert.equal(errors.length,0,errors.join('\n'))
+ console.log('PASS guest/member CTA and no browser errors')
+}finally{await browser.close();rmSync(dir,{recursive:true,force:true})}

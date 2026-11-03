@@ -1,0 +1,352 @@
+[
+  {
+    "id": 1,
+    "name": "GCC Gratuity Calculator",
+    "category": "Employment",
+    "slug": "gratuity-calculator",
+    "logic": "Regime/reason/date-specific EOSB; unavailable until source matrix verified"
+  },
+  {
+    "id": 2,
+    "name": "Final Settlement Calculator",
+    "category": "Employment",
+    "slug": "final-settlement-calculator",
+    "logic": "Sum verified wage, leave, EOSB, notice and deductions; itemized estimate"
+  },
+  {
+    "id": 3,
+    "name": "Leave Encashment Calculator",
+    "category": "Employment",
+    "slug": "leave-encashment-calculator",
+    "logic": "Verified unused leave days \u00d7 applicable wage basis"
+  },
+  {
+    "id": 4,
+    "name": "Overtime Pay Calculator",
+    "category": "Employment",
+    "slug": "overtime-pay-calculator",
+    "logic": "Eligible hours \u00d7 verified rate and premium; distinguish rest/night"
+  },
+  {
+    "id": 5,
+    "name": "Notice Period Calculator",
+    "category": "Employment",
+    "slug": "notice-period-calculator",
+    "logic": "Verified statutory/contract notice, unit and start convention"
+  },
+  {
+    "id": 6,
+    "name": "Employment Service Duration Calculator",
+    "category": "Employment",
+    "slug": "employment-service-duration-calculator",
+    "logic": "Calendar start/end duration; show excluded periods separately"
+  },
+  {
+    "id": 7,
+    "name": "Unpaid Leave Calculator",
+    "category": "Employment",
+    "slug": "unpaid-leave-calculator",
+    "logic": "Salary deduction using explicit verified divisor"
+  },
+  {
+    "id": 8,
+    "name": "Daily Wage Calculator",
+    "category": "Employment",
+    "slug": "daily-wage-calculator",
+    "logic": "Monthly wage / verified jurisdiction divisor"
+  },
+  {
+    "id": 9,
+    "name": "Hourly Wage Calculator",
+    "category": "Employment",
+    "slug": "hourly-wage-calculator",
+    "logic": "Daily wage / verified hours"
+  },
+  {
+    "id": 10,
+    "name": "Employment Termination Timeline Calculator",
+    "category": "Employment",
+    "slug": "employment-termination-timeline-calculator",
+    "logic": "Verified notice, termination and payout deadlines; no guessed entitlement"
+  },
+  {
+    "id": 11,
+    "name": "Salary Breakup Calculator",
+    "category": "Finance",
+    "slug": "salary-breakup-calculator",
+    "logic": "Basic + housing + transport + other \u2212 deductions"
+  },
+  {
+    "id": 12,
+    "name": "Annual Salary Calculator",
+    "category": "Finance",
+    "slug": "annual-salary-calculator",
+    "logic": "Pay per period \u00d7 periods/year; bonuses separately"
+  },
+  {
+    "id": 13,
+    "name": "Salary Increment Calculator",
+    "category": "Finance",
+    "slug": "salary-increment-calculator",
+    "logic": "Old pay \u00d7 increment/100; show new pay"
+  },
+  {
+    "id": 14,
+    "name": "Salary Percentage Change Calculator",
+    "category": "Finance",
+    "slug": "salary-percentage-change-calculator",
+    "logic": "(new \u2212 old)/old \u00d7100; reject zero baseline"
+  },
+  {
+    "id": 15,
+    "name": "Salary Comparison Calculator",
+    "category": "Finance",
+    "slug": "salary-comparison-calculator",
+    "logic": "Compare normalized annual pay and user expenses in same currency"
+  },
+  {
+    "id": 16,
+    "name": "Savings Goal Calculator",
+    "category": "Finance",
+    "slug": "savings-goal-calculator",
+    "logic": "ceil((goal \u2212 saved)/monthly saving); zero saving handled"
+  },
+  {
+    "id": 17,
+    "name": "Monthly Budget Planner",
+    "category": "Finance",
+    "slug": "monthly-budget-planner",
+    "logic": "Income \u2212 categorized expenses; savings ratio"
+  },
+  {
+    "id": 18,
+    "name": "Remittance Calculator",
+    "category": "Finance",
+    "slug": "remittance-calculator",
+    "logic": "(amount \u2212 sending fee) \u00d7 manual rate \u2212 receiving fee"
+  },
+  {
+    "id": 19,
+    "name": "Cost of Living Comparison Calculator",
+    "category": "Finance",
+    "slug": "cost-of-living-comparison-calculator",
+    "logic": "User expenses in two locations; same-currency total/difference"
+  },
+  {
+    "id": 20,
+    "name": "Job Offer Comparison Calculator",
+    "category": "Finance",
+    "slug": "job-offer-comparison-calculator",
+    "logic": "Weighted user-selected compensation and benefits; transparent weights"
+  },
+  {
+    "id": 21,
+    "name": "Resume Keyword Matcher",
+    "category": "Resume",
+    "slug": "resume-keyword-matcher",
+    "logic": "Unique normalized JD terms found / JD terms; heuristic only"
+  },
+  {
+    "id": 22,
+    "name": "Job Description Keyword Extractor",
+    "category": "Resume",
+    "slug": "job-description-keyword-extractor",
+    "logic": "Tokenize, stopword filter, rank repeated terms; no inferred skills"
+  },
+  {
+    "id": 23,
+    "name": "Resume Word Counter",
+    "category": "Resume",
+    "slug": "resume-word-counter",
+    "logic": "Whitespace words, Unicode characters, lines, reading estimate"
+  },
+  {
+    "id": 24,
+    "name": "Resume Bullet Length Checker",
+    "category": "Resume",
+    "slug": "resume-bullet-length-checker",
+    "logic": "Detect bullet lines and word/character thresholds; configurable"
+  },
+  {
+    "id": 25,
+    "name": "Resume Action Verb Checker",
+    "category": "Resume",
+    "slug": "resume-action-verb-checker",
+    "logic": "Check bullet opening words against visible curated verb list"
+  },
+  {
+    "id": 26,
+    "name": "Resume Contact Information Validator",
+    "category": "Resume",
+    "slug": "resume-contact-information-validator",
+    "logic": "Syntax only for email, phone, LinkedIn; no deliverability claim"
+  },
+  {
+    "id": 27,
+    "name": "Resume Section Checker",
+    "category": "Resume",
+    "slug": "resume-section-checker",
+    "logic": "Recognize common headings; show matches and omissions"
+  },
+  {
+    "id": 28,
+    "name": "Resume Employment Date Checker",
+    "category": "Resume",
+    "slug": "resume-employment-date-checker",
+    "logic": "Parse explicit dates, flag reversed/overlapping ranges; preserve ambiguity"
+  },
+  {
+    "id": 29,
+    "name": "ATS Formatting Checklist",
+    "category": "Resume",
+    "slug": "ats-formatting-checklist",
+    "logic": "User-assessed formatting checks, no actual ATS score"
+  },
+  {
+    "id": 30,
+    "name": "Resume File Size Checker",
+    "category": "Resume",
+    "slug": "resume-file-size-checker",
+    "logic": "Local file bytes, MB/MiB, user target; no upload"
+  },
+  {
+    "id": 31,
+    "name": "Professional Experience Calculator",
+    "category": "Career",
+    "slug": "professional-experience-calculator",
+    "logic": "Merge overlapping employment intervals; do not double count"
+  },
+  {
+    "id": 32,
+    "name": "Employment Gap Calculator",
+    "category": "Career",
+    "slug": "employment-gap-calculator",
+    "logic": "Union employment periods then compute uncovered intervals"
+  },
+  {
+    "id": 33,
+    "name": "Interview Countdown Calculator",
+    "category": "Career",
+    "slug": "interview-countdown-calculator",
+    "logic": "Time remaining from explicit local datetime/zone"
+  },
+  {
+    "id": 34,
+    "name": "Interview Preparation Checklist",
+    "category": "Career",
+    "slug": "interview-preparation-checklist",
+    "logic": "Editable preparation tasks with print and completion progress"
+  },
+  {
+    "id": 35,
+    "name": "Job Application Tracker",
+    "category": "Career",
+    "slug": "job-application-tracker",
+    "logic": "LocalStorage entries, statuses, export/import; deletion warning"
+  },
+  {
+    "id": 36,
+    "name": "Job Search URL Builder",
+    "category": "Career",
+    "slug": "job-search-url-builder",
+    "logic": "Encoded search query links for supported job sites"
+  },
+  {
+    "id": 37,
+    "name": "LinkedIn Headline Length Checker",
+    "category": "Career",
+    "slug": "linkedin-headline-length-checker",
+    "logic": "Unicode character count against editable headline limit"
+  },
+  {
+    "id": 38,
+    "name": "Resignation Letter Generator",
+    "category": "Career",
+    "slug": "resignation-letter-generator",
+    "logic": "Template from user name, employer, last date; no legal assurance"
+  },
+  {
+    "id": 39,
+    "name": "Experience Letter Generator",
+    "category": "Career",
+    "slug": "experience-letter-generator",
+    "logic": "Draft for employer review with supplied facts only"
+  },
+  {
+    "id": 40,
+    "name": "Salary Negotiation Email Template Generator",
+    "category": "Career",
+    "slug": "salary-negotiation-email-template-generator",
+    "logic": "Template based on supplied offer/target and truthful rationale"
+  },
+  {
+    "id": 41,
+    "name": "Working Days Calculator",
+    "category": "General",
+    "slug": "working-days-calculator",
+    "logic": "Inclusive range minus chosen weekends and explicit holidays"
+  },
+  {
+    "id": 42,
+    "name": "Date Difference Calculator",
+    "category": "General",
+    "slug": "date-difference-calculator",
+    "logic": "UTC calendar day difference; show convention"
+  },
+  {
+    "id": 43,
+    "name": "Age Calculator",
+    "category": "General",
+    "slug": "age-calculator",
+    "logic": "Completed years/months/days with leap-day policy"
+  },
+  {
+    "id": 44,
+    "name": "Percentage Calculator",
+    "category": "General",
+    "slug": "percentage-calculator",
+    "logic": "Value \u00d7 percentage/100; percentage of total and change separated"
+  },
+  {
+    "id": 45,
+    "name": "Time Zone Offset Calculator",
+    "category": "General",
+    "slug": "time-zone-offset-calculator",
+    "logic": "Intl timezone offsets at selected instant including DST"
+  },
+  {
+    "id": 46,
+    "name": "Contract Expiry Countdown",
+    "category": "General",
+    "slug": "contract-expiry-countdown",
+    "logic": "Days to supplied contract end; no renewal inference"
+  },
+  {
+    "id": 47,
+    "name": "Probation Period Date Calculator",
+    "category": "General",
+    "slug": "probation-period-date-calculator",
+    "logic": "Add user-supplied calendar days; no legal maximum claim"
+  },
+  {
+    "id": 48,
+    "name": "Annual Leave Planner",
+    "category": "General",
+    "slug": "annual-leave-planner",
+    "logic": "Inclusive dates minus weekends/holidays; user balance remaining"
+  },
+  {
+    "id": 49,
+    "name": "Printable Checklist Builder",
+    "category": "General",
+    "slug": "printable-checklist-builder",
+    "logic": "Editable list, completed items and accessible print"
+  },
+  {
+    "id": 50,
+    "name": "Simple PDF Export Utility",
+    "category": "General",
+    "slug": "pdf-export",
+    "logic": "User-created structured notes/checklist with browser Print \u2192 Save as PDF"
+  }
+]

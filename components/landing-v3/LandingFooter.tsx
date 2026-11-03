@@ -2,7 +2,7 @@ import { CTA, NAMES } from '@/lib/serviceLabels'
 import { listPublishedLegal } from '@/lib/admin/siteContent'
 import Link from 'next/link'
 import s from './premium.module.css'
-const links = [['Career Profile','/profile'],[CTA.addTargetJob,'/optimize/target'],[NAMES.coverLetter,'/cover-letter'],[NAMES.interviewQa,'/interview-qa'],[NAMES.mockInterview,'/mock-interview'],[NAMES.library,'/dashboard/library'],[NAMES.linkedin,'/linkedin-optimization'],[NAMES.naukrigulf,'/naukrigulf-optimization']] as const
+const links = [['Free Tools','/tools'],['Career Profile','/profile'],[CTA.addTargetJob,'/optimize/target'],[NAMES.coverLetter,'/cover-letter'],[NAMES.interviewQa,'/interview-qa'],[NAMES.mockInterview,'/mock-interview'],[NAMES.library,'/dashboard/library'],[NAMES.linkedin,'/linkedin-optimization'],[NAMES.naukrigulf,'/naukrigulf-optimization']] as const
 export async function LandingFooter(){
   const legalPages = await listPublishedLegal()
   return <footer className={s.footer}><div className={s.inner}><div className={s.footerGrid}>

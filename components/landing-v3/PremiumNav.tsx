@@ -8,7 +8,7 @@ export function PremiumNav({ anchors }: { anchors: ReadonlyArray<readonly [strin
     <a href="#main-content" className={p.skipLink}>Skip to content</a>
     <div className={p.navInner}>
       <Link href="/" className={p.brand} aria-label="GCC Mentor home"><span className={p.brandMark}>G</span><span>GCC <b>MENTOR</b></span></Link>
-      <nav aria-label="Page sections" className={p.desktopNav}>{anchors.map(([label, href]) => <a key={href} href={href}>{label}</a>)}</nav>
+      <nav aria-label="Page sections" className={p.desktopNav}><Link href="/tools">Free Tools</Link>{anchors.map(([label, href]) => <a key={href} href={href}>{label}</a>)}</nav>
       <div className={p.navActions}><Link href="/login" className={p.signIn}>Sign in</Link><Link href="/gulf-readiness-score" className={p.navCta}>Check free readiness <ArrowUpRight size={16} aria-hidden="true" /></Link><LandingSectionMenu anchors={anchors} /></div>
     </div>
   </header>

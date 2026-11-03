@@ -10,5 +10,6 @@ export const GUIDE_SERVICES: Record<string, { purpose: string; outputs: string; 
   '/mock-interview': { purpose: 'Practise answering and learn from feedback.', outputs: 'A practice session, answer review and improvement feedback.', uses: 'Choose a saved resume and the practice options available to you.' },
   '/naukrigulf-optimization': { purpose: 'Prepare clearer content for your Gulf job profile.', outputs: 'Headline options, profile summary, employment descriptions and skills to copy.', uses: 'Your real background. Review the content, then paste it into NaukriGulf yourself.' },
   '/linkedin-optimization': { purpose: 'Help recruiters understand your professional background.', outputs: 'Headline options, About text, experience descriptions and skills to copy.', uses: 'Your real background. Review the content, then update LinkedIn yourself.' },
+  '/tools': { purpose: 'Use free career utilities without an account.', outputs: 'Browser-based resume checks, date calculations and printable notes.', uses: 'Information you enter directly; no Career Profile is required.' },
   '/settings': { purpose: 'Manage your account and data.', outputs: 'Account preferences, plan information and data controls.', uses: 'Your signed-in account.' },
 }

@@ -1,0 +1,10 @@
+/** Coverage is explicit; source discovery alone does not activate a rule. */
+export const COUNTRIES = [
+  {id:'saudi-arabia',name:'Saudi Arabia',currency:'SAR',status:'Pending',reason:'Credited service must follow the applicable Hijri or contract calendar; termination reasons and exclusions require explicit handling.',source:'https://www.hrsd.gov.sa/en/علاقات-العمل'},
+  {id:'uae',name:'United Arab Emirates',currency:'AED',status:'Pending',reason:'Federal private-sector, DIFC, ADGM, pension and alternative savings regimes must be distinguished.',source:'https://u.ae/en/information-and-services/jobs/employment-in-the-private-sector/end-of-service-benefits-for-employees-in-the-private-sector'},
+  {id:'qatar',name:'Qatar',currency:'QAR',status:'Pending',reason:'Minimum benefits require worker-category, dismissal and alternative retirement coverage checks.',source:'https://www.almeezan.qa/LawArticles.aspx?LawArticleID=51848&LawID=3961&language=en'},
+  {id:'kuwait',name:'Kuwait',currency:'KWD',status:'Unavailable',reason:'Current consolidated amendments, monthly/daily pay regimes, resignation reductions and oil-sector exclusions are not fully verified.',source:'https://www.manpower.gov.kw/docs/LaborLaw/Labor_Law_Eng.pdf'},
+  {id:'oman',name:'Oman',currency:'OMR',status:'Unavailable',reason:'The savings-scheme commencement and transitional liabilities require a verified official commencement instrument.',source:'https://www.mol.gov.om/Laborlaw'},
+  {id:'bahrain',name:'Bahrain',currency:'BHD',status:'Unavailable',reason:'Pre/post-March 2024 benefits and actual SIO contribution history cannot be represented by one last-salary formula.',source:'https://www.pmo.gov.bh/en/article/hrh-the-crown-prince-and-prime-minister-issues-edict-109-of-2023'},
+] as const
+export interface RuleEvidence {country:string;jurisdiction:string;category:string;contractType:string;version:string;effectiveDate:string;source:string;article:string;formula:string;eligibility:string;exceptions:string;rounding:string;currency:string;verified:string}

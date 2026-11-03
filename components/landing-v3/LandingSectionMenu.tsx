@@ -20,6 +20,7 @@ export function LandingSectionMenu({ anchors }: { anchors: ReadonlyArray<readonl
         <svg className={p.menuClose} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
       </summary>
       <nav aria-label="Page sections" className={p.menuNav}>
+        <Link href="/tools" onClick={close}>Free Tools</Link>
         {anchors.map(([label, href]) => <a key={href} href={href} onClick={close}>{label}</a>)}
         <Link href="/privacy" onClick={close}>Privacy & data control</Link>
         <a href="#faq" onClick={close}>Common questions</a>

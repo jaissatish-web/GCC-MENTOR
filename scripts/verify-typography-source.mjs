@@ -8,6 +8,8 @@ let pages=0, styles=0, components=0
 function visit(dir){for(const entry of readdirSync(dir,{withFileTypes:true})){
  const path=dir+'/'+entry.name
  if(entry.isDirectory()){if(!/^components\/(templates|resume)$/.test(path))visit(path);continue}
+ // Social preview images render to fixed-size pixels, outside application CSS.
+ if(entry.name==='opengraph-image.tsx')continue
  if(entry.name==='page.tsx')pages++
  if(path.endsWith('.css')&&path!==root){
   const sheet=postcss.parse(readFileSync(path,'utf8'));sheet.walkDecls(d=>{if(!/^font-(size|family|weight)$|^line-height$|^letter-spacing$/.test(d.prop))return
