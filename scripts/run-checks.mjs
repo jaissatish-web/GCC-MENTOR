@@ -24,6 +24,7 @@ const sucrase = require.resolve('sucrase/bin/sucrase-node')
 
 const TS_CHECKS = [
   'verify-free-tools-foundation.ts',
+  'verify-free-tools-resume.ts',
   'verify-tracker-dates.ts',
   'verify-quality-remediation.ts',
   'verify-template-catalog.ts',

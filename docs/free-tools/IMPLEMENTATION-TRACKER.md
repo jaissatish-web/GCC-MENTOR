@@ -24,16 +24,16 @@ Planning only — no test/deployment claims.
 |18|Remittance Calculator|Finance|/tools/remittance-calculator|Planned|Not applicable|Pending|Pending|Pending|Pending|Pending|Pending|
 |19|Cost of Living Comparison Calculator|Finance|/tools/cost-of-living-comparison-calculator|Planned|Not applicable|Pending|Pending|Pending|Pending|Pending|Pending|
 |20|Job Offer Comparison Calculator|Finance|/tools/job-offer-comparison-calculator|Planned|Not applicable|Pending|Pending|Pending|Pending|Pending|Pending|
-|21|Resume Keyword Matcher|Resume|/tools/resume-keyword-matcher|Planned|Not applicable|Pending|Pending|Pending|Pending|Pending|Pending|
-|22|Job Description Keyword Extractor|Resume|/tools/job-description-keyword-extractor|Planned|Not applicable|Pending|Pending|Pending|Pending|Pending|Pending|
-|23|Resume Word Counter|Resume|/tools/resume-word-counter|Planned|Not applicable|Pending|Pending|Pending|Pending|Pending|Pending|
-|24|Resume Bullet Length Checker|Resume|/tools/resume-bullet-length-checker|Planned|Not applicable|Pending|Pending|Pending|Pending|Pending|Pending|
-|25|Resume Action Verb Checker|Resume|/tools/resume-action-verb-checker|Planned|Not applicable|Pending|Pending|Pending|Pending|Pending|Pending|
-|26|Resume Contact Information Validator|Resume|/tools/resume-contact-information-validator|Planned|Not applicable|Pending|Pending|Pending|Pending|Pending|Pending|
-|27|Resume Section Checker|Resume|/tools/resume-section-checker|Planned|Not applicable|Pending|Pending|Pending|Pending|Pending|Pending|
-|28|Resume Employment Date Checker|Resume|/tools/resume-employment-date-checker|Planned|Not applicable|Pending|Pending|Pending|Pending|Pending|Pending|
-|29|ATS Formatting Checklist|Resume|/tools/ats-formatting-checklist|Planned|Not applicable|Pending|Pending|Pending|Pending|Pending|Pending|
-|30|Resume File Size Checker|Resume|/tools/resume-file-size-checker|Planned|Not applicable|Pending|Pending|Pending|Pending|Pending|Pending|
+|21|Resume Keyword Matcher|Resume|/tools/resume-keyword-matcher|Testing|Not applicable|Complete (source)|Pass (fixture)|Pass (fixture)|Pass 360/1440|[#68](https://github.com/jaissatish-web/GCC-MENTOR/pull/68)|Pending|
+|22|Job Description Keyword Extractor|Resume|/tools/job-description-keyword-extractor|Testing|Not applicable|Complete (source)|Pass (fixture)|Pass (fixture)|Pass 360/1440|[#68](https://github.com/jaissatish-web/GCC-MENTOR/pull/68)|Pending|
+|23|Resume Word Counter|Resume|/tools/resume-word-counter|Testing|Not applicable|Complete (source)|Pass (fixture)|Pass (fixture)|Pass 360/1440|[#68](https://github.com/jaissatish-web/GCC-MENTOR/pull/68)|Pending|
+|24|Resume Bullet Length Checker|Resume|/tools/resume-bullet-length-checker|Testing|Not applicable|Complete (source)|Pass (fixture)|Pass (fixture)|Pass 360/1440|[#68](https://github.com/jaissatish-web/GCC-MENTOR/pull/68)|Pending|
+|25|Resume Action Verb Checker|Resume|/tools/resume-action-verb-checker|Testing|Not applicable|Complete (source)|Pass (fixture)|Pass (fixture)|Pass 360/1440|[#68](https://github.com/jaissatish-web/GCC-MENTOR/pull/68)|Pending|
+|26|Resume Contact Information Validator|Resume|/tools/resume-contact-information-validator|Testing|Not applicable|Complete (source)|Pass (fixture)|Pass (fixture)|Pass 360/1440|[#68](https://github.com/jaissatish-web/GCC-MENTOR/pull/68)|Pending|
+|27|Resume Section Checker|Resume|/tools/resume-section-checker|Testing|Not applicable|Complete (source)|Pass (fixture)|Pass (fixture)|Pass 360/1440|[#68](https://github.com/jaissatish-web/GCC-MENTOR/pull/68)|Pending|
+|28|Resume Employment Date Checker|Resume|/tools/resume-employment-date-checker|Testing|Not applicable|Complete (source)|Pass (fixture)|Pass (fixture)|Pass 360/1440|[#68](https://github.com/jaissatish-web/GCC-MENTOR/pull/68)|Pending|
+|29|ATS Formatting Checklist|Resume|/tools/ats-formatting-checklist|Testing|Not applicable|Complete (source)|Pass (fixture)|Pass (fixture)|Pass 360/1440|[#68](https://github.com/jaissatish-web/GCC-MENTOR/pull/68)|Pending|
+|30|Resume File Size Checker|Resume|/tools/resume-file-size-checker|Testing|Not applicable|Complete (source)|Pass (fixture)|Pass (fixture)|Pass 360/1440|[#68](https://github.com/jaissatish-web/GCC-MENTOR/pull/68)|Pending|
 |31|Professional Experience Calculator|Career|/tools/professional-experience-calculator|Planned|Not applicable|Pending|Pending|Pending|Pending|Pending|Pending|
 |32|Employment Gap Calculator|Career|/tools/employment-gap-calculator|Planned|Not applicable|Pending|Pending|Pending|Pending|Pending|Pending|
 |33|Interview Countdown Calculator|Career|/tools/interview-countdown-calculator|Planned|Not applicable|Pending|Pending|Pending|Pending|Pending|Pending|
@@ -54,3 +54,5 @@ Planning only — no test/deployment claims.
 |48|Annual Leave Planner|General|/tools/annual-leave-planner|Planned|Not applicable|Pending|Pending|Pending|Pending|Pending|Pending|
 |49|Printable Checklist Builder|General|/tools/printable-checklist-builder|Planned|Not applicable|Pending|Pending|Pending|Pending|Pending|Pending|
 |50|Simple PDF Export Utility|General|/tools/pdf-export|Planned|Not applicable|Pending|Pending|Pending|Pending|Pending|Pending|
+
+Resume21–30: individual pure fixtures passed sequentially;40 browser states (360/1440×guest/member fixture) passed result/copy/print, zero browser errors. Local actual sessions, production deployment and final SSR hydration gates remain separate.

@@ -25,5 +25,29 @@ try{
  mkdirSync('artifacts/free-tools',{recursive:true})
  for(const width of [360,390,768,1440]){await page.setViewport({width,height:900});await load();assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));if(foundation){await page.click('button[type="submit"]');await page.waitForSelector('[role="alert"]');await page.waitForFunction(()=>document.querySelector('[role="alert"]')===document.activeElement);await page.type('#tool-amount','12.5');await page.click('button[type="submit"]');await page.waitForSelector('[aria-label="Your result"]');assert.ok(await page.$eval('[aria-label="Your result"]',e=>e.textContent.includes('25')));await page.evaluate(()=>[...document.querySelectorAll('button')].find(e=>e.textContent.includes('Print / Save PDF')).click());assert.ok(await page.evaluate(()=>window.printCalled));await page.evaluate(()=>[...document.querySelectorAll('button')].find(e=>e.textContent.includes('Reset')).click());assert.equal(await page.$('[aria-label="Your result"]'),null)}await page.screenshot({path:`artifacts/free-tools/foundation-${width}.png`,fullPage:true});console.log(`PASS foundation controls ${width}px`)}
  await load(false);await page.waitForFunction(()=>document.body.textContent.includes('Create Free Career Profile'));await load(true);await page.waitForFunction(()=>document.body.textContent.includes('Optimize Resume for a New Job'));assert.equal(await page.$eval('.cta a',e=>e.getAttribute('href')),'/optimize/target');assert.equal(errors.length,0,errors.join('\n'))
+
+ if(!foundation){
+  const fixtures=JSON.parse(readFileSync('lib/free-tools/browser-fixtures.json','utf8'))
+  writeFileSync(dir+'/dummy-resume.txt','x'.repeat(1000000))
+  for(const fixture of fixtures)for(const width of [360,1440])for(const member of [false,true]){
+   await page.setViewport({width,height:900});await load(member,'tool',fixture.id)
+   for(const [key,value]of Object.entries(fixture.values)){
+    const selector='#tool-'+key,tag=await page.$eval(selector,e=>e.tagName)
+    if(tag==='SELECT')await page.select(selector,value)
+    else await page.$eval(selector,(el,value)=>{const proto=el.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;Object.getOwnPropertyDescriptor(proto,'value').set.call(el,value);el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}))},value)
+   }
+   if(fixture.id===29){const checks=await page.$$('input[type=checkbox]');for(const el of checks.slice(0,6))await el.click();await page.evaluate(()=>[...document.querySelectorAll('button')].find(e=>e.textContent==='Review checklist').click())}
+   else if(fixture.id===30){await(await page.$('input[type=file]')).uploadFile(dir+'/dummy-resume.txt');await page.click('button[type=submit]')}
+   else await page.click('button[type=submit]')
+   await page.waitForSelector('[aria-label="Your result"]',{timeout:10000});const result=await page.$eval('[aria-label="Your result"]',e=>e.textContent);assert.ok(result.includes(fixture.expected),`Tool${fixture.id}: ${result.slice(0,500)}`)
+   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`Tool${fixture.id} overflow${width}`)
+   await page.waitForFunction(m=>document.querySelector('.cta a')?.textContent.includes(m?'Optimize Resume':'Create Free'),{},member)
+   await page.evaluate(()=>[...document.querySelectorAll('button')].find(e=>e.textContent.includes('Copy result')).click());await page.waitForFunction(()=>document.querySelector('[role=status]')?.textContent.includes('Copy is unavailable')||document.querySelector('[role=status]')?.textContent.includes('copied'))
+   await page.evaluate(()=>[...document.querySelectorAll('button')].find(e=>e.textContent.includes('Print / Save PDF')).click());assert.ok(await page.evaluate(()=>window.printCalled))
+   if(width===360&&!member)await page.screenshot({path:`artifacts/free-tools/tool-${fixture.id}-360.png`,fullPage:true})
+   console.log(`PASS tool${fixture.id} ${width}px ${member?'member fixture':'guest'} result/copy/print`)
+  }
+ }
+ assert.equal(errors.length,0,errors.join('\n'))
  console.log('PASS guest/member CTA and no browser errors')
 }finally{await browser.close();rmSync(dir,{recursive:true,force:true})}

@@ -1,0 +1,72 @@
+[
+  {
+    "id": 21,
+    "values": {
+      "resumeText": "Safety calibration",
+      "jobText": "calibration safety reporting"
+    },
+    "expected": "66.67% term overlap"
+  },
+  {
+    "id": 22,
+    "values": {
+      "jobText": "calibration calibration commissioning"
+    },
+    "expected": "2 terms shown"
+  },
+  {
+    "id": 23,
+    "values": {
+      "text": "Led site commissioning"
+    },
+    "expected": "3 words"
+  },
+  {
+    "id": 24,
+    "values": {
+      "text": "Led site commissioning",
+      "maxWords": "3"
+    },
+    "expected": "0 of 1"
+  },
+  {
+    "id": 25,
+    "values": {
+      "text": "Led team\nResponsible for team"
+    },
+    "expected": "1 of 2"
+  },
+  {
+    "id": 26,
+    "values": {
+      "email": "name@example.com",
+      "phone": "+966 500 000 000",
+      "linkedin": "https://www.linkedin.com/in/example"
+    },
+    "expected": "0 contact"
+  },
+  {
+    "id": 27,
+    "values": {
+      "text": "Skills:\nCalibration\nExperience\nTechnician"
+    },
+    "expected": "2 common"
+  },
+  {
+    "id": 28,
+    "values": {
+      "periods": "Role A | 2026-01-01 | 2026-01-31\nRole B | 2026-01-31 | 2026-02-15"
+    },
+    "expected": "1 overlapping"
+  },
+  {
+    "id": 29,
+    "values": {},
+    "expected": "checklist complete"
+  },
+  {
+    "id": 30,
+    "values": {},
+    "expected": "MB"
+  }
+]

@@ -1,2 +1,3 @@
 import type {Spec} from './types'
-export function getSpec(_id:number):Spec|undefined {return undefined}
+import {getResumeSpec} from './calculations/resume'
+export function getSpec(id:number):Spec|undefined {return getResumeSpec(id)}
