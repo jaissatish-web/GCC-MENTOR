@@ -1,0 +1,722 @@
+[
+  {
+    "id": 11,
+    "description": "Break down monthly salary into basic pay, allowances and deductions. See the arithmetic clearly using your own figures, without sharing payroll details.",
+    "how": "Enter basic salary, housing, transport, other allowances and deductions in one currency. Gross pay is the sum of earnings; estimated net pay subtracts deductions.",
+    "example": "Basic 5,000 + housing 1,500 + transport 500 = gross 7,000. With deductions of 200, estimated net pay is 6,800.",
+    "mistakes": "Do not enter an annual allowance as a monthly amount or count employer-paid housing twice.",
+    "limitations": "This is an arithmetic breakdown, not a payroll, tax or social-insurance assessment.",
+    "faq": [
+      {
+        "q": "Does this calculate statutory deductions?",
+        "a": "No. Enter deductions already known from your contract or payroll."
+      },
+      {
+        "q": "Can I use any currency?",
+        "a": "Yes, provided every amount uses the same currency and pay period."
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "description": "Convert pay per period into annual salary and add known bonuses. Compare consistent figures using a transparent formula and your chosen payment frequency.",
+    "how": "Multiply pay per period by the number of payments per year, then add annual bonuses separately.",
+    "example": "Monthly pay of 6,000 paid 12 times gives 72,000 per year; a 3,000 annual bonus gives 75,000.",
+    "mistakes": "Do not add a monthly bonus again as an annual bonus. Weekly and monthly pay need different multipliers.",
+    "limitations": "Annualized pay assumes the supplied payment schedule continues for a full year.",
+    "faq": [
+      {
+        "q": "Is annual salary the same as take-home pay?",
+        "a": "Only if the periodic amount you enter is already net pay."
+      },
+      {
+        "q": "Should I include an uncertain bonus?",
+        "a": "Keep guaranteed and uncertain bonuses separate when comparing offers."
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "description": "Calculate a salary increase from your current pay and a proposed percentage. See the increase amount and revised salary with a simple, explainable formula.",
+    "how": "Multiply current pay by the increase percentage divided by 100. Add that increase to current pay.",
+    "example": "An 8% increase on 5,000 is 400, giving revised pay of 5,400.",
+    "mistakes": "Use 8 for eight percent, not 0.08. Keep the same pay period before and after the raise.",
+    "limitations": "The result excludes changes to tax, benefits and deductions.",
+    "faq": [
+      {
+        "q": "Does a raise increase every allowance?",
+        "a": "This tool applies the percentage only to the amount you enter."
+      },
+      {
+        "q": "Can I calculate an increase on basic salary only?",
+        "a": "Yes. Enter basic salary rather than the total package."
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "description": "Measure the percentage change between old and new salary. Distinguish the cash difference from the relative increase or decrease using comparable pay figures.",
+    "how": "Subtract old salary from new salary, divide by old salary and multiply by 100. The baseline must be greater than zero.",
+    "example": "From 5,000 to 5,500, the change is 500 \u00f7 5,000 \u00d7 100 = 10%.",
+    "mistakes": "Do not divide by new salary; that answers a different question.",
+    "limitations": "A zero baseline has no defined percentage change. Salary periods and currencies must match.",
+    "faq": [
+      {
+        "q": "Can the result be negative?",
+        "a": "Yes. A negative result means the new amount is lower than the old amount."
+      },
+      {
+        "q": "Why is my cash increase not my percentage increase?",
+        "a": "The percentage expresses that cash difference relative to your original salary."
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "description": "Compare two salaries on a consistent annual basis and subtract your own expenses. See why a larger headline salary may leave less money after living costs.",
+    "how": "Normalize both salaries to annual pay. Compare annual earnings and the amount left after the expenses you supply.",
+    "example": "Offer A pays 72,000 yearly with 36,000 expenses, leaving 36,000. Offer B pays 84,000 with 54,000 expenses, leaving 30,000.",
+    "mistakes": "Avoid mixing gross salary with net salary or currencies without an explicit conversion.",
+    "limitations": "No live salary benchmark, tax estimate or cost-of-living database is used.",
+    "faq": [
+      {
+        "q": "Does a higher salary always win?",
+        "a": "No. Compare expenses, benefits and personal priorities as well."
+      },
+      {
+        "q": "Are expenses automatically filled for a city?",
+        "a": "No. Supply figures that reflect your own household."
+      }
+    ]
+  },
+  {
+    "id": 16,
+    "description": "Estimate the months needed to reach a savings goal using your savings and monthly contribution. See the calculation without investment-return assumptions.",
+    "how": "Subtract saved funds from the goal and divide the remaining amount by monthly saving. Round up to whole months.",
+    "example": "A 20,000 goal minus 5,000 saved leaves 15,000. Saving 2,000 monthly requires 8 months.",
+    "mistakes": "Use money actually available for this goal, not emergency funds committed elsewhere.",
+    "limitations": "Assumes fixed monthly contributions with no interest, inflation or withdrawals. Zero saving cannot reach an unmet goal.",
+    "faq": [
+      {
+        "q": "What if I already reached the goal?",
+        "a": "No additional saving months are needed."
+      },
+      {
+        "q": "Does the final month need a full contribution?",
+        "a": "Not necessarily. Rounding up means the final contribution may be smaller."
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "description": "Plan a monthly budget using your income and expense categories. Find the remaining balance and savings share with figures you control and clear assumptions.",
+    "how": "Add monthly expenses, subtract their total from monthly income, and divide the remaining balance by income for the savings share.",
+    "example": "Income of 8,000 minus expenses of 6,000 leaves 2,000, or 25% of income.",
+    "mistakes": "Convert annual bills into monthly provisions and include irregular expenses.",
+    "limitations": "A budget is a plan, not a bank balance or guarantee. Savings percentage is undefined with zero income.",
+    "faq": [
+      {
+        "q": "Can the balance be negative?",
+        "a": "Yes. A negative balance shows planned expenses exceed income."
+      },
+      {
+        "q": "Should loan repayments be included?",
+        "a": "Include the monthly cash payment in an appropriate expense category."
+      }
+    ]
+  },
+  {
+    "id": 18,
+    "description": "Estimate a remittance with your own exchange rate and transfer fees. See the amount received without implying access to live rates or a transfer provider.",
+    "how": "Subtract the sending fee in the sending currency, multiply by receiving-currency units per one sending unit, then subtract the receiving fee.",
+    "example": "Send 1,000 with a 10 sending fee at 22 receiving units per sending unit: 990 \u00d7 22 = 21,780. A 50 receiving fee leaves 21,730.",
+    "mistakes": "Do not reverse the exchange rate or enter the same fee in both currencies.",
+    "limitations": "Rates and provider fee structures vary. This tool does not send money or fetch live quotes.",
+    "faq": [
+      {
+        "q": "Where do I find the rate?",
+        "a": "Use a current quote from the provider you intend to use."
+      },
+      {
+        "q": "Is the sending fee added on top?",
+        "a": "This formula deducts it from the entered amount. If a provider charges it on top, adjust your input accordingly."
+      }
+    ]
+  },
+  {
+    "id": 19,
+    "description": "Compare living costs in two places using your own household expenses. Review category totals in a common currency without relying on generic city averages.",
+    "how": "Enter corresponding expense categories for each location in the same currency and period. Sum each set and compare totals.",
+    "example": "Monthly costs of 4,000 in A and 5,200 in B differ by 1,200; B is 30% higher relative to A.",
+    "mistakes": "Use equivalent housing, household size and transport choices when comparing locations.",
+    "limitations": "No city price database, live exchange rate or affordability guarantee is included.",
+    "faq": [
+      {
+        "q": "Can I compare different currencies?",
+        "a": "Convert them into one currency before entering the amounts."
+      },
+      {
+        "q": "Does the result include school fees?",
+        "a": "Only when you include them in your supplied expenses."
+      }
+    ]
+  },
+  {
+    "id": 20,
+    "description": "Compare job offers using your own priorities for compensation and benefits. Inspect transparent weights instead of treating a single score as career advice.",
+    "how": "Choose criteria, rate both offers on the same scale and set nonnegative weights. Divide the weighted total by total weight.",
+    "example": "Salary rating 8 at weight 2 and work-life rating 6 at weight 1 gives (8 \u00d7 2 + 6 \u00d7 1) \u00f7 3 = 7.33.",
+    "mistakes": "A high weight magnifies a criterion. Do not compare ratings based on different scales.",
+    "limitations": "Scores express your judgments, not objective employer quality or a recommendation to accept.",
+    "faq": [
+      {
+        "q": "Must all weights add to 100?",
+        "a": "No. Relative weights work when divided by their total; the total must be positive."
+      },
+      {
+        "q": "Can I include relocation or family priorities?",
+        "a": "Yes. Use criteria that matter to your decision and rate them consistently."
+      }
+    ]
+  },
+  {
+    "id": 21,
+    "description": "Compare resume text with job-description keywords locally in your browser. Inspect matched and missing terms without sending your CV to an AI service.",
+    "how": "Paste the resume and job description. The tool normalizes text, extracts distinct eligible job-description terms and checks which occur in the resume.",
+    "example": "If eligible terms are inspection, calibration, safety and reporting, and three appear in the resume, overlap is 3 \u00f7 4 = 75%.",
+    "mistakes": "Do not add a missing skill unless it truthfully describes your experience.",
+    "limitations": "Term overlap is a deterministic text check, not an employer ATS score or shortlisting probability.",
+    "faq": [
+      {
+        "q": "Does this understand equivalent phrases?",
+        "a": "Only the normalization rules shown by the tool; it does not infer all synonyms or meaning."
+      },
+      {
+        "q": "Should I repeat keywords many times?",
+        "a": "No. Distinct-term matching does not reward unnecessary repetition."
+      }
+    ]
+  },
+  {
+    "id": 22,
+    "description": "Extract repeated words from a job description with a transparent text rule. Use the shortlist to review role language without inventing skills or requirements.",
+    "how": "Paste the job description. Tokenization and a disclosed stopword filter remove common filler; remaining terms are ranked by occurrence.",
+    "example": "A description containing calibration three times and commissioning twice ranks calibration above commissioning.",
+    "mistakes": "Frequency alone does not establish importance. Read mandatory qualifications and context.",
+    "limitations": "This is a word-frequency aid, not semantic analysis or a complete list of hiring requirements.",
+    "faq": [
+      {
+        "q": "Are every extracted word and skill the same thing?",
+        "a": "No. Some terms describe employers, locations or general duties."
+      },
+      {
+        "q": "Can an important term occur only once?",
+        "a": "Yes. Review the original description as well as the ranked list."
+      }
+    ]
+  },
+  {
+    "id": 23,
+    "description": "Count resume words, characters and lines in pasted text. Review document length locally with a clear counting convention rather than a universal resume limit.",
+    "how": "Paste text. Words are whitespace-separated tokens; character and line counts use the conventions stated beside the result.",
+    "example": "The phrase \u201cLed site commissioning\u201d contains 3 whitespace-separated words.",
+    "mistakes": "PDF layout and copied tables can introduce extra line breaks or merge words.",
+    "limitations": "Counts do not assess writing quality or determine whether a recruiter will accept a resume.",
+    "faq": [
+      {
+        "q": "Is there one ideal resume word count?",
+        "a": "No. Appropriate length depends on experience, profession and application requirements."
+      },
+      {
+        "q": "Why can Word show a different count?",
+        "a": "Applications may treat punctuation, hyphens and symbols differently."
+      }
+    ]
+  },
+  {
+    "id": 24,
+    "description": "Review resume bullet lengths against a threshold you choose. Find dense lines and inspect word counts without pretending there is one employer-approved limit.",
+    "how": "Paste one bullet per line and set a word or character threshold. The checker marks lines exceeding that threshold.",
+    "example": "With a 20-word threshold, a 24-word bullet is 4 words over your chosen limit.",
+    "mistakes": "Do not remove useful evidence solely to hit a number. Wrapped text may need line-break cleanup.",
+    "limitations": "The threshold is a writing preference, not a verified ATS rejection rule.",
+    "faq": [
+      {
+        "q": "Can a long bullet still be useful?",
+        "a": "Yes. Clarity and relevant evidence matter more than an arbitrary count."
+      },
+      {
+        "q": "Does this rewrite bullets?",
+        "a": "No. It identifies length so you can edit truthfully."
+      }
+    ]
+  },
+  {
+    "id": 25,
+    "description": "Check whether resume bullets start with a listed action verb. Review weak openings locally using a visible vocabulary list and your professional judgment.",
+    "how": "The checker reads each bullet opening and compares it with the displayed action-verb list.",
+    "example": "\u201cLed commissioning activities\u201d starts with \u201cLed\u201d; \u201cResponsible for commissioning\u201d starts with \u201cResponsible\u201d.",
+    "mistakes": "A strong verb does not justify invented achievements or exaggerated responsibility.",
+    "limitations": "The curated list is incomplete. Unrecognized verbs are review prompts, not grammar errors.",
+    "faq": [
+      {
+        "q": "Does passing this check make a bullet strong?",
+        "a": "No. Specific, accurate context and outcomes still matter."
+      },
+      {
+        "q": "Can I use present-tense verbs?",
+        "a": "Yes. Choose tense that matches current or completed work."
+      }
+    ]
+  },
+  {
+    "id": 26,
+    "description": "Review email, phone and LinkedIn contact formats before sharing a resume. Inspect syntax locally without claiming that an address, number or profile is real.",
+    "how": "Enter the contact values. The tool checks their visible structure and flags malformed or incomplete entries.",
+    "example": "A value such as name.example.com lacks an email @ separator and should be reviewed.",
+    "mistakes": "Avoid accidental spaces, copied punctuation or a LinkedIn address belonging to another person.",
+    "limitations": "Syntax checks do not verify email delivery, phone ownership, profile existence or identity.",
+    "faq": [
+      {
+        "q": "Does a valid format mean the email works?",
+        "a": "No. Confirm it through your own account or communication."
+      },
+      {
+        "q": "Will this contact anyone?",
+        "a": "No. The format check does not send messages or make calls."
+      }
+    ]
+  },
+  {
+    "id": 27,
+    "description": "Check pasted resume text for section headings. Find possible omissions and review structure without assuming every profession needs identical sections.",
+    "how": "Paste text. The checker searches for disclosed common headings and reports which were recognized.",
+    "example": "A resume with \u201cExperience\u201d, \u201cEducation\u201d and \u201cSkills\u201d recognizes those headings; a custom \u201cSelected Work\u201d title may need manual review.",
+    "mistakes": "Do not add irrelevant sections just to clear every prompt.",
+    "limitations": "Heading detection can miss unusual labels and cannot confirm that a section contains sufficient evidence.",
+    "faq": [
+      {
+        "q": "Is a professional summary mandatory?",
+        "a": "No. Decide whether it helps your application and follow employer instructions."
+      },
+      {
+        "q": "Can custom sections be useful?",
+        "a": "Yes. Projects, portfolios and specialist work may be important for your profession."
+      }
+    ]
+  },
+  {
+    "id": 28,
+    "description": "Review employment date ranges for reversed dates and overlaps. Inspect possible inconsistencies while keeping concurrent jobs and ambiguous source text visible.",
+    "how": "Enter explicit start and end dates for each role. The checker compares ordering and intersections without deciding whether overlap is an error.",
+    "example": "A role ending 30 June and another starting 1 July has no overlap under inclusive date ranges.",
+    "mistakes": "Do not treat concurrent part-time roles as automatically incorrect or guess missing months.",
+    "limitations": "Ambiguous or incomplete dates need confirmation. The tool cannot verify employment history.",
+    "faq": [
+      {
+        "q": "Are overlapping dates always wrong?",
+        "a": "No. Concurrent roles, consulting and transitions can explain them."
+      },
+      {
+        "q": "What should I do with an unknown date?",
+        "a": "Check your records and retain an honest approximation rather than inventing precision."
+      }
+    ]
+  },
+  {
+    "id": 29,
+    "description": "Review an ATS formatting checklist before submitting your resume. Work through practical document checks without receiving a misleading employer ATS score.",
+    "how": "Inspect your own file and mark each checklist item after checking it. Completion reflects your selections only.",
+    "example": "Completing 6 of 8 checklist items means 75% of this checklist is marked complete; it is not a hiring-system score.",
+    "mistakes": "Do not mark a check complete merely because a preview looks attractive. Follow the vacancy\u2019s file requirements.",
+    "limitations": "The checklist does not run an employer parser, inspect every document element or predict screening results.",
+    "faq": [
+      {
+        "q": "Can this guarantee ATS compatibility?",
+        "a": "No. Employers use different systems and settings."
+      },
+      {
+        "q": "Should I follow the employer\u2019s instructions first?",
+        "a": "Yes. Their requested format and submission method take priority."
+      }
+    ]
+  },
+  {
+    "id": 30,
+    "description": "Check a resume file\u2019s size locally against a limit you supply. See bytes, MB and MiB without uploading or reading your CV content on a remote service.",
+    "how": "Choose a local file and enter the destination\u2019s size limit. Compare its bytes using the displayed decimal or binary unit.",
+    "example": "1,000,000 bytes is 1 MB in decimal units and about 0.954 MiB in binary units.",
+    "mistakes": "Check whether the application portal means MB or MiB and whether its limit includes attachments.",
+    "limitations": "File size does not establish file safety, readability, format validity or ATS compatibility.",
+    "faq": [
+      {
+        "q": "Is the file uploaded?",
+        "a": "No. The checker reads local file metadata."
+      },
+      {
+        "q": "Does a smaller PDF always mean better quality?",
+        "a": "No. Compression can reduce readability; inspect the final document."
+      }
+    ]
+  },
+  {
+    "id": 31,
+    "description": "Calculate professional experience from multiple employment periods. Merge overlapping dates to avoid double counting time and see the date conventions used.",
+    "how": "Enter explicit periods. Sort them, merge intersecting periods and total unique calendar days within the supplied range.",
+    "example": "1\u201310 January and 5\u201315 January cover 15 unique days when both endpoints count, not 21 days.",
+    "mistakes": "Do not add concurrent jobs as if they happened consecutively.",
+    "limitations": "Calendar duration does not convert part-time work into full-time equivalent experience or verify professional eligibility.",
+    "faq": [
+      {
+        "q": "Can I include internships?",
+        "a": "Include them if relevant, but label them honestly when reporting experience."
+      },
+      {
+        "q": "Why is this different from adding each job duration?",
+        "a": "Overlapping days count once in total unique experience."
+      }
+    ]
+  },
+  {
+    "id": 32,
+    "description": "Find uncovered periods between employment dates. Review calendar gaps without assuming that study, care responsibilities or a career break is a negative.",
+    "how": "Enter dated employment intervals. Merge overlaps and calculate the uncovered periods between adjacent intervals.",
+    "example": "A role ending 31 January and the next beginning 1 March leaves February uncovered; in a non-leap year that is 28 days.",
+    "mistakes": "Do not label a gap as unemployment without considering study, freelance work or other activities.",
+    "limitations": "The result finds calendar gaps only and cannot explain their cause.",
+    "faq": [
+      {
+        "q": "Does this assess whether a gap is acceptable?",
+        "a": "No. Hiring context varies; prepare an accurate explanation where relevant."
+      },
+      {
+        "q": "Are dates before my first job counted?",
+        "a": "Only if the tool explicitly asks you to define an analysis window."
+      }
+    ]
+  },
+  {
+    "id": 33,
+    "description": "Calculate time remaining before an interview using an date and time zone. Reduce scheduling confusion and keep the original invitation as your reference.",
+    "how": "Enter the interview date, time and specified zone. Compare that instant with the current instant to show the remaining duration.",
+    "example": "An interview 48 hours from the current instant has a two-day countdown regardless of the viewer\u2019s display zone.",
+    "mistakes": "Do not assume a recruiter\u2019s local time is your own; confirm the invitation\u2019s zone.",
+    "limitations": "A countdown is not a reminder or calendar invitation. Device clock errors affect the result.",
+    "faq": [
+      {
+        "q": "Will I receive an alert?",
+        "a": "No. Add a separate calendar reminder if needed."
+      },
+      {
+        "q": "What if the interview time has passed?",
+        "a": "The tool should show that the supplied instant is in the past rather than a negative future countdown."
+      }
+    ]
+  },
+  {
+    "id": 34,
+    "description": "Build an interview preparation checklist and track completed tasks. Adapt it to your role, then print a practical preparation list for your next interview.",
+    "how": "Review suggested preparation tasks, add your own and mark completed items. Completion is completed tasks divided by total tasks.",
+    "example": "If 3 of 5 tasks are complete, checklist progress is 60%.",
+    "mistakes": "Do not confuse checklist completion with interview readiness or a predicted performance score.",
+    "limitations": "Suggested tasks are general preparation prompts, not role-specific technical coaching.",
+    "faq": [
+      {
+        "q": "Can I add technical revision tasks?",
+        "a": "Yes. Add topics relevant to your actual role and interview."
+      },
+      {
+        "q": "Is progress a readiness score?",
+        "a": "No. It measures completion of this list only."
+      }
+    ]
+  },
+  {
+    "id": 35,
+    "description": "Organize job applications in your browser with statuses and follow-up notes. Export a backup because local data can disappear when browser storage is cleared.",
+    "how": "Add employer, role, application date and status. Update progress and export a backup before changing browsers or devices.",
+    "example": "An application can move from Applied to Interview after an invitation; this is a status you set, not a recruiter update.",
+    "mistakes": "Do not rely on one browser as your only record or store passwords and sensitive identity documents.",
+    "limitations": "Records stay in this browser and may be lost when storage is cleared. There is no cross-device account sync.",
+    "faq": [
+      {
+        "q": "Does it apply for jobs?",
+        "a": "No. It records applications you manage yourself."
+      },
+      {
+        "q": "Will the tracker follow me to another phone?",
+        "a": "Not automatically. Export and import a supported backup where available."
+      }
+    ]
+  },
+  {
+    "id": 36,
+    "description": "Build job-search links from your role and location keywords. Open searches on supported websites without scraping vacancies or claiming to submit applications.",
+    "how": "Enter role and location. The tool URL-encodes your query and constructs a search link for the chosen supported site.",
+    "example": "A role containing \u201cInstrumentation & Control\u201d must encode the ampersand so it remains part of the query.",
+    "mistakes": "Use specific role terms and verify filters on the destination site.",
+    "limitations": "Job-site URLs and search behavior can change. Results, login requirements and availability belong to the destination.",
+    "faq": [
+      {
+        "q": "Does the builder collect job listings?",
+        "a": "No. It creates links to external searches."
+      },
+      {
+        "q": "Will it apply automatically?",
+        "a": "No. You review opportunities and apply on the destination site."
+      }
+    ]
+  },
+  {
+    "id": 37,
+    "description": "Count the characters in a LinkedIn headline against a limit you set. Review concise wording without claiming to verify LinkedIn\u2019s current account rules.",
+    "how": "Paste your headline and set the character limit you want to check. Count Unicode characters using the displayed convention.",
+    "example": "A 120-character headline checked against a 150-character target leaves 30 characters.",
+    "mistakes": "Emojis and combined characters may be counted differently by the destination application.",
+    "limitations": "The target is user-selected and platform rules can change. Confirm acceptance in LinkedIn itself.",
+    "faq": [
+      {
+        "q": "Does a shorter headline rank higher?",
+        "a": "This tool makes no ranking claim. Clear, relevant wording matters."
+      },
+      {
+        "q": "Does this update LinkedIn?",
+        "a": "No. Copy the text and update your profile yourself."
+      }
+    ]
+  },
+  {
+    "id": 38,
+    "description": "Draft a resignation letter using your own employer, role and proposed final date. Review the wording and contractual requirements before sending it yourself.",
+    "how": "Enter the requested factual details. The template inserts them into a concise resignation letter for your review.",
+    "example": "For a proposed final day of 30 June, the draft can state that date without deciding whether the required notice has been satisfied.",
+    "mistakes": "Check names, dates, notice provisions and the correct recipient before sending.",
+    "limitations": "A template does not establish valid notice, release from duties or legal compliance.",
+    "faq": [
+      {
+        "q": "Is the letter sent automatically?",
+        "a": "No. Review and send it through the appropriate channel yourself."
+      },
+      {
+        "q": "Does it calculate my last working day?",
+        "a": "No. Supply a date you have checked against your circumstances."
+      }
+    ]
+  },
+  {
+    "id": 39,
+    "description": "Create an experience-letter draft using employment details. Prepare text for employer review without implying that the platform certifies your work history.",
+    "how": "Provide name, employer, role, start/end dates and accurate duties. Generate a draft for an authorized employer representative to review.",
+    "example": "A supplied role of Instrument Technician stays Instrument Technician; the template must not upgrade it to Engineer.",
+    "mistakes": "Do not add unverified achievements, salary, signatures, company seals or endorsement claims.",
+    "limitations": "The draft is not an issued certificate, employer verification or proof of employment.",
+    "faq": [
+      {
+        "q": "Can I use it as an official certificate immediately?",
+        "a": "No. The employer must review and issue any official letter through its process."
+      },
+      {
+        "q": "Will duties be invented?",
+        "a": "No. Include only duties you supply and can support."
+      }
+    ]
+  },
+  {
+    "id": 40,
+    "description": "Draft a salary negotiation email from your offer, target and truthful reasons. Review a clear request without inventing market evidence or competing offers.",
+    "how": "Enter the role, current offer, requested amount and supporting facts. The template presents a courteous request and leaves the decision to the employer.",
+    "example": "An offer of 8,000 and target of 9,000 can be stated as a request for 9,000; it is not proof that 9,000 is market pay.",
+    "mistakes": "Do not invent another offer, salary benchmark or achievement to justify the request.",
+    "limitations": "The template does not predict negotiation success or assess local compensation markets.",
+    "faq": [
+      {
+        "q": "Will it send the email?",
+        "a": "No. Review the draft and send it yourself."
+      },
+      {
+        "q": "Can I negotiate benefits instead?",
+        "a": "Yes. Supply an accurate request for relevant benefits rather than an unsupported cash claim."
+      }
+    ]
+  },
+  {
+    "id": 41,
+    "description": "Count working days between dates using your chosen weekends and holidays. See an inclusive calculation without assuming every country follows the same calendar.",
+    "how": "Count both endpoints, remove selected weekend days, then remove supplied holidays that would otherwise be working days.",
+    "example": "1\u20137 June 2026 contains 7 days. With Saturday/Sunday weekends it has 5 working days; a Monday holiday reduces it to 4.",
+    "mistakes": "Do not subtract holidays twice when they already fall on a weekend.",
+    "limitations": "No official public-holiday calendar is automatically supplied; working schedules vary.",
+    "faq": [
+      {
+        "q": "Can I choose Friday and Saturday as weekends?",
+        "a": "Yes. Select the days matching the schedule you need."
+      },
+      {
+        "q": "Are start and end dates included?",
+        "a": "Yes, under this tool\u2019s stated inclusive convention."
+      }
+    ]
+  },
+  {
+    "id": 42,
+    "description": "Find the calendar-day difference between two dates with a clear endpoint rule. Avoid daylight-saving surprises when comparing date-only career milestones.",
+    "how": "Convert valid date-only inputs into UTC calendar dates and subtract them. The ordinary difference excludes the starting date.",
+    "example": "1 June to 2 June differs by 1 day; counting both dates inclusively would instead give 2 dates.",
+    "mistakes": "Do not mix an elapsed-day difference with an inclusive count of dates.",
+    "limitations": "Date-only arithmetic does not measure business days, hours worked or legal deadlines.",
+    "faq": [
+      {
+        "q": "Are weekends included?",
+        "a": "Yes. Use the Working Days Calculator to exclude them."
+      },
+      {
+        "q": "Does the time zone change the answer?",
+        "a": "Not for validated date-only UTC calendar arithmetic."
+      }
+    ]
+  },
+  {
+    "id": 43,
+    "description": "Calculate completed age on a reference date using your date of birth. Review the date convention clearly without treating the result as an eligibility decision.",
+    "how": "Enter a birth date and an on-date. Count completed anniversaries and the remaining calendar period under the displayed leap-day policy.",
+    "example": "A person born 10 May 1990 is 36 completed years old on 10 May 2026.",
+    "mistakes": "Check day/month order and do not use a future birth date.",
+    "limitations": "Leap-day anniversary conventions vary. This tool does not determine immigration, pension or employment eligibility.",
+    "faq": [
+      {
+        "q": "Can I calculate age on a future date?",
+        "a": "Yes. Supply that reference date explicitly."
+      },
+      {
+        "q": "What about 29 February birthdays?",
+        "a": "Use the policy displayed by the calculator; verify the relevant authority\u2019s convention for legal use."
+      }
+    ]
+  },
+  {
+    "id": 44,
+    "description": "Calculate a percentage of an amount with visible arithmetic. Keep percentage values, proportions and percentage changes distinct when reviewing salary figures.",
+    "how": "For a percentage of a value, multiply the value by the percentage and divide by 100. Other percentage questions require their own stated denominator.",
+    "example": "15% of 8,000 is 8,000 \u00d7 15 \u00f7 100 = 1,200.",
+    "mistakes": "Enter 15 for fifteen percent and do not confuse a 15% increase with adding 15 currency units.",
+    "limitations": "A percentage alone has no currency or pay-period meaning; interpret it with your inputs.",
+    "faq": [
+      {
+        "q": "Can percentages exceed 100?",
+        "a": "Yes in suitable contexts, provided the tool permits the relevant input."
+      },
+      {
+        "q": "Is percentage change the same calculation?",
+        "a": "No. Change compares a difference with an original baseline."
+      }
+    ]
+  },
+  {
+    "id": 45,
+    "description": "Compare time-zone offsets at a specific instant, including seasonal clock changes where supported. Check interview scheduling with explicit zones and dates.",
+    "how": "Choose two named zones and a reference instant. Obtain their UTC offsets at that instant and subtract the offsets.",
+    "example": "Riyadh is UTC+03:00 and Kolkata UTC+05:30, so Kolkata is 2 hours 30 minutes ahead at an instant using those offsets.",
+    "mistakes": "Do not reuse a winter offset for a summer meeting in a zone with seasonal changes.",
+    "limitations": "Results depend on the browser\u2019s time-zone data. Confirm important meetings against the invitation.",
+    "faq": [
+      {
+        "q": "Is the difference always a whole hour?",
+        "a": "No. Some zones use half-hour or quarter-hour offsets."
+      },
+      {
+        "q": "Can the difference change during the year?",
+        "a": "Yes. Seasonal clock changes can alter it."
+      }
+    ]
+  },
+  {
+    "id": 46,
+    "description": "Count calendar days until a contract date you supply. Plan a review or renewal discussion without assuming that the contract automatically ends or renews.",
+    "how": "Enter the contractual end date and the reference date. Show their calendar-day difference and clearly identify past dates.",
+    "example": "From 1 June to 30 June the date difference is 29 days; an inclusive count of both dates is 30.",
+    "mistakes": "Do not confuse a countdown with a required notice deadline or last day of attendance.",
+    "limitations": "The date alone does not determine termination, renewal, notice or legal rights.",
+    "faq": [
+      {
+        "q": "Does the tool renew my contract?",
+        "a": "No. It displays a date-based countdown."
+      },
+      {
+        "q": "Should I use it for legal notice?",
+        "a": "Check your contract and applicable rules separately; the countdown does not establish notice requirements."
+      }
+    ]
+  },
+  {
+    "id": 47,
+    "description": "Add a probation duration you supply to an employment start date. Inspect the date convention without relying on an assumed legal maximum or contract rule.",
+    "how": "Enter the start date and calendar-day duration. Apply the stated inclusive or elapsed-day convention consistently.",
+    "example": "For a start of 1 June and 30 counted calendar days, an inclusive final day is 30 June; adding 30 elapsed days gives 1 July.",
+    "mistakes": "Do not mix calendar days with working days or ignore documented exclusions and extensions.",
+    "limitations": "The tool does not establish a lawful probation length or whether exclusions apply.",
+    "faq": [
+      {
+        "q": "Is the entered duration legally allowed?",
+        "a": "The date calculation does not decide that. Check the applicable contract and law."
+      },
+      {
+        "q": "Can unpaid absence extend probation?",
+        "a": "That depends on the applicable rules and contract; do not assume an extension from this arithmetic."
+      }
+    ]
+  },
+  {
+    "id": 48,
+    "description": "Plan annual leave using your selected dates, weekends, holidays and balance. Estimate days used without assuming an employer\u2019s leave-accounting policy.",
+    "how": "Count dates inclusively, remove selected nonworking days and supplied holidays, then subtract planned leave from the balance you enter.",
+    "example": "A Monday\u2013Friday period with no holidays uses 5 working days. A balance of 18 then leaves 13.",
+    "mistakes": "Confirm whether your employer charges working days or calendar days and whether travel days count.",
+    "limitations": "This planner does not establish entitlement, approval, carry-over or official holiday dates.",
+    "faq": [
+      {
+        "q": "Does it submit leave to my employer?",
+        "a": "No. Use your employer\u2019s approval process."
+      },
+      {
+        "q": "Can I use it for a calendar-day leave policy?",
+        "a": "Only use a configuration that matches that policy; do not automatically exclude weekends."
+      }
+    ]
+  },
+  {
+    "id": 49,
+    "description": "Create a printable checklist for applications, interviews or career tasks. Edit items, mark progress and use a clean print layout without creating an account.",
+    "how": "Add a title and one task per item. Mark completed items, then review the print preview before printing or saving as PDF.",
+    "example": "A list with 2 completed tasks out of 4 shows 50% list completion.",
+    "mistakes": "Avoid putting confidential identifiers or credentials on a checklist you intend to share.",
+    "limitations": "Print layout and PDF options depend on your browser and device. Completion is not an assessment of task quality.",
+    "faq": [
+      {
+        "q": "Can I customize every item?",
+        "a": "Yes. Use tasks that fit your own workflow."
+      },
+      {
+        "q": "Does printing save an online copy?",
+        "a": "No. Keep any file or paper copy you create yourself."
+      }
+    ]
+  },
+  {
+    "id": 50,
+    "description": "Turn structured career notes or a checklist into a printable document. Use your browser\u2019s Save as PDF option and review the output before sharing it.",
+    "how": "Enter a document title, section headings and notes or checklist items. Open print preview and choose Save as PDF if your browser offers it.",
+    "example": "A title, an Interview preparation section and three tasks produce a structured document you can inspect in print preview.",
+    "mistakes": "Review page breaks, paper size and whether browser headers or footers should be included.",
+    "limitations": "This uses the browser\u2019s print system. It does not promise identical pagination or a direct PDF download on every device.",
+    "faq": [
+      {
+        "q": "Is this a resume design or ATS certification tool?",
+        "a": "No. It exports your own structured notes or checklist."
+      },
+      {
+        "q": "Where is the PDF stored?",
+        "a": "You choose a location through your device\u2019s print or save dialog."
+      }
+    ]
+  }
+]

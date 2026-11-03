@@ -36,6 +36,7 @@ import { GulfFlag, isGulfFlagCountry } from '@/components/ui/GulfFlag'
 // Profile Strength is part of Career Profile since 2026-09-11, so it has no
 // separate link here.
 const LIVE_SERVICES = [
+  { label: 'Free Tools', href: '/tools' },
   { label: 'Career Profile', href: '/profile' },
   { label: CTA.addTargetJob, href: '/optimize/target' },
   { label: NAMES.coverLetter, href: '/cover-letter' },

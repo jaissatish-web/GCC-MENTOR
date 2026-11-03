@@ -99,6 +99,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { label: NAMES.naukrigulf, href: '/naukrigulf-optimization', iconClass: 'ui-nav-naukrigulf', icon: IdentificationIcon },
   { label: NAMES.linkedin, href: '/linkedin-optimization', iconClass: 'ui-nav-linkedin', icon: IdentificationIcon },
   { label: 'Career Profile', href: '/profile', iconClass: 'ui-nav-profile', icon: UserCircleIcon, shortLabel: 'Profile' },
+  { label: 'Free Tools', href: '/tools', iconClass: 'ui-nav-templates', icon: Squares2X2Icon },
   { label: 'Settings', href: '/settings', iconClass: 'ui-nav-settings', icon: Cog6ToothIcon },
 ] as const
 
@@ -149,6 +150,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
   { key: 'cv', label: 'Build your resume', hrefs: ['/optimize', '/templates', '/cover-letter'], stage: 'cv' },
   { key: 'apply', label: 'Job preparation', hrefs: ['/interview-qa', '/mock-interview'], stage: 'apply' },
   { key: 'professional', label: 'Profile optimization', hrefs: [ '/linkedin-optimization', '/naukrigulf-optimization'] },
+  { key: 'free-tools', label: null, hrefs: ['/tools'] },
   { key: 'account', label: 'Account', hrefs: ['/profile', '/settings'] },
 ]
 
