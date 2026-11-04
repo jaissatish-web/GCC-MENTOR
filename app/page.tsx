@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowRight, ArrowUpRight, BookOpen, Check, ClipboardCheck, FileText, FolderOpen, Mail, Mic, ShieldCheck, Target } from 'lucide-react'
 import { AuthLinkCatcher } from '@/components/auth/AuthLinkCatcher'
+import { Reveal } from '@/components/ui/Reveal'
 import { PremiumNav } from '@/components/landing-v3/PremiumNav'
 import { LandingFooter } from '@/components/landing-v3/LandingFooter'
 import { DocumentOrbit, GccGlobe } from '@/components/landing-v3/lazy'
@@ -126,6 +127,13 @@ export default function Home() {
               <div className={s.visualFoot}><Link href="/templates">Find your resume style <ArrowRight size={16} aria-hidden="true" /></Link></div>
             </div>
           </div>
+          {/* Dune-wave divider — a static decorative curve flowing the navy band
+              into the ivory canvas below (aria-hidden; not content). */}
+          <div className={s.heroWave} aria-hidden="true">
+            <svg viewBox="0 0 1440 56" preserveAspectRatio="none" focusable="false">
+              <path d="M0,32 C240,8 480,54 720,34 C960,8 1200,50 1440,26 L1440,56 L0,56 Z" fill="#F7F4EC" />
+            </svg>
+          </div>
         </section>
 
         {/* ── Country picks · six GCC cards with a reason + hover lift ── */}
@@ -134,14 +142,16 @@ export default function Home() {
             <div className={s.sectionHead}>
               <span className={s.kickerGold}>Prepared for all six Gulf markets</span>
             </div>
-            <ul className={s.countryGrid}>
-              {COUNTRIES.map(country => (
-                <li key={country.name} className={s.countryCard}>
-                  <span className={s.countryFlag} aria-hidden="true">{country.flag}</span>
-                  <b className={s.countryName}>{country.name}</b>
-                </li>
+            <div className={s.countryGrid}>
+              {COUNTRIES.map((country, index) => (
+                <Reveal key={country.name} delay={index * 40}>
+                  <div className={s.countryCard}>
+                    <span className={s.countryFlag} aria-hidden="true">{country.flag}</span>
+                    <b className={s.countryName}>{country.name}</b>
+                  </div>
+                </Reveal>
               ))}
-            </ul>
+            </div>
           </div>
         </section>
 
