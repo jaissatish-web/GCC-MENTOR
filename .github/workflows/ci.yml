@@ -52,6 +52,9 @@ jobs:
       - name: Verify public free-tool pages and calculations
         run: |
           CHROME_PATH="$(node --input-type=module -e "import puppeteer from 'puppeteer'; console.log(await puppeteer.executablePath())")" node scripts/verify-free-tools-pages.mjs
+      - name: Verify premium tools reference layout and interactions
+        run: |
+          CHROME_PATH="$(node --input-type=module -e "import puppeteer from 'puppeteer'; console.log(await puppeteer.executablePath())")" node scripts/verify-premium-tools.mjs
       - name: Verify resume PDF compatibility after browser updates
         run: |
           node node_modules/sucrase/bin/sucrase-node scripts/verify-template-pdfs.ts ats_classic falcon_executive emerald_professional
