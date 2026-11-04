@@ -45,3 +45,6 @@ Palette: heading #123B5D; action #087E9A (white text contrast verified in QA); s
 |Visual gate|Not reached|
 |D remaining49 tool bodies|Not started; approval dependency|
 |E SaaS rollout|Not started; approval dependency|
+
+## Implemented reference — latest status
+The approved reference scope above is now implemented and locally verified. The earlier 'not implemented' planning labels are retained as dated history. [Delivery report](DELIVERY.md) records the actual shipped-to-preview scope, metrics, screenshots, passing checks and access limits. PR#70 remains unmerged pending founder visual approval. StageD/E remain not started. Field boundaries were strengthened to#7D8DA2 after measured contrast QA; semantic card H2s now explicitly outrank legacy central h2[class] enforcement within the reference scope.

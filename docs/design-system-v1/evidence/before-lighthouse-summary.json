@@ -1,0 +1,240 @@
+{
+  "mode": "before",
+  "commands": {
+    "serve": "node node_modules/next/dist/bin/next start -H 127.0.0.1 -p 3102",
+    "mobile": "CHROME_PATH=/tmp/gcc-chromium149 npm exec --yes --package=lighthouse@13.6.0 -- lighthouse http://127.0.0.1:3102/tools --chrome-flags='--headless --no-sandbox --disable-dev-shm-usage' --throttling-method=devtools --only-categories=performance,accessibility,best-practices,seo --output=json --output-path=report.json --quiet",
+    "desktop": "Same mobile command plus --preset=desktop",
+    "calculator": "Same commands with /tools/working-days-calculator; baseline uses unchanged build5c426c5 on same localhost infrastructure"
+  },
+  "method": "One local production-build navigation run per page/form factor; Lighthouse13.6.0 with Chromium149 and actual DevTools throttling. No production secrets or user accounts. Lab results are not field75th percentile CWV or INP, host load and single-run variance limit comparisons.",
+  "reports": [
+    {
+      "file": "before-hub-desktop-devtools.lighthouse.json",
+      "url": "http://127.0.0.1:3101/tools",
+      "fetchTime": "2026-11-04T09:09:27.797Z",
+      "lighthouseVersion": "13.6.0",
+      "chrome": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.0 Safari/537.36",
+      "benchmarkIndex": 1878.5,
+      "config": {
+        "formFactor": "desktop",
+        "throttlingMethod": "devtools",
+        "throttling": {
+          "rttMs": 40,
+          "throughputKbps": 10240,
+          "requestLatencyMs": 0,
+          "downloadThroughputKbps": 0,
+          "uploadThroughputKbps": 0,
+          "cpuSlowdownMultiplier": 1
+        },
+        "screenEmulation": {
+          "mobile": false,
+          "width": 1350,
+          "height": 940,
+          "deviceScaleFactor": 1,
+          "disabled": false
+        }
+      },
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "first-contentful-paint": {
+          "value": 193.637,
+          "unit": "millisecond"
+        },
+        "largest-contentful-paint": {
+          "value": 193.637,
+          "unit": "millisecond"
+        },
+        "total-blocking-time": {
+          "value": 38.003999999999905,
+          "unit": "millisecond"
+        },
+        "cumulative-layout-shift": {
+          "value": 0,
+          "unit": "unitless"
+        },
+        "speed-index": {
+          "value": 194,
+          "unit": "millisecond"
+        }
+      },
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "file": "before-hub-mobile-devtools.lighthouse.json",
+      "url": "http://127.0.0.1:3101/tools",
+      "fetchTime": "2026-11-04T09:08:54.403Z",
+      "lighthouseVersion": "13.6.0",
+      "chrome": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.0 Safari/537.36",
+      "benchmarkIndex": 1305.5,
+      "config": {
+        "formFactor": "mobile",
+        "throttlingMethod": "devtools",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "requestLatencyMs": 562.5,
+          "downloadThroughputKbps": 1474.5600000000002,
+          "uploadThroughputKbps": 675,
+          "cpuSlowdownMultiplier": 4
+        },
+        "screenEmulation": {
+          "mobile": true,
+          "width": 412,
+          "height": 823,
+          "deviceScaleFactor": 1.75,
+          "disabled": false
+        }
+      },
+      "scores": {
+        "performance": 76,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "first-contentful-paint": {
+          "value": 2267.262,
+          "unit": "millisecond"
+        },
+        "largest-contentful-paint": {
+          "value": 2267.262,
+          "unit": "millisecond"
+        },
+        "total-blocking-time": {
+          "value": 884.556,
+          "unit": "millisecond"
+        },
+        "cumulative-layout-shift": {
+          "value": 0,
+          "unit": "unitless"
+        },
+        "speed-index": {
+          "value": 2269,
+          "unit": "millisecond"
+        }
+      },
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "file": "before-working-days-desktop-devtools.lighthouse.json",
+      "url": "http://127.0.0.1:3101/tools/working-days-calculator",
+      "fetchTime": "2026-11-04T09:10:34.730Z",
+      "lighthouseVersion": "13.6.0",
+      "chrome": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.0 Safari/537.36",
+      "benchmarkIndex": 1582,
+      "config": {
+        "formFactor": "desktop",
+        "throttlingMethod": "devtools",
+        "throttling": {
+          "rttMs": 40,
+          "throughputKbps": 10240,
+          "requestLatencyMs": 0,
+          "downloadThroughputKbps": 0,
+          "uploadThroughputKbps": 0,
+          "cpuSlowdownMultiplier": 1
+        },
+        "screenEmulation": {
+          "mobile": false,
+          "width": 1350,
+          "height": 940,
+          "deviceScaleFactor": 1,
+          "disabled": false
+        }
+      },
+      "scores": {
+        "performance": 100,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "first-contentful-paint": {
+          "value": 252.521,
+          "unit": "millisecond"
+        },
+        "largest-contentful-paint": {
+          "value": 252.521,
+          "unit": "millisecond"
+        },
+        "total-blocking-time": {
+          "value": 0,
+          "unit": "millisecond"
+        },
+        "cumulative-layout-shift": {
+          "value": 0,
+          "unit": "unitless"
+        },
+        "speed-index": {
+          "value": 252,
+          "unit": "millisecond"
+        }
+      },
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "file": "before-working-days-mobile-devtools.lighthouse.json",
+      "url": "http://127.0.0.1:3101/tools/working-days-calculator",
+      "fetchTime": "2026-11-04T09:09:58.067Z",
+      "lighthouseVersion": "13.6.0",
+      "chrome": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.0 Safari/537.36",
+      "benchmarkIndex": 2084,
+      "config": {
+        "formFactor": "mobile",
+        "throttlingMethod": "devtools",
+        "throttling": {
+          "rttMs": 150,
+          "throughputKbps": 1638.4,
+          "requestLatencyMs": 562.5,
+          "downloadThroughputKbps": 1474.5600000000002,
+          "uploadThroughputKbps": 675,
+          "cpuSlowdownMultiplier": 4
+        },
+        "screenEmulation": {
+          "mobile": true,
+          "width": 412,
+          "height": 823,
+          "deviceScaleFactor": 1.75,
+          "disabled": false
+        }
+      },
+      "scores": {
+        "performance": 77,
+        "accessibility": 100,
+        "best-practices": 100,
+        "seo": 100
+      },
+      "metrics": {
+        "first-contentful-paint": {
+          "value": 2206.324,
+          "unit": "millisecond"
+        },
+        "largest-contentful-paint": {
+          "value": 2206.324,
+          "unit": "millisecond"
+        },
+        "total-blocking-time": {
+          "value": 800.8839999999991,
+          "unit": "millisecond"
+        },
+        "cumulative-layout-shift": {
+          "value": 0,
+          "unit": "unitless"
+        },
+        "speed-index": {
+          "value": 2387,
+          "unit": "millisecond"
+        }
+      },
+      "errors": [],
+      "warnings": []
+    }
+  ]
+}

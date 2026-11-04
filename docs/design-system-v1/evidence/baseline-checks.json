@@ -1,0 +1,14 @@
+{
+  "commit": "5c426c53de7df3da5a19e9dd8a3e097311816c90",
+  "date": "2026-11-04",
+  "typecheck": "passed",
+  "lint": "passed, no warnings/errors",
+  "test": "92/92 passed",
+  "build": "passed, Next.js15.5.28,134 static pages",
+  "freeToolsBuiltPages": {"staticRoutes":50,"hydratedStates":40,"activeTools":20,"widths":[360,1440],"result":"passed"},
+  "firstLoadJs": {"hub":"124kB","toolDetail":"122kB"},
+  "screenshotWidths":[390,1440],
+  "screenshotHeight":1000,
+  "screenshotIssues":{"overflow":false,"pageErrors":[]},
+  "limits":["Placeholder environment, no production accounts or APIs used","Browser harness serves built assets through interception; not production HTTP/auth verification","Lighthouse is local lab testing, not75th-percentile field Core Web Vitals or INP"]
+}

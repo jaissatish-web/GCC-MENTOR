@@ -1,0 +1,402 @@
+{
+  "staticPages": 50,
+  "hydratedPages": 40,
+  "interactions": [
+    {
+      "id": 21,
+      "width": 360,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 21,
+      "width": 1440,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 22,
+      "width": 360,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 22,
+      "width": 1440,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 23,
+      "width": 360,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 23,
+      "width": 1440,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 24,
+      "width": 360,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 24,
+      "width": 1440,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 25,
+      "width": 360,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 25,
+      "width": 1440,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 26,
+      "width": 360,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 26,
+      "width": 1440,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 27,
+      "width": 360,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 27,
+      "width": 1440,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 28,
+      "width": 360,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 28,
+      "width": 1440,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 29,
+      "width": 360,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 29,
+      "width": 1440,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 30,
+      "width": 360,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 30,
+      "width": 1440,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 41,
+      "width": 360,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 41,
+      "width": 1440,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 42,
+      "width": 360,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 42,
+      "width": 1440,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 43,
+      "width": 360,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 43,
+      "width": 1440,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 44,
+      "width": 360,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 44,
+      "width": 1440,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 45,
+      "width": 360,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 45,
+      "width": 1440,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 46,
+      "width": 360,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 46,
+      "width": 1440,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 47,
+      "width": 360,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 47,
+      "width": 1440,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 48,
+      "width": 360,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 48,
+      "width": 1440,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 49,
+      "width": 360,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 49,
+      "width": 1440,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 50,
+      "width": 360,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    },
+    {
+      "id": 50,
+      "width": 1440,
+      "copy": true,
+      "print": true,
+      "staleResultCleared": true,
+      "reset": true,
+      "privateEvents": true
+    }
+  ],
+  "screenshots": [
+    "/workspace/scratch/708111f9feb8/GCC-MENTOR/artifacts/free-tools/pages/directory-390.png",
+    "/workspace/scratch/708111f9feb8/GCC-MENTOR/artifacts/free-tools/pages/21-text-200-percent.png",
+    "/workspace/scratch/708111f9feb8/GCC-MENTOR/artifacts/free-tools/pages/21-resume-keyword-matcher-390.png",
+    "/workspace/scratch/708111f9feb8/GCC-MENTOR/artifacts/free-tools/pages/23-resume-word-counter-390.png",
+    "/workspace/scratch/708111f9feb8/GCC-MENTOR/artifacts/free-tools/pages/41-working-days-calculator-390.png",
+    "/workspace/scratch/708111f9feb8/GCC-MENTOR/artifacts/free-tools/pages/50-pdf-export-390.png"
+  ],
+  "activeIds": [
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50
+  ],
+  "missingFixtures": [],
+  "limits": [
+    "Built HTML/static assets served through request interception; real production HTTP routing, real signed-in sessions, Vercel deployment and Lighthouse are not certified.",
+    "Contrast ratios and Lighthouse are not measured by this script; accessible names, overflow and representative 200% text reflow are checked.",
+    "Unknown-slug notFound is checked in source only, not an HTTP 404 assertion."
+  ]
+}
