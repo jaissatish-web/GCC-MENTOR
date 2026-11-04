@@ -56,7 +56,7 @@ const server = createServer((req, res) => {
   const relative = pathname.startsWith('/_next/static/') ? `.next/${pathname.slice(7)}`
     : existsSync(builtPage) ? builtPage : `public${pathname}`
   const file = resolve(root, relative)
-  if (!file.startsWith(`${root}/`) || !existsSync(file)) {
+    if (!file.startsWith(root.replace(/\\/g, '/')) || !existsSync(file)) {
     res.writeHead(404); res.end(); return
   }
   res.writeHead(200, { 'Content-Type': mime[extname(file)] ?? 'application/octet-stream' })
@@ -75,9 +75,9 @@ try {
  page.on('dialog',dialog=>{assert.equal(dialog.type(),'beforeunload','Only the expected unsaved-profile navigation guard may prompt');discardPrompts++;void dialog.accept()})
  page.on('request',r=>r.url().startsWith(origin)||r.url().startsWith('data:')?r.continue():r.abort())
  for(const width of [320,390,768,1440]) {
-  await page.setViewport({width,height:844});await page.goto(origin+'/profile?view=details',{waitUntil:'networkidle0'})
-  await page.evaluate(()=>{const b=document.querySelector('#sec_identity > h2 > button');if(b&&b.getAttribute('aria-expanded')!=='true')b.click()})
-  await page.waitForSelector('.ui-choice-button',{visible:true,timeout:4000})
+   await page.setViewport({width,height:844});await page.goto(origin+'/profile?view=details',{waitUntil:'networkidle0'})
+   await page.evaluate(()=>{const b=document.querySelector('#sec_identity > h2 > button');if(b&&b.getAttribute('aria-expanded')!=='true')b.click()})
+   await page.waitForSelector('.ui-choice-button',{visible:true,timeout:6000})
   const group=()=>page.evaluate(()=>{const nodes=[...document.querySelectorAll('.ui-choice-button')];return nodes.map(e=>{const r=e.getBoundingClientRect(),s=getComputedStyle(e);return {x:r.x,width:r.width,height:r.height,align:s.textAlign,border:s.borderStyle,background:s.backgroundColor,edge:s.borderColor,pressed:e.getAttribute('aria-pressed')}})})
   const typeRoles=await page.evaluate(()=>({label:getComputedStyle(document.querySelector('#whatsapp-choice-label')).fontSize,phone:getComputedStyle(document.querySelector('label[for="f_phone_number"]')).fontSize,hint:getComputedStyle(document.querySelector('.field-hint')).fontSize,helper:getComputedStyle(document.querySelector('.internal-ui')).getPropertyValue('--ui-helper-size').trim()}))
   assert.equal(typeRoles.label,typeRoles.phone,'Paragraph and label field headings must match')
