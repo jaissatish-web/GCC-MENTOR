@@ -1070,7 +1070,7 @@ body .bg-field:not(:where([data-document-preview], [data-document-preview] *, #r
   --ui-brand-soft: rgb(var(--ui-brand-soft-rgb));
   --ui-line: rgb(var(--ui-line-rgb));
   --ui-line-strong: rgb(var(--ui-line-strong-rgb));
-  --ui-field-border: var(--ui-line-strong);
+  --ui-field-border: #7D8DA2; /* >=3:1 boundary on white controls */
   --ui-accent: rgb(var(--ui-accent-rgb));
   --ui-accent-ink: rgb(var(--ui-accent-ink-rgb));
   --ui-error: rgb(var(--ui-error-rgb));

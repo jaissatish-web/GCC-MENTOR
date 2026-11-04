@@ -12,6 +12,13 @@ const output=resolve('docs/design-system-v1/evidence')
 mkdirSync(output,{recursive:true})
 const mime={'.js':'application/javascript','.css':'text/css','.woff2':'font/woff2','.woff':'font/woff','.svg':'image/svg+xml','.png':'image/png','.ico':'image/x-icon'}
 const widths=[320,360,390,430,768,1024,1440]
+function luminance(color){
+ const values=color.match(/[\d.]+/g)?.slice(0,3).map(Number)
+ assert.equal(values?.length,3,`Computed RGB color: ${color}`)
+ const [red,green,blue]=values.map(value=>{const channel=value/255;return channel<=.04045?channel/12.92:((channel+.055)/1.055)**2.4})
+ return .2126*red+.7152*green+.0722*blue
+}
+function contrast(first,second){const a=luminance(first),b=luminance(second);return(Math.max(a,b)+.05)/(Math.min(a,b)+.05)}
 const report={widths,layouts:[],interactions:[],screenshots:[],browserErrors:[],unexpectedRequests:[],limits:['Built HTML and local assets are served by request interception, not a production HTTP server.','Guest calculator interactions only; member auth/session persistence is not certified.','This script does not measure Lighthouse, field Core Web Vitals, screen-reader experience, or all WCAG criteria.']}
 const browser=await puppeteer.launch({executablePath:process.env.CHROME_PATH||'/tmp/gcc-chromium149',headless:true,pipe:true,args:['--no-sandbox','--disable-setuid-sandbox','--disable-dev-shm-usage']})
 try{
@@ -49,7 +56,7 @@ try{
   }catch(error){report.browserErrors.push(`Intercept: ${error.message}`);if(!request.isInterceptResolutionHandled())await request.abort()}
  })
  async function visit(path,width){
-  await page.setViewport({width,height:950})
+  await page.setViewport({width,height:1000})
   await page.goto(origin+path,{waitUntil:'networkidle0'})
   await page.evaluate(()=>document.fonts.ready)
   await page.waitForSelector('[data-tool-design="v1"]')
@@ -61,10 +68,10 @@ try{
  }
  async function layout(path,width){
   const measured=await page.evaluate(()=>{
-   const h1=document.querySelector('h1'),heading=getComputedStyle(h1)
+   const h1=document.querySelector('h1'),heading=getComputedStyle(h1),field=getComputedStyle(document.querySelector('input')),secondary=getComputedStyle(document.querySelector('main header p'))
    const unlabeled=[...document.querySelectorAll('input:not([type="hidden"]),select,textarea')].filter(element=>!element.labels?.length&&!element.getAttribute('aria-label')&&!element.getAttribute('aria-labelledby')).map(element=>element.id||element.tagName)
    const buttons=[...document.querySelectorAll('button,input,select,textarea')].filter(element=>element.getBoundingClientRect().width>0)
-   return {overflow:document.documentElement.scrollWidth>innerWidth,unlabeled,h1Count:document.querySelectorAll('h1').length,h1Size:parseFloat(heading.fontSize),h1Color:heading.color,font:heading.fontFamily,shortControls:buttons.filter(element=>element.getBoundingClientRect().height<44).map(element=>element.id||element.textContent),ctaCount:document.querySelectorAll('section[aria-label="Optional career preparation"]').length}
+   return {overflow:document.documentElement.scrollWidth>innerWidth,unlabeled,h1Count:document.querySelectorAll('h1').length,h1Size:parseFloat(heading.fontSize),h1Color:heading.color,font:heading.fontFamily,shortControls:buttons.filter(element=>element.getBoundingClientRect().height<44).map(element=>element.id||element.textContent),ctaCount:document.querySelectorAll('section[aria-label="Optional career preparation"]').length,fieldBoundary:field.borderTopColor,fieldBackground:field.backgroundColor,secondaryColor:secondary.color}
   })
   assert.equal(measured.overflow,false,`${path} ${width}px no horizontal overflow`)
   assert.deepEqual(measured.unlabeled,[],`${path} ${width}px labeled inputs`)
@@ -74,6 +81,10 @@ try{
   assert.equal(measured.h1Color,'rgb(18, 59, 93)',`${path} navy heading`)
   assert.match(measured.font,/inter/i,`${path} Inter typography`)
   assert.equal(measured.ctaCount,1,`${path} one optional signup CTA`)
+  measured.fieldContrast=contrast(measured.fieldBoundary,measured.fieldBackground)
+  measured.secondaryContrast=contrast(measured.secondaryColor,'rgb(255, 255, 255)')
+  assert.ok(measured.fieldContrast>=3,`${path} field boundary contrast >=3:1; actual ${measured.fieldContrast}`)
+  assert.ok(measured.secondaryContrast>=4.5,`${path} secondary text contrast >=4.5:1; actual ${measured.secondaryContrast}`)
   report.layouts.push({path,width,...measured})
  }
  async function fill(selector,value){
@@ -114,8 +125,12 @@ try{
   await visit('/tools/working-days-calculator',width)
   await layout('/tools/working-days-calculator',width)
   assert.ok(await page.$('[aria-label="Result preview"]'),'Empty result has a useful placeholder')
+  const paneSizes=await page.$$eval('[data-free-tool="41"] h2.type-card',headings=>headings.map(element=>parseFloat(getComputedStyle(element).fontSize)))
+  assert.deepEqual(paneSizes,[width<768?17:18,width<768?17:18],'Input and empty-result pane headings use card typography')
   const action=await page.$eval('button[type="submit"]',element=>getComputedStyle(element).backgroundColor)
   assert.equal(action,'rgb(8, 126, 154)','Primary action uses teal')
+  const actionText=await page.$eval('button[type="submit"]',element=>getComputedStyle(element).color)
+  assert.ok(contrast(actionText,action)>=4.5,'Actual primary action text contrast >=4.5:1')
   if([390,1440].includes(width))await screenshot(`after-calculator-empty-${width}.png`)
   await button('Calculate working days')
   await page.waitForSelector('#tool-error')
@@ -132,6 +147,8 @@ try{
   await page.waitForFunction(()=>!document.querySelector('[aria-label="Your result"]'))
   await button('Calculate working days');await result('4 working days')
   assert.equal(await page.$('#tool-error'),null,'Success clears validation errors')
+  const resultHeadingSize=await page.$eval('[aria-label="Your result"] h2.type-card',element=>parseFloat(getComputedStyle(element).fontSize))
+  assert.equal(resultHeadingSize,width<768?17:18,'Successful result heading uses card typography')
   const stat=await page.$eval('[aria-label="Your result"] .type-stat',element=>parseFloat(getComputedStyle(element).fontSize))
   assert.equal(stat,width<768?32:36,'Result uses statistic typography')
   if([390,1440].includes(width))await screenshot(`after-calculator-result-${width}.png`,true)
@@ -166,7 +183,7 @@ try{
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,`${path} 200% text reflow`)
   await screenshot(`after-${path==='/tools'?'hub':'calculator'}-320-text-200.png`,true)
  }
- await page.setViewport({width:390,height:950})
+ await page.setViewport({width:390,height:1000})
  await page.goto(origin+'/tools/resume-word-counter',{waitUntil:'networkidle0'})
  assert.equal(await page.$('[data-tool-design="v1"]'),null,'Unapproved detail page has not migrated')
  assert.deepEqual(report.unexpectedRequests,[],'No unexpected API or external requests')

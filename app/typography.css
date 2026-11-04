@@ -323,3 +323,5 @@ body :is(h1,h2,h3) + p:not(:where([data-document-preview], [data-document-previe
   --ui-stat-size:2rem;
 }
 @media(min-width:768px){.premium-tools-scope:has([data-tool-design="v1"]){--ui-title-size:2.25rem;--ui-section-size:1.625rem;--ui-card-title-size:1.125rem;--ui-stat-size:2.25rem}}
+/* Explicit card roles on semantic H2s outrank the legacy h2[class] rule. */
+body .premium-tools-scope h2.type-card {font-size:var(--ui-card-title-size)!important;line-height:var(--ui-heading-line)!important;font-weight:var(--ui-weight-heading)!important}
