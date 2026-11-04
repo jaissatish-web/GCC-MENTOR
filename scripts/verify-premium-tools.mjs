@@ -185,7 +185,7 @@ try{
  }
  await page.setViewport({width:390,height:1000})
  await page.goto(origin+'/tools/resume-word-counter',{waitUntil:'networkidle0'})
- assert.equal(await page.$('[data-tool-design="v1"]'),null,'Unapproved detail page has not migrated')
+ assert.ok(await page.$('[data-tool-design="v1"]'),'Approved rollout uses the shared layout on another detail page')
  assert.deepEqual(report.unexpectedRequests,[],'No unexpected API or external requests')
  assert.deepEqual(report.browserErrors,[],'No console, script or hydration errors')
  writeFileSync(join(output,'reference-qa.json'),JSON.stringify(report,null,2))

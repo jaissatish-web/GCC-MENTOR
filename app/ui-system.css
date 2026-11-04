@@ -1,8 +1,9 @@
-/* THEME-CONSISTENCY-002 — 1 November 2026. Shared light surfaces and blue actions.
+/* PREMIUM-SYSTEM-V1 — 4 November 2026. Shared light surfaces and teal actions.
    SINGLE UI CONFIGURATION. Edit tokens here; do not add page-specific type scales.
    Code-owned only: no public settings, database storage or user preference UI. */
 :root {
   color-scheme: light;
+  --ui-heading: #123B5D;
   --ui-inverse-rgb: 255 255 255;
   --ui-info: rgb(var(--ui-info-rgb));
   --ui-accent-ink: rgb(var(--ui-accent-ink-rgb));
@@ -10,31 +11,31 @@
   --ui-error: rgb(var(--ui-error-rgb));
   --ui-page-gutter: 16px;
   --ui-card-padding: 16px;
-  --ui-card-radius: 16px;
-  --ui-card-shadow: 0 4px 18px rgb(24 37 58 / .04);
-  --ui-keyword-rgb: 3 105 133;
-  --ui-keyword-soft-rgb: 231 246 250;
-  --ui-info-rgb: 3 105 133;
-  --ui-info-soft-rgb: 231 246 250;
+  --ui-card-radius: 12px;
+  --ui-card-shadow: none;
+  --ui-keyword-rgb: 8 126 154;
+  --ui-keyword-soft-rgb: 237 247 249;
+  --ui-info-rgb: 8 126 154;
+  --ui-info-soft-rgb: 237 247 249;
   /* Semantic palette: RGB triplets allow shared opacity utilities. */
-  --ui-canvas-rgb: 247 249 252;
+  --ui-canvas-rgb: 248 250 252;
   --ui-surface-rgb: 255 255 255;
-  --ui-ink-rgb: 24 37 58;
+  --ui-ink-rgb: 23 43 58;
   --ui-ink-soft-rgb: 65 81 103;
-  --ui-ink-muted-rgb: 83 99 122;
-  --ui-brand-rgb: 37 99 235;
-  --ui-brand-hover-rgb: 29 78 216;
-  --ui-brand-soft-rgb: 235 242 255;
-  --ui-line-rgb: 217 226 237;
-  --ui-line-strong-rgb: 156 173 195;
-  --ui-accent-rgb: 3 105 133;
-  --ui-accent-ink-rgb: 3 105 133;
-  --ui-accent-soft-rgb: 231 246 250;
-  --ui-success-rgb: 21 112 65;
+  --ui-ink-muted-rgb: 100 116 139;
+  --ui-brand-rgb: 8 126 154;
+  --ui-brand-hover-rgb: 6 100 123;
+  --ui-brand-soft-rgb: 237 247 249;
+  --ui-line-rgb: 226 232 240;
+  --ui-line-strong-rgb: 125 141 162;
+  --ui-accent-rgb: 8 126 154;
+  --ui-accent-ink-rgb: 8 126 154;
+  --ui-accent-soft-rgb: 237 247 249;
+  --ui-success-rgb: 19 117 71;
   --ui-success-soft-rgb: 234 248 240;
   --ui-error-rgb: 180 35 50;
   --ui-error-soft-rgb: 255 241 242;
-  --ui-warning-rgb: 138 81 0;
+  --ui-warning-rgb: 163 91 8;
   --ui-warning-soft-rgb: 255 247 230;
   --ui-canvas: rgb(var(--ui-canvas-rgb));
   --ui-surface: rgb(var(--ui-surface-rgb));
@@ -51,9 +52,9 @@
   --ui-hero-gradient: linear-gradient(135deg, var(--ui-surface) 0%, var(--ui-brand-soft) 100%);
   --ui-hero-label: var(--ui-brand);
   --ui-hero-copy: var(--ui-ink-soft);
-  --ui-control-radius: 10px;
-  --ui-hero-radius: 16px;
-  --ui-control-height: 44px;
+  --ui-control-radius: 8px;
+  --ui-hero-radius: 12px;
+  --ui-control-height: 46px;
   --ui-control-padding-y: 9px;
   --ui-field-border: var(--ui-line-strong);
   --ui-page-width: 980px;
@@ -70,7 +71,7 @@
   --ui-marketing-width: 1240px;
   --ui-header-gap: 8px;
   --ui-list-gap: 12px;
-  --ui-card-hover-shadow: 0 3px 12px rgb(20 24 28 / .05);
+  --ui-card-hover-shadow: none;
   --ui-nav-profile-bg: var(--ui-brand-soft); --ui-nav-profile-ink: var(--ui-brand);
   --ui-nav-library-bg: var(--ui-brand-soft); --ui-nav-library-ink: var(--ui-brand);
   --ui-nav-templates-bg: var(--ui-brand-soft); --ui-nav-templates-ink: var(--ui-brand);
@@ -707,8 +708,8 @@ body .rounded-ctl:not(:where([data-document-preview], [data-document-preview] *,
   .cover-letter-email-body, .cover-letter-email-editor { padding:16px 12px; }
 }
 
-/* Shared internal layout scope. Public and internal palette values intentionally
-   follow the selected soft-indigo system; authored documents remain isolated. */
+/* Shared internal layout scope. Public and internal controls consume the
+   approved root system; authored documents remain isolated. */
 .app-type.internal-ui {
   --ui-space-1: 4px;
   --ui-space-2: 8px;
@@ -980,7 +981,7 @@ body .app-type :is(input:not([type="checkbox"]):not([type="radio"]),select,texta
 body .app-type :is(input,textarea):not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *))::placeholder { color:var(--ui-muted)!important; -webkit-text-fill-color:var(--ui-muted); opacity:1; }
 body .app-type input:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)):is(:autofill,:-webkit-autofill) { -webkit-text-fill-color:var(--ui-ink)!important; caret-color:var(--ui-ink); box-shadow:0 0 0 1000px var(--ui-surface) inset!important; }
 
-/* DARK-CONTRAST-002: heading roles emitted by @apply must use light ink too. */
+/* DARK-CONTRAST-002: heading roles emitted by @apply share the navy heading token. */
 body .app-type:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { color:var(--ui-ink); }
 body .app-type h1:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)),
 body .app-type h1 :is(span,strong,b,a):not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)),
@@ -1009,7 +1010,7 @@ body .app-type .type-title :is(span,strong,b,a):not(:where([data-document-previe
 body .app-type .type-section:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)),
 body .app-type .type-section :is(span,strong,b,a):not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)),
 body .app-type .type-card-title:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)),
-body .app-type .type-card-title :is(span,strong,b,a):not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { color:var(--ui-ink)!important; }
+body .app-type .type-card-title :is(span,strong,b,a):not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)) { color:var(--ui-heading)!important; }
 body .app-type .text-navy:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)),
 body .app-type .text-midnight:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)),
 body .app-type .text-deep-navy:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,.linkedin-profile-preview,.linkedin-profile-preview *,[data-typography="document"],[data-typography="document"] *)),
@@ -1040,44 +1041,8 @@ body .bg-field:not(:where([data-document-preview], [data-document-preview] *, #r
 /* Public free tools: independent navigation treatment, using existing tokens. */
 .ui-nav-free-tools { background:rgb(var(--ui-accent-soft-rgb)); color:var(--ui-accent-ink); }
 
-/* PREMIUM-TOOLS-V1: opt-in references only until founder visual approval.
-   All semantic palette/control ownership remains here, not in page modules. */
-.premium-tools-scope:has([data-tool-design="v1"]) {
-  --ui-heading: #123B5D;
-  --ui-canvas-rgb: 248 250 252;
-  --ui-surface-rgb: 255 255 255;
-  --ui-ink-rgb: 23 43 58;
-  --ui-ink-soft-rgb: 65 81 103;
-  --ui-ink-muted-rgb: 100 116 139;
-  --ui-brand-rgb: 8 126 154;
-  --ui-brand-hover-rgb: 6 100 123;
-  --ui-brand-soft-rgb: 237 247 249;
-  --ui-line-rgb: 226 232 240;
-  --ui-line-strong-rgb: 148 163 184;
-  --ui-accent-rgb: 8 126 154;
-  --ui-accent-ink-rgb: 8 126 154;
-  --ui-accent-soft-rgb: 237 247 249;
-  --ui-success-rgb: 19 117 71;
-  --ui-error-rgb: 180 35 50;
-  --ui-warning-rgb: 163 91 8;
-  --ui-canvas: rgb(var(--ui-canvas-rgb));
-  --ui-surface: rgb(var(--ui-surface-rgb));
-  --ui-ink: rgb(var(--ui-ink-rgb));
-  --ui-ink-soft: rgb(var(--ui-ink-soft-rgb));
-  --ui-muted: rgb(var(--ui-ink-muted-rgb));
-  --ui-brand: rgb(var(--ui-brand-rgb));
-  --ui-brand-hover: rgb(var(--ui-brand-hover-rgb));
-  --ui-brand-soft: rgb(var(--ui-brand-soft-rgb));
-  --ui-line: rgb(var(--ui-line-rgb));
-  --ui-line-strong: rgb(var(--ui-line-strong-rgb));
-  --ui-field-border: #7D8DA2; /* >=3:1 boundary on white controls */
-  --ui-accent: rgb(var(--ui-accent-rgb));
-  --ui-accent-ink: rgb(var(--ui-accent-ink-rgb));
-  --ui-error: rgb(var(--ui-error-rgb));
-  --ui-control-radius: 8px;
-  --ui-card-radius: 12px;
-  --ui-card-shadow: none;
-}
+/* Premium tool pages use the same root theme as the SaaS.
+   Only tool-specific focus and optional CTA presentation remain scoped. */
 .premium-tools-scope:has([data-tool-design="v1"]) :is(a,button,input,textarea,select,summary):focus-visible {outline:3px solid var(--ui-brand);outline-offset:3px}
 /* Existing optional CTA component adopts the reference tokens without new auth logic. */
 .premium-tools-scope:has([data-tool-design="v1"]) section[aria-label="Optional career preparation"] {background:var(--ui-canvas);border:1px solid var(--ui-line);border-radius:var(--ui-card-radius);padding:24px;margin:32px 0;box-shadow:none}
