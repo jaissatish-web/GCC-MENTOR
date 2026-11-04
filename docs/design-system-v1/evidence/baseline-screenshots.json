@@ -1,0 +1,134 @@
+[
+  {
+    "label": "hub",
+    "width": 390,
+    "errors": [],
+    "h1": "Free career tools",
+    "overflow": false,
+    "headings": [
+      {
+        "text": "Free career tools",
+        "size": "28px"
+      },
+      {
+        "text": "Recommended places to start",
+        "size": "21px"
+      },
+      {
+        "text": "Resume Keyword Matcher",
+        "size": "21px"
+      },
+      {
+        "text": "Job Description Keyword Extractor",
+        "size": "21px"
+      },
+      {
+        "text": "Resume Word Counter",
+        "size": "21px"
+      },
+      {
+        "text": "Resume Bullet Length Checker",
+        "size": "21px"
+      }
+    ]
+  },
+  {
+    "label": "working-days",
+    "width": 390,
+    "errors": [],
+    "h1": "Working Days Calculator",
+    "overflow": false,
+    "headings": [
+      {
+        "text": "Working Days Calculator",
+        "size": "28px"
+      },
+      {
+        "text": "Planning your next Gulf career move?",
+        "size": "21px"
+      },
+      {
+        "text": "What this tool does",
+        "size": "21px"
+      },
+      {
+        "text": "How it works",
+        "size": "21px"
+      },
+      {
+        "text": "Worked example",
+        "size": "21px"
+      },
+      {
+        "text": "Common mistakes",
+        "size": "21px"
+      }
+    ]
+  },
+  {
+    "label": "hub",
+    "width": 1440,
+    "errors": [],
+    "h1": "Free career tools",
+    "overflow": false,
+    "headings": [
+      {
+        "text": "Free career tools",
+        "size": "32px"
+      },
+      {
+        "text": "Recommended places to start",
+        "size": "24px"
+      },
+      {
+        "text": "Resume Keyword Matcher",
+        "size": "24px"
+      },
+      {
+        "text": "Job Description Keyword Extractor",
+        "size": "24px"
+      },
+      {
+        "text": "Resume Word Counter",
+        "size": "24px"
+      },
+      {
+        "text": "Resume Bullet Length Checker",
+        "size": "24px"
+      }
+    ]
+  },
+  {
+    "label": "working-days",
+    "width": 1440,
+    "errors": [],
+    "h1": "Working Days Calculator",
+    "overflow": false,
+    "headings": [
+      {
+        "text": "Working Days Calculator",
+        "size": "32px"
+      },
+      {
+        "text": "Planning your next Gulf career move?",
+        "size": "24px"
+      },
+      {
+        "text": "What this tool does",
+        "size": "24px"
+      },
+      {
+        "text": "How it works",
+        "size": "24px"
+      },
+      {
+        "text": "Worked example",
+        "size": "24px"
+      },
+      {
+        "text": "Common mistakes",
+        "size": "24px"
+      }
+    ]
+  }
+]

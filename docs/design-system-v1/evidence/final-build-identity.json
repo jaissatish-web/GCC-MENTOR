@@ -1,0 +1,30 @@
+{
+  "source": "9b6a7a8",
+  "buildId": "f0D4gZ8kOpr7dRJsfFFRR",
+  "files": [
+    {
+      "path": ".next/BUILD_ID",
+      "exists": true,
+      "bytes": 21,
+      "sha256": "3ba51bd95cb831fc1f7e9e83f71ee21187830258670ad6bdd193ed3202f0c354"
+    },
+    {
+      "path": ".next/prerender-manifest.json",
+      "exists": true,
+      "bytes": 56770,
+      "sha256": "83c8a37f0eeb44cba85f5f7a74090fae8fa3617904ad0be5a127f4211ce33a74"
+    },
+    {
+      "path": ".next/server/app/tools.html",
+      "exists": true,
+      "bytes": 81018,
+      "sha256": "2f105d6edf31c4d62169e1fe50a050119902e28028a72d7d5a468cf884b4e2ca"
+    },
+    {
+      "path": ".next/server/app/tools/working-days-calculator.html",
+      "exists": true,
+      "bytes": 38290,
+      "sha256": "7f6c8e34302c97042e30cf1d84573bf36212234b495131404c027e783cb2dea5"
+    }
+  ]
+}

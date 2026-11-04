@@ -1039,3 +1039,48 @@ body .bg-field:not(:where([data-document-preview], [data-document-preview] *, #r
 
 /* Public free tools: independent navigation treatment, using existing tokens. */
 .ui-nav-free-tools { background:rgb(var(--ui-accent-soft-rgb)); color:var(--ui-accent-ink); }
+
+/* PREMIUM-TOOLS-V1: opt-in references only until founder visual approval.
+   All semantic palette/control ownership remains here, not in page modules. */
+.premium-tools-scope:has([data-tool-design="v1"]) {
+  --ui-heading: #123B5D;
+  --ui-canvas-rgb: 248 250 252;
+  --ui-surface-rgb: 255 255 255;
+  --ui-ink-rgb: 23 43 58;
+  --ui-ink-soft-rgb: 65 81 103;
+  --ui-ink-muted-rgb: 100 116 139;
+  --ui-brand-rgb: 8 126 154;
+  --ui-brand-hover-rgb: 6 100 123;
+  --ui-brand-soft-rgb: 237 247 249;
+  --ui-line-rgb: 226 232 240;
+  --ui-line-strong-rgb: 148 163 184;
+  --ui-accent-rgb: 8 126 154;
+  --ui-accent-ink-rgb: 8 126 154;
+  --ui-accent-soft-rgb: 237 247 249;
+  --ui-success-rgb: 19 117 71;
+  --ui-error-rgb: 180 35 50;
+  --ui-warning-rgb: 163 91 8;
+  --ui-canvas: rgb(var(--ui-canvas-rgb));
+  --ui-surface: rgb(var(--ui-surface-rgb));
+  --ui-ink: rgb(var(--ui-ink-rgb));
+  --ui-ink-soft: rgb(var(--ui-ink-soft-rgb));
+  --ui-muted: rgb(var(--ui-ink-muted-rgb));
+  --ui-brand: rgb(var(--ui-brand-rgb));
+  --ui-brand-hover: rgb(var(--ui-brand-hover-rgb));
+  --ui-brand-soft: rgb(var(--ui-brand-soft-rgb));
+  --ui-line: rgb(var(--ui-line-rgb));
+  --ui-line-strong: rgb(var(--ui-line-strong-rgb));
+  --ui-field-border: #7D8DA2; /* >=3:1 boundary on white controls */
+  --ui-accent: rgb(var(--ui-accent-rgb));
+  --ui-accent-ink: rgb(var(--ui-accent-ink-rgb));
+  --ui-error: rgb(var(--ui-error-rgb));
+  --ui-control-radius: 8px;
+  --ui-card-radius: 12px;
+  --ui-card-shadow: none;
+}
+.premium-tools-scope:has([data-tool-design="v1"]) :is(a,button,input,textarea,select,summary):focus-visible {outline:3px solid var(--ui-brand);outline-offset:3px}
+/* Existing optional CTA component adopts the reference tokens without new auth logic. */
+.premium-tools-scope:has([data-tool-design="v1"]) section[aria-label="Optional career preparation"] {background:var(--ui-canvas);border:1px solid var(--ui-line);border-radius:var(--ui-card-radius);padding:24px;margin:32px 0;box-shadow:none}
+.premium-tools-scope:has([data-tool-design="v1"]) section[aria-label="Optional career preparation"] h2 {color:var(--ui-heading);font-size:var(--ui-card-title-size)!important}
+.premium-tools-scope:has([data-tool-design="v1"]) section[aria-label="Optional career preparation"] a {background:var(--ui-brand);border-color:var(--ui-brand);border-radius:var(--ui-control-radius)}
+@media print {.premium-tools-scope:has([data-tool-design="v1"]) section[aria-label="Optional career preparation"]{display:none!important}}
