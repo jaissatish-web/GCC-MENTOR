@@ -81,7 +81,7 @@ try {
       })
       assert.ok(result.scroll <= width + 1, `Overflow at ${width}, enlarged=${enlarged}: ${JSON.stringify(result)}`)
       const scale = enlarged ? 2 : 1
-      assert.equal(result.titleSize, `${(width >= 768 ? 32 : 28) * scale}px`)
+      assert.equal(result.titleSize, `${(width >= 768 ? 36 : 30) * scale}px`)
       assert.equal(result.weight, '700')
       assert.equal(result.inputSize, `${16 * scale}px`)
       assert.equal(result.bodySize, `${(width >= 768 ? 16 : 15) * scale}px`)

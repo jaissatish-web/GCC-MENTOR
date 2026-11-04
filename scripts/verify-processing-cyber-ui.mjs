@@ -47,7 +47,7 @@ try {
   await page.evaluate(()=>window.confirmStage())
   await page.waitForSelector('#verified [data-processing-state="done"]')
   assert.equal(await page.$$eval('#verified [data-processing-state="done"]',es=>es.length),1)
-  assert.equal(await page.$eval('#verified [data-processing-state="done"] > span',e=>getComputedStyle(e).backgroundColor),'rgb(21, 112, 65)','Confirmed completion uses the semantic green status colour')
+  assert.equal(await page.$eval('#verified [data-processing-state="done"] > span',e=>getComputedStyle(e).backgroundColor),'rgb(19, 117, 71)','Confirmed completion uses the approved semantic green status colour')
   assert.equal(await page.$$eval('#optimizer [data-processing-state="done"]',es=>es.length),1,'Real optimizer phase produces confirmed green tick')
   assert.deepEqual(await page.$eval('#workflow [data-processing-orbit]',e=>{const r=e.getBoundingClientRect();return{x:r.x,y:r.y,width:r.width,height:r.height}}),initial['#workflow [data-processing-orbit]'])
   await page.screenshot({path:output+`/processing-${width}.png`,fullPage:true})

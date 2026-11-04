@@ -7,8 +7,8 @@
   --ui-weight-label: 500;
   --ui-weight-heading: 600;
   --ui-weight-title: 700;
-  --ui-title-size: 1.75rem;
-  --ui-section-size: 1.3125rem;
+  --ui-title-size: 1.875rem;
+  --ui-section-size: 1.4375rem;
   --ui-mobile-section-size: var(--ui-section-size);
   --ui-card-title-size: 1.0625rem;
   --ui-body-size: .9375rem;
@@ -23,7 +23,7 @@
   --ui-input-size: 1rem;
   --ui-input-line: 1.5;
   --ui-button-size: .875rem;
-  --ui-stat-size: 1.5rem;
+  --ui-stat-size: 2rem;
   --ui-body-line: 1.55;
   --ui-heading-line: 1.25;
   --ui-brand-line: 1.25;
@@ -47,15 +47,15 @@
 }
 @media (min-width: 768px) {
   :root {
-    --ui-title-size: 2rem;
-    --ui-section-size: 1.5rem;
+    --ui-title-size: 2.25rem;
+    --ui-section-size: 1.625rem;
     --ui-card-title-size: 1.125rem;
     --ui-body-size: 1rem;
     --ui-helper-size: .875rem;
     --ui-caption-size: .8125rem;
     --ui-button-size: .9375rem;
     --ui-hero-size: 3rem;
-    --ui-stat-size: 1.75rem;
+    --ui-stat-size: 2.25rem;
   }
 }
 
@@ -315,13 +315,5 @@ body :is(h1,h2,h3) + p:not(:where([data-document-preview], [data-document-previe
   --ui-body-line: 1.55;
 }
 
-/* Premium references reuse the same semantic roles; no independent page scale. */
-.premium-tools-scope:has([data-tool-design="v1"]) {
-  --ui-title-size:1.875rem;
-  --ui-section-size:1.4375rem;
-  --ui-card-title-size:1.0625rem;
-  --ui-stat-size:2rem;
-}
-@media(min-width:768px){.premium-tools-scope:has([data-tool-design="v1"]){--ui-title-size:2.25rem;--ui-section-size:1.625rem;--ui-card-title-size:1.125rem;--ui-stat-size:2.25rem}}
-/* Explicit card roles on semantic H2s outrank the legacy h2[class] rule. */
-body .premium-tools-scope h2.type-card {font-size:var(--ui-card-title-size)!important;line-height:var(--ui-heading-line)!important;font-weight:var(--ui-weight-heading)!important}
+/* Explicit card H2 roles outrank legacy h2[class] enforcement in app chrome. */
+body :is(.app-type,.premium-tools-scope) h2.type-card:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,.actual-template-orbit-face,.actual-template-orbit-face *,[data-typography="document"],[data-typography="document"] *,.linkedin-profile-preview,.linkedin-profile-preview *)) {font-size:var(--ui-card-title-size)!important;line-height:var(--ui-heading-line)!important;font-weight:var(--ui-weight-heading)!important}
