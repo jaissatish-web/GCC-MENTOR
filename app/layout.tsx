@@ -11,15 +11,15 @@ const inter = Inter({
 })
 
 // Explicit legacy/document font declarations remain separate.
+// Preloaded (2026-11-04): the premium design pass uses Instrument Serif as the
+// display voice on the landing page (hero + section titles), so every phone
+// needs the face on first paint. Only weight 400 ships — one small file.
 const instrumentSerif = Instrument_Serif({
   subsets: ['latin'],
   weight: '400',
   variable: '--font-instrument-serif',
   display: 'swap',
-  // Not preloaded (2026-09-30): no class in the app uses this family any more,
-  // so preloading it made every phone download a font it never draws. It stays
-  // declared as a fallback; it would still load, with swap, if something used it.
-  preload: false,
+  preload: true,
 })
 
 const jakarta = Plus_Jakarta_Sans({

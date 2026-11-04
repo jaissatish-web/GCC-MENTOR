@@ -3,19 +3,23 @@
 :root {
   --ui-page-gutter: 16px;
   --ui-card-padding: 16px;
-  --ui-card-radius: 12px;
-  --ui-card-shadow: none;
-  /* Semantic palette: RGB triplets allow shared opacity utilities. */
-  --ui-canvas-rgb: 244 246 248;
+  /* Premium geometry pass (2026-11-04): softer corners, real resting depth.
+     Landing overrides most of these via .system tokens. */
+  --ui-card-radius: 14px;
+  --ui-card-shadow: 0 1px 2px rgb(11 31 58 / .05), 0 10px 26px rgb(11 31 58 / .06);
+  /* Semantic palette: RGB triplets allow shared opacity utilities.
+     Warmed from cool slate to Gulf ivory/sand (premium pass 2026-11-04);
+     the navy anchor and gold accent are unchanged. */
+  --ui-canvas-rgb: 247 244 238;
   --ui-surface-rgb: 255 255 255;
   --ui-ink-rgb: 20 36 61;
   --ui-ink-soft-rgb: 82 99 121;
   --ui-ink-muted-rgb: 97 107 118;
   --ui-brand-rgb: 11 31 58;
   --ui-brand-hover-rgb: 18 48 79;
-  --ui-brand-soft-rgb: 228 234 242;
-  --ui-line-rgb: 225 231 239;
-  --ui-line-strong-rgb: 195 206 219;
+  --ui-brand-soft-rgb: 236 232 222;
+  --ui-line-rgb: 229 224 214;
+  --ui-line-strong-rgb: 205 199 186;
   --ui-accent-rgb: 201 150 46;
   --ui-accent-ink-rgb: 138 97 20;
   --ui-accent-soft-rgb: 247 239 221;
@@ -37,25 +41,25 @@
   --ui-hero-gradient: linear-gradient(150deg,#0B1F3A 0%,#123049 60%,#1A3D63 100%);
   --ui-hero-label: #E8B54A;
   --ui-hero-copy: rgb(255 255 255 / .85);
-  --ui-control-radius: 10px;
-  --ui-hero-radius: 16px;
+  --ui-control-radius: 12px;
+  --ui-hero-radius: 20px;
   --ui-control-height: 44px;
-  --ui-field-border: #bac6d3;
+  --ui-field-border: #c8c1b1;
   --ui-page-width: 980px;
   --ui-wide-width: 1120px;
   --ui-form-width: 760px;
   --ui-document-width: 1240px;
   --ui-page-top: 24px;
   --ui-page-gap: 20px;
-  --ui-section-gap: 16px;
+  --ui-section-gap: 20px;
   --ui-control-gap: 8px;
-  --ui-section-padding: 48px;
+  --ui-section-padding: clamp(48px, 6vw, 72px);
   --ui-empty-padding: 28px;
   --ui-marketing-gutter: 16px;
   --ui-marketing-width: 1240px;
-  --ui-header-gap: 8px;
+  --ui-header-gap: 12px;
   --ui-list-gap: 12px;
-  --ui-card-hover-shadow: 0 3px 12px rgb(20 24 28 / .05);
+  --ui-card-hover-shadow: 0 2px 4px rgb(11 31 58 / .06), 0 18px 44px rgb(11 31 58 / .13);
   --ui-nav-profile-bg: #e3eaf4; --ui-nav-profile-ink: #16324f;
   --ui-nav-library-bg: #e4edf8; --ui-nav-library-ink: #1b4e8a;
   --ui-nav-templates-bg: #eaeff6; --ui-nav-templates-ink: #334b6e;
