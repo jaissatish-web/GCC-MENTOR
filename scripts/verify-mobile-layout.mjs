@@ -140,7 +140,7 @@ try {
   const publicMarkup = landing.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
     .replace(/<link\b[^>]*>/gi, '')
     .replace(/<img\b[^>]*>/gi, '<span aria-hidden="true"></span>')
-  for (const width of [360, 375, 390, 430, 1280, 1366, 1440]) {
+  for (const width of [320, 360, 390, 430, 768, 1024, 1440]) {
     for (const enlarged of [false, true]) {
       await page.setViewport({ width, height: width < 640 ? 844 : 900 })
       const bodyMarkup = publicMarkup.match(/<body[^>]*>([\s\S]*)<\/body>/i)?.[1] ?? publicMarkup
@@ -169,14 +169,16 @@ try {
       assert.ok(Math.abs(metrics.size - expectedHero) < .02, 'Marketing hero uses its responsive display scale')
       assert.ok(Math.abs(metrics.sectionSize - expectedSection) < .02, 'Marketing sections use their responsive display scale')
       await page.screenshot({ path: `artifacts/typography/landing-${width}${enlarged ? '-enlarged' : ''}.png`, fullPage: true })
-      for (const selector of ['#challenges details', '#how-it-works']) {
-        assert.equal(await page.$eval(selector, el => el.open), false, 'Landing disclosures start collapsed')
+      assert.equal(await page.$$eval('#how-it-works ol > li', els => els.length), 4, 'Visible journey contains four steps')
+      assert.equal(await page.$$eval('#challenges ul li', els => els.length), 6, 'Six application challenges are visible')
+      assert.ok(await page.$eval('#how-it-works', el => el.getBoundingClientRect().height > 0), 'Journey is visible without disclosure')
+      for (const selector of ['#faq details']) {
+        assert.equal(await page.$eval(selector, el => el.open), false, 'FAQ starts collapsed')
         await page.click(`${selector} > summary`)
-        assert.equal(await page.$eval(selector, el => el.open), true, 'Summary expands content')
-        assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `Expanded disclosure overflow at ${width}`)
-        if (width === 390 && !enlarged) await page.screenshot({path: `artifacts/typography/disclosure-${selector.includes('challenges') ? 'problems' : 'journey'}-390.png`, fullPage:true})
+        assert.equal(await page.$eval(selector, el => el.open), true, 'FAQ expands')
+        assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `FAQ overflow at ${width}`)
         await page.click(`${selector} > summary`)
-        assert.equal(await page.$eval(selector, el => el.open), false, 'Summary collapses content again')
+        assert.equal(await page.$eval(selector, el => el.open), false, 'FAQ collapses')
       }
 
     }

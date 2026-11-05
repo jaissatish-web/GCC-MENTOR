@@ -1,17 +1,14 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, ArrowUpRight, BookOpen, Check, ClipboardCheck, FileText, FolderOpen, Mail, Mic, ShieldCheck, Target } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, BriefcaseBusiness, Check, ClipboardCheck, FileSearch, FileText, FolderOpen, Globe2, HardHat, Layers, Mail, Mic, PlayCircle, Search, ShieldCheck, Target, UserRound, XCircle } from 'lucide-react'
 import { AuthLinkCatcher } from '@/components/auth/AuthLinkCatcher'
-import { Reveal } from '@/components/ui/Reveal'
-import { PremiumNav } from '@/components/landing-v3/PremiumNav'
+import { LandingV2Nav } from '@/components/landing-v3/LandingV2Nav'
 import { LandingFooter } from '@/components/landing-v3/LandingFooter'
 import { DocumentOrbit, GccGlobe } from '@/components/landing-v3/lazy'
-import { InterviewDemo } from '@/components/landing-v3/InterviewDemo'
-import { services } from '@/components/landing-premium/data'
-import s from '@/components/landing-v3/premium.module.css'
+import { gccDestinations } from '@/components/landing-premium/gccDestinations'
+import s from '@/components/landing-v3/landing-v2.module.css'
 
-/** White editorial landing: presentation-only, preserving service destinations,
- * native disclosures, actual resume previews and the interactive GCC globe. */
 const TITLE = 'Gulf Career Preparation & Interview Coaching | GCC MENTOR'
 const DESCRIPTION =
   'One profile for job-specific resumes, cover letters and voice interview practice. Prepare for Gulf opportunities. Start with your free GCC readiness assessment.'
@@ -24,294 +21,66 @@ export const metadata: Metadata = {
   twitter: { title: TITLE, description: DESCRIPTION },
 }
 
-const anchors = [['Preparation', '#services'], ['Templates', '#templates'], ['Interview', '#interview'], ['About & access', '#about']] as const
 
-/** Six professions row — engineering/healthcare/IT are backed by PERSONAS and
- *  PROFESSION_EXAMPLES; trades, teaching and logistics extend the row visually
- *  so the page never reads “engineers only”. */
-const PROFESSIONS = [
-  { icon: '👷', label: 'Engineering' },
-  { icon: '🩺', label: 'Healthcare' },
-  { icon: '💻', label: 'IT & Finance' },
-  { icon: '🧰', label: 'Trades' },
-  { icon: '🧑‍🏫', label: 'Teaching' },
-  { icon: '🚚', label: 'Logistics' },
+const services = [
+  ['Career Profile', 'Build your profile and review Gulf Profile Readiness.', '/profile', UserRound],
+  ['ATS Job Match', 'Compare your experience with a job description.', '/optimize/target', FileSearch],
+  ['Optimize Resume', 'Prepare a job-specific resume from your real experience.', '/optimize/target', FileText],
+  ['Cover Letter', 'Introduce your strengths with a tailored letter.', '/cover-letter', Mail],
+  ['Interview Studio', 'Study Q&A and practise technical and HR interviews.', '/mock-interview', Mic],
+  ['Resume Library', 'Save, manage and reuse your resumes.', '/dashboard/library', Layers],
 ] as const
-
-const COUNTRIES = [
-  { flag: '🇸🇦', name: 'Saudi Arabia', reason: 'Largest expat volume' },
-  { flag: '🇦🇪', name: 'UAE', reason: 'Fastest growing' },
-  { flag: '🇶🇦', name: 'Qatar', reason: 'Energy & infra' },
-  { flag: '🇴🇲', name: 'Oman', reason: 'Oil & gas' },
-  { flag: '🇰🇼', name: 'Kuwait', reason: 'Oil services' },
-  { flag: '🇧🇭', name: 'Bahrain', reason: 'Finance hub' },
+const journey = [
+  ['Bring a Job Description', 'Paste requirements from any job website.', BriefcaseBusiness],
+  ['Analyze Requirements', 'Review ATS relevance, matching experience and gaps.', Search],
+  ['Prepare Application', 'Optimize your resume and prepare a tailored cover letter.', FileText],
+  ['Practice Interviews', 'Prepare technical, behavioral and HR answers.', Mic],
 ] as const
+const benefits = ['Present genuine experience clearly', 'Prepare job-specific applications', 'Understand job requirements', 'Focus your interview practice', 'Reuse your career information']
+const employers = ['Saudi Aramco', 'ADNOC', 'SABIC', 'PETRONAS', 'Technip Energies', 'Hyundai Engineering', 'Bechtel']
 
-/** Gulf job-seeker pain points — the #challenges disclosure the landing
- *  contract (verify-mobile-layout) requires; plain language for every
- *  profession, blue-collar included. */
-const CHALLENGES = [
-  'Applying everywhere. No interview calls.',
-  'One generic CV for every job.',
-  'Unsure if my CV matches the role.',
-  'Good openings. Late applications.',
-  'My Gulf profile gets overlooked.',
-  'Interview nerves take over.',
-  'No clear preparation plan.',
-] as const
-
-/** The three-step journey — the #how-it-works disclosure content. */
-const HOW_IT_WORKS = [
-  ['Build your Career Profile', 'One place holds your real experience, your skills and your Gulf readiness — nothing invented.'],
-  ['Prepare for an opening', 'Get a job-specific resume, a tailored cover letter and ATS feedback from the same profile.'],
-  ['Practise until ready', 'Answer interview questions in your own words, see what to improve, and walk in prepared.'],
-] as const
-
-const STATS = [
-  ['6', 'Gulf markets covered'],
-  ['50+', 'ATS resume templates'],
-  ['1', 'Career Profile'],
-] as const
-
-const icons = { readiness: Target, match: ClipboardCheck, cv: FileText, letter: Mail, qa: BookOpen, interview: Mic, templates: FileText, reports: FolderOpen }
-
-const faq = [
-  ['Is GCC Mentor suitable for non-engineering professionals?', 'Yes. Preparation follows your own profile and job description. Examples include engineering, QA/QC, HSE, construction, IT, healthcare, finance, logistics and administration.'],
-  ['Can I prepare for a LinkedIn or NaukriGulf job?', 'Yes. Copy the job description and use your Career Profile to prepare a relevant resume, cover letter and interview material. You review and update those profiles yourself; GCC Mentor does not automatically import jobs or submit applications.'],
-  ['Can I use one Career Profile for multiple applications?', 'Yes. Import or build your profile, check the facts, and prepare separate applications for different job descriptions.'],
-  ['Does resume optimization invent experience?', 'It is grounded in your Career Profile and the job description. It improves structure and emphasis. Review the output against your real experience; unsupported qualifications should not be added.'],
-  ['Can I practise interviews multiple times?', 'Yes, subject to the current service access and usage limits. Save study sets, practise again and use feedback to choose your next focus.'],
-  ['Which GCC countries are covered?', 'Saudi Arabia, the UAE, Qatar, Oman, Kuwait and Bahrain. Confirm licensing, visa and documentation requirements with the employer or relevant authority.'],
-  ['Is my information private?', 'Your signed-in workspace uses account-based access controls. Relevant profile and job information is sent to configured AI providers for requested services. Settings → Delete my data removes your Career Profile and saved packages.'],
-  ['Does GCC Mentor guarantee a Gulf job?', 'No. It supports career preparation and guidance. Employers decide whom to shortlist and hire. Readiness and AI practice scores are not hiring probabilities.'],
-] as const
+function StartLink() { return <Link href="/signup" className={s.primary}>Get Started Free <ArrowRight size={18} aria-hidden="true" /></Link> }
+function Countries() { return <ul className={s.countries} aria-label="Six GCC countries">{gccDestinations.map(country => <li key={country.country}><Image src={country.src} width={28} height={21} unoptimized alt="" aria-hidden="true" /><span>{country.country === 'United Arab Emirates' ? 'UAE' : country.country}</span></li>)}</ul> }
 
 export default function Home() {
-  return (
-    <div className={`${s.system} font-redesign-sans`} data-marketing="white">
-      <PremiumNav anchors={anchors} />
-      <AuthLinkCatcher />
-      <main id="main-content" tabIndex={-1}>
-        {/* One primary action, a real resume visual and concise product context. */}
-        <section className={s.heroNavy} aria-labelledby="hero-title">
-          <div className={s.heroInner}>
-            <div className={s.heroCopy}>
-            <span className={s.kickerGold}>Your Gulf career preparation partner</span>
-            <h1 id="hero-title" className={s.heroTitle}>Your next Gulf opportunity. <span>Better prepared.</span></h1>
-            <p className={s.heroSub}>One profile for your resume, applications and interview practice. Built around your real experience.</p>
-            <div className={s.heroCtas}>
-              <Link href="/gulf-readiness-score" className={s.goldCta}>Check my readiness <ArrowRight size={18} aria-hidden="true" /></Link>
-              <Link href="/templates" className={s.ghostCta}>Explore templates <ArrowUpRight size={16} aria-hidden="true" /></Link>
-            </div>
-            <p className={s.freeNote}><Check size={15} aria-hidden="true" />See your score before signup.</p>
-            <ul className={s.profRow} aria-label="Professions GCC Mentor prepares for">
-              {PROFESSIONS.map(profession => (
-                <li key={profession.label} className={s.profItem}>
-                  <span className={s.profPic} aria-hidden="true">{profession.icon}</span>
-                  <span>{profession.label}</span>
-                </li>
-              ))}
-            </ul>
-            <dl className={s.statRow}>
-              {STATS.map(([value, label]) => (
-                <div key={label} className={s.statItem}>
-                  <dt><b>{value}</b></dt>
-                  <dd>{label}</dd>
-                </div>
-              ))}
-            </dl>
-            </div>
-            <div className={s.heroVisual}>
-              <div className={s.visualLabel}><strong>Your experience, well presented</strong><span>Real templates</span></div>
-              <DocumentOrbit />
-              <div className={s.visualFoot}><Link href="/templates">Find your resume style <ArrowRight size={16} aria-hidden="true" /></Link></div>
-            </div>
+  return <div className={s.page} data-marketing="white">
+    <LandingV2Nav /><AuthLinkCatcher />
+    <main id="main-content" tabIndex={-1}>
+      <section className={s.hero} aria-labelledby="hero-title">
+        <div className={s.heroInner}>
+          <div className={s.heroCopy}>
+            <span className={s.eyebrow}><HardHat size={16} aria-hidden="true" /> Built for Technical Professionals</span>
+            <h1 id="hero-title">One Profile. Multiple <span>Gulf Opportunities.</span></h1>
+            <p className={s.heroHeadline}>Right Gulf Job. Right Time. Right Preparation. Right Answers.</p>
+            <p className={s.heroDescription}>Found a job on LinkedIn, NaukriGulf, Indeed, or a company website? Understand the requirements, optimize your resume, prepare a tailored cover letter, and practice interviews — using your real career experience.</p>
+            <div className={s.heroActions}><StartLink /><a href="#how-it-works" className={s.secondary}><PlayCircle size={20} aria-hidden="true" /> See How It Works</a></div>
+            <ul className={s.trust}>{[[Target, 'Job-specific resumes'], [ShieldCheck, 'ATS-friendly preparation'], [Mic, 'Technical interview practice'], [Globe2, 'Gulf-focused guidance']].map(([Icon, label]) => { const I = Icon as typeof Target; return <li key={String(label)}><I size={20} aria-hidden="true" /><span>{String(label)}</span></li> })}</ul>
           </div>
-          {/* Dune-wave divider — a static decorative curve flowing the navy band
-              into the ivory canvas below (aria-hidden; not content). */}
-          <div className={s.heroWave} aria-hidden="true">
-            <svg viewBox="0 0 1440 56" preserveAspectRatio="none" focusable="false">
-              <path d="M0,32 C240,8 480,54 720,34 C960,8 1200,50 1440,26 L1440,56 L0,56 Z" fill="var(--ui-surface)" />
-            </svg>
-          </div>
-        </section>
+          <div className={s.heroMedia}><Image src="/landing/gulf-technical-hero.webp" alt="Illustrative engineer wearing safety equipment at an industrial refinery" fill priority sizes="(max-width: 767px) 100vw, 55vw" className={s.heroImage} /><div className={s.heroCountries}><Countries /></div></div>
+        </div>
+      </section>
 
-        {/* ── Country picks · six GCC cards with a reason + hover lift ── */}
-        <section aria-label="GCC career destinations" className={s.countryBand}>
-          <div className={s.inner}>
-            <div className={s.sectionHead}>
-              <span className={s.kickerGold}>Prepared for all six Gulf markets</span>
-            </div>
-            <div className={s.countryGrid}>
-              {COUNTRIES.map((country, index) => (
-                <Reveal key={country.name} delay={index * 40}>
-                  <div className={s.countryCard}>
-                    <span className={s.countryFlag} aria-hidden="true">{country.flag}</span>
-                    <b className={s.countryName}>{country.name}</b>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
-          </div>
-        </section>
+      <section id="industries" className={s.industry} aria-labelledby="industries-title"><div className={s.wrap}><div className={s.employerStrip}><h2 id="industries-title">Industries & employers<br />professionals target</h2><ul>{employers.map(name => <li key={name}>{name}</li>)}</ul></div><p className={s.note}>Oil & Gas · Petrochemicals · EPC · Power · Industrial automation. Organization names are industry references only; no affiliation or endorsement is implied.</p></div></section>
 
-        <section id="challenges" className={s.challenges} aria-labelledby="challenges-title">
-          <div className={s.inner}>
-            <details className={s.faqItem}>
-              <summary><span id="challenges-title">Not getting shortlisted?</span><span className={s.faqPlus} aria-hidden="true">+</span></summary>
-              <ul className={s.challengeList}>{CHALLENGES.map(challenge => <li key={challenge}><span aria-hidden="true">!</span>{challenge}</li>)}</ul>
-            </details>
-            <details id="how-it-works" className={s.faqItem}>
-              <summary><span>How it works</span><span className={s.faqPlus} aria-hidden="true">+</span></summary>
-              <div className={s.journeyGrid}>{HOW_IT_WORKS.map(([step, detail], index) => <article key={step}><span>{index + 1}</span><h3>{step}</h3><p>{detail}</p></article>)}</div>
-            </details>
-          </div>
-        </section>
+      <div className={s.wrap}>
+        <section id="challenges" className={s.problemSolution} aria-label="Application challenges and preparation"><div className={s.problem}><UserRound size={34} aria-hidden="true" /><div><h2>Not Getting Shortlisted?</h2><p>Strong experience can be hard to see in a weak application.</p><ul>{['Generic resumes', 'Missing relevant keywords', 'Unclear technical responsibilities', 'Poor job-description alignment', 'Weak application presentation', 'Inadequate interview preparation'].map(text => <li key={text}><XCircle size={14} aria-hidden="true" />{text}</li>)}</ul></div></div><ArrowRight className={s.bridge} aria-hidden="true" /><div className={s.solution}><Target size={40} aria-hidden="true" /><div><h2>Let’s Fix It.</h2><p>Present your genuine experience clearly. Prepare a focused application and practise explaining your strengths.</p></div></div></section>
 
-        {/* ── Preparation services ── */}
-        <section id="services" className={`${s.section} ${s.softSection}`} aria-labelledby="services-title">
-          <div className={s.inner}>
-            <div className={s.sectionHead}>
-              <span className={s.kickerGold}>What you get</span>
-              <h2 id="services-title" className={s.sectionTitle}>All the tools for <span>your next move</span></h2>
-              <p className={s.sectionLead}>Choose the preparation you need for your next application.</p>
-            </div>
-            <ul className={s.featureGrid}>
-              {services.map(([name, description, href, key]) => {
-                const Icon = icons[key as keyof typeof icons]
-                return (
-                  <li key={name}>
-                    <Link href={href} className={s.featureCard}>
-                      <span className={s.featureIcon}><Icon size={21} aria-hidden="true" /></span>
-                      <h3>{name}</h3>
-                      <p>{description}</p>
-                      <ArrowRight size={15} className={s.featureArrow} aria-hidden="true" />
-                    </Link>
-                  </li>
-                )
-              })}
-            </ul>
-          </div>
-        </section>
+        <section id="services" className={s.section} aria-labelledby="services-title"><div className={s.sectionHeading}><h2 id="services-title">Our Career Preparation Services</h2><p>Everything you need to prepare with purpose.</p></div><ul className={s.services}>{services.map(([name, description, href, Icon]) => <li key={name}><Link href={href} aria-label={name === 'Optimize Resume' ? 'Optimize Resume for a New Job' : name}><span className={s.icon}><Icon size={27} aria-hidden="true" /></span><h3>{name}</h3><p>{description}</p><ArrowRight size={16} className={s.cardArrow} aria-hidden="true" /></Link></li>)}</ul><div className={s.moreServices}><Link href="/interview-qa">Interview Q&A <ArrowUpRight size={14} aria-hidden="true" /></Link><Link href="/linkedin-optimization">LinkedIn Optimization <ArrowUpRight size={14} aria-hidden="true" /></Link><Link href="/naukrigulf-optimization">NaukriGulf Optimization <ArrowUpRight size={14} aria-hidden="true" /></Link><Link href="/tools">Explore Free Tools <ArrowUpRight size={14} aria-hidden="true" /></Link></div></section>
 
-        {/* ── Templates ── */}
-        <section id="templates" className={s.section} aria-labelledby="templates-title">
-          <div className={`${s.inner} ${s.splitSection}`}>
-            <div className={s.sectionHead}>
-              <span className={s.kickerGold}>Your resume, your style</span>
-              <h2 id="templates-title" className={s.sectionTitle}>A resume that <span>represents you.</span></h2>
-              <p className={s.sectionLead}>Explore 50+ designs using the same Career Profile.</p>
-              <Link href="/templates" className={s.textLink}>Explore all templates <ArrowRight size={16} aria-hidden="true" /></Link>
-            </div>
-            <div className={s.templateChoices}>
-              {[['ATS layouts', 'Clear structure for online applications.'], ['Professional designs', 'A polished presentation of your experience.'], ['Photo options', 'Choose a design that suits your application.']].map(([title, detail]) => <Link href="/templates" className={s.templateChoice} key={title}><FileText size={28} aria-hidden="true" /><div><strong>{title}</strong><span>{detail}</span></div><span aria-hidden="true">→</span></Link>)}
-            </div>
-          </div>
-        </section>
+        <section id="how-it-works" className={s.section} aria-labelledby="journey-title"><div className={s.sectionHeading}><h2 id="journey-title">How It Works <span>— From Job to Interview Readiness</span></h2></div><ol className={s.journey}>{journey.map(([title, description, Icon], index) => <li key={title}><span className={s.icon}><Icon size={27} aria-hidden="true" /></span><div><span className={s.step}>Step {index + 1}</span><h3>{title}</h3><p>{description}</p></div></li>)}</ol><p className={s.note}>Start by creating your Career Profile. Review your facts once, then reuse them for each application.</p></section>
 
-        {/* ── Interview practice ── */}
-        <section id="interview" className={`${s.section} ${s.softSection}`} aria-labelledby="interview-title">
-          <div className={`${s.inner} ${s.splitSection}`}>
-            <div className={s.sectionHead}>
-              <span className={s.kickerGold}>Practise with purpose</span>
-              <h2 id="interview-title" className={s.sectionTitle}>Practise your interview. <span>Know what to improve.</span></h2>
-              <p className={s.sectionLead}>Practise relevant questions. See what worked and what to improve.</p>
-            </div>
-            <InterviewDemo />
-          </div>
-        </section>
+        <section id="templates" className={`${s.section} ${s.showcase}`} aria-labelledby="templates-title"><div className={s.showcaseHeading}><span className={s.icon}><FileText size={28} aria-hidden="true" /></span><div><h2 id="templates-title">Professional Resume Templates</h2><p>Choose from professional designs and prepare a resume that presents your experience clearly.</p></div><Link href="/templates" className={s.textLink}>Explore designs <ArrowRight size={16} aria-hidden="true" /></Link></div><DocumentOrbit /><ul className={s.templateBenefits}><li><Check size={16} aria-hidden="true" /> Real template previews</li><li><FolderOpen size={16} aria-hidden="true" /> Multiple designs</li><li><ShieldCheck size={16} aria-hidden="true" /> Your experience, clearly presented</li></ul></section>
 
-        {/* ── GCC markets globe ── */}
-        <section id="markets" className={s.section} aria-label="Explore the six Gulf markets">
-          <div className={s.inner}>
-            <div className={`${s.sectionHead} ${s.sectionHeadCenter}`}>
-              <span className={s.kickerGold}>Explore your next destination</span>
-            </div>
-            <GccGlobe compact />
-          </div>
-        </section>
+        <section id="markets" className={`${s.section} ${s.market}`} aria-labelledby="gulf-title"><div className={s.sectionHeading}><h2 id="gulf-title">Your Career Across the Gulf</h2><p>Prepare for opportunities across all six GCC countries.</p></div><GccGlobe compact /></section>
 
-        {/* ── About & access · navy band ── */}
-        <section id="about" className={s.section} aria-labelledby="about-title">
-          <div className={`${s.inner} ${s.navyBand}`}>
-            <div className={s.founderGrid}>
-              <div className={s.founderColumn}>
-                <span className={s.kickerGold}>Built from practical industry experience</span>
-                <h2 id="about-title" className={s.navyTitle}>Gulf experience. <br />A practical preparation approach.</h2>
-                <p className={s.navyLead}>A practical approach to presenting your experience and preparing for Gulf opportunities.</p>
-                <div className={s.founderBox}>
-                  <span className={s.monogram} aria-hidden="true">SKJ</span>
-                  <div>
-                    <h3>Satish Kumar Jaiswal</h3>
-                    <span className={s.founderRole}>Founder, GCC Mentor</span>
-                    <p>Approximately 15 years in instrumentation, commissioning and Gulf EPC projects.</p>
-                    <a href="https://www.linkedin.com/in/jaissatish/" target="_blank" rel="noopener noreferrer" className={s.founderLink}>Connect on LinkedIn <ArrowUpRight size={15} aria-hidden="true" /></a>
-                  </div>
-                </div>
-              </div>
-              <div className={s.accessCards}>
-                <article className={s.accessCard}>
-                  <span className={s.accessIcon}><Target size={19} aria-hidden="true" /></span>
-                  <div>
-                    <span className={s.accessTag}>Before signup</span>
-                    <h3>Free GCC Readiness</h3>
-                    <p>Understand your preparation gaps.</p>
-                    <Link href="/gulf-readiness-score" className={s.btnNavyOutline}>Check my free readiness <ArrowRight size={14} aria-hidden="true" /></Link>
-                  </div>
-                </article>
-                <article className={s.accessCard}>
-                  <span className={s.accessIcon}><FileText size={19} aria-hidden="true" /></span>
-                  <div>
-                    <span className={s.accessTag}>With an account</span>
-                    <h3>Career Preparation</h3>
-                    <p>Prepare your applications and practise interviews.</p>
-                    <Link href="/signup" className={s.btnNavyOutline}>Create my account <ArrowRight size={14} aria-hidden="true" /></Link>
-                  </div>
-                </article>
-                <article className={s.accessCard}>
-                  <span className={s.accessIcon}><ShieldCheck size={19} aria-hidden="true" /></span>
-                  <div>
-                    <span className={s.accessTag}>Your service access</span>
-                    <h3>Your Available Services</h3>
-                    <p>View your available tools or redeem an access code.</p>
-                    <Link href="/settings" className={s.textLink}>See my available services <ArrowRight size={14} aria-hidden="true" /></Link>
-                  </div>
-                </article>
-              </div>
-            </div>
-          </div>
-        </section>
+        <section id="about" className={`${s.section} ${s.founder}`} aria-labelledby="about-title"><div className={s.founderPortrait}><span aria-hidden="true">SKJ</span><strong>Satish Kumar Jaiswal</strong><small>Founder, GCC Mentor</small><small>Founder photograph coming soon</small></div><div className={s.founderCopy}><span className={s.eyebrow}><UserRound size={15} aria-hidden="true" /> Meet the Founder</span><h2 id="about-title">Built by a Gulf Engineering Professional. For Technical Professionals.</h2><p>I’m <strong>Satish Kumar Jaiswal</strong>, an Instrumentation & Control professional with approximately 15+ years of industrial experience across the Middle East and Asia, including EPC execution, pre-commissioning and commissioning in Oil & Gas and petrochemical projects.</p><p>After working on major industrial projects, I understand how challenging it can be to present your experience, meet job requirements and prepare for interviews. I created GCC Mentor to make career preparation practical, accessible and relevant — helping professionals present their real skills and prepare confidently.</p><a href="https://sa.linkedin.com/in/jaissatish" target="_blank" rel="noopener noreferrer" className={s.secondary}>Verify My Background on LinkedIn <ArrowUpRight size={16} aria-hidden="true" /></a></div><aside className={s.founderFacts} aria-label="Founder experience"><div><BriefcaseBusiness aria-hidden="true" /><p><strong>15+ Years</strong><span>Gulf & international industrial experience</span></p></div><div><HardHat aria-hidden="true" /><p><strong>I&C | Commissioning | EPC</strong><span>Oil & Gas · Refinery · Petrochemical</span></p></div><div><ClipboardCheck aria-hidden="true" /><p><strong>Project exposure</strong><span>NEOM Green Hydrogen (KSA), ADNOC-related projects and NSRP Vietnam</span></p></div><small>Experience references do not imply project or employer endorsement.</small></aside></section>
 
-        {/* ── FAQ ── */}
-        <section id="faq" className={s.section} aria-labelledby="faq-title">
-          <div className={s.inner}>
-            <div className={s.sectionHead}>
-              <span className={s.kickerGold}>Know what to expect</span>
-              <h2 id="faq-title" className={s.sectionTitle}>Your questions, <span>answered.</span></h2>
-            </div>
-            <div className={s.faqList}>
-              {faq.map(([question, answer], index) => (
-                <details key={question} className={s.faqItem} id={index === faq.length - 2 ? 'privacy' : undefined}>
-                  <summary>{question}<span className={s.faqPlus} aria-hidden="true">+</span></summary>
-                  <p>{answer}</p>
-                </details>
-              ))}
-            </div>
-          </div>
-        </section>
+        <section className={`${s.section} ${s.benefits}`} aria-labelledby="benefits-title"><h2 id="benefits-title">Key Benefits<br />for You</h2><ul>{benefits.map(text => <li key={text}><Check size={20} aria-hidden="true" />{text}</li>)}</ul></section>
 
-        {/* ── Final · white-on-navy reprise of the single action ── */}
-        <section className={s.finalBand} aria-labelledby="final-title">
-          <div className={s.inner}>
-            <span className={s.kickerGold}>Your next Gulf chapter</span>
-            <h2 id="final-title" className={s.finalTitle}>Start preparing for your next <br />Gulf opportunity today.</h2>
-            <p className={s.finalLead}>Start with your free readiness check. Build from there.</p>
-            <Link href="/gulf-readiness-score" className={s.whiteCta}>Check my readiness <ArrowRight size={18} aria-hidden="true" /></Link>
-            <small className={s.finalSmall}>Your real experience · Guided preparation · Employment is not guaranteed</small>
-          </div>
-        </section>
-      </main>
-      <LandingFooter />
-    </div>
-  )
+        <section id="pricing" className={`${s.section} ${s.access}`} aria-labelledby="access-title"><div><h2 id="access-title">Start Free. Prepare at Your Pace.</h2><p>Create an account to see your available services and usage limits. Paid card checkout is not currently enabled.</p></div><StartLink /></section>
+        <section id="faq" className={`${s.section} ${s.faq}`} aria-labelledby="faq-title"><h2 id="faq-title">A Few Things to Know</h2><details><summary>Does GCC Mentor find jobs or apply for me?</summary><p>You find the opportunity on your preferred job website. GCC Mentor helps you prepare your profile, resume, cover letter and interview answers. You review and submit your application yourself.</p></details><details><summary>Will this guarantee a job or an ATS pass?</summary><p>No. Scores and guidance support preparation. Employers decide whom to shortlist and hire, and ATS systems vary.</p></details><details><summary>Is my experience kept truthful?</summary><p>Preparation uses your Career Profile. Review all generated content and include only skills, experience and qualifications you can support.</p></details></section>
+      </div>
+      <section className={s.final} aria-labelledby="final-title"><div className={s.wrap}><h2 id="final-title">Get Ready for Your Next Gulf Opportunity</h2><p>Create your profile, prepare your application and practice interviews — all in one platform.</p><StartLink /></div></section>
+    </main><LandingFooter />
+  </div>
 }

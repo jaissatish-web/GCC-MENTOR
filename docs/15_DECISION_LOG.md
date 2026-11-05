@@ -2004,3 +2004,6 @@ Founder requests a first live release of some completed tools, a to-do/status li
 
 ## 4 November 2026 — Premium design reference gate
 Founder approves restrained white/navy/teal Inter system and shared tool architecture, with hub + Working Days Calculator as initial reference. First PR waits for visual approval; later approved batches may auto-merge green required checks. Protected business/calculation/auth/API/data/template logic and URLs unchanged. Remaining tools and SaaS migration follow approval, not an automatic sitewide theme change.
+
+## 5 November 2026 — Landing V2
+Founder approved supplied 17853.png as visual target with dedicated mobile layout and protected backend. Implement through feature PR, green CI, preview verification and automatic Vercel integration. Plain employer names; no fictional founder likeness.
