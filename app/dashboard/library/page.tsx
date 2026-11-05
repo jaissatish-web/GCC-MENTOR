@@ -557,15 +557,16 @@ export default function TargetJobsPage() {
       icon={BriefcaseIcon}
       title="Resume Library"
       subtitle="Your resumes and applications for Gulf jobs."
-      actions={
-        total > 0 ? (
-          <Link href="/optimize/target" className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'shrink-0')}>
-            {CTA.addTargetJob}
-          </Link>
-        ) : null
-      }
     >
-
+      <section aria-labelledby="new-job-resume-title" className="rounded-card border border-line bg-white p-4 sm:flex sm:items-center sm:justify-between sm:gap-5 sm:p-5">
+        <div className="min-w-0">
+          <h2 id="new-job-resume-title" className="type-card text-ink">Need another resume?</h2>
+          <p className="mt-1 type-helper text-ink-soft">Create a separate resume tailored to your next job.</p>
+        </div>
+        <Link href="/optimize/target" className={cn(buttonVariants({ variant: 'primary', size: 'sm' }), 'mt-3 min-h-11 w-full whitespace-normal text-center sm:mt-0 sm:w-auto sm:shrink-0')}>
+          {CTA.addTargetJob}
+        </Link>
+      </section>
 
       {searching ? <p role="status" className="type-helper text-ink-muted">Loading your resumes…</p> : null}
 

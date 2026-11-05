@@ -1,3 +1,7 @@
+## 2026-11-05 — Discoverable new-job resume CTA
+
+Founder requests a clear Resume Library action explaining that another job-specific resume is created through optimization. Show a single prominent CTA even with only a Career Profile Resume, using the existing canonical label and optimizer route. Presentation only; preserve service logic.
+
 # DECISION LOG — what was decided, when, and why
 
 ## 2026-10-30 — Voice audio auto-deleted on successful transcription; retention sweep enabled + backlog-draining
