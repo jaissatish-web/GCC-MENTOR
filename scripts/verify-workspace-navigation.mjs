@@ -62,7 +62,7 @@ try {
     } catch (e) { errors.push(e.message); await r.abort().catch(() => {}) }
   })
   mkdirSync('docs/desktop-redesign',{recursive:true})
-  const required=['/dashboard','/dashboard/library','/optimize/target','/templates','/cover-letter','/interview-qa','/mock-interview','/linkedin-optimization','/naukrigulf-optimization','/profile','/settings','/settings?tab=delete']
+  const required=['/dashboard','/dashboard/library','/optimize/target','/templates','/cover-letter','/interview-qa','/mock-interview','/linkedin-optimization','/naukrigulf-optimization','/profile','/settings']
   for(const width of [360,390,430,768,1024,1366,1440]){
     await page.setViewport({width,height:900})
     await page.goto('https://interview.test/dashboard',{waitUntil:'networkidle0'})
@@ -78,6 +78,7 @@ try {
     assert.equal(await page.$eval('body',el=>el.style.overflow),'hidden')
     const hrefs=await page.$$eval('[role="dialog"] a',els=>els.map(el=>el.getAttribute('href')))
     required.forEach(href=>assert.ok(hrefs.includes(href),`Missing ${href}`))
+    assert.ok(!hrefs.includes('/settings?tab=delete'),'Data deletion is accessed through Settings, without a duplicate menu shortcut')
     assert.equal(await page.$$eval('[role="dialog"] form button',els=>els.filter(el=>el.textContent.includes('Sign out')).length),1)
     await page.screenshot({path:`docs/desktop-redesign/services-${width}.webp`,type:'webp'})
     if(width===390){await page.$eval('[role="dialog"] form button',el=>el.scrollIntoView({block:'end'}));await page.screenshot({path:'docs/desktop-redesign/services-account-390.webp',type:'webp'})}
@@ -94,8 +95,8 @@ try {
     await page.click('[role="dialog"] button[aria-label="Close menu"]')
     assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('aria-label')),'All services')
     await page.click('[data-mobile-header] button[aria-label="All services"]')
-    await page.click('[role="dialog"] a[href="/settings?tab=delete"]')
-    await page.waitForFunction(()=>location.pathname==='/settings'&&location.search==='?tab=delete')
+    await page.click('[role="dialog"] a[href="/settings"]')
+    await page.waitForFunction(()=>location.pathname==='/settings'&&location.search==='')
     assert.equal(writes.length,0,'Navigation must never execute account actions')
     console.log(`PASS dashboard and services drawer ${width}px`)
   }

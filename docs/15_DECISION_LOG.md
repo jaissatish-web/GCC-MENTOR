@@ -1,3 +1,7 @@
+## 2026-11-05 — Data deletion stays in Settings
+
+Founder requests removal of the duplicate Delete my data shortcut in the right-side service menu. Users reach this existing feature through Settings. Preserve all deletion confirmation and data handling behavior.
+
 ## 2026-11-05 — Azure & Slate shared light palette
 
 Founder asks to apply the recommended color combination through universal settings. Select Azure & Slate (the first recommendation). Use white/light blue surfaces, slate text, azure primary actions and restrained cyan accents. Landing and free tools consume the central palette. No settings interface, typography redesign or functional changes.

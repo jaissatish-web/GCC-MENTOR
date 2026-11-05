@@ -1,3 +1,7 @@
+## SETTINGS-MENU-001 — 5 November 2026
+
+Implemented: remove the duplicate “Delete my data” destination from the right-side All services menu. Keep Settings, Sign out and Settings → Delete my data unchanged. Scope: components/layout/ServicesMenu.tsx and existing scripts/verify-workspace-navigation.mjs regression. Acceptance: no deletion shortcut in the menu at mobile/tablet/desktop widths; Settings remains reachable; keyboard/focus behavior and no-write navigation remain verified. Protected: Settings deletion UI/action, auth, personal data, APIs, AI/scoring and theme. Verification: actual diff inspected; local typecheck, lint and navigation-script syntax checks passed. Settings source still renders the existing delete tab and DeleteDataSection; no Settings/action files changed. Required CI (including build and drawer browser regression) is the release gate. The protected PR and automatic Vercel deployment are authoritative for merge/live status. No authenticated production click-through is claimed.
+
 
 ## LIBRARY-CTA-001 — 5 November 2026
 
