@@ -372,3 +372,5 @@ PREMIUM-TOOLS-V1 reference implemented and locally verified: PR#70, final applic
 Approved, not yet implemented. See LANDING_V2_2026-11-05.md. Exact founder screenshot now supplied; public landing only, original orbit/globe and all service logic protected.
 
 LANDING-V2 source implemented: production build/typecheck/lint pass; 91/92 initial checks plus corrected typography check pass; audit0. Original orbit/globe untouched. Local preview browser QA blocked by browser security policy; no visual/animation certification or screenshots. PR/CI pending, merge held for actual preview verification. See LANDING_V2_2026-11-05.md.
+
+LANDING-V2 revision authorized: founder rejected first preview; premium Gulf technical-market/service-value refinement, compact mobile layout. Current remote CI fails FAQ expansion at1024 enlarged; all preceding build/service/PDF checks pass. PR78 remains draft and unmerged.

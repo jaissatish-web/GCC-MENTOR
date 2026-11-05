@@ -19,7 +19,7 @@ export function LandingV2Nav() {
   return <header className={s.header}>
     <a href="#main-content" className={s.skip}>Skip to content</a>
     <div className={s.navInner}>
-      <Link href="/" className={s.brand} aria-label="GCC Mentor home"><span className={s.brandMark} aria-hidden="true">G</span><span><strong>GCC Mentor</strong><small>Gulf Technical Career Platform</small></span></Link>
+      <Link href="/" className={s.brand} aria-label="GCC Mentor home"><span className={s.brandMark} aria-hidden="true">G</span><span><strong>GCC Mentor</strong><small>Gulf Technical Careers</small></span></Link>
       <nav className={s.desktopNav} aria-label="Main navigation">{links.map(([label, href]) => <Link key={href} href={href}>{label}</Link>)}</nav>
       <div className={s.navActions}><Link className={s.login} href="/login">Log In</Link><Link href="/signup" className={s.primary}>Get Started Free <ArrowRight size={16} aria-hidden="true" /></Link><button ref={button} type="button" className={s.menuButton} aria-expanded={open} aria-controls="landing-mobile-nav" aria-label={open ? 'Close navigation' : 'Open navigation'} onClick={() => setOpen(!open)}>{open ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}</button></div>
     </div>

@@ -105,7 +105,7 @@ function decodeDots(): Float32Array {
   return out
 }
 
-export function GccGlobe({ compact = false }: { compact?: boolean }) {
+export function GccGlobe({ compact = false, presentation }: { compact?: boolean; presentation?: 'showcase' }) {
   const wrapRef = useRef<HTMLDivElement | null>(null)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const focusRef = useRef<string | null>(null)
@@ -421,7 +421,7 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
   const arrivalTo = arrival ? GCC.find((g) => g.code === arrival.to) : null
 
   return (
-    <div className={cn("relative overflow-hidden rounded-[20px] border border-line bg-white p-4 sm:p-6", compact ? "lg:p-6" : "lg:p-10")}>
+    <div data-globe-presentation={presentation} className={cn("relative overflow-hidden rounded-[20px] border border-line bg-white p-4 sm:p-6", compact ? "lg:p-6" : "lg:p-10")}>
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_70%_at_78%_50%,rgba(21,128,83,0.04),transparent_70%)]" aria-hidden="true" />
       <div className="relative grid grid-cols-[minmax(0,1fr)] items-center gap-3 lg:grid-cols-[0.8fr_1.2fr] lg:gap-8">
         <div className="order-2 lg:order-1">

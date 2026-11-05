@@ -137,19 +137,31 @@ try {
   assert.deepEqual(configured, {title:'27px', section:'19px', body:'18px', family:'Arial',
     radius:'9px', padding:'21px', documentTitle:'21px', documentWeight:'700', documentFamily:'Georgia', documentBody:'11px', utilitySize:'18px', utilityWeight:'400', captionSize:'13px'})
   // Real public landing markup, production CSS and bundled Inter, without API calls.
+  // Preserve local media in this offline fixture; no production/network access.
+  // Image-stripped fixtures cannot establish composition or image balance.
+  const mediaData = url => {
+    const decoded = url.replaceAll('&amp;', '&')
+    if (decoded.startsWith('data:')) return decoded
+    const asset = decoded.startsWith('/_next/image?') ? new URL(decoded, 'https://fixture.invalid').searchParams.get('url') : decoded
+    if (!asset?.startsWith('/landing/')) return url
+    const mime = asset.endsWith('.webp') ? 'image/webp' : asset.endsWith('.png') ? 'image/png' : 'image/jpeg'
+    return `data:${mime};base64,${readFileSync(join('public', asset)).toString('base64')}`
+  }
   const publicMarkup = landing.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
     .replace(/<link\b[^>]*>/gi, '')
-    .replace(/<img\b[^>]*>/gi, '<span aria-hidden="true"></span>')
+     .replace(/<img\b[^>]*>/gi, tag => tag.replace(/\ssrcset="[^"]*"/gi, '').replace(/\ssrc="([^"]+)"/i, (_, src) => ` src="${mediaData(src)}"`))
   for (const width of [320, 360, 390, 430, 768, 1024, 1440]) {
     for (const enlarged of [false, true]) {
       await page.setViewport({ width, height: width < 640 ? 844 : 900 })
+      const fixtureCss = css.replace(/url\(['"]?(\/landing\/[^)'" ]+)['"]?\)/g, (_, src) => `url("${mediaData(src)}")`)
       const bodyMarkup = publicMarkup.match(/<body[^>]*>([\s\S]*)<\/body>/i)?.[1] ?? publicMarkup
-      await page.setContent(`<html><head><style>${css}</style></head><body class="${fontClass}">${bodyMarkup}</body></html>`)
+      await page.setContent(`<html><head><style>${fixtureCss}</style></head><body class="${fontClass}">${bodyMarkup}</body></html>`)
       await page.evaluate(enlarged => {
         document.documentElement.classList.remove('js-reveal')
         document.documentElement.style.fontSize = enlarged ? '32px' : '16px'
+        window.scrollTo(0, 0)
       }, enlarged)
-      await page.evaluate(() => document.fonts.ready)
+      await page.evaluate(async () => { await document.fonts.ready; await Promise.all([...document.images].map(image => image.decode().catch(() => {}))); window.scrollTo(0, 0) })
       const metrics = await page.evaluate(() => {
         const hero = document.querySelector('h1')
         const heading = getComputedStyle(hero)
