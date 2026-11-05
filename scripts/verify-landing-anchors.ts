@@ -22,15 +22,12 @@ import './resolve-paths'
 import fs from 'fs'
 import path from 'path'
 
-const NAV = path.join(process.cwd(), 'components/landing-premium/PremiumLanding.tsx')
+const NAV = path.join(process.cwd(), 'components/landing-v3/LandingV2Nav.tsx')
 const PAGE = path.join(process.cwd(), 'app/page.tsx')
-// The active navigation and section IDs live in the premium landing composition.
-const SECTIONS = path.join(process.cwd(), 'components/landing-premium')
-
+// Inspect the active page and its actual header/footer, not historical compositions.
 const nav = fs.readFileSync(NAV, 'utf8')
-const page = [PAGE, ...fs.readdirSync(SECTIONS).filter((f) => f.endsWith('.tsx')).map((f) => path.join(SECTIONS, f))]
-  .map((f) => fs.readFileSync(f, 'utf8'))
-  .join('\n')
+const page = [PAGE, NAV, path.join(process.cwd(), 'components/landing-v3/LandingFooter.tsx')]
+  .map((f) => fs.readFileSync(f, 'utf8')).join('\n')
 
 /**
  * `exec` in a loop rather than spreading `matchAll`.
@@ -48,7 +45,7 @@ function findAll(source: string, re: RegExp): string[] {
 }
 
 /** Only the hrefs inside the NAV tuple list, not any in prose or comments. */
-const itemsBlock = nav.slice(nav.indexOf('const anchors='), nav.indexOf('] as const'))
+const itemsBlock = nav.slice(nav.indexOf('const links ='), nav.indexOf('] as const'))
 const anchors = findAll(itemsBlock, /'(#[a-zA-Z0-9-]+)'/g)
 const ids = findAll(page, /id="([a-zA-Z0-9-]+)"/g).map((i) => `#${i}`)
 

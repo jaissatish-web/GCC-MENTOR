@@ -44,7 +44,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
   </div>
 }
 
-export function GccGlobe({ compact = false }: { compact?: boolean }) {
+export function GccGlobe({ compact = false, presentation }: { compact?: boolean; presentation?: 'showcase' }) {
   const ref = useRef<HTMLDivElement>(null)
   const [ready, setReady] = useState(false)
   useEffect(() => {
@@ -54,5 +54,5 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
     if (ref.current) observer.observe(ref.current)
     return () => observer.disconnect()
   }, [])
-  return <div ref={ref} className={compact ? "min-h-[540px] lg:min-h-[470px]" : "min-h-[760px] lg:min-h-[640px]"}>{ready ? <LoadedGccGlobe compact={compact} /> : null}</div>
+  return <div ref={ref} className={presentation === 'showcase' ? "min-h-[540px]" : compact ? "min-h-[540px] lg:min-h-[470px]" : "min-h-[760px] lg:min-h-[640px]"}>{ready ? <LoadedGccGlobe compact={compact} presentation={presentation} /> : null}</div>
 }
