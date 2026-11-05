@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 
 
 const services = [
-  ['Career Profile', 'Your experience. One reusable profile.', '/profile', UserRound],
+  ['Career Profile', 'One profile. Clear Gulf Profile Readiness.', '/profile', UserRound],
   ['ATS Job Match', 'Understand your fit for a specific role.', '/optimize/target', FileSearch],
   ['Optimize Resume', 'Present the right experience for each job.', '/optimize/target', FileText],
   ['Cover Letter', 'Make your relevance clear to the employer.', '/cover-letter', Mail],
