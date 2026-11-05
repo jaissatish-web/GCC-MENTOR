@@ -1,3 +1,7 @@
+## 2026-11-05 — Azure & Slate shared light palette
+
+Founder asks to apply the recommended color combination through universal settings. Select Azure & Slate (the first recommendation). Use white/light blue surfaces, slate text, azure primary actions and restrained cyan accents. Landing and free tools consume the central palette. No settings interface, typography redesign or functional changes.
+
 ## 2026-11-05 — Discoverable new-job resume CTA
 
 Founder requests a clear Resume Library action explaining that another job-specific resume is created through optimization. Show a single prominent CTA even with only a Career Profile Resume, using the existing canonical label and optimizer route. Presentation only; preserve service logic.

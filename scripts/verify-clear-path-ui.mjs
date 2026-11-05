@@ -59,7 +59,7 @@ try {
   assert.equal(before.internal.field.size,'16px')
   assert.equal(before.internalPortal.size,width>=768?'24px':'21px')
   assert.equal(before.publicPortal.size,width>=768?'24px':'21px')
-  assert.equal(before.internal.palette,'11 31 58','Internal screens consume the shared Gulf navy brand (2026-11-04 rebrand)')
+  assert.equal(before.internal.palette,'37 99 235','Internal screens consume the shared Azure & Slate brand')
   assert.equal(before.internal.field.background,'rgb(255, 255, 255)','Editable fields use the shared white surface')
   assert.equal(before.internal.card.background,'rgb(255, 255, 255)','Content surfaces use the shared white surface')
   assert.equal(before.internal.page.padding.split(' ')[1],width>=768?'32px':'16px')

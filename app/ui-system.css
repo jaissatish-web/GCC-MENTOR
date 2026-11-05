@@ -1,7 +1,6 @@
-/* Gulf premium identity — 4 Nov 2026. Warm ivory neutrals, deep navy brand,
-   gold accent. Replaces the Blueprint blue era on the shared surface system.
-   SINGLE UI CONFIGURATION. Edit tokens here; do not add page-specific type scales.
-   Code-owned only: no public settings, database storage or user preference UI. */
+/* Azure & Slate — 5 Nov 2026. One shared light palette for public and
+   authenticated pages. Edit these semantic tokens for future theme changes.
+   Typography, document colors and service behavior remain independently owned. */
 :root {
   color-scheme: light;
   --ui-inverse-rgb: 255 255 255;
@@ -12,28 +11,25 @@
   --ui-page-gutter: 16px;
   --ui-card-padding: 16px;
   --ui-card-radius: 16px;
-  --ui-card-shadow: 0 1px 2px rgb(11 31 58 / .05), 0 10px 28px rgb(11 31 58 / .07);
-  --ui-keyword-rgb: 138 97 20;
-  --ui-keyword-soft-rgb: 247 239 221;
-  --ui-info-rgb: 11 74 156;
-  --ui-info-soft-rgb: 233 241 252;
-  /* Semantic palette: RGB triplets allow shared opacity utilities.
-     Gulf premium mapping: navy brand, gold accent, warm ivory ground.
-     Contrast anchors: ink on canvas 12.9 · white on brand 13.2 ·
-     ink on gold 6.7 · gold-ink on white 5.2 · muted on canvas 5.4. */
-  --ui-canvas-rgb: 247 244 236;
+  --ui-card-shadow: 0 1px 2px rgb(var(--ui-ink-rgb) / .05), 0 10px 28px rgb(var(--ui-ink-rgb) / .07);
+  --ui-keyword-rgb: 14 116 144;
+  --ui-keyword-soft-rgb: 236 254 255;
+  --ui-info-rgb: 29 78 216;
+  --ui-info-soft-rgb: 234 241 255;
+  /* Shared RGB roles support opacity utilities without local palette overrides. */
+  --ui-canvas-rgb: 245 248 252;
   --ui-surface-rgb: 255 255 255;
-  --ui-ink-rgb: 20 36 61;
-  --ui-ink-soft-rgb: 51 67 91;
-  --ui-ink-muted-rgb: 84 94 108;
-  --ui-brand-rgb: 11 31 58;
-  --ui-brand-hover-rgb: 18 48 79;
-  --ui-brand-soft-rgb: 236 232 222;
-  --ui-line-rgb: 229 224 214;
-  --ui-line-strong-rgb: 197 190 175;
-  --ui-accent-rgb: 201 150 46;
-  --ui-accent-ink-rgb: 138 97 20;
-  --ui-accent-soft-rgb: 247 239 221;
+  --ui-ink-rgb: 23 43 69;
+  --ui-ink-soft-rgb: 82 100 122;
+  --ui-ink-muted-rgb: 82 100 122;
+  --ui-brand-rgb: 37 99 235;
+  --ui-brand-hover-rgb: 29 78 216;
+  --ui-brand-soft-rgb: 234 241 255;
+  --ui-line-rgb: 223 231 241;
+  --ui-line-strong-rgb: 125 141 162;
+  --ui-accent-rgb: 8 145 178;
+  --ui-accent-ink-rgb: 14 116 144;
+  --ui-accent-soft-rgb: 236 254 255;
   --ui-success-rgb: 21 112 65;
   --ui-success-soft-rgb: 234 248 240;
   --ui-error-rgb: 180 35 50;
@@ -43,6 +39,7 @@
   --ui-canvas: rgb(var(--ui-canvas-rgb));
   --ui-surface: rgb(var(--ui-surface-rgb));
   --ui-ink: rgb(var(--ui-ink-rgb));
+  --ui-heading: var(--ui-ink);
   --ui-ink-soft: rgb(var(--ui-ink-soft-rgb));
   --ui-muted: rgb(var(--ui-ink-muted-rgb));
   --ui-brand: rgb(var(--ui-brand-rgb));
@@ -74,7 +71,7 @@
   --ui-marketing-width: 1240px;
   --ui-header-gap: 8px;
   --ui-list-gap: 12px;
-  --ui-card-hover-shadow: 0 2px 4px rgb(11 31 58 / .06), 0 18px 44px rgb(11 31 58 / .13);
+  --ui-card-hover-shadow: 0 2px 4px rgb(var(--ui-ink-rgb) / .06), 0 18px 44px rgb(var(--ui-ink-rgb) / .13);
   --ui-nav-profile-bg: var(--ui-brand-soft); --ui-nav-profile-ink: var(--ui-brand);
   --ui-nav-library-bg: var(--ui-brand-soft); --ui-nav-library-ink: var(--ui-brand);
   --ui-nav-templates-bg: var(--ui-brand-soft); --ui-nav-templates-ink: var(--ui-brand);
@@ -494,7 +491,7 @@ body .rounded-ctl:not(:where([data-document-preview], [data-document-preview] *,
   border-radius: 16px;
   padding: 16px;
   background: var(--ui-surface);
-  box-shadow: 0 4px 16px rgb(11 31 58 / 0.06);
+  box-shadow: 0 4px 16px rgb(var(--ui-ink-rgb) / 0.06);
   transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 .app-type .library-resume-card-heading {
@@ -503,13 +500,13 @@ body .rounded-ctl:not(:where([data-document-preview], [data-document-preview] *,
 }
 .app-type .library-resume-card:focus-within {
   border-color: var(--ui-brand);
-  box-shadow: 0 0 0 3px rgb(11 31 58 / 0.08), 0 4px 16px rgb(11 31 58 / 0.06);
+  box-shadow: 0 0 0 3px rgb(var(--ui-ink-rgb) / 0.08), 0 4px 16px rgb(var(--ui-ink-rgb) / 0.06);
 }
 @media (hover: hover) {
   .app-type .library-resume-card:hover {
     border-color: var(--ui-muted);
     border-top-color: var(--ui-brand);
-    box-shadow: 0 8px 24px rgb(11 31 58 / 0.09);
+    box-shadow: 0 8px 24px rgb(var(--ui-ink-rgb) / 0.09);
   }
 }
 @media (min-width: 640px) {
@@ -1046,38 +1043,8 @@ body .bg-field:not(:where([data-document-preview], [data-document-preview] *, #r
 
 /* PREMIUM-TOOLS-V1: opt-in references only until founder visual approval.
    All semantic palette/control ownership remains here, not in page modules. */
+/* Reference tools keep their geometry but inherit the shared palette. */
 .premium-tools-scope:has([data-tool-design="v1"]) {
-  --ui-heading: #123B5D;
-  --ui-canvas-rgb: 248 250 252;
-  --ui-surface-rgb: 255 255 255;
-  --ui-ink-rgb: 23 43 58;
-  --ui-ink-soft-rgb: 65 81 103;
-  --ui-ink-muted-rgb: 100 116 139;
-  --ui-brand-rgb: 8 126 154;
-  --ui-brand-hover-rgb: 6 100 123;
-  --ui-brand-soft-rgb: 237 247 249;
-  --ui-line-rgb: 226 232 240;
-  --ui-line-strong-rgb: 148 163 184;
-  --ui-accent-rgb: 8 126 154;
-  --ui-accent-ink-rgb: 8 126 154;
-  --ui-accent-soft-rgb: 237 247 249;
-  --ui-success-rgb: 19 117 71;
-  --ui-error-rgb: 180 35 50;
-  --ui-warning-rgb: 163 91 8;
-  --ui-canvas: rgb(var(--ui-canvas-rgb));
-  --ui-surface: rgb(var(--ui-surface-rgb));
-  --ui-ink: rgb(var(--ui-ink-rgb));
-  --ui-ink-soft: rgb(var(--ui-ink-soft-rgb));
-  --ui-muted: rgb(var(--ui-ink-muted-rgb));
-  --ui-brand: rgb(var(--ui-brand-rgb));
-  --ui-brand-hover: rgb(var(--ui-brand-hover-rgb));
-  --ui-brand-soft: rgb(var(--ui-brand-soft-rgb));
-  --ui-line: rgb(var(--ui-line-rgb));
-  --ui-line-strong: rgb(var(--ui-line-strong-rgb));
-  --ui-field-border: #7D8DA2; /* >=3:1 boundary on white controls */
-  --ui-accent: rgb(var(--ui-accent-rgb));
-  --ui-accent-ink: rgb(var(--ui-accent-ink-rgb));
-  --ui-error: rgb(var(--ui-error-rgb));
   --ui-control-radius: 8px;
   --ui-card-radius: 12px;
   --ui-card-shadow: none;

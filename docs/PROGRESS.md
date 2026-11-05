@@ -1,3 +1,7 @@
+## AZURE-SLATE-001 — 5 November 2026
+
+Implemented, release pending: founder accepts the recommended Azure & Slate preview. Central palette: white surfaces #FFFFFF, pale canvas #F5F8FC, slate text #172B45, secondary/muted #52647A, azure actions #2563EB (hover #1D4ED8), pale blue #EAF1FF, cyan accents #0891B2 with darker #0E7490 for text. Replace landing navy/gold paint with the shared light palette; remove free-tools local palette overrides so future central theme edits propagate. Preserve typography, layout, animations, authored resumes/documents, external-profile previews, status colors, APIs, AI/scoring/auth/payments/schema. Affected: app/ui-system.css, components/landing-v3/premium.module.css, app/page.tsx (wave fill only), components/landing-v3/DocumentOrbit.tsx (selected border only), scripts/verify-universal-theme.ts and existing browser palette assertions (approved colors). Acceptance: one palette owner; blue buttons with white text; readable light hero; common dashboard/auth/profile/tools surfaces; no document recoloring. Verification: local typecheck, lint and universal-theme checks passed; production build and full suite in progress. Required GitHub CI and browser regressions must pass before merge. Live authenticated persistence is outside this color-only change.
+
 
 ## LIBRARY-CTA-001 — 5 November 2026
 

@@ -131,7 +131,7 @@ export default function Home() {
               into the ivory canvas below (aria-hidden; not content). */}
           <div className={s.heroWave} aria-hidden="true">
             <svg viewBox="0 0 1440 56" preserveAspectRatio="none" focusable="false">
-              <path d="M0,32 C240,8 480,54 720,34 C960,8 1200,50 1440,26 L1440,56 L0,56 Z" fill="#F7F4EC" />
+              <path d="M0,32 C240,8 480,54 720,34 C960,8 1200,50 1440,26 L1440,56 L0,56 Z" fill="var(--ui-surface)" />
             </svg>
           </div>
         </section>
