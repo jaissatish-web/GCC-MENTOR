@@ -1,3 +1,7 @@
+## 2026-11-05 — Simple Profile overview
+
+Founder requests only a polished identity header (name/title/location), direct crop-adjust-save photo controls, current resume visibility settings, resume preview and canonical Career Profile editor action. Duplicate career details stay in the editor. Keep existing save/validation, authored resume behavior and backend unchanged.
+
 ## 2026-11-05 — Data deletion stays in Settings
 
 Founder requests removal of the duplicate Delete my data shortcut in the right-side service menu. Users reach this existing feature through Settings. Preserve all deletion confirmation and data handling behavior.

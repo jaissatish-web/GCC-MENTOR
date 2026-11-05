@@ -1310,3 +1310,41 @@
 .app-type.internal-ui.career-studio .studio-home :is(h1,h2,h3,p,span,a,button) { overflow-wrap:anywhere; }
 .app-type.internal-ui.career-studio .studio-home-quick-actions > * { max-width:100%; }
 @media(max-width:400px) { .studio-personal-hero { flex-wrap:wrap; } .studio-personal-hero > div { flex-basis:calc(100% - 56px); } .studio-home-avatar { margin-left:52px; } }
+
+/* Profile overview: shared palette, responsive identity and local photo crop. */
+.app-type.internal-ui.career-studio .profile-overview-page.profile-overview-page {max-width:900px;margin-inline:auto;width:100%;min-width:0}
+.app-type.internal-ui.career-studio .profile-overview-identity.profile-overview-identity {display:grid;grid-template-columns:112px minmax(0,1fr);align-items:start;gap:20px;padding:20px;border:1px solid var(--ui-line);border-radius:var(--ui-card-radius);background:var(--ui-surface)}
+.profile-overview-identity-text {min-width:0;padding-block:8px}
+.profile-overview-identity-text h2,.profile-overview-identity-text p {overflow-wrap:anywhere}
+.profile-overview-identity-text h2 {margin:0}
+.profile-overview-identity-text p {margin-top:8px;color:var(--ui-ink-soft)}
+.profile-overview-identity-text .profile-overview-location {color:var(--ui-muted)}
+.profile-overview-photo-control {display:flex;flex-direction:column;gap:6px;min-width:0}
+.profile-overview-portrait {width:100%;aspect-ratio:4/5;display:grid;place-items:center;overflow:hidden;border:1px solid var(--ui-line);border-radius:12px;background:var(--ui-brand-soft);color:var(--ui-brand)}
+.profile-overview-portrait img {width:100%;height:100%;object-fit:cover}
+.profile-overview-portrait>svg {width:48px;height:48px}
+.profile-overview-photo-control>button {width:100%;padding-inline:8px!important}
+.profile-overview-visibility {margin-top:20px;border:1px solid var(--ui-line);border-radius:var(--ui-card-radius);background:var(--ui-surface);overflow:hidden}
+.profile-overview-visibility>summary {display:flex;gap:12px;align-items:center;min-height:60px;padding:16px 20px;cursor:pointer;color:var(--ui-ink)}
+.profile-overview-visibility>summary::after {content:'+';margin-left:auto;color:var(--ui-brand)}
+.profile-overview-visibility[open]>summary::after {content:'−'}
+.profile-overview-visibility>summary::-webkit-details-marker {display:none}
+.profile-overview-actions {display:flex;flex-wrap:wrap;gap:12px;margin-top:20px;align-items:start}
+.profile-overview-actions>* {flex:1 1 210px;min-width:0}
+.profile-overview-actions button {width:100%}
+.profile-overview-overlay {position:fixed;inset:0;z-index:70;background:rgb(var(--ui-ink-rgb) / .45)}
+.profile-overview-crop-dialog {position:fixed;z-index:71;left:50%;top:50%;transform:translate(-50%,-50%);width:calc(100% - 24px);max-width:620px;max-height:calc(100dvh - 24px);overflow-y:auto;overscroll-behavior:contain;border:1px solid var(--ui-line);border-radius:var(--ui-card-radius);background:var(--ui-surface);padding:24px;box-shadow:var(--ui-card-shadow)}
+.profile-overview-crop-workspace {display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr);gap:24px;align-items:center;margin-block:20px}
+.profile-overview-crop-canvas {display:block;width:100%;height:auto;aspect-ratio:4/5;border-radius:12px;background:var(--ui-brand-soft)}
+.profile-overview-crop-controls {display:flex;flex-direction:column;gap:18px;min-width:0}
+.profile-overview-crop-controls label {display:flex;flex-direction:column;gap:6px}
+.profile-overview-crop-controls input {width:100%;min-width:0;min-height:44px;accent-color:var(--ui-brand)}
+.profile-overview-crop-actions {display:flex;gap:12px;justify-content:flex-end;flex-wrap:wrap}
+@media(min-width:768px){.app-type.internal-ui.career-studio .profile-overview-identity.profile-overview-identity {grid-template-columns:120px minmax(0,1fr);gap:28px;padding:28px}.profile-overview-identity-text {padding-top:16px}}
+@media(max-width:420px){.app-type.internal-ui.career-studio .profile-overview-identity.profile-overview-identity {grid-template-columns:96px minmax(0,1fr);gap:14px;padding:16px}.profile-overview-identity-text {padding-top:4px}.profile-overview-crop-dialog {padding:18px}.profile-overview-crop-workspace {grid-template-columns:minmax(0,1fr);gap:16px}.profile-overview-crop-canvas {width:min(100%,180px);margin-inline:auto}.profile-overview-crop-controls {gap:8px}.profile-overview-crop-actions>* {flex:1}}
+@media(max-width:359px){
+  .app-type.internal-ui.career-studio .profile-overview-identity.profile-overview-identity {grid-template-columns:minmax(0,1fr)}
+  .profile-overview-photo-control {display:grid;grid-template-columns:96px minmax(0,1fr);align-items:center;column-gap:14px}
+  .profile-overview-portrait {grid-row:span 2}
+  .profile-overview-photo-control>p {grid-column:1/-1}
+}

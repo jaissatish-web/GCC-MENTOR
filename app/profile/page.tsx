@@ -1,10 +1,7 @@
 'use client'
 
-import { CTA } from '@/lib/serviceLabels'
 
-import Image from 'next/image'
 import { REVIEW_RECOVERY_KEY, reviewSource, reviewStorage, readReviewRecovery, writeReviewRecovery, clearReviewRecovery } from '@/lib/resumeReviewRecovery'
-import { ChevronRightIcon } from '@heroicons/react/24/outline'
 
 import { validProfileEmail, validProfilePhone, validProfileLinkedIn } from '@/lib/profileFieldValidity'
 import { rebaseImportField } from '@/lib/resumeParse/reviewPlan'
@@ -12,6 +9,7 @@ import { INTAKE_KEY, contextFromProfile } from '@/lib/careerIntake/shared'
 import { ResumeAcceptanceReview } from '@/components/profile/ResumeAcceptanceReview'
 import { CareerDiagnostic } from '@/components/profile/CareerDiagnostic'
 import { ProfilePhotoDraft } from '@/components/profile/ProfilePhotoDraft'
+import { ProfilePhotoPicker } from '@/components/profile/ProfilePhotoPicker'
 import { resumeReviewChecks } from '@/lib/resumeParse/reviewChecks'
 import { confirmationDigest } from '@/lib/resumeParse/reviewConfirmations'
 import { importReviewPlan } from '@/lib/resumeParse/reviewPlan'
@@ -2495,41 +2493,28 @@ function ProfileScreen() {
   // The editor stays mounted in this component when moving between summary,
   // one-section editing and the full editor. Only an explicit Save persists it.
   if (view === 'summary') {
-    const country = GULF_COUNTRIES.find(item => item.value === editor.target_country)?.label ?? editor.target_country
-    const rows = [
-      { id: 'sec_identity', title: 'Contact details', lines: [editor.email, editor.phone] },
-      { id: 'sec_work_experience', title: 'Experience', lines: sortedWorkRoles(editor.work_experience).slice(0, 2).map(role => [role.role, role.company].filter(Boolean).join(' · ')) },
-      { id: 'sec_education', title: 'Education', lines: editor.education.slice(0, 2).map(item => [item.degree, item.institution].filter(Boolean).join(' · ')) },
-      { id: 'sec_skills', title: 'Skills & tools', lines: [editor.skills.map(item => item.name.trim()).filter(Boolean).slice(0, 7).join(' · ')] },
-      { id: 'sec_status', title: 'Gulf preferences', lines: [editor.target_job_title, country, editor.notice_period] },
-    ]
-    const openFullProfile = () => showView('details')
-    return <main data-ui-service="profile" className="studio-page studio-profile-summary">
-      <header className="studio-page-heading"><h1>Career Profile</h1><Button size="sm" onClick={openFullProfile}>Edit Career Profile</Button></header>
-      {parseNotesBlock}{loadErrorBlock}
-      <div className="studio-profile-layout">
-        <div>
-          <div className="studio-profile-identity">
-            <div className="grid size-20 shrink-0 place-items-center overflow-hidden rounded-ctl border border-line bg-canvas">{editor.photo_url ? <Image src={editor.photo_url} alt="Your profile photo" width={80} height={80} unoptimized className="size-full object-cover" /> : <span className="type-helper text-ink-muted">No photo</span>}</div>
-            <div><h2>{editor.full_name || 'Your profile'}</h2>{headlineValue ? <p>{headlineValue}</p> : null}{editor.current_location ? <p>{editor.current_location}</p> : null}</div>
-          </div>
-          {rows.map(row => {
-            const lines = row.lines.map(line => line.trim()).filter(Boolean)
-            return <div key={row.id} className="studio-profile-row">
-              <span><span className="studio-profile-row-heading"><strong>{row.title}</strong></span><span className="studio-profile-row-details">{lines.length ? lines.map((line, index) => <span key={index} className="studio-profile-row-detail">{line}</span>) : <span className="studio-profile-row-detail">{statusOf(row.id) === 'complete' ? 'Details recorded' : 'Add your details'}</span>}</span></span>
-              </div>
-          })}
-          <p className="mt-3 type-helper text-ink-muted">Use Edit Career Profile to update your information, photo and resume visibility.</p>
+    return <main data-ui-service="profile" className="studio-page studio-profile-summary profile-overview-page">
+      <header className="studio-page-heading"><h1>Career Profile</h1></header>
+      {loadErrorBlock}
+      <section aria-label="Profile identity" className="studio-profile-identity profile-overview-identity">
+        <ProfilePhotoPicker photoUrl={photoChange === null ? null : photoPreview ?? (editor.photo_url || null)} disabled={submitting || !hasSavedProfile} onSelect={setPhotoChange} />
+        <div className="profile-overview-identity-text">
+          <h2>{editor.full_name || 'Your name'}</h2>
+          <p>{headlineValue || editor.target_job_title || 'Add your professional title in Edit Career Profile'}</p>
+          <p className="profile-overview-location">{editor.current_location || 'Add your location in Edit Career Profile'}</p>
         </div>
-        <aside className="studio-profile-aside">
-          <h2>Profile completeness</h2><strong className="studio-profile-score">{readiness.score}<span> /100</span></strong><progress max={100} value={readiness.score} aria-label="Profile completeness" />
-          <button type="button" className="studio-text-link" onClick={() => showView('completeness')}>{readiness.missing.length ? `Review ${readiness.missing.length} missing details` : 'Review profile details'}</button>
-          <button type="button" className="studio-text-link" onClick={() => showView('readiness')}>Gulf preparation<ChevronRightIcon className="size-4" aria-hidden="true" /></button>
-          <hr />{hasSavedProfile ? <CareerProfileResumeButton showHint={false} /> : null}
-          {hasSavedProfile ? <button type="button" className="studio-text-link" disabled={submitting} onClick={() => router.push('/optimize/target')}>{CTA.addTargetJob}</button> : null}
-        </aside>
+      </section>
+      <details className="profile-overview-visibility">
+        <summary className="type-label font-semibold">Resume visibility settings</summary>
+        <fieldset className="min-w-0" disabled={submitting}>
+          {visibilityFilled ? <CvVisibilitySettings value={editor.field_visibility} filled={visibilityFilled} onChange={setVisibility} /> : null}
+        </fieldset>
+      </details>
+      {isDirty || saveError ? saveBar : null}
+      <div className="profile-overview-actions">
+        {hasSavedProfile ? isDirty ? <div><Button variant="secondary" size="sm" disabled>Preview resume</Button><p className="mt-1 type-helper text-ink-muted">Save changes before previewing.</p></div> : <CareerProfileResumeButton label="Preview resume" showHint={false} /> : null}
+        <Button size="sm" disabled={submitting} onClick={() => showView('details')}>Edit Career Profile</Button>
       </div>
-      {claimedScan ? <details className="studio-profile-scan"><summary>Your last resume scan · {claimedScan.overall_score}/100</summary><p>Structure {claimedScan.category_scores.structure} · Clarity {claimedScan.category_scores.clarity_and_impact} · Gulf readiness {claimedScan.category_scores.gulf_readiness}</p><button type="button" className="studio-text-link" onClick={() => setClaimedScan(null)}>Dismiss scan result</button></details> : null}
     </main>
   }
 
