@@ -140,3 +140,7 @@
 .showcaseHeading>div { flex:1 1 300px; min-width:0; }
 .page :is(li,article,aside),.heroCopy,.founderCopy,.problem>div,.solution>div { min-width:0; }
 .primary,.secondary { text-align:center; }
+
+.brand { flex-shrink:1; min-width:0; max-width:100%; }
+.brand>span:last-child { min-width:0; }
+.brandMark { flex-shrink:0; }
