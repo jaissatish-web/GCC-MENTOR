@@ -112,7 +112,7 @@ try{
   assert.equal(await page.$$eval('[aria-label="Browse free tools"] a[href^="/tools/"]',links=>links.length),50,'All reserved tools discoverable')
   const card=await page.$eval('[aria-label="Browse free tools"] h3',element=>({size:parseFloat(getComputedStyle(element).fontSize),color:getComputedStyle(element).color}))
   assert.equal(card.size,width<768?17:18,'Directory names use card type role')
-  assert.equal(card.color,'rgb(18, 59, 93)','Directory names use navy')
+  assert.equal(card.color,'rgb(23, 43, 69)','Directory names use the shared slate ink')
   if([390,1440].includes(width))await screenshot(`after-hub-${width}.png`)
   if(width<600){
    await page.click('summary[aria-label="Navigation menu"]')
