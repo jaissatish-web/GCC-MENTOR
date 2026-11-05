@@ -5,7 +5,7 @@ import { UserCircleIcon } from '@heroicons/react/24/outline'
 import { Button } from '@/components/ui/Button'
 
 /** Open the existing design screen with saved profile data; never save editor drafts. */
-export function CareerProfileResumeButton({ showHint = true }: { showHint?: boolean } = {}) {
+export function CareerProfileResumeButton({ showHint = true, label = 'Preview Career Profile Resume' }: { showHint?: boolean; label?: string } = {}) {
   const router = useRouter()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -24,7 +24,7 @@ export function CareerProfileResumeButton({ showHint = true }: { showHint?: bool
     }
   }
   return <div className="ui-action-item flex flex-col items-start gap-1">
-    <Button variant="secondary" size="sm" busy={busy} busyLabel="Opening…" onClick={() => void open()}><UserCircleIcon className="size-4" aria-hidden="true" />Preview Career Profile Resume</Button>
+    <Button variant="secondary" size="sm" busy={busy} busyLabel="Opening…" onClick={() => void open()}><UserCircleIcon className="size-4" aria-hidden="true" />{label}</Button>
     {showHint ? <span className="type-caption text-ink-muted">Save changes before previewing.</span> : null}
     {error ? <p role="alert" className="type-helper text-alert">{error}</p> : null}
   </div>

@@ -41,6 +41,7 @@ function serve(){
    if(scenario==='linkedin-warning')profile.linkedin_url='not a LinkedIn address'
    if(scenario==='missing')profile.email=''
    if(scenario==='with-photo')profile.photo_url='/fixture-photo.png'
+   if(scenario==='long-identity')Object.assign(profile,{full_name:'Maya Alexandra Thomas Engineering and Commissioning Professional',target_job_title:'Senior Instrumentation and Control Commissioning Engineer',current_location:'Ras Al Khair Industrial City, Eastern Province, Saudi Arabia'})
    if(['held-discard','failed-discard'].includes(scenario))pending={draft:freshDraft(),report:{review:makeReview()}}
    pendingDeleteReply=null;failDeleteOnce=scenario==='failed-discard'
    return send({scenario})
@@ -69,7 +70,7 @@ function serve(){
    if(req.method!=='GET'){
     const chunks=[];for await(const chunk of req)chunks.push(chunk)
     const raw=Buffer.concat(chunks).toString();let body={};try{body=JSON.parse(raw)}catch{}
-    writes.push({path:p,method:req.method,body})
+    writes.push({path:p,method:req.method,body,...(p==='/api/profile/photo'?{croppedJpeg:raw.includes('Content-Type: image/jpeg')}: {})})
     if(['/api/parse/text','/api/parse/upload'].includes(p)&&scenario==='processing-import'){resumeImportReply=send;return}
     if(p==='/api/profile'&&req.method==='PUT'&&failProfileOnce){failProfileOnce=false;return send({error:'Temporary save failure. Please try again.'},503)}
     if(p==='/api/profile'&&req.method==='PUT'&&scenario==='save-conflict')return send({error:'Fictional stale profile conflict. Reload before saving.'},409)
@@ -205,9 +206,30 @@ try{
   assert.deepEqual(errors,[]);assert.deepEqual(external,[]);assert.equal((await allWrites()).length,0,'Capturing review phases never saves profile facts');
   writeFileSync(output+'/compact-capture-results.json',JSON.stringify({width:390,diagnostic,experience,summary,errors,external},null,2));console.log('PASS bounded compact captures '+JSON.stringify({diagnostic,experience,summary}));
  }else{
+ for(const width of [320,768]){
+  await page.setViewport({width,height:900,deviceScaleFactor:1});await state('long-identity');await go('/profile');await page.waitForSelector('.studio-profile-summary');await reflow('Long profile identity '+width);await page.screenshot({path:output+'/summary-long-'+width+'.png',fullPage:false});
+ }
  for(const width of [390,1440]){
   await page.setViewport({width,height:900,deviceScaleFactor:1});await state('saved');await go('/profile');await page.waitForSelector('.studio-profile-summary')
-  assert.equal(await page.$('main input'),null,'Summary is read-only');assert.equal(await page.$$eval('main button',bs=>bs.filter(b=>b.textContent.trim()==='Edit Career Profile').length),1,'One clear entry action');await sharedShell('Saved profile '+width);await reflow('Read-only summary '+width);await page.screenshot({path:output+'/summary-'+width+'.png',fullPage:false})
+  assert.equal(await page.$('main input:not([type="file"])'),null,'Career facts stay in the editor');assert.equal(await page.$('.studio-profile-row'),null,'No duplicate career detail rows');assert.equal(await page.$$eval('main button',bs=>bs.filter(b=>b.textContent.trim()==='Edit Career Profile').length),1,'One clear entry action');await sharedShell('Saved profile '+width);await reflow('Read-only summary '+width);await page.screenshot({path:output+'/summary-'+width+'.png',fullPage:false})
+  const summaryPhoto=await page.$('input[aria-label="Upload profile photo"]');assert.ok(summaryPhoto,'Photo picker is directly available on Profile');
+  const cropData=await page.evaluate(()=>{const c=document.createElement('canvas');c.width=900;c.height=600;const x=c.getContext('2d');for(const [i,color] of ['#ff0000','#00ff00','#0000ff'].entries()){x.fillStyle=color;x.fillRect(i*300,0,300,600)}return c.toDataURL('image/png').split(',')[1]});
+  writeFileSync(dir+'/crop-source.png',Buffer.from(cropData,'base64'));
+  await summaryPhoto.uploadFile(dir+'/crop-source.png');await page.waitForSelector('[role="dialog"] canvas');
+  await page.waitForFunction(()=>[...document.querySelectorAll('[role="dialog"] button')].some(b=>b.textContent==='Apply crop'&&!b.disabled));
+  await page.$eval('input[aria-label="Photo horizontal position"]',el=>el.focus());await page.keyboard.press('Home');
+  await page.waitForFunction(()=>{const p=document.querySelector('canvas').getContext('2d').getImageData(240,300,1,1).data;return p[0]>250&&p[1]<5&&p[2]<5});
+  await page.keyboard.press('End');await page.waitForFunction(()=>{const p=document.querySelector('canvas').getContext('2d').getImageData(240,300,1,1).data;return p[2]>250&&p[0]<5&&p[1]<5});
+  await reflow('Photo crop '+width);await page.screenshot({path:output+'/photo-crop-'+width+'.png',fullPage:false});
+  await click('Cancel crop');assert.equal((await allWrites()).length,0,'Cancelling crop never uploads');
+  await summaryPhoto.uploadFile(dir+'/crop-source.png');await page.waitForFunction(()=>[...document.querySelectorAll('[role="dialog"] button')].some(b=>b.textContent==='Apply crop'&&!b.disabled));
+  await click('Apply crop');await page.waitForFunction(()=>!document.querySelector('[role="dialog"]'));assert.equal((await allWrites()).length,0,'Applying crop only stages the photo');
+  await page.click('details.profile-overview-visibility>summary');
+  const emailSwitch='button[aria-label="Show Email on my resume"]';const wasShown=await page.$eval(emailSwitch,el=>el.getAttribute('aria-checked'));await page.click(emailSwitch);
+  await click('Save changes');await page.waitForFunction(()=>!document.querySelector('[data-profile-save-bar]')&&document.querySelector('img[alt="Your profile photo"]')?.getAttribute('src')==='/fixture-photo.png');
+  const summaryWrites=await allWrites();assert.equal(summaryWrites.filter(w=>w.path==='/api/profile').length,1,'Overview uses the existing profile Save once');assert.ok(summaryWrites.find(w=>w.path==='/api/profile/photo')?.croppedJpeg,'Saved photo is the cropped JPEG');
+  assert.equal(await page.$eval(emailSwitch,el=>el.getAttribute('aria-checked')),wasShown==='true'?'false':'true','Visibility survives save/refetch');checks.push('Overview crop, cancel, explicit save and visibility '+width);
+  await state('saved');await go('/profile');await page.waitForSelector('.studio-profile-summary');
   await click('Edit Career Profile');await canonical();await reflow('Canonical editor '+width)
   await type('#f_full_name','Maya Unsaved Draft');await photo();assert.equal((await allWrites()).length,0,'Editing and choosing photo must not save')
   await click('Cancel');await page.waitForSelector('.studio-profile-summary');assert.ok(await page.$eval('.studio-profile-identity',el=>el.textContent.includes('Maya Thomas')),'Cancel restores saved identity');assert.equal((await allWrites()).length,0,'Cancel performs no writes')
