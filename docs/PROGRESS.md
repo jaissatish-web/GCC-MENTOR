@@ -1,3 +1,8 @@
+
+## LIBRARY-CTA-001 — 5 November 2026
+
+Implemented, verification in progress: show one prominent Resume Library CTA above the resume cards, including when the user has only a Career Profile Resume and zero optimized resumes. Heading: “Need another resume?”; helper: “Create a separate resume tailored to your next job.” Reuse CTA.addTargetJob and link to /optimize/target. Replace the conditional header action to avoid duplicate CTAs. Acceptance: visible for zero and multiple optimized resumes; full-width wrapping mobile button; existing optimizer and Career Profile behavior unchanged. Affected code: app/dashboard/library/page.tsx. Protected: APIs, AI, scoring, auth, billing, schema and resume templates. Verify diff, typecheck, lint and build; report browser/live limits.
+
 Warning: truncated output (original token count: 7739)
 Total output lines: 156
 
