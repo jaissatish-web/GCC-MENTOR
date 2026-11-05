@@ -149,7 +149,7 @@ try {
   }
   const publicMarkup = landing.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
     .replace(/<link\b[^>]*>/gi, '')
-     .replace(/<img\b[^>]*>/gi, tag => tag.replace(/\ssrcset="[^"]*"/gi, '').replace(/\ssrc="([^"]+)"/i, (_, src) => ` src="${mediaData(src)}"`))
+     .replace(/<img\b[^>]*>/gi, tag => tag.replace(/\sloading="lazy"/gi, ' loading="eager"').replace(/\ssrcset="[^"]*"/gi, '').replace(/\ssrc="([^"]+)"/i, (_, src) => ` src="${mediaData(src)}"`))
   for (const width of [320, 360, 390, 430, 768, 1024, 1440]) {
     for (const enlarged of [false, true]) {
       await page.setViewport({ width, height: width < 640 ? 844 : 900 })
