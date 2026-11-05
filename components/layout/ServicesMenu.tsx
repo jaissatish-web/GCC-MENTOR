@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { ArrowRightStartOnRectangleIcon, UserCircleIcon, TrashIcon, Bars3Icon, EllipsisHorizontalIcon, Squares2X2Icon } from '@heroicons/react/24/outline'
+import { ArrowRightStartOnRectangleIcon, UserCircleIcon, Bars3Icon, EllipsisHorizontalIcon, Squares2X2Icon } from '@heroicons/react/24/outline'
 import { SideSheet } from '@/components/ui/SideSheet'
 import { signOut } from '@/app/auth/actions'
 import { cn } from '@/lib/utils'
@@ -206,7 +206,7 @@ export function ServicesMenu({ placement = 'header', toolsOnly = false }: { plac
                 <MenuRow key={item.href} item={item} active={isNavItemActive(item, pathname)} onNavigate={close} mark={markFor(item.href === '/cover-letter' ? 'apply' : group.stage, item.href === '/cover-letter' ? 0 : item.href === '/interview-qa' ? 1 : item.href === '/mock-interview' ? 2 : i)} />
               ))}
               {/* Sign out remains an action after the service destinations. */}
-              {group.withSignOut ? <><Link href="/settings?tab=delete" onClick={close} className="services-account-link services-delete-link"><TrashIcon aria-hidden="true" className="size-5" /><span>Delete my data</span></Link><SignOutRow /></> : null}
+              {group.withSignOut ? <SignOutRow /> : null}
             </div>
           )
         })}
