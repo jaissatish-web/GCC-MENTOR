@@ -316,7 +316,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
             className={cn(
               'absolute left-1/2 w-[170px] rounded-[12px] border-2 bg-white p-1.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal',
               'shadow-[0_8px_20px_rgba(15,76,67,.06)] data-[front=1]:shadow-[0_18px_34px_rgba(15,76,67,.16),0_34px_78px_rgba(15,76,67,.14)]',
-              on ? 'border-[#C9962E]' : 'border-line',
+              on ? 'border-teal' : 'border-line',
             )}
             style={{ top: L.track }}
           >
