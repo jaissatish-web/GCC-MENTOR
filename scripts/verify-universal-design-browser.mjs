@@ -92,9 +92,12 @@ try {
     await page.evaluate(() => document.fonts.ready)
     await page.waitForSelector('[data-uds="hero-title"]',{visible:true})
     await page.waitForFunction(() => document.querySelectorAll('.actual-template-orbit-face').length >= 3)
+    await page.$eval('#markets', element => element.scrollIntoView())
+    await page.waitForSelector('#markets-title', {visible:true})
+    await page.evaluate(() => scrollTo(0,0))
     const state = await page.evaluate(() => {
       const style = value => getComputedStyle(document.querySelector(`[data-uds="${value}"]`))
-      return {overflow:document.documentElement.scrollWidth > innerWidth+1,hero:style('hero-title').fontSize,cardRadius:style('card').borderRadius,cardPadding:style('card').paddingTop,buttonHeight:style('button-secondary').minHeight,primaryHeight:style('button-primary').minHeight,section:style('section').paddingTop,orbitCount:document.querySelectorAll('.actual-template-orbit-face').length,globe:!!document.querySelector('#markets')}
+      return {overflow:document.documentElement.scrollWidth > innerWidth+1,hero:style('hero-title').fontSize,cardRadius:style('card').borderRadius,cardPadding:style('card').paddingTop,buttonHeight:style('button-secondary').minHeight,primaryHeight:style('button-primary').minHeight,section:style('section').paddingTop,orbitCount:document.querySelectorAll('.actual-template-orbit-face').length,globe:!!document.querySelector('#markets-title')}
     })
     const device = width<768 ? 'mobile' : width<1024 ? 'tablet' : 'desktop'
     assert.equal(state.overflow,false,`Landing overflow at${width}`)
