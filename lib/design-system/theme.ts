@@ -105,7 +105,11 @@ export function themeVariables(input: unknown): CSSProperties {
     vars[`--uds-${cssName(field.key)}`] = color
     vars[`--uds-${cssName(field.key)}-rgb`] = [1,3,5].map(index => parseInt(color.slice(index,index+2),16)).join(' ')
   }
-  for (const device of DEVICES) for (const field of NUMBER_FIELDS) vars[`--uds-${device}-${cssName(field.key)}`] = `${theme[device][field.key]}${field.unit}`
+  for (const device of DEVICES) for (const field of NUMBER_FIELDS) {
+    // UI text scales with browser text preferences; admin values remain pixels at 16px base.
+    const textSize = field.section === 'Typography' && field.unit === 'px' || field.key === 'buttonSize'
+    vars[`--uds-${device}-${cssName(field.key)}`] = textSize ? `${theme[device][field.key] / 16}rem` : `${theme[device][field.key]}${field.unit}`
+  }
   return vars as CSSProperties
 }
 /** Fixed selector and validated values only. Not a general-purpose CSS serializer. */

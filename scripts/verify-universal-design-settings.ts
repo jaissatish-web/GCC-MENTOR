@@ -21,7 +21,7 @@ assert.ok(!themeStyleText(malicious).includes('display:none'))
 const vars = themeVariables(DEFAULT_THEME) as Record<string,string>
 assert.equal(vars['--uds-brand'], '#087F76')
 assert.equal(vars['--uds-brand-rgb'], '8 127 118')
-assert.equal(vars['--uds-mobile-hero-size'], '36px')
+assert.equal(vars['--uds-mobile-hero-size'], '2.25rem')
 assert.equal(vars['--uds-desktop-landing-gap'], '96px')
 assert.ok(Object.keys(vars).every(key => key.startsWith('--uds-')), 'No existing resume/UI token is overwritten')
 assert.ok(contrastRatio(DEFAULT_THEME.colors.ink, DEFAULT_THEME.colors.canvas) >= 4.5)

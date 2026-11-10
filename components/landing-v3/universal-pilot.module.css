@@ -66,7 +66,7 @@
   --ui-success-rgb:var(--uds-success-rgb); --ui-success-soft-rgb:var(--uds-brand-soft-rgb);
   --ui-error-rgb:var(--uds-error-rgb); --ui-error-soft-rgb:var(--uds-canvas-rgb);
   --ui-caption-size:var(--uds-helper-size); --ui-helper-size:var(--uds-helper-size); --ui-body-size:var(--uds-body-size);
-  --ui-card-title-size:var(--uds-card-size); --ui-section-size:var(--uds-section-size); --ui-nav-size:var(--uds-nav-size);
+  --ui-marketing-size:var(--uds-marketing-size); --ui-card-title-size:var(--uds-card-size); --ui-section-size:var(--uds-section-size); --ui-nav-size:var(--uds-nav-size);
   --ui-body-line:var(--uds-body-line); --ui-label-line:var(--uds-body-line); --ui-heading-line:var(--uds-heading-line);
   --ui-weight-heading:var(--uds-heading-weight); --ui-weight-label:var(--uds-button-weight); --ui-weight-regular:var(--uds-body-weight);
   --ui-tracking:var(--uds-tracking); --ui-card-radius:var(--uds-card-radius); --ui-control-radius:var(--uds-button-radius);
