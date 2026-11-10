@@ -49,6 +49,21 @@ async function documentSnapshot(frame) {
     })
   }))
 }
+// Font loading and the existing FittedPage ResizeObserver need several frames.
+// Require exact stability before either sample; never round or discard geometry.
+async function stableDocuments(frame) {
+  await frame.evaluate(() => document.fonts.ready)
+  let previous = '', consecutive = 0
+  for (let attempt=0;attempt<80;attempt++) {
+    const snapshot = await documentSnapshot(frame)
+    const serialized = JSON.stringify(snapshot)
+    consecutive = serialized === previous ? consecutive + 1 : 0
+    if (consecutive >= 4) return snapshot
+    previous = serialized
+    await new Promise(resolve => setTimeout(resolve,75))
+  }
+  throw new Error('Resume preview geometry did not settle before comparison; no theme-equivalence result is available')
+}
 // Render a clone of the actual mounted document in a stable screenshot location.
 // This removes orbit-position/whole-page movement from the pixel comparison;
 // actual mounted document computed styles and geometry are compared separately.
@@ -119,7 +134,8 @@ try {
     await frame.waitForFunction(() => document.querySelectorAll('.actual-template-orbit-face').length>=3)
     await frame.evaluate(() => document.fonts.ready)
     await sendTheme(page,frame,DEFAULT_THEME)
-    const before = await documentSnapshot(frame), beforeHashes = await documentPixels(frame,'default',width)
+    const before = await stableDocuments(frame), beforeHashes = await documentPixels(frame,'default',width)
+    assert.deepEqual(await stableDocuments(frame),before,`Baseline resume drift without any theme change at${width}`)
     const theme = JSON.parse(JSON.stringify(DEFAULT_THEME))
     theme.colors.brand='#5946A3'
     theme.mobile.heroSize=40
@@ -136,7 +152,7 @@ try {
     assert.equal(state.radius,'20px'); assert.equal(state.padding,'28px'); assert.equal(state.height,'56px')
     assert.equal(state.section,(width>=1024 ? 112 : DEFAULT_THEME.mobile.landingGap)+'px')
     assert.equal(state.overflow,false,`Modified setting overflow at${width}`)
-    assert.deepEqual(await documentSnapshot(frame),before,`Mounted resume styling/geometry changed at${width}`)
+    assert.deepEqual(await stableDocuments(frame),before,`Mounted resume styling/geometry changed at${width}`)
     assert.deepEqual(await documentPixels(frame,'modified',width),beforeHashes,`Resume pixels changed at${width}`)
     results.push({kind:'settings-and-mounted-resumes',width,...state,resumeCount:before.length,pixelHashes:beforeHashes,pass:true})
   }
