@@ -62,7 +62,8 @@
   --ui-ink:var(--uds-ink); --ui-muted:var(--uds-muted); --ui-surface:var(--uds-surface);
   --ui-line:var(--uds-border); --ui-line-strong:var(--uds-border);
   --ui-brand-rgb:var(--uds-brand-rgb); --ui-ink-rgb:var(--uds-ink-rgb);
-  --ui-accent-rgb:var(--uds-info-rgb); --ui-accent-ink-rgb:var(--uds-info-rgb); --ui-accent-soft-rgb:var(--uds-brand-soft-rgb);
+  --ui-accent:var(--uds-brand); --ui-accent-ink:var(--uds-brand-hover); --ui-accent-soft:var(--uds-brand-soft);
+  --ui-accent-rgb:var(--uds-brand-rgb); --ui-accent-ink-rgb:var(--uds-brand-hover-rgb); --ui-accent-soft-rgb:var(--uds-brand-soft-rgb);
   --ui-success-rgb:var(--uds-success-rgb); --ui-success-soft-rgb:var(--uds-brand-soft-rgb);
   --ui-error-rgb:var(--uds-error-rgb); --ui-error-soft-rgb:var(--uds-canvas-rgb);
   --ui-caption-size:var(--uds-helper-size); --ui-helper-size:var(--uds-helper-size); --ui-body-size:var(--uds-body-size);
@@ -85,3 +86,6 @@
 .pilot.pilot > header,.pilot.pilot > footer { color:var(--uds-ink); }
 .pilot.pilot > header a:hover { color:var(--uds-brand); }
 .pilot.pilot > header a[href="/gulf-readiness-score"]:hover { color:var(--uds-primary-text); }
+
+.pilot.pilot :global(#templates) svg { color:var(--uds-brand); }
+.pilot.pilot :global(#templates) a > span:last-child { background:var(--uds-brand-soft); color:var(--uds-brand); }
