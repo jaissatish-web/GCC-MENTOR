@@ -1,0 +1,19 @@
+.specimen { padding: var(--uds-card-padding); margin-top: 20px; border: 1px solid var(--uds-border); border-radius: var(--uds-card-radius); }
+.specimen header h2 { margin: 0 0 8px; }
+.specimen p { margin: 8px 0 0; }
+.section { margin-top: var(--uds-section-gap); }
+.section h3 { margin: 0 0 12px; }
+.row { display:flex; flex-wrap:wrap; gap:var(--uds-grid-gap); }
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr)); gap:var(--uds-grid-gap); }
+.grid h4 { margin:0; }
+.cardButton { cursor:pointer; text-align:left; display:grid; gap:8px; }
+.label { display:grid; gap:8px; }
+.check { display:flex; min-height:44px; align-items:center; gap:12px; }
+.check input { width:20px; height:20px; accent-color:var(--uds-brand); }
+.check input:focus-visible { outline:3px solid var(--uds-brand); outline-offset:3px; }
+.radios { border:0; padding:0; margin:0; }
+.report { line-height:var(--uds-report-line)!important; }
+.errorText { color:var(--uds-error); }
+.spinner { width:16px; height:16px; border:2px solid currentColor; border-right-color:transparent; border-radius:50%; animation:spin 900ms linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+@media (prefers-reduced-motion:reduce) { .spinner { animation:none; } }

@@ -1,0 +1,79 @@
+/* Opt-in adapter for the landing pilot. No root/--ui-* changes; resume document
+   boundaries never consume these selectors or website custom properties. */
+.pilot.pilot { background: var(--uds-canvas); }
+.pilot.pilot :is(h1,h2,h3,h4,p,small,label,summary,button,a,b,strong,span,input,select,textarea):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)):not(:has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography="document"])) {
+  font-family: var(--uds-font) !important;
+  letter-spacing: var(--uds-tracking) !important;
+}
+.pilot.pilot :is(p,small):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) {
+  color: var(--uds-muted); font-size: var(--uds-body-size) !important; font-weight: var(--uds-body-weight) !important; line-height: var(--uds-body-line) !important;
+}
+.pilot.pilot :is(h1,h2,h3):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) {
+  color: var(--uds-ink); font-weight: var(--uds-heading-weight) !important; line-height: var(--uds-heading-line) !important;
+}
+.pilot.pilot [data-uds="hero-title"] { font-size: var(--uds-hero-size) !important; }
+.pilot.pilot [data-uds="marketing-title"] { font-size: var(--uds-marketing-size) !important; }
+.pilot.pilot h3:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--uds-card-size) !important; }
+.pilot.pilot :is(h1,h2,h3) span:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { color: inherit; font-size: inherit !important; font-weight: inherit !important; line-height: inherit !important; }
+.pilot.pilot [data-uds="helper"] { color: var(--uds-muted); font-size: var(--uds-helper-size) !important; }
+.pilot.pilot [data-uds="kicker"] { color: var(--uds-brand); text-transform: none; font-size: var(--uds-helper-size) !important; }
+.pilot.pilot [data-uds="score"] { color: var(--uds-ink); font-size: var(--uds-score-size) !important; font-weight: var(--uds-heading-weight) !important; }
+.pilot.pilot [data-uds="inner"] { width: min(var(--uds-content-max), calc(100% - var(--uds-gutter) * 2)); }
+.pilot.pilot [data-uds="section"] { padding-block: var(--uds-landing-gap); background: var(--uds-surface); }
+.pilot.pilot [data-uds="soft-section"] { padding-block: var(--uds-landing-gap); background: var(--uds-canvas); border-color: var(--uds-border); }
+.pilot.pilot [data-uds="hero"] { background: var(--uds-canvas); border-radius: 0; padding-block: var(--uds-section-gap); }
+.pilot.pilot [data-uds="hero"]::before,.pilot.pilot [data-uds="hero"]::after { background: none; }
+.pilot.pilot [data-uds="card"],.pilot.pilot [data-uds="visual"] { background: var(--uds-surface); border: var(--uds-border-width) solid var(--uds-border); border-radius: var(--uds-card-radius); box-shadow: 0 1px 3px rgb(24 40 61 / calc(var(--uds-shadow) / 100)); }
+.pilot.pilot [data-uds="card"] { padding: var(--uds-card-padding); color: var(--uds-ink); }
+.pilot.pilot [data-uds="card"]:hover { border-color: var(--uds-brand); }
+.pilot.pilot [data-uds="grid"] { gap: var(--uds-grid-gap); }
+.pilot.pilot [data-uds="icon"] { background: var(--uds-brand-soft); color: var(--uds-brand); border-radius: var(--uds-button-radius); }
+.pilot.pilot [data-uds="text-link"] { color: var(--uds-brand); font-size: var(--uds-button-size) !important; }
+.pilot.pilot :is([data-uds="button-primary"],[data-uds="button-secondary"]) {
+  min-height: var(--uds-button-height); padding-inline: var(--uds-button-padding); border-width: var(--uds-border-width); border-radius: var(--uds-button-radius); font-size: var(--uds-button-size) !important; font-weight: var(--uds-button-weight) !important; box-shadow: none;
+}
+.pilot.pilot [data-uds="button-primary"] { min-height: var(--uds-primary-height); background: var(--uds-brand); border-color: var(--uds-brand); color: var(--uds-primary-text); }
+.pilot.pilot [data-uds="button-primary"]:hover { background: var(--uds-brand-hover); border-color: var(--uds-brand-hover); color: var(--uds-primary-text); box-shadow: none; }
+.pilot.pilot [data-uds="button-secondary"] { background: var(--uds-surface); border-color: var(--uds-border); color: var(--uds-ink); }
+.pilot.pilot [data-uds="button-secondary"]:hover { background: var(--uds-brand-soft); border-color: var(--uds-brand); color: var(--uds-brand); }
+.pilot.pilot [data-uds="countries"] { border-color: var(--uds-border); border-radius: var(--uds-card-radius); background: var(--uds-surface); }
+.pilot.pilot [data-uds="country"] { background: var(--uds-surface); }
+.pilot.pilot [data-uds="country"] b { color: var(--uds-ink); }
+.pilot.pilot [data-uds="final"] { padding-block: var(--uds-landing-gap); background: var(--uds-brand-soft); border-color: var(--uds-border); }
+/* Navigation/footer are shared components; these semantic boundaries contain
+   only website UI, never document previews. */
+.pilot.pilot > header,.pilot.pilot > footer { background: var(--uds-surface); border-color: var(--uds-border); }
+.pilot.pilot > header > div,.pilot.pilot > footer > div { width: min(var(--uds-content-max), calc(100% - var(--uds-gutter) * 2)); }
+.pilot.pilot > header a { color: var(--uds-ink); font-size: var(--uds-nav-size) !important; }
+.pilot.pilot > header a[href="/gulf-readiness-score"] { background: var(--uds-brand); color: var(--uds-primary-text); border-color: var(--uds-brand); min-height: var(--uds-button-height); border-radius: var(--uds-button-radius); padding-inline: var(--uds-button-padding); }
+.pilot.pilot > header a[href="/gulf-readiness-score"]:hover { background: var(--uds-brand-hover); }
+.pilot.pilot > footer :is(a,h2) { color: var(--uds-ink); font-size: var(--uds-helper-size) !important; }
+.pilot.pilot :is(a,button,summary,select,input,textarea):focus-visible:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { outline: 3px solid var(--uds-brand); outline-offset: 3px; }
+.pilot.pilot :is(input,select,textarea):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { min-height: var(--uds-input-height); color: var(--uds-ink); background: var(--uds-surface); border-color: var(--uds-border); border-radius: var(--uds-button-radius); font-size: max(16px,var(--uds-body-size)) !important; }
+@media(prefers-reduced-motion:reduce) { .pilot.pilot [data-uds^="button-"] { transition: none; transform: none; } }
+
+.pilot.pilot > header > div > a:first-child > span:first-child { background: var(--uds-brand); color: var(--uds-primary-text); }
+
+/* Safe compatibility adapters: these components contain website UI only.
+   Keep them off the landing root and the visual/orbit document container. */
+.pilot.pilot > header,.pilot.pilot > footer,.pilot.pilot [data-uds="website-widget"] {
+  --ui-font:var(--uds-font);
+  --ui-brand:var(--uds-brand); --ui-brand-hover:var(--uds-brand-hover); --ui-brand-soft:var(--uds-brand-soft);
+  --ui-ink:var(--uds-ink); --ui-muted:var(--uds-muted); --ui-surface:var(--uds-surface);
+  --ui-line:var(--uds-border); --ui-line-strong:var(--uds-border);
+  --ui-brand-rgb:var(--uds-brand-rgb); --ui-ink-rgb:var(--uds-ink-rgb);
+  --ui-accent-rgb:var(--uds-info-rgb); --ui-accent-ink-rgb:var(--uds-info-rgb); --ui-accent-soft-rgb:var(--uds-brand-soft-rgb);
+  --ui-success-rgb:var(--uds-success-rgb); --ui-success-soft-rgb:var(--uds-brand-soft-rgb);
+  --ui-error-rgb:var(--uds-error-rgb); --ui-error-soft-rgb:var(--uds-canvas-rgb);
+  --ui-caption-size:var(--uds-helper-size); --ui-helper-size:var(--uds-helper-size); --ui-body-size:var(--uds-body-size);
+  --ui-card-title-size:var(--uds-card-size); --ui-section-size:var(--uds-section-size); --ui-nav-size:var(--uds-nav-size);
+  --ui-body-line:var(--uds-body-line); --ui-label-line:var(--uds-body-line); --ui-heading-line:var(--uds-heading-line);
+  --ui-weight-heading:var(--uds-heading-weight); --ui-weight-label:var(--uds-button-weight); --ui-weight-regular:var(--uds-body-weight);
+  --ui-tracking:var(--uds-tracking); --ui-card-radius:var(--uds-card-radius); --ui-control-radius:var(--uds-button-radius);
+  --ui-card-shadow:0 1px 3px rgb(24 40 61 / calc(var(--uds-shadow) / 100));
+  --ui-control-height:var(--uds-button-height); --ui-control-padding-y:8px;
+  min-width:0;
+}
+
+.pilot.pilot > header b { color:var(--uds-brand); }
+.pilot.pilot > footer a:hover { color:var(--uds-brand); }
