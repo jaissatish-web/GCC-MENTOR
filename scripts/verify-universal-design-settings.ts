@@ -35,3 +35,7 @@ for (const device of DEVICES) for (const field of NUMBER_FIELDS) {
   assert.ok(DEFAULT_THEME[device][field.key] >= field.min && DEFAULT_THEME[device][field.key] <= field.max)
 }
 console.log('PASS: bounded themes, rejected CSS injection, independent responsive values, scoped variables and default text contrast')
+
+const pilotCss = readFileSync("components/landing-v3/universal-pilot.module.css", "utf8")
+assert.ok(pilotCss.includes(":global(.actual-template-orbit-face)"), "Document classes must retain their global identity inside CSS Modules")
+assert.ok(pilotCss.includes(":global(#resume-render)"), "Document IDs must retain their global identity inside CSS Modules")

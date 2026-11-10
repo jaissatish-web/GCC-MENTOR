@@ -1,20 +1,20 @@
 /* Opt-in adapter for the landing pilot. No root/--ui-* changes; resume document
    boundaries never consume these selectors or website custom properties. */
 .pilot.pilot { background: var(--uds-canvas); }
-.pilot.pilot :is(h1,h2,h3,h4,p,small,label,summary,button,a,b,strong,span,input,select,textarea):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)):not(:has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography="document"])) {
+.pilot.pilot :is(h1,h2,h3,h4,p,small,label,summary,button,a,b,strong,span,input,select,textarea):not(:where([data-document-preview], [data-document-preview] *, :global(#resume-render), :global(#resume-render) *, :global(.actual-template-orbit-face), :global(.actual-template-orbit-face) *, [data-typography="document"], [data-typography="document"] *)):not(:has([data-document-preview], :global(#resume-render), :global(.actual-template-orbit-face), [data-typography="document"])) {
   font-family: var(--uds-font) !important;
   letter-spacing: var(--uds-tracking) !important;
 }
-.pilot.pilot :is(p,small):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) {
+.pilot.pilot :is(p,small):not(:where([data-document-preview], [data-document-preview] *, :global(#resume-render), :global(#resume-render) *, :global(.actual-template-orbit-face), :global(.actual-template-orbit-face) *, [data-typography="document"], [data-typography="document"] *)) {
   color: var(--uds-muted); font-size: var(--uds-body-size) !important; font-weight: var(--uds-body-weight) !important; line-height: var(--uds-body-line) !important;
 }
-.pilot.pilot :is(h1,h2,h3):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) {
+.pilot.pilot :is(h1,h2,h3):not(:where([data-document-preview], [data-document-preview] *, :global(#resume-render), :global(#resume-render) *, :global(.actual-template-orbit-face), :global(.actual-template-orbit-face) *, [data-typography="document"], [data-typography="document"] *)) {
   color: var(--uds-ink); font-weight: var(--uds-heading-weight) !important; line-height: var(--uds-heading-line) !important;
 }
 .pilot.pilot [data-uds="hero-title"] { font-size: var(--uds-hero-size) !important; }
 .pilot.pilot [data-uds="marketing-title"] { font-size: var(--uds-marketing-size) !important; }
-.pilot.pilot h3:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--uds-card-size) !important; }
-.pilot.pilot :is(h1,h2,h3) span:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { color: inherit; font-size: inherit !important; font-weight: inherit !important; line-height: inherit !important; }
+.pilot.pilot h3:not(:where([data-document-preview], [data-document-preview] *, :global(#resume-render), :global(#resume-render) *, :global(.actual-template-orbit-face), :global(.actual-template-orbit-face) *, [data-typography="document"], [data-typography="document"] *)) { font-size: var(--uds-card-size) !important; }
+.pilot.pilot :is(h1,h2,h3) span:not(:where([data-document-preview], [data-document-preview] *, :global(#resume-render), :global(#resume-render) *, :global(.actual-template-orbit-face), :global(.actual-template-orbit-face) *, [data-typography="document"], [data-typography="document"] *)) { color: inherit; font-size: inherit !important; font-weight: inherit !important; line-height: inherit !important; }
 .pilot.pilot [data-uds="helper"] { color: var(--uds-muted); font-size: var(--uds-helper-size) !important; }
 .pilot.pilot [data-uds="kicker"] { color: var(--uds-brand); text-transform: none; font-size: var(--uds-helper-size) !important; }
 .pilot.pilot [data-uds="score"] { color: var(--uds-ink); font-size: var(--uds-score-size) !important; font-weight: var(--uds-heading-weight) !important; }
@@ -48,8 +48,8 @@
 .pilot.pilot > header a[href="/gulf-readiness-score"] { background: var(--uds-brand); color: var(--uds-primary-text); border-color: var(--uds-brand); min-height: var(--uds-button-height); border-radius: var(--uds-button-radius); padding-inline: var(--uds-button-padding); }
 .pilot.pilot > header a[href="/gulf-readiness-score"]:hover { background: var(--uds-brand-hover); }
 .pilot.pilot > footer :is(a,h2) { color: var(--uds-ink); font-size: var(--uds-helper-size) !important; }
-.pilot.pilot :is(a,button,summary,select,input,textarea):focus-visible:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { outline: 3px solid var(--uds-brand); outline-offset: 3px; }
-.pilot.pilot :is(input,select,textarea):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *)) { min-height: var(--uds-input-height); color: var(--uds-ink); background: var(--uds-surface); border-color: var(--uds-border); border-radius: var(--uds-button-radius); font-size: max(16px,var(--uds-body-size)) !important; }
+.pilot.pilot :is(a,button,summary,select,input,textarea):focus-visible:not(:where([data-document-preview], [data-document-preview] *, :global(#resume-render), :global(#resume-render) *, :global(.actual-template-orbit-face), :global(.actual-template-orbit-face) *, [data-typography="document"], [data-typography="document"] *)) { outline: 3px solid var(--uds-brand); outline-offset: 3px; }
+.pilot.pilot :is(input,select,textarea):not(:where([data-document-preview], [data-document-preview] *, :global(#resume-render), :global(#resume-render) *, :global(.actual-template-orbit-face), :global(.actual-template-orbit-face) *, [data-typography="document"], [data-typography="document"] *)) { min-height: var(--uds-input-height); color: var(--uds-ink); background: var(--uds-surface); border-color: var(--uds-border); border-radius: var(--uds-button-radius); font-size: max(16px,var(--uds-body-size)) !important; }
 @media(prefers-reduced-motion:reduce) { .pilot.pilot [data-uds^="button-"] { transition: none; transform: none; } }
 
 .pilot.pilot > header > div > a:first-child > span:first-child { background: var(--uds-brand); color: var(--uds-primary-text); }
@@ -77,3 +77,11 @@
 
 .pilot.pilot > header b { color:var(--uds-brand); }
 .pilot.pilot > footer a:hover { color:var(--uds-brand); }
+
+/* Orbit chrome stays connected without changing any document inheritance. */
+.pilot.pilot [data-uds="visual"] > div:first-child strong { color:var(--uds-ink); font-size:var(--uds-helper-size)!important; }
+.pilot.pilot [data-uds="visual"] > div:first-child > span { color:var(--uds-muted); font-size:var(--uds-helper-size)!important; }
+.pilot.pilot [data-uds="visual"] > div:last-child > a,.pilot.pilot [data-uds="card"] > svg { color:var(--uds-brand); }
+.pilot.pilot > header,.pilot.pilot > footer { color:var(--uds-ink); }
+.pilot.pilot > header a:hover { color:var(--uds-brand); }
+.pilot.pilot > header a[href="/gulf-readiness-score"]:hover { color:var(--uds-primary-text); }
