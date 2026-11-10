@@ -1,6 +1,6 @@
 # Universal Design System V1 — approved scope, 10 November 2026
 
-Status: source implemented and code checks passed; mandatory visual QA blocked; review/production release pending. Founder requested a review PR, no merge or production deployment before visual approval.
+Status: source implemented; code checks, six layouts, authored previews and PDF comparisons passed; mounted-preview stability and authenticated admin checks remain blocking. See RESUME.md. Founder requested a review PR, no merge or production deployment before visual approval.
 
 Build a typed, bounded, semantic website-only theme foundation and administrator-only `/admin/design-system` controls using existing admin authorization. Support mobile/tablet/desktop values, immediate isolated preview, default preset, local draft persistence clearly labelled as browser-local. Persistent publish/rollback requires a separately approved backend proposal if current infrastructure cannot safely provide it. Do not claim it is available until tested.
 
