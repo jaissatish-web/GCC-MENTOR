@@ -46,7 +46,7 @@ jobs:
           npx puppeteer browsers install chrome
           sudo apt-get update
           sudo apt-get install --yes poppler-utils
-          node --input-type=module -e "import puppeteer from 'puppeteer'; import {appendFileSync} from 'node:fs'; appendFileSync(process.env.GITHUB_ENV, 'CHROME_PATH=' + puppeteer.executablePath() + '\n')"
+          node --input-type=module -e "import puppeteer from 'puppeteer'; import {appendFileSync} from 'node:fs'; appendFileSync(process.env.GITHUB_ENV, 'CHROME_PATH=' + await puppeteer.executablePath() + '\n')"
       - name: Prepare exact original source
         run: |
           git worktree add --detach "$RUNNER_TEMP/gcc-design-original" "$TYPE_BASE_REF"

@@ -211,7 +211,7 @@
   --uds-form-gap: var(--uds-desktop-form-gap);
 }
 /* Components are explicit classes, never generic document/heading selectors. */
-.theme .surface { background:var(--uds-canvas); color:var(--uds-ink); }
+.theme.surface,.theme .surface { background:var(--uds-canvas); color:var(--uds-ink); }
 .theme .content { width:100%; max-width:var(--uds-content-max); margin-inline:auto; padding-inline:var(--uds-gutter); }
 .theme .section { padding-block:calc(var(--uds-landing-gap) / 2); }
 .theme .body { font-family:var(--uds-font)!important; font-size:var(--uds-body-size)!important; font-weight:var(--uds-body-weight)!important; line-height:var(--uds-body-line)!important; letter-spacing:var(--uds-tracking)!important; }
