@@ -185,12 +185,29 @@ try {
   // Use fresh frames; setting screenshots and scrolling cannot contaminate the baseline.
   for (const width of [390,1440]) await exercise('mounted-resumes',width,async () => {
     const frame = await prepareFrame(width)
-    const before = await stableDocuments(frame), beforeHashes = await documentPixels(frame,'default',width)
-    assert.deepEqual(await stableDocuments(frame),before,`Baseline resume drift without any theme change at${width}`)
-    await sendTheme(page,frame,modifiedTheme())
-    assert.deepEqual(await stableDocuments(frame),before,`Mounted resume styling/geometry changed at${width}`)
-    assert.deepEqual(await documentPixels(frame,'modified',width),beforeHashes,`Resume pixels changed at${width}`)
-    results.push({kind:'mounted-resumes',width,resumeCount:before.length,pixelHashes:beforeHashes,pass:true})
+    const entry={kind:'current-mounted-orbit-diagnostic',width,sourceRef:process.env.GITHUB_SHA??null,buildId:existsSync('.next/BUILD_ID')?readFileSync('.next/BUILD_ID','utf8').trim():null,phase:'baseline-stability',first:await documentSnapshot(frame)}
+    try {
+      const before = await stableDocuments(frame), beforeHashes = await documentPixels(frame,'default',width)
+      entry.stableBaseline=before
+      entry.phase='baseline-repeat'
+      assert.deepEqual(await stableDocuments(frame),before,`Baseline resume drift without any theme change at${width}`)
+      entry.phase='theme-mutation'
+      await sendTheme(page,frame,modifiedTheme())
+      entry.phase='modified-stability-and-geometry'
+      assert.deepEqual(await stableDocuments(frame),before,`Mounted resume styling/geometry changed at${width}`)
+      entry.phase='modified-pixels'
+      assert.deepEqual(await documentPixels(frame,'modified',width),beforeHashes,`Resume pixels changed at${width}`)
+      entry.pass=true
+      results.push({kind:'mounted-resumes',width,resumeCount:before.length,pixelHashes:beforeHashes,pass:true})
+    } catch(error) {
+      entry.pass=false;entry.error=error.message
+      try {entry.final=await documentSnapshot(frame)} catch(snapshotError) {entry.snapshotError=snapshotError.message}
+      try {await page.screenshot({path:`${output}/current-orbit-${width}.png`,fullPage:true})} catch(screenshotError) {entry.screenshotError=screenshotError.message}
+      // Preserve the original strict failure even if diagnostic output cannot be written.
+      try {writeFileSync(`${output}/current-orbit-${width}.json`,JSON.stringify(entry,null,2))} catch(writeError) {console.error(`Unable to write current orbit diagnostic: ${writeError.message}`)}
+      throw error
+    }
+    writeFileSync(`${output}/current-orbit-${width}.json`,JSON.stringify(entry,null,2))
   })
   // Exact original-main built assets are a separate diagnostic, never a substitute
   // for the unchanged strict current-build document-equivalence assertions above.

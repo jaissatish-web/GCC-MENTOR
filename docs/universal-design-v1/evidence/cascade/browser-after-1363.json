@@ -1,0 +1,123 @@
+{
+  "overflow": false,
+  "targets": {
+    "card": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(24, 40, 61)",
+      "font": "Inter, \"Inter Fallback\", ui-sans-serif, system-ui, sans-serif",
+      "height": "96px",
+      "line": "24px",
+      "padding": "24px",
+      "radius": "12px",
+      "selector": "[data-uds=\"card\"]",
+      "size": "16px",
+      "tracking": "normal",
+      "weight": "400"
+    },
+    "heading": {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(24, 40, 61)",
+      "font": "Inter, \"Inter Fallback\", ui-sans-serif, system-ui, sans-serif",
+      "height": "0px",
+      "line": "40.8px",
+      "padding": "0px",
+      "radius": "0px",
+      "selector": "#templates-title",
+      "size": "34px",
+      "tracking": "normal",
+      "weight": "600"
+    },
+    "hero": {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(24, 40, 61)",
+      "font": "Inter, \"Inter Fallback\", ui-sans-serif, system-ui, sans-serif",
+      "height": "0px",
+      "line": "62.4px",
+      "padding": "0px",
+      "radius": "0px",
+      "selector": "#hero-title",
+      "size": "52px",
+      "tracking": "normal",
+      "weight": "600"
+    },
+    "kicker": {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(6, 107, 99)",
+      "font": "Inter, \"Inter Fallback\", ui-sans-serif, system-ui, sans-serif",
+      "height": "0px",
+      "line": "19.5px",
+      "padding": "0px",
+      "radius": "0px",
+      "selector": "[data-uds=\"kicker\"]",
+      "size": "13px",
+      "tracking": "normal",
+      "weight": "600"
+    },
+    "nav": {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(100, 116, 139)",
+      "font": "Inter, \"Inter Fallback\", ui-sans-serif, system-ui, sans-serif",
+      "height": "44px",
+      "line": "21px",
+      "padding": "10px 12px",
+      "radius": "10px",
+      "selector": "header nav a",
+      "size": "14px",
+      "tracking": "normal",
+      "weight": "600"
+    },
+    "orbit": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(23, 43, 69)",
+      "font": "Inter, ui-sans-serif, system-ui, sans-serif",
+      "height": "auto",
+      "line": "24.8px",
+      "padding": "24px 0px 20px",
+      "radius": "12px",
+      "selector": "[data-uds=\"visual\"]",
+      "size": "16px",
+      "tracking": "normal",
+      "weight": "400"
+    },
+    "paragraph": {
+      "background": "rgba(0, 0, 0, 0)",
+      "color": "rgb(100, 116, 139)",
+      "font": "Inter, \"Inter Fallback\", ui-sans-serif, system-ui, sans-serif",
+      "height": "0px",
+      "line": "24px",
+      "padding": "0px",
+      "radius": "0px",
+      "selector": "[data-uds=\"hero\"] p",
+      "size": "16px",
+      "tracking": "normal",
+      "weight": "400"
+    },
+    "primary": {
+      "background": "rgb(8, 127, 118)",
+      "color": "rgb(255, 255, 255)",
+      "font": "Inter, \"Inter Fallback\", ui-sans-serif, system-ui, sans-serif",
+      "height": "46px",
+      "line": "21px",
+      "padding": "8px 20px",
+      "radius": "10px",
+      "selector": "[data-uds=\"hero\"] [data-uds=\"button-primary\"]",
+      "size": "14px",
+      "tracking": "normal",
+      "weight": "600"
+    },
+    "select": {
+      "background": "rgb(255, 255, 255)",
+      "color": "rgb(24, 40, 61)",
+      "font": "Inter, \"Inter Fallback\", ui-sans-serif, system-ui, sans-serif",
+      "height": "46px",
+      "line": "normal",
+      "padding": "8px 10px",
+      "radius": "10px",
+      "selector": "select",
+      "size": "16px",
+      "tracking": "normal",
+      "weight": "400"
+    }
+  },
+  "width": 1363
+}
