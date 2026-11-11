@@ -36,8 +36,8 @@ export function EmployerMarquee() {
       {rows.map((logos, row) => <div key={row} className={s.strip} data-direction={row === 0 ? 'left' : 'right'}>
         <div className={`${s.track} ${row === 1 ? s.reverse : ''}`}>
           {[false, true].map(duplicate => <ul key={String(duplicate)} className={s.group} aria-label={duplicate ? undefined : row === 0 ? 'Engineering and construction employers' : 'Energy and industrial employers'} aria-hidden={duplicate || undefined}>
-            {logos.map(([name, file]) => <li key={name} className={s.logo}>
-              <Image src={`/landing/employers/${file}`} alt={duplicate ? '' : name} width={160} height={52} unoptimized loading="eager" className={['mcdermott.svg', 'maaden.svg', 'larsen-toubro.svg'].includes(file) ? s.monochrome : undefined} />
+            {logos.map(([name, file]) => <li key={name} className={`${s.logo} ${['mcdermott.svg', 'maaden.svg', 'larsen-toubro.svg'].includes(file) ? s.reversed : ''}`}>
+              <Image src={`/landing/employers/${file}`} alt={duplicate ? '' : name} width={160} height={52} unoptimized loading="eager" />
             </li>)}
           </ul>)}
         </div>

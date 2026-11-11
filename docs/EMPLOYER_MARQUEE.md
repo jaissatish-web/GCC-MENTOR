@@ -22,3 +22,8 @@ Performance: 182588 bytes total local logo artwork, 21 unique logo URLs shared b
 Protected-source review: app/page.tsx adds only one import and one component insertion. No existing presentation, orbit/animation, resume renderer/template/PDF, backend/auth/AI, pricing or business-logic files modified. Existing CI checks retained, one bounded marquee browser check added.
 
 Next: inspect matching-commit Vercel preview, deliver mobile/desktop screenshots and draft PR; wait for founder approval. Production remains unchanged.
+
+## Approved correction — original brand colors
+Founder requested original company colors instead of grayscale (11 November 2026). Remove grayscale and reduced opacity from all logo images. Preserve the official white/reversed L&T, McDermott and white/gold Ma’aden assets on a dark slate logo window so they stay visible without recoloring artwork. Keep all layout, motion, pause/reduced-motion and protected systems unchanged. Verify six-width browser behavior and update draft PR82/preview; no merge.
+
+Color correction verified: production build including lint/types passed; actual Chromium screenshots show original company colors; marquee behavior, image loading, pause/resume, reduced motion and overflow checks pass all six widths. Only logo appearance and provenance wording changed; no assets, animation timing or protected code modified.

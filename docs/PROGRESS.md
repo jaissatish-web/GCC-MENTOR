@@ -376,3 +376,7 @@ Founder repeats merge-to-main approval after disclosure of existing mounted-prev
 Founder authorizes one two-row current-brand logo section on separate branch design/dual-employer-marquee, preview only. Scope/placement/accessibility/performance/protected invariants recorded in EMPLOYER_MARQUEE.md before implementation. Source official assets/current brand names; preserve approved page and all protected logic. Implementation and verification pending; no merge authorization.
 
 Employer marquee implemented: 21 sourced local logos; build and92/92 repository checks passed; new and existing landing Chromium suites passed all six widths; orbit depth passed390/1440. Scoped sources protected. Preview/draft delivery pending, no merge. See docs/EMPLOYER_MARQUEE.md and logo source manifest.
+
+Approved: restore employer-logo original brand colors, using dark slate windows for existing official white/reversed assets. Implementation and browser verification pending; PR82 remains draft, no merge.
+
+Implemented and verified: original company colors restored; white/reversed variants stay authentic on slate windows. Build and six-width marquee browser checks passed. Updating PR82 preview; no merge.
