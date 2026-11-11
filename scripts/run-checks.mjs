@@ -23,6 +23,7 @@ const require = createRequire(import.meta.url)
 const sucrase = require.resolve('sucrase/bin/sucrase-node')
 
 const TS_CHECKS = [
+  'verify-universal-design-settings.ts',
   'verify-free-tools-foundation.ts',
   'verify-free-tools-resume.ts',
   'verify-free-tools-general.ts',

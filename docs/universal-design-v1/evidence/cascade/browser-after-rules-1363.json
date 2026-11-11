@@ -1,0 +1,757 @@
+{
+  "targets": {
+    "button": {
+      "rules": [
+        {
+          "conditions": [],
+          "declarations": [
+            {
+              "priority": "",
+              "property": "font-family",
+              "value": "var(--uds-font)"
+            },
+            {
+              "priority": "",
+              "property": "letter-spacing",
+              "value": "var(--uds-tracking)"
+            }
+          ],
+          "selector": ":where([data-website-ui] *):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *, :has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography=\"document\"])))",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/26ca15201586c9ff.css"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": [
+            {
+              "priority": "",
+              "property": "line-height",
+              "value": "var(--uds-body-line)"
+            }
+          ],
+          "selector": ":where([data-website-ui] :is(a, button)):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *, :has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography=\"document\"])))",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/26ca15201586c9ff.css"
+        },
+        {
+          "conditions": [],
+          "declarations": [
+            {
+              "priority": "",
+              "property": "color",
+              "value": "inherit"
+            }
+          ],
+          "selector": "a",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/72fa906fe7bb2c89.css"
+        },
+        {
+          "conditions": [],
+          "declarations": [
+            {
+              "priority": "",
+              "property": "font-size",
+              "value": "var(--uds-button-size)"
+            },
+            {
+              "priority": "",
+              "property": "font-weight",
+              "value": "var(--uds-button-weight)"
+            },
+            {
+              "priority": "",
+              "property": "line-height",
+              "value": "var(--uds-body-line)"
+            },
+            {
+              "priority": "",
+              "property": "padding",
+              "value": "8px var(--uds-button-padding)"
+            },
+            {
+              "priority": "",
+              "property": "border-radius",
+              "value": "var(--uds-button-radius)"
+            },
+            {
+              "priority": "",
+              "property": "min-height",
+              "value": "var(--uds-button-height)"
+            }
+          ],
+          "selector": ".premium_btnNavyOutline__cdEFK, .premium_ghostCta__icd6P, .premium_goldCta__pM4_g, .premium_whiteCta__gBN0I",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/5b0ed94a56c5b245.css"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": [
+            {
+              "priority": "",
+              "property": "color",
+              "value": "var(--uds-primary-text)"
+            },
+            {
+              "priority": "",
+              "property": "min-height",
+              "value": "var(--uds-primary-height)"
+            }
+          ],
+          "selector": ".premium_goldCta__pM4_g",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/5b0ed94a56c5b245.css"
+        }
+      ],
+      "selector": "[data-uds=\"hero\"] [data-uds=\"button-primary\"]"
+    },
+    "card": {
+      "rules": [
+        {
+          "conditions": [],
+          "declarations": [
+            {
+              "priority": "",
+              "property": "font-family",
+              "value": "var(--uds-font)"
+            },
+            {
+              "priority": "",
+              "property": "letter-spacing",
+              "value": "var(--uds-tracking)"
+            }
+          ],
+          "selector": ":where([data-website-ui] *):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *, :has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography=\"document\"])))",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/26ca15201586c9ff.css"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": [
+            {
+              "priority": "",
+              "property": "line-height",
+              "value": "var(--uds-body-line)"
+            }
+          ],
+          "selector": ":where([data-website-ui] :is(a, button)):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *, :has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography=\"document\"])))",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/26ca15201586c9ff.css"
+        },
+        {
+          "conditions": [],
+          "declarations": [
+            {
+              "priority": "",
+              "property": "color",
+              "value": "inherit"
+            }
+          ],
+          "selector": "a",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/72fa906fe7bb2c89.css"
+        },
+        {
+          "conditions": [],
+          "declarations": [
+            {
+              "priority": "",
+              "property": "color",
+              "value": "var(--uds-ink)"
+            },
+            {
+              "priority": "",
+              "property": "padding",
+              "value": "var(--uds-card-padding)"
+            },
+            {
+              "priority": "",
+              "property": "border-radius",
+              "value": "var(--uds-card-radius)"
+            },
+            {
+              "priority": "",
+              "property": "min-height",
+              "value": "96px"
+            }
+          ],
+          "selector": ".premium_featureCard__UdFJx",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/5b0ed94a56c5b245.css"
+        }
+      ],
+      "selector": "[data-uds=\"card\"]"
+    },
+    "heading": {
+      "rules": [
+        {
+          "conditions": [],
+          "declarations": [
+            {
+              "priority": "",
+              "property": "font-family",
+              "value": "var(--uds-font)"
+            },
+            {
+              "priority": "",
+              "property": "letter-spacing",
+              "value": "var(--uds-tracking)"
+            }
+          ],
+          "selector": ":where([data-website-ui] *):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *, :has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography=\"document\"])))",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/26ca15201586c9ff.css"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": [
+            {
+              "priority": "",
+              "property": "font-size",
+              "value": "var(--uds-section-size)"
+            },
+            {
+              "priority": "",
+              "property": "font-weight",
+              "value": "var(--uds-heading-weight)"
+            },
+            {
+              "priority": "",
+              "property": "line-height",
+              "value": "var(--uds-heading-line)"
+            },
+            {
+              "priority": "",
+              "property": "color",
+              "value": "var(--uds-ink)"
+            }
+          ],
+          "selector": ":where([data-website-ui] :is(h1, h2, h3, h4, h5, h6)):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *, :has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography=\"document\"])))",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/26ca15201586c9ff.css"
+        },
+        {
+          "conditions": [],
+          "declarations": [
+            {
+              "priority": "",
+              "property": "font-size",
+              "value": "inherit"
+            },
+            {
+              "priority": "",
+              "property": "font-weight",
+              "value": "inherit"
+            }
+          ],
+          "selector": "h1, h2, h3, h4, h5, h6",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/72fa906fe7bb2c89.css"
+        },
+        {
+          "conditions": [],
+          "declarations": [
+            {
+              "priority": "",
+              "property": "font-family",
+              "value": "var(--uds-font)"
+            },
+            {
+              "priority": "",
+              "property": "font-size",
+              "value": "var(--uds-marketing-size)"
+            },
+            {
+              "priority": "",
+              "property": "font-weight",
+              "value": "var(--uds-heading-weight)"
+            },
+            {
+              "priority": "",
+              "property": "line-height",
+              "value": "var(--uds-heading-line)"
+            },
+            {
+              "priority": "",
+              "property": "color",
+              "value": "var(--uds-ink)"
+            }
+          ],
+          "selector": ".premium_sectionTitle__biohs",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/5b0ed94a56c5b245.css"
+        }
+      ],
+      "selector": "#templates-title"
+    },
+    "hero": {
+      "rules": [
+        {
+          "conditions": [],
+          "declarations": [
+            {
+              "priority": "",
+              "property": "font-family",
+              "value": "var(--uds-font)"
+            },
+            {
+              "priority": "",
+              "property": "letter-spacing",
+              "value": "var(--uds-tracking)"
+            }
+          ],
+          "selector": ":where([data-website-ui] *):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *, :has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography=\"document\"])))",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/26ca15201586c9ff.css"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": [
+            {
+              "priority": "",
+              "property": "font-size",
+              "value": "var(--uds-section-size)"
+            },
+            {
+              "priority": "",
+              "property": "font-weight",
+              "value": "var(--uds-heading-weight)"
+            },
+            {
+              "priority": "",
+              "property": "line-height",
+              "value": "var(--uds-heading-line)"
+            },
+            {
+              "priority": "",
+              "property": "color",
+              "value": "var(--uds-ink)"
+            }
+          ],
+          "selector": ":where([data-website-ui] :is(h1, h2, h3, h4, h5, h6)):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *, :has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography=\"document\"])))",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/26ca15201586c9ff.css"
+        },
+        {
+          "conditions": [],
+          "declarations": [
+            {
+              "priority": "",
+              "property": "font-size",
+              "value": "inherit"
+            },
+            {
+              "priority": "",
+              "property": "font-weight",
+              "value": "inherit"
+            }
+          ],
+          "selector": "h1, h2, h3, h4, h5, h6",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/72fa906fe7bb2c89.css"
+        },
+        {
+          "conditions": [],
+          "declarations": [
+            {
+              "priority": "",
+              "property": "font-family",
+              "value": "var(--uds-font)"
+            },
+            {
+              "priority": "",
+              "property": "font-size",
+              "value": "var(--uds-hero-size)"
+            },
+            {
+              "priority": "",
+              "property": "font-weight",
+              "value": "var(--uds-heading-weight)"
+            },
+            {
+              "priority": "",
+              "property": "line-height",
+              "value": "var(--uds-heading-line)"
+            },
+            {
+              "priority": "",
+              "property": "letter-spacing",
+              "value": "var(--uds-tracking)"
+            },
+            {
+              "priority": "",
+              "property": "color",
+              "value": "var(--uds-ink)"
+            }
+          ],
+          "selector": ".premium_heroTitle__OZ4pj",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/5b0ed94a56c5b245.css"
+        }
+      ],
+      "selector": "#hero-title"
+    },
+    "kicker": {
+      "rules": [
+        {
+          "conditions": [],
+          "declarations": [
+            {
+              "priority": "",
+              "property": "font-family",
+              "value": "var(--uds-font)"
+            },
+            {
+              "priority": "",
+              "property": "letter-spacing",
+              "value": "var(--uds-tracking)"
+            }
+          ],
+          "selector": ":where([data-website-ui] *):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *, :has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography=\"document\"])))",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/26ca15201586c9ff.css"
+        },
+        {
+          "conditions": [],
+          "declarations": [
+            {
+              "priority": "",
+              "property": "font-size",
+              "value": "var(--uds-helper-size)"
+            },
+            {
+              "priority": "",
+              "property": "font-weight",
+              "value": "var(--uds-heading-weight)"
+            },
+            {
+              "priority": "",
+              "property": "line-height",
+              "value": "var(--uds-body-line)"
+            },
+            {
+              "priority": "",
+              "property": "letter-spacing",
+              "value": "var(--uds-tracking)"
+            },
+            {
+              "priority": "",
+              "property": "color",
+              "value": "var(--uds-brand-hover)"
+            }
+          ],
+          "selector": ".premium_kickerGold__syznI",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/5b0ed94a56c5b245.css"
+        }
+      ],
+      "selector": "[data-uds=\"kicker\"]"
+    },
+    "nav": {
+      "rules": [
+        {
+          "conditions": [],
+          "declarations": [
+            {
+              "priority": "",
+              "property": "font-size",
+              "value": "var(--ui-label-size)"
+            },
+            {
+              "priority": "",
+              "property": "font-weight",
+              "value": "var(--ui-weight-label)"
+            }
+          ],
+          "selector": "header nav :is(a, button)",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/583396cb2717acfc.css"
+        },
+        {
+          "conditions": [],
+          "declarations": [
+            {
+              "priority": "",
+              "property": "font-family",
+              "value": "var(--uds-font)"
+            },
+            {
+              "priority": "",
+              "property": "letter-spacing",
+              "value": "var(--uds-tracking)"
+            }
+          ],
+          "selector": ":where([data-website-ui] *):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *, :has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography=\"document\"])))",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/26ca15201586c9ff.css"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": [
+            {
+              "priority": "",
+              "property": "line-height",
+              "value": "var(--uds-body-line)"
+            }
+          ],
+          "selector": ":where([data-website-ui] :is(a, button)):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *, :has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography=\"document\"])))",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/26ca15201586c9ff.css"
+        },
+        {
+          "conditions": [],
+          "declarations": [
+            {
+              "priority": "",
+              "property": "color",
+              "value": "inherit"
+            }
+          ],
+          "selector": "a",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/72fa906fe7bb2c89.css"
+        },
+        {
+          "conditions": [],
+          "declarations": [
+            {
+              "priority": "",
+              "property": "font-size",
+              "value": "var(--uds-nav-size)"
+            },
+            {
+              "priority": "",
+              "property": "font-weight",
+              "value": "var(--uds-button-weight)"
+            },
+            {
+              "priority": "",
+              "property": "color",
+              "value": "var(--uds-muted)"
+            },
+            {
+              "priority": "",
+              "property": "padding",
+              "value": "10px 12px"
+            },
+            {
+              "priority": "",
+              "property": "border-radius",
+              "value": "var(--uds-button-radius)"
+            },
+            {
+              "priority": "",
+              "property": "min-height",
+              "value": "44px"
+            }
+          ],
+          "selector": ".premium_system__eP7XW .premium_desktopNav__BdVX2 a",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/5b0ed94a56c5b245.css"
+        }
+      ],
+      "selector": "header nav a"
+    },
+    "orbit": {
+      "rules": [
+        {
+          "conditions": [],
+          "declarations": [
+            {
+              "priority": "important",
+              "property": "font-family",
+              "value": "var(--ui-font)"
+            },
+            {
+              "priority": "important",
+              "property": "letter-spacing",
+              "value": "var(--ui-tracking)"
+            }
+          ],
+          "selector": "body :not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *)):not(:where([data-website-ui] :not(:has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography=\"document\"]))))",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/26ca15201586c9ff.css"
+        },
+        {
+          "conditions": [],
+          "declarations": [
+            {
+              "priority": "",
+              "property": "padding",
+              "value": "18px 0px 14px"
+            },
+            {
+              "priority": "",
+              "property": "border-radius",
+              "value": "var(--uds-card-radius)"
+            }
+          ],
+          "selector": ".premium_heroVisual__55FnU",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/5b0ed94a56c5b245.css"
+        }
+      ],
+      "selector": "[data-uds=\"visual\"]"
+    },
+    "paragraph": {
+      "rules": [
+        {
+          "conditions": [],
+          "declarations": [
+            {
+              "priority": "",
+              "property": "font-family",
+              "value": "var(--uds-font)"
+            },
+            {
+              "priority": "",
+              "property": "letter-spacing",
+              "value": "var(--uds-tracking)"
+            }
+          ],
+          "selector": ":where([data-website-ui] *):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *, :has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography=\"document\"])))",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/26ca15201586c9ff.css"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": [
+            {
+              "priority": "",
+              "property": "font-size",
+              "value": "var(--uds-body-size)"
+            },
+            {
+              "priority": "",
+              "property": "font-weight",
+              "value": "var(--uds-body-weight)"
+            },
+            {
+              "priority": "",
+              "property": "line-height",
+              "value": "var(--uds-body-line)"
+            }
+          ],
+          "selector": ":where([data-website-ui] :is(p, li, dd, dt, label, summary, input, select, textarea)):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *, :has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography=\"document\"])))",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/26ca15201586c9ff.css"
+        },
+        {
+          "conditions": [],
+          "declarations": [
+            {
+              "priority": "",
+              "property": "font-size",
+              "value": "var(--uds-body-size)"
+            },
+            {
+              "priority": "",
+              "property": "line-height",
+              "value": "var(--uds-body-line)"
+            },
+            {
+              "priority": "",
+              "property": "color",
+              "value": "var(--uds-muted)"
+            }
+          ],
+          "selector": ".premium_heroSub__A1Ym7",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/5b0ed94a56c5b245.css"
+        }
+      ],
+      "selector": "[data-uds=\"hero\"] p"
+    },
+    "select": {
+      "rules": [
+        {
+          "conditions": [],
+          "declarations": [
+            {
+              "priority": "",
+              "property": "font-family",
+              "value": "var(--uds-font)"
+            },
+            {
+              "priority": "",
+              "property": "letter-spacing",
+              "value": "var(--uds-tracking)"
+            }
+          ],
+          "selector": ":where([data-website-ui] *):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *, :has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography=\"document\"])))",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/26ca15201586c9ff.css"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": [
+            {
+              "priority": "",
+              "property": "font-size",
+              "value": "var(--uds-body-size)"
+            },
+            {
+              "priority": "",
+              "property": "font-weight",
+              "value": "var(--uds-body-weight)"
+            },
+            {
+              "priority": "",
+              "property": "line-height",
+              "value": "var(--uds-body-line)"
+            }
+          ],
+          "selector": ":where([data-website-ui] :is(p, li, dd, dt, label, summary, input, select, textarea)):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *, :has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography=\"document\"])))",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/26ca15201586c9ff.css"
+        },
+        {
+          "conditions": [],
+          "declarations": [
+            {
+              "priority": "",
+              "property": "font-family",
+              "value": "inherit"
+            },
+            {
+              "priority": "",
+              "property": "font-size",
+              "value": "100%"
+            },
+            {
+              "priority": "",
+              "property": "font-weight",
+              "value": "inherit"
+            },
+            {
+              "priority": "",
+              "property": "line-height",
+              "value": "inherit"
+            },
+            {
+              "priority": "",
+              "property": "letter-spacing",
+              "value": "inherit"
+            },
+            {
+              "priority": "",
+              "property": "color",
+              "value": "inherit"
+            },
+            {
+              "priority": "",
+              "property": "padding",
+              "value": "0px"
+            }
+          ],
+          "selector": "button, input, optgroup, select, textarea",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/72fa906fe7bb2c89.css"
+        },
+        {
+          "conditions": [],
+          "declarations": [
+            {
+              "priority": "",
+              "property": "font-size",
+              "value": "max(16px,var(--uds-body-size,var(--ui-body-size)))"
+            },
+            {
+              "priority": "",
+              "property": "color",
+              "value": "var(--ui-ink)"
+            },
+            {
+              "priority": "",
+              "property": "padding",
+              "value": "8px 10px"
+            },
+            {
+              "priority": "",
+              "property": "border-radius",
+              "value": "var(--ui-control-radius)"
+            },
+            {
+              "priority": "",
+              "property": "min-height",
+              "value": "var(--uds-input-height,44px)"
+            }
+          ],
+          "selector": ".interview_options__A6U2d select",
+          "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/_next/static/css/5b0ed94a56c5b245.css"
+        }
+      ],
+      "selector": "select"
+    }
+  },
+  "url": "https://gcc-mentor-5tce6oyzl-satishs-projects-c02c354b.vercel.app/",
+  "width": 1363
+}

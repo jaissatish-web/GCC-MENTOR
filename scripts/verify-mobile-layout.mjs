@@ -161,11 +161,11 @@ try {
       if (metrics.scroll > width + 1) await page.screenshot({path:'artifacts/typography/landing-overflow.png',fullPage:false})
       assert.ok(metrics.scroll <= width + 1, `Landing overflow at ${width}, enlarged=${enlarged}: ${JSON.stringify(metrics)}`)
       assert.ok(!metrics.clipped, `Clipped landing title at ${width}`)
-      assert.equal(metrics.weight, '700')
+      assert.equal(metrics.weight, '600')
       assert.ok(metrics.font.includes('Inter'), `Inter is not applied: ${metrics.font}`)
       const textScale = enlarged ? 2 : 1
-      const expectedHero = (width >= 768 ? 48 : 36) * textScale
-      const expectedSection = (width >= 768 ? 24 : 21) * textScale
+      const expectedHero = (width >= 1024 ? 52 : width >= 768 ? 44 : 36) * textScale
+      const expectedSection = (width >= 1024 ? 34 : width >= 768 ? 30 : 26) * textScale
       assert.ok(Math.abs(metrics.size - expectedHero) < .02, 'Marketing hero uses its responsive display scale')
       assert.ok(Math.abs(metrics.sectionSize - expectedSection) < .02, 'Marketing sections use their responsive display scale')
       await page.screenshot({ path: `artifacts/typography/landing-${width}${enlarged ? '-enlarged' : ''}.png`, fullPage: true })

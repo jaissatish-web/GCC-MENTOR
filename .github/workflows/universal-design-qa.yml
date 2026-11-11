@@ -1,0 +1,139 @@
+# Synthetic visual regression only. No production credentials or writable token.
+name: Universal design visual QA
+on:
+  pull_request:
+    paths:
+      - 'app/page.tsx'
+      - 'app/layout.tsx'
+      - 'app/globals.css'
+      - 'app/typography.css'
+      - 'app/ui-system.css'
+      - 'app/responsive.css'
+      - 'app/admin/design-system/**'
+      - 'components/design-system/**'
+      - 'components/landing-v3/**'
+      - 'components/landing-premium/**'
+      - 'lib/design-system/**'
+      - 'scripts/verify-universal-design*'
+      - 'scripts/audit-css-cascade.mjs'
+      - '.github/workflows/universal-design-qa.yml'
+permissions:
+  contents: read
+concurrency:
+  group: universal-design-qa-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  visual-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      NEXT_TELEMETRY_DISABLED: '1'
+      PUPPETEER_SKIP_DOWNLOAD: 'true'
+      NEXT_PUBLIC_SUPABASE_URL: https://ci-placeholder.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
+      SUPABASE_SERVICE_ROLE_KEY: ci-placeholder-service-role-key
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      TYPE_BASE_REF: f72e2faccf4e287f9ac7d213d988f8045a10a961
+      CASCADE_BASE_REF: 1813fc5750cdd2db2929847f6290a71abd625261
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Verify comparable dependencies and protected source
+        run: |
+          git cat-file -e "$TYPE_BASE_REF^{commit}"
+          git diff --exit-code "$TYPE_BASE_REF" -- package.json package-lock.json components/templates lib/pdf lib/resumeStyle.ts app/api/resume/pdf
+      - run: npm ci
+      - name: Validate cascade instrument
+        run: |
+          node --check scripts/audit-css-cascade.mjs
+          node scripts/audit-css-cascade.mjs --self-test
+      - name: Install local QA browser and PDF rasterizer
+        run: |
+          npx puppeteer browsers install chrome
+          sudo apt-get update
+          sudo apt-get install --yes poppler-utils
+          node --input-type=module -e "import puppeteer from 'puppeteer'; import {appendFileSync} from 'node:fs'; appendFileSync(process.env.GITHUB_ENV, 'CHROME_PATH=' + await puppeteer.executablePath() + '\n')"
+      - name: Prepare exact original source
+        run: |
+          git worktree add --detach "$RUNNER_TEMP/gcc-design-original" "$TYPE_BASE_REF"
+          ln -s "$GITHUB_WORKSPACE/node_modules" "$RUNNER_TEMP/gcc-design-original/node_modules"
+          mkdir -p artifacts/universal-design-v1/original-build artifacts/universal-design-v1/pdfs/before/default artifacts/universal-design-v1/pdfs/before/configured
+      - name: Build original and retain original preview CSS
+        id: original_build
+        working-directory: ${{ runner.temp }}/gcc-design-original
+        run: |
+          npm run build
+          cp -R .next/static "$GITHUB_WORKSPACE/artifacts/universal-design-v1/original-build/static"
+          cp .next/server/app/index.html "$GITHUB_WORKSPACE/artifacts/universal-design-v1/original-build/index.html"
+      - name: Render original fictional PDF configurations
+        working-directory: ${{ runner.temp }}/gcc-design-original
+        run: |
+          OUT="$GITHUB_WORKSPACE/artifacts/universal-design-v1/pdfs/before/default" node node_modules/sucrase/bin/sucrase-node scripts/verify-template-pdfs.ts ats_classic falcon_executive emerald_professional --short
+          STYLE='{"ink":"black","highlight":"none"}' OUT="$GITHUB_WORKSPACE/artifacts/universal-design-v1/pdfs/before/configured" node node_modules/sucrase/bin/sucrase-node scripts/verify-template-pdfs.ts ats_classic falcon_executive emerald_professional --short
+      # Separate pre-refactor PR snapshot. The original-main document/PDF baseline above remains unchanged.
+      - name: Prepare exact pre-refactor PR source
+        if: ${{ !cancelled() }}
+        run: |
+          git cat-file -e "$CASCADE_BASE_REF^{commit}"
+          git worktree add --detach "$RUNNER_TEMP/gcc-cascade-before" "$CASCADE_BASE_REF"
+          ln -s "$GITHUB_WORKSPACE/node_modules" "$RUNNER_TEMP/gcc-cascade-before/node_modules"
+      - name: Build pre-refactor PR cascade baseline
+        id: cascade_before_build
+        if: ${{ !cancelled() }}
+        working-directory: ${{ runner.temp }}/gcc-cascade-before
+        run: npm run build
+      - name: Capture before cascade and protected inheritance
+        if: ${{ !cancelled() && steps.cascade_before_build.outcome == 'success' }}
+        env:
+          QA_PHASE: before
+          QA_ROOT: ${{ github.workspace }}
+          QA_BUILD: ${{ runner.temp }}/gcc-cascade-before/.next
+        run: node scripts/audit-css-cascade.mjs
+      - name: Build changed source
+        id: changed_build
+        if: ${{ !cancelled() }}
+        run: npm run build
+      - name: Capture after cascade and protected inheritance
+        if: ${{ !cancelled() && steps.changed_build.outcome == 'success' }}
+        env:
+          QA_PHASE: after
+          QA_ROOT: ${{ github.workspace }}
+          QA_BUILD: .next
+        run: node scripts/audit-css-cascade.mjs
+      - name: Capture six landing widths and verify live preview settings
+        if: ${{ !cancelled() && steps.changed_build.outcome == 'success' }}
+        run: node scripts/verify-universal-design-browser.mjs
+      - name: Verify actual admin component and independent recovery settings
+        if: ${{ !cancelled() && steps.changed_build.outcome == 'success' }}
+        run: node scripts/verify-universal-design-recovery.mjs
+      - name: Compare authored previews against original build
+        if: ${{ !cancelled() && steps.original_build.outcome == 'success' && steps.changed_build.outcome == 'success' }}
+        run: |
+          TYPE_BASELINE="$GITHUB_WORKSPACE/artifacts/universal-design-v1/original-build" node scripts/verify-typography-documents.mjs
+      - name: Render changed fictional PDF configurations
+        id: changed_pdfs
+        if: ${{ !cancelled() && steps.changed_build.outcome == 'success' }}
+        run: |
+          OUT="$GITHUB_WORKSPACE/artifacts/universal-design-v1/pdfs/after/default" node node_modules/sucrase/bin/sucrase-node scripts/verify-template-pdfs.ts ats_classic falcon_executive emerald_professional --short
+          STYLE='{"ink":"black","highlight":"none"}' OUT="$GITHUB_WORKSPACE/artifacts/universal-design-v1/pdfs/after/configured" node node_modules/sucrase/bin/sucrase-node scripts/verify-template-pdfs.ts ats_classic falcon_executive emerald_professional --short
+      - name: Compare every representative PDF page pixel
+        if: ${{ !cancelled() && steps.changed_pdfs.outcome == 'success' }}
+        run: node scripts/verify-universal-design-pdfs.mjs artifacts/universal-design-v1/pdfs/before artifacts/universal-design-v1/pdfs/after
+      - name: Retain synthetic screenshots and PDF evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: universal-design-visual-evidence
+          path: |
+            artifacts/universal-design-v1
+            artifacts/typography-documents
+            artifacts/cascade-audit
+            artifacts/recovery-079
+          if-no-files-found: warn
+          retention-days: 14

@@ -14,7 +14,7 @@
 .options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
 .options label { min-width: 0; color: var(--ui-muted); font-size: var(--ui-helper-size); }
 .options label:first-child { grid-column: 1/-1; }
-.options select { width: 100%; min-height: 44px; margin-top: 6px; padding: 8px 10px; border: 1px solid var(--ui-line-strong); border-radius: var(--ui-control-radius); color: var(--ui-ink); background: var(--ui-surface); font-size: var(--ui-helper-size); }
+.options select { width: 100%; min-height: var(--uds-input-height,44px); margin-top: 6px; padding: 8px 10px; border: 1px solid var(--ui-line-strong); border-radius: var(--ui-control-radius); color: var(--ui-ink); background: var(--ui-surface); font-size: max(16px,var(--uds-body-size,var(--ui-body-size))); }
 .interviewer { display: flex; align-items: center; gap: 16px; }
 .portrait,.compact .portrait { position: relative; width: 72px; height: 80px; overflow: hidden; flex: none; border-radius: var(--ui-control-radius); background: var(--ui-brand-soft); }
 .portrait[data-speaking=true] { box-shadow: 0 0 0 3px var(--ui-brand-soft); }
@@ -42,7 +42,7 @@
 .answer p,.feedback p,.details p,.compact .answer p,.compact .feedback p,.compact .details p { margin: 8px 0 0!important; color: var(--ui-muted); font-size: var(--ui-helper-size)!important; line-height: var(--ui-body-line)!important; }
 .note,.compact .note { display: block; margin: 14px 0 0!important; color: var(--ui-muted); font-size: var(--ui-helper-size)!important; line-height: var(--ui-body-line)!important; }
 a.note { display: flex; align-items: center; min-height: 44px; color: var(--ui-brand); font-weight: var(--ui-weight-label); }
-.action,.record button,.play { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: var(--ui-control-height); padding: var(--ui-control-padding-y) 16px; border: 1px solid var(--ui-brand); border-radius: var(--ui-control-radius); background: var(--ui-brand); color: #fff; font-size: var(--ui-helper-size); font-weight: var(--ui-weight-heading); line-height: var(--ui-body-line); }
+.action,.record button,.play { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: var(--ui-control-height); padding: var(--ui-control-padding-y) 16px; border: 1px solid var(--ui-brand); border-radius: var(--ui-control-radius); background: var(--uds-button-background,var(--ui-brand)); color: var(--uds-primary-text,#fff); font-size: var(--ui-helper-size); font-weight: var(--ui-weight-heading); line-height: var(--ui-body-line); }
 .action:hover,.record button:hover,.play:hover { background: var(--ui-brand-hover); }
 .stage .action { margin-top: 12px; }
 .play { margin: 0 20px 16px; }
@@ -106,7 +106,7 @@ a.note { display: flex; align-items: center; min-height: 44px; color: var(--ui-b
   .tabs button,.compact .tabs button { font-size: var(--ui-caption-size); }
   .stage,.compact .stage { padding: 16px; }
   .options { gap: 10px; }
-  .options select,.compact .options select { min-height: 44px; font-size: var(--ui-helper-size); padding-inline: 8px; }
+  .options select,.compact .options select { padding-inline: 8px; }
   .interviewer { gap: 12px; }
   .verdictGrid,.reviewGrid { grid-template-columns: 1fr; }
   .action { width: 100%; }

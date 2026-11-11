@@ -1,0 +1,1042 @@
+{
+  "height": 936,
+  "targets": {
+    "card": {
+      "computed": {
+        "background-color": "rgb(255, 255, 255)",
+        "border-radius": "12px",
+        "color": "rgb(24, 40, 61)",
+        "font-family": "Inter, \"Inter Fallback\", ui-sans-serif, system-ui, sans-serif",
+        "font-size": "16px",
+        "font-weight": "400",
+        "letter-spacing": "normal",
+        "line-height": "24.8px",
+        "min-height": "96px",
+        "padding-top": "24px",
+        "width": "592px"
+      },
+      "matches": [
+        {
+          "conditions": [],
+          "declarations": {
+            "font-family": {
+              "important": "important",
+              "value": "var(--ui-font)"
+            },
+            "letter-spacing": {
+              "important": "important",
+              "value": "var(--ui-tracking)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/62feaa671436e580.css",
+          "order": 567,
+          "selector": "body :not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *))"
+        },
+        {
+          "conditions": [],
+          "declarations": {
+            "color": {
+              "important": "",
+              "value": "inherit"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/72fa906fe7bb2c89.css",
+          "order": 1021,
+          "selector": "a"
+        },
+        {
+          "conditions": [],
+          "declarations": {
+            "border-radius": {
+              "important": "",
+              "value": "var(--ui-card-radius)"
+            },
+            "color": {
+              "important": "",
+              "value": "var(--lp-ink)"
+            },
+            "min-height": {
+              "important": "",
+              "value": "96px"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2587,
+          "selector": ".premium_featureCard__UdFJx"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": {
+            "font-family": {
+              "important": "important",
+              "value": "var(--uds-font)"
+            },
+            "letter-spacing": {
+              "important": "important",
+              "value": "var(--uds-tracking)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2670,
+          "selector": ".universal-pilot_pilot__WJASu.universal-pilot_pilot__WJASu :is(h1, h2, h3, h4, p, small, label, summary, button, a, b, strong, span, input, select, textarea):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *)):not(:has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography=\"document\"]))"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": {
+            "border-radius": {
+              "important": "",
+              "value": "var(--uds-card-radius)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2685,
+          "selector": ".universal-pilot_pilot__WJASu.universal-pilot_pilot__WJASu [data-uds=\"card\"], .universal-pilot_pilot__WJASu.universal-pilot_pilot__WJASu [data-uds=\"visual\"]"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": {
+            "color": {
+              "important": "",
+              "value": "var(--uds-ink)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2686,
+          "selector": ".universal-pilot_pilot__WJASu.universal-pilot_pilot__WJASu [data-uds=\"card\"]"
+        }
+      ],
+      "selector": "[data-uds=\"card\"]"
+    },
+    "heading": {
+      "computed": {
+        "background-color": "rgba(0, 0, 0, 0)",
+        "border-radius": "0px",
+        "color": "rgb(24, 40, 61)",
+        "font-family": "Inter, \"Inter Fallback\", ui-sans-serif, system-ui, sans-serif",
+        "font-size": "34px",
+        "font-weight": "600",
+        "letter-spacing": "normal",
+        "line-height": "40.8px",
+        "min-height": "0px",
+        "padding-top": "0px",
+        "width": "507.594px"
+      },
+      "matches": [
+        {
+          "conditions": [],
+          "declarations": {
+            "font-family": {
+              "important": "important",
+              "value": "var(--ui-font)"
+            },
+            "letter-spacing": {
+              "important": "important",
+              "value": "var(--ui-tracking)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/62feaa671436e580.css",
+          "order": 567,
+          "selector": "body :not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *))"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": {
+            "font-size": {
+              "important": "important",
+              "value": "var(--ui-h2-size,var(--ui-section-size))"
+            },
+            "font-weight": {
+              "important": "important",
+              "value": "var(--ui-weight-heading)"
+            },
+            "letter-spacing": {
+              "important": "important",
+              "value": "var(--ui-heading-tracking)"
+            },
+            "line-height": {
+              "important": "important",
+              "value": "var(--ui-heading-line)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/62feaa671436e580.css",
+          "order": 637,
+          "selector": "body :is(h2, h2[class]):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *))"
+        },
+        {
+          "conditions": [],
+          "declarations": {
+            "font-size": {
+              "important": "",
+              "value": "inherit"
+            },
+            "font-weight": {
+              "important": "",
+              "value": "inherit"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/72fa906fe7bb2c89.css",
+          "order": 1020,
+          "selector": "h1, h2, h3, h4, h5, h6"
+        },
+        {
+          "conditions": [],
+          "declarations": {
+            "color": {
+              "important": "",
+              "value": "var(--lp-ink)"
+            },
+            "font-family": {
+              "important": "",
+              "value": "var(--lp-serif)"
+            },
+            "font-size": {
+              "important": "",
+              "value": "var(--lp-display-size)"
+            },
+            "font-weight": {
+              "important": "",
+              "value": "var(--ui-weight-regular)"
+            },
+            "line-height": {
+              "important": "",
+              "value": "var(--ui-heading-line)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2576,
+          "selector": ".premium_sectionTitle__biohs"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": {
+            "font-family": {
+              "important": "important",
+              "value": "var(--uds-font)"
+            },
+            "letter-spacing": {
+              "important": "important",
+              "value": "var(--uds-tracking)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2670,
+          "selector": ".universal-pilot_pilot__WJASu.universal-pilot_pilot__WJASu :is(h1, h2, h3, h4, p, small, label, summary, button, a, b, strong, span, input, select, textarea):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *)):not(:has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography=\"document\"]))"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": {
+            "color": {
+              "important": "",
+              "value": "var(--uds-ink)"
+            },
+            "font-weight": {
+              "important": "important",
+              "value": "var(--uds-heading-weight)"
+            },
+            "line-height": {
+              "important": "important",
+              "value": "var(--uds-heading-line)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2672,
+          "selector": ".universal-pilot_pilot__WJASu.universal-pilot_pilot__WJASu :is(h1, h2, h3):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *))"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": {
+            "font-size": {
+              "important": "important",
+              "value": "var(--uds-marketing-size)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2674,
+          "selector": ".universal-pilot_pilot__WJASu.universal-pilot_pilot__WJASu [data-uds=\"marketing-title\"]"
+        }
+      ],
+      "selector": "#templates-title"
+    },
+    "hero": {
+      "computed": {
+        "background-color": "rgba(0, 0, 0, 0)",
+        "border-radius": "0px",
+        "color": "rgb(24, 40, 61)",
+        "font-family": "Inter, \"Inter Fallback\", ui-sans-serif, system-ui, sans-serif",
+        "font-size": "52px",
+        "font-weight": "600",
+        "letter-spacing": "normal",
+        "line-height": "62.4px",
+        "min-height": "0px",
+        "padding-top": "0px",
+        "width": "583.141px"
+      },
+      "matches": [
+        {
+          "conditions": [],
+          "declarations": {
+            "font-family": {
+              "important": "important",
+              "value": "var(--ui-font)"
+            },
+            "letter-spacing": {
+              "important": "important",
+              "value": "var(--ui-tracking)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/62feaa671436e580.css",
+          "order": 567,
+          "selector": "body :not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *))"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": {
+            "font-size": {
+              "important": "important",
+              "value": "var(--ui-h1-size,var(--ui-title-size))"
+            },
+            "font-weight": {
+              "important": "important",
+              "value": "var(--ui-weight-title)"
+            },
+            "letter-spacing": {
+              "important": "important",
+              "value": "var(--ui-heading-tracking)"
+            },
+            "line-height": {
+              "important": "important",
+              "value": "var(--ui-heading-line)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/62feaa671436e580.css",
+          "order": 636,
+          "selector": "body :is(h1, h1[class]):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *))"
+        },
+        {
+          "conditions": [],
+          "declarations": {
+            "font-size": {
+              "important": "",
+              "value": "inherit"
+            },
+            "font-weight": {
+              "important": "",
+              "value": "inherit"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/72fa906fe7bb2c89.css",
+          "order": 1020,
+          "selector": "h1, h2, h3, h4, h5, h6"
+        },
+        {
+          "conditions": [],
+          "declarations": {
+            "color": {
+              "important": "",
+              "value": "var(--lp-ink)"
+            },
+            "font-family": {
+              "important": "",
+              "value": "var(--lp-serif)"
+            },
+            "font-size": {
+              "important": "",
+              "value": "var(--lp-hero-size)"
+            },
+            "font-weight": {
+              "important": "",
+              "value": "var(--ui-weight-regular)"
+            },
+            "letter-spacing": {
+              "important": "",
+              "value": "0px"
+            },
+            "line-height": {
+              "important": "",
+              "value": "var(--ui-hero-line)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2533,
+          "selector": ".premium_heroTitle__OZ4pj"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": {
+            "color": {
+              "important": "",
+              "value": "var(--lp-ink)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2535,
+          "selector": ".premium_heroNavy__OsWxs .premium_heroTitle__OZ4pj"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": {
+            "font-family": {
+              "important": "important",
+              "value": "var(--uds-font)"
+            },
+            "letter-spacing": {
+              "important": "important",
+              "value": "var(--uds-tracking)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2670,
+          "selector": ".universal-pilot_pilot__WJASu.universal-pilot_pilot__WJASu :is(h1, h2, h3, h4, p, small, label, summary, button, a, b, strong, span, input, select, textarea):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *)):not(:has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography=\"document\"]))"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": {
+            "color": {
+              "important": "",
+              "value": "var(--uds-ink)"
+            },
+            "font-weight": {
+              "important": "important",
+              "value": "var(--uds-heading-weight)"
+            },
+            "line-height": {
+              "important": "important",
+              "value": "var(--uds-heading-line)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2672,
+          "selector": ".universal-pilot_pilot__WJASu.universal-pilot_pilot__WJASu :is(h1, h2, h3):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *))"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": {
+            "font-size": {
+              "important": "important",
+              "value": "var(--uds-hero-size)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2673,
+          "selector": ".universal-pilot_pilot__WJASu.universal-pilot_pilot__WJASu [data-uds=\"hero-title\"]"
+        }
+      ],
+      "selector": "#hero-title"
+    },
+    "nav": {
+      "computed": {
+        "background-color": "rgba(0, 0, 0, 0)",
+        "border-radius": "10px",
+        "color": "rgb(24, 40, 61)",
+        "font-family": "Inter, \"Inter Fallback\", ui-sans-serif, system-ui, sans-serif",
+        "font-size": "14px",
+        "font-weight": "600",
+        "letter-spacing": "normal",
+        "line-height": "21px",
+        "min-height": "44px",
+        "padding-top": "10px",
+        "width": "102.641px"
+      },
+      "matches": [
+        {
+          "conditions": [],
+          "declarations": {
+            "font-size": {
+              "important": "",
+              "value": "var(--ui-label-size)"
+            },
+            "font-weight": {
+              "important": "",
+              "value": "var(--ui-weight-label)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/bf80d4aa60969525.css",
+          "order": 41,
+          "selector": "header nav :is(a, button)"
+        },
+        {
+          "conditions": [],
+          "declarations": {
+            "font-family": {
+              "important": "important",
+              "value": "var(--ui-font)"
+            },
+            "letter-spacing": {
+              "important": "important",
+              "value": "var(--ui-tracking)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/62feaa671436e580.css",
+          "order": 567,
+          "selector": "body :not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *))"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": {
+            "font-size": {
+              "important": "important",
+              "value": "var(--ui-nav-size)"
+            },
+            "font-weight": {
+              "important": "important",
+              "value": "var(--ui-weight-label)"
+            },
+            "line-height": {
+              "important": "important",
+              "value": "var(--ui-label-line)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/62feaa671436e580.css",
+          "order": 643,
+          "selector": "body nav :is(a, a[class], button, button[class]):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *))"
+        },
+        {
+          "conditions": [],
+          "declarations": {
+            "color": {
+              "important": "",
+              "value": "inherit"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/72fa906fe7bb2c89.css",
+          "order": 1021,
+          "selector": "a"
+        },
+        {
+          "conditions": [],
+          "declarations": {
+            "border-radius": {
+              "important": "",
+              "value": "var(--ui-control-radius)"
+            },
+            "color": {
+              "important": "",
+              "value": "var(--lp-muted)"
+            },
+            "font-size": {
+              "important": "",
+              "value": "var(--ui-helper-size)"
+            },
+            "font-weight": {
+              "important": "",
+              "value": "var(--ui-weight-label)"
+            },
+            "min-height": {
+              "important": "",
+              "value": "44px"
+            },
+            "padding-top": {
+              "important": "",
+              "value": "10px"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2502,
+          "selector": ".premium_system__eP7XW .premium_desktopNav__BdVX2 a"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": {
+            "font-family": {
+              "important": "important",
+              "value": "var(--uds-font)"
+            },
+            "letter-spacing": {
+              "important": "important",
+              "value": "var(--uds-tracking)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2670,
+          "selector": ".universal-pilot_pilot__WJASu.universal-pilot_pilot__WJASu :is(h1, h2, h3, h4, p, small, label, summary, button, a, b, strong, span, input, select, textarea):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *)):not(:has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography=\"document\"]))"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": {
+            "color": {
+              "important": "",
+              "value": "var(--uds-ink)"
+            },
+            "font-size": {
+              "important": "important",
+              "value": "var(--uds-nav-size)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2702,
+          "selector": ".universal-pilot_pilot__WJASu.universal-pilot_pilot__WJASu > header a"
+        }
+      ],
+      "selector": "header a[href=\"#services\"]"
+    },
+    "orbit": {
+      "computed": {
+        "background-color": "rgb(255, 255, 255)",
+        "border-radius": "12px",
+        "color": "rgb(23, 43, 69)",
+        "font-family": "Inter, ui-sans-serif, system-ui, sans-serif",
+        "font-size": "16px",
+        "font-weight": "400",
+        "letter-spacing": "normal",
+        "line-height": "24.8px",
+        "min-height": "auto",
+        "padding-top": "24px",
+        "width": "561.953px"
+      },
+      "matches": [
+        {
+          "conditions": [],
+          "declarations": {
+            "font-family": {
+              "important": "important",
+              "value": "var(--ui-font)"
+            },
+            "letter-spacing": {
+              "important": "important",
+              "value": "var(--ui-tracking)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/62feaa671436e580.css",
+          "order": 567,
+          "selector": "body :not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *))"
+        },
+        {
+          "conditions": [],
+          "declarations": {
+            "border-radius": {
+              "important": "",
+              "value": "var(--ui-card-radius)"
+            },
+            "padding-top": {
+              "important": "",
+              "value": "18px"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2552,
+          "selector": ".premium_heroVisual__55FnU"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": {
+            "border-radius": {
+              "important": "",
+              "value": "var(--uds-card-radius)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2685,
+          "selector": ".universal-pilot_pilot__WJASu.universal-pilot_pilot__WJASu [data-uds=\"card\"], .universal-pilot_pilot__WJASu.universal-pilot_pilot__WJASu [data-uds=\"visual\"]"
+        }
+      ],
+      "selector": "[data-uds=\"visual\"]"
+    },
+    "paragraph": {
+      "computed": {
+        "background-color": "rgba(0, 0, 0, 0)",
+        "border-radius": "0px",
+        "color": "rgb(100, 116, 139)",
+        "font-family": "Inter, \"Inter Fallback\", ui-sans-serif, system-ui, sans-serif",
+        "font-size": "16px",
+        "font-weight": "400",
+        "letter-spacing": "normal",
+        "line-height": "24px",
+        "min-height": "0px",
+        "padding-top": "0px",
+        "width": "444.125px"
+      },
+      "matches": [
+        {
+          "conditions": [],
+          "declarations": {
+            "font-family": {
+              "important": "important",
+              "value": "var(--ui-font)"
+            },
+            "letter-spacing": {
+              "important": "important",
+              "value": "var(--ui-tracking)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/62feaa671436e580.css",
+          "order": 567,
+          "selector": "body :not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *))"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": {
+            "font-size": {
+              "important": "important",
+              "value": "var(--ui-body-size)"
+            },
+            "font-weight": {
+              "important": "important",
+              "value": "var(--ui-weight-regular)"
+            },
+            "line-height": {
+              "important": "important",
+              "value": "var(--ui-body-line)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/62feaa671436e580.css",
+          "order": 618,
+          "selector": "body :is(p, p[class], li, li[class], blockquote, blockquote[class], dd, dd[class]):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *))"
+        },
+        {
+          "conditions": [],
+          "declarations": {
+            "color": {
+              "important": "",
+              "value": "var(--lp-muted)"
+            },
+            "font-size": {
+              "important": "",
+              "value": "var(--ui-lead-size,1.0625rem)"
+            },
+            "line-height": {
+              "important": "",
+              "value": "var(--ui-lead-line)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2537,
+          "selector": ".premium_heroSub__A1Ym7"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": {
+            "font-family": {
+              "important": "important",
+              "value": "var(--uds-font)"
+            },
+            "letter-spacing": {
+              "important": "important",
+              "value": "var(--uds-tracking)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2670,
+          "selector": ".universal-pilot_pilot__WJASu.universal-pilot_pilot__WJASu :is(h1, h2, h3, h4, p, small, label, summary, button, a, b, strong, span, input, select, textarea):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *)):not(:has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography=\"document\"]))"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": {
+            "color": {
+              "important": "",
+              "value": "var(--uds-muted)"
+            },
+            "font-size": {
+              "important": "important",
+              "value": "var(--uds-body-size)"
+            },
+            "font-weight": {
+              "important": "important",
+              "value": "var(--uds-body-weight)"
+            },
+            "line-height": {
+              "important": "important",
+              "value": "var(--uds-body-line)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2671,
+          "selector": ".universal-pilot_pilot__WJASu.universal-pilot_pilot__WJASu :is(p, small):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *))"
+        }
+      ],
+      "selector": "[data-uds=\"hero\"] p"
+    },
+    "primary": {
+      "computed": {
+        "background-color": "rgb(8, 127, 118)",
+        "border-radius": "10px",
+        "color": "rgb(255, 255, 255)",
+        "font-family": "Inter, \"Inter Fallback\", ui-sans-serif, system-ui, sans-serif",
+        "font-size": "14px",
+        "font-weight": "600",
+        "letter-spacing": "normal",
+        "line-height": "21.7px",
+        "min-height": "46px",
+        "padding-top": "9px",
+        "width": "207.297px"
+      },
+      "matches": [
+        {
+          "conditions": [],
+          "declarations": {
+            "font-family": {
+              "important": "important",
+              "value": "var(--ui-font)"
+            },
+            "letter-spacing": {
+              "important": "important",
+              "value": "var(--ui-tracking)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/62feaa671436e580.css",
+          "order": 567,
+          "selector": "body :not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *))"
+        },
+        {
+          "conditions": [],
+          "declarations": {
+            "color": {
+              "important": "",
+              "value": "inherit"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/72fa906fe7bb2c89.css",
+          "order": 1021,
+          "selector": "a"
+        },
+        {
+          "conditions": [],
+          "declarations": {
+            "border-radius": {
+              "important": "",
+              "value": "var(--ui-control-radius)"
+            },
+            "font-size": {
+              "important": "",
+              "value": "var(--ui-helper-size)"
+            },
+            "font-weight": {
+              "important": "",
+              "value": "var(--ui-weight-heading)"
+            },
+            "line-height": {
+              "important": "",
+              "value": "var(--ui-body-line)"
+            },
+            "min-height": {
+              "important": "",
+              "value": "var(--ui-control-height)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2539,
+          "selector": ".premium_btnNavyOutline__cdEFK, .premium_ghostCta__icd6P, .premium_goldCta__pM4_g, .premium_whiteCta__gBN0I"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": {
+            "color": {
+              "important": "",
+              "value": "var(--ui-inverse)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2540,
+          "selector": ".premium_goldCta__pM4_g"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": {
+            "font-family": {
+              "important": "important",
+              "value": "var(--uds-font)"
+            },
+            "letter-spacing": {
+              "important": "important",
+              "value": "var(--uds-tracking)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2670,
+          "selector": ".universal-pilot_pilot__WJASu.universal-pilot_pilot__WJASu :is(h1, h2, h3, h4, p, small, label, summary, button, a, b, strong, span, input, select, textarea):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *)):not(:has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography=\"document\"]))"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": {
+            "border-radius": {
+              "important": "",
+              "value": "var(--uds-button-radius)"
+            },
+            "font-size": {
+              "important": "important",
+              "value": "var(--uds-button-size)"
+            },
+            "font-weight": {
+              "important": "important",
+              "value": "var(--uds-button-weight)"
+            },
+            "min-height": {
+              "important": "",
+              "value": "var(--uds-button-height)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2691,
+          "selector": ".universal-pilot_pilot__WJASu.universal-pilot_pilot__WJASu :is([data-uds=\"button-primary\"], [data-uds=\"button-secondary\"])"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": {
+            "color": {
+              "important": "",
+              "value": "var(--uds-primary-text)"
+            },
+            "min-height": {
+              "important": "",
+              "value": "var(--uds-primary-height)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2692,
+          "selector": ".universal-pilot_pilot__WJASu.universal-pilot_pilot__WJASu [data-uds=\"button-primary\"]"
+        }
+      ],
+      "selector": "[data-uds=\"button-primary\"]"
+    },
+    "secondary": {
+      "computed": {
+        "background-color": "rgb(255, 255, 255)",
+        "border-radius": "10px",
+        "color": "rgb(24, 40, 61)",
+        "font-family": "Inter, \"Inter Fallback\", ui-sans-serif, system-ui, sans-serif",
+        "font-size": "14px",
+        "font-weight": "600",
+        "letter-spacing": "normal",
+        "line-height": "21.7px",
+        "min-height": "46px",
+        "padding-top": "9px",
+        "width": "189.328px"
+      },
+      "matches": [
+        {
+          "conditions": [],
+          "declarations": {
+            "font-family": {
+              "important": "important",
+              "value": "var(--ui-font)"
+            },
+            "letter-spacing": {
+              "important": "important",
+              "value": "var(--ui-tracking)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/62feaa671436e580.css",
+          "order": 567,
+          "selector": "body :not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *))"
+        },
+        {
+          "conditions": [],
+          "declarations": {
+            "color": {
+              "important": "",
+              "value": "inherit"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/72fa906fe7bb2c89.css",
+          "order": 1021,
+          "selector": "a"
+        },
+        {
+          "conditions": [],
+          "declarations": {
+            "border-radius": {
+              "important": "",
+              "value": "var(--ui-control-radius)"
+            },
+            "font-size": {
+              "important": "",
+              "value": "var(--ui-helper-size)"
+            },
+            "font-weight": {
+              "important": "",
+              "value": "var(--ui-weight-heading)"
+            },
+            "line-height": {
+              "important": "",
+              "value": "var(--ui-body-line)"
+            },
+            "min-height": {
+              "important": "",
+              "value": "var(--ui-control-height)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2539,
+          "selector": ".premium_btnNavyOutline__cdEFK, .premium_ghostCta__icd6P, .premium_goldCta__pM4_g, .premium_whiteCta__gBN0I"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": {
+            "color": {
+              "important": "",
+              "value": "var(--lp-ink)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2544,
+          "selector": ".premium_btnNavyOutline__cdEFK, .premium_ghostCta__icd6P"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": {
+            "color": {
+              "important": "",
+              "value": "var(--lp-ink)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2546,
+          "selector": ".premium_heroNavy__OsWxs .premium_ghostCta__icd6P"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": {
+            "font-family": {
+              "important": "important",
+              "value": "var(--uds-font)"
+            },
+            "letter-spacing": {
+              "important": "important",
+              "value": "var(--uds-tracking)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2670,
+          "selector": ".universal-pilot_pilot__WJASu.universal-pilot_pilot__WJASu :is(h1, h2, h3, h4, p, small, label, summary, button, a, b, strong, span, input, select, textarea):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography=\"document\"], [data-typography=\"document\"] *)):not(:has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography=\"document\"]))"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": {
+            "border-radius": {
+              "important": "",
+              "value": "var(--uds-button-radius)"
+            },
+            "font-size": {
+              "important": "important",
+              "value": "var(--uds-button-size)"
+            },
+            "font-weight": {
+              "important": "important",
+              "value": "var(--uds-button-weight)"
+            },
+            "min-height": {
+              "important": "",
+              "value": "var(--uds-button-height)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2691,
+          "selector": ".universal-pilot_pilot__WJASu.universal-pilot_pilot__WJASu :is([data-uds=\"button-primary\"], [data-uds=\"button-secondary\"])"
+        },
+        {
+          "conditions": "[Circular]",
+          "declarations": {
+            "color": {
+              "important": "",
+              "value": "var(--uds-ink)"
+            }
+          },
+          "href": "https://gcc-mentor-gxqwicjb1-satishs-projects-c02c354b.vercel.app/_next/static/css/c4ef0cfee811ceeb.css",
+          "order": 2694,
+          "selector": ".universal-pilot_pilot__WJASu.universal-pilot_pilot__WJASu [data-uds=\"button-secondary\"]"
+        }
+      ],
+      "selector": "[data-uds=\"button-secondary\"]"
+    }
+  },
+  "width": 1363
+}

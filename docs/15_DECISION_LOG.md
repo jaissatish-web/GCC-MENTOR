@@ -2004,3 +2004,12 @@ Founder requests a first live release of some completed tools, a to-do/status li
 
 ## 4 November 2026 — Premium design reference gate
 Founder approves restrained white/navy/teal Inter system and shared tool architecture, with hub + Working Days Calculator as initial reference. First PR waits for visual approval; later approved batches may auto-merge green required checks. Protected business/calculation/auth/API/data/template logic and URLs unchanged. Remaining tools and SaaS migration follow approval, not an automatic sitewide theme change.
+
+## 10 November 2026 — Universal website design settings
+Founder authorized Executive Slate & Teal responsive design foundation, existing-admin design preview and landing pilot. Resume document design is independent and immutable in this task. Draft/publish must be distinct; no unapproved backend/schema work. Founder visual approval required before merge/production and remaining-page migration.
+
+## 11 November 2026 — Audit cascade before continuing PR79
+Founder requires actual computed/winning-selector audit and consolidation, not another override layer. UDS owns migrated UI styling; component CSS owns layout. Preserve all functionality/animations and immutable resume design/render/PDF. Keep PR unmerged until visual verification and founder approval.
+
+## 11 November 2026 — PR79 recovery
+Founder authorizes root-cause audit and bounded website theme repairs only. Publishing remains proposal-only; strict orbit failures must remain visible; no protected renderer edits, merge, production change or V2 redesign.

@@ -45,7 +45,7 @@ try {
   for(const fixture of fixtures) {
    const variants={}
    for(const [phase,build] of Object.entries(builds)) {
-    const markup=phase==='before'&&fixture.kind==='letter'?fixture.markup.replace(' data-typography="document"',''):fixture.markup
+    const markup=fixture.markup // Compare the same authored document boundary in both current builds.
     const content=fixture.kind==='resume'?`<div data-document-preview><div id="resume-render" style="width:794px">${markup}</div></div>`:markup
     await page.setContent(`<html><head><style>${build.css}</style></head><body class="${build.classes} app-type internal-ui">${content}</body></html>`)
     await page.evaluate(()=>document.fonts.ready)
