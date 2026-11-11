@@ -109,3 +109,15 @@ Source review caught two remaining conflicts before final verification: the sepa
 The first broad CI run also caught hero clipping at 200% text size on 360px. The old generic long-word wrapping rule had been correctly opted out but its behavior was missing from migrated defaults. Restored `overflow-wrap:anywhere` in the existing zero-specificity document-free website policy; the enlarged-text regression assertion is preserved.
 
 Independent setting checks confirmed font, responsive type, radius, padding, spacing and height but caught primary-color timing under reduced motion: the old pilot disabled CTA transitions while the component owner still animated background for160ms. Restored that reduced-motion behavior in the existing component media rule, retaining normal animations and immediate reduced-motion preview updates.
+
+## Verification checkpoint
+
+Application/test head06c7c05; final visual run42954072144 is the authoritative
+rerun for wrapping and reduced-motion corrections. Prior run42952841447 retained
+all six widths and before/after matched-rule/computed reports. At390/1440, sampled
+hero/headings/body/CTA/card/nav/kicker/select design declarations no longer match
+important enforcement. Original orbit UI typography and document-facing root
+metrics are retained. All64documentfixtures (128states) and12PDFs match original
+main in that prior run. Exact mounted runtime geometry remains a blocking gate;
+see RESUME.md and current-orbit/original-orbit diagnostic JSON. No rendering code
+or exact-comparison threshold was changed to achieve a pass.

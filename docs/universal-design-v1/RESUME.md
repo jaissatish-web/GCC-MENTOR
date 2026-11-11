@@ -56,3 +56,30 @@ blocking gate until tested again; never change renderer code or weaken checks.
 Keep PR #79 DRAFT/UNMERGED and production unchanged. No persistent publishing,
 authentication/environment or database changes are authorized. Backend/storage
 publishing proposal still requires separate approval.
+
+### Current cascade verification references
+
+Application/test head: `06c7c05f15419d20db26ebbbc854a936e69b324e`.
+Final visual job: https://github.com/jaissatish-web/GCC-MENTOR/actions/runs/42954072144
+Read that run's completed outcome and artifact before making any release claim.
+Preview: https://gcc-mentor-dtpz24kox-satishs-projects-c02c354b.vercel.app/
+
+Previous b58ff18 visual run42952841447, artifact13826131370, established:
+- Six default widths and 16px minimum select text pass; all screenshots reviewed.
+- Arial propagates across hero/kicker/body/actions/cards/navigation. Mobile heading,
+  radius, padding, desktop spacing and button-height changes pass independently.
+- 64 authored documents at390/1440 and12PDFs match original main exactly.
+- Primary color was measured before an unwanted reduced-motion transition settled;
+  component-owned reduced-motion behavior has since been restored for final rerun.
+- Broader mobile CI caught 200% hero clipping; migrated wrapping is restored for rerun.
+- Strict mounted baselines fail to settle at390/1440 before any theme change.
+  Exact original main was stable at390 but unstable at1440 in the diagnostic.
+  The desktop original clinical_care zoom repeatedly crosses an integer-height
+  measurement boundary. Do not generalize this to all current failures without
+  comparing current first/final snapshots in the final artifact.
+
+No protected renderer edit or justified website-only correction to the remaining
+native zoom feedback has been made. Changing preview zoom, measurement, height
+or containment requires separate explicit founder approval. Keep the strict test
+and release block intact. Authenticated admin verification and publishing/storage
+approval remain separate outstanding gates.

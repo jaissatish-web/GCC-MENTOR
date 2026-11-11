@@ -375,3 +375,5 @@ UNIVERSAL-DESIGN-V1 final local checks: production build, typecheck, lint and93/
 
 ## CASCADE-079 — 11 November 2026
 Approved audit-first consolidation in PR79. Source and actual desktop computed/matching evidence documented before code changes (docs/universal-design-v1/CASCADE_PLAN.md). Remove pilot override layer, migrate component-owned design declarations to UDS, scope old broad policies off migrated UI while preserving document ancestry and unmigrated SaaS. Protected renderer/templates/PDF/backend/auth unchanged; no merge until visual pass + founder approval.
+
+CASCADE-079 follow-up: removed pilot layer; UDS now owns migrated component design declarations, legacy policies opt out through document-safe guards. Corrected mono kicker policy, 16px selects, enlarged wrapping and reduced-motion CTA behavior. Local93checks/type/lint/build passed. Prior runtime64documents+12PDFs exact; mounted zoom stability remains blocking. Final application/testhead06c7c05 and visualrun42954072144 recorded in RESUME.md. No merge/production/publishing/protected rendering changes.
