@@ -47,6 +47,7 @@ try{
   const change=async(name,act,check)=>{
    console.log('Checking',width,name)
    await page.$$eval('button',es=>es.find(e=>e.textContent==='Reset to default').click());await frame.waitForFunction(()=>getComputedStyle(document.querySelector('[data-uds=button-primary]')).backgroundColor==='rgb(8, 127, 118)');
+   await frame.$eval('[data-uds=visual]',e=>e.scrollIntoView({behavior:'instant'}))
    await frame.waitForFunction(()=>document.querySelectorAll('.actual-template-orbit-face').length>=3)
    await frame.evaluate(n=>{const top=n==='radius28'||n==='spacing-plus24'?document.querySelector('#services').getBoundingClientRect().top+scrollY:0;scrollTo({top,behavior:'instant'})},name)
    await frame.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))))
