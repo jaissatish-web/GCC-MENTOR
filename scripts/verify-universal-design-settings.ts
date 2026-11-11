@@ -19,10 +19,10 @@ const malicious = { colors: { brand: '</style><script>alert(1)</script>' }, mobi
 assert.ok(!themeStyleText(malicious).includes('<'))
 assert.ok(!themeStyleText(malicious).includes('display:none'))
 const vars = themeVariables(DEFAULT_THEME) as Record<string,string>
-assert.equal(vars['--uds-brand'], '#087F76')
-assert.equal(vars['--uds-brand-rgb'], '8 127 118')
+assert.equal(vars['--uds-brand'], DEFAULT_THEME.colors.brand)
+assert.equal(vars['--uds-brand-rgb'], '0 127 120')
 assert.equal(vars['--uds-mobile-hero-size'], '2.25rem')
-assert.equal(vars['--uds-desktop-landing-gap'], '96px')
+assert.equal(vars['--uds-desktop-landing-gap'], DEFAULT_THEME.desktop.landingGap+'px')
 assert.ok(Object.keys(vars).every(key => key.startsWith('--uds-')), 'No existing resume/UI token is overwritten')
 assert.ok(contrastRatio(DEFAULT_THEME.colors.ink, DEFAULT_THEME.colors.canvas) >= 4.5)
 assert.ok(contrastRatio(DEFAULT_THEME.colors.primaryText, DEFAULT_THEME.colors.brand) >= 4.5)

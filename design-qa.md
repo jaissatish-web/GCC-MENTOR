@@ -1,28 +1,27 @@
-# Soft indigo design QA — 25 October 2026
+# Premium Landing V2 visual acceptance
 
-final result: passed
+Source truth: founder-approved19828.png full mobile,19829.png desktop,19830–19833.png detailed mobile. Original source pixels:512×1536,513×1536,512×1536,513×1536,672×1536,512×1536. These are compressed composition illustrations, not literal browser viewport captures. CSS targets390×900 and1440×900, deviceScaleFactor1; comparisons normalize column width, not entire-page height. Interactive/content states differ as explicitly documented below.
 
-## Target, scope and evidence
-Satish selected the typography, colour, theme and button design of SkillDrift sign-in. This is a presentation adaptation, not a clone of its content, illustration or passwordless authentication. Source: design-reference/soft-indigo/reference-signin.jpg; implementation: auth-desktop.jpg in the same folder. Both browser screenshots1363x936 pixels/CSS viewport, density1. Source has OTP/social sign-in; implementation intentionally preserves GCC Mentor password fields, routes, content and logo. No new raster asset was required for the requested theme/type/button scope; existing real product imagery and line icons remain.
+Implementation: artifacts/premium-landing-v2/landing-{360,390,430,768,1024,1440}.png, plus section crops. Combined full-view and focused comparisons are included in the delivery report.
 
-Full-view comparison: design-reference/soft-indigo/auth-comparison.jpg,2726x976 pixel board (two1363px captures plus labels), viewed together. Focused form comparison: auth-controls-comparison.jpg, two480x465 crops at native scale, viewed together. Accepted mobile auth/dashboard/report captures: auth-mobile.jpg, dashboard-mobile.jpg, report-mobile.jpg,391x844 crops from the same390x844 iframe plus fractional browser edge, no resizing. Browser review also inspected loaded desktop landing with10 actual template faces and desktop dashboard; accepted visual state, no horizontal overflow. Not a pixel-identical recreation claim.
+## Findings
+- P1 release blocker, inherited: exact mounted document orbit geometry stability gate fails before theme-equivalence can be established. Protected fitting/rendering source and strict comparison thresholds remain unchanged. Standalone authored document comparison passes64cases; that is not a substitute for mounted stability.
+- Expected protected-component deviation: real interactive dot globe retained instead of substituting a static photoreal globe from artwork.
+- Expected truthful-content deviation: real founder portrait; full existingFAQ and service destinations; verified access categories without invented prices/statistics/endorsements.
+- Expected functional-content deviation: actual interactive interview demo retains selectors, feedback and progress, so its section is taller than the static illustration. It is labelled Sample demonstration; no recording/evaluation backend added.
+- Remaining visual acceptance: founder must review actual implementation. Desktop separates four service highlights from orbit copy and places industry tiles after interview; artwork integrates tool copy beside orbit and places industries first. This is still a composition difference, not an exact clone.
 
-## Required fidelity surfaces
-- Typography: bundled Inter; auth title26px/800, desktop story40px/800, body16px/400, helper14px,16px inputs and action labels. Internal compact24/28px H1 remains, now800; lower headings600. Heading tracking and line height configured centrally. Body and longer feedback remain regular. Source family/weight/size checked against rendered styles.
-- Spacing/layout: selected1.1fr/1fr auth composition and460px form measure,32px desktop card inset,24px outer corners,12px controls. Mobile form comes first with16–20px gutters; action targets remain44–48px. Shared workspaces use restrained group cards and flat nested rows.
-- Colours: measured primary91/96/241, plum43/38/64 and lavender238/242/255 confirmed in the browser. Near-white surfaces252/252/253, secondary88/82/122, border226/224/235. Deeper indigo is used for small text on lavender; primary white-on-indigo contrast4.79:1. Red/amber/green statuses remain independent.
-- Assets: existing GCC identity and actual resume/interviewer visuals retained. No competitor branding or illustration copied. Document previews intentionally keep their authored palettes and fonts.
-- Copy/content: existing service facts, authentication instructions, destinations and action labels retained. No new product promises or fabricated statistics.
+## Comparison history
+1. Initial rendered capture: small existing interviewer thumbnail did not reproduce the reference emphasis. Enlarged portrait and two-column desktop presentation while retaining all behavior. Mobile selectors truncated; changed mobile grid to one full interviewer row plus two controls. Portrait top clipped; adjusted object-position.
+2. Actual orbit preserved; added decorative transparent gold/teal halo outside document internals. No changes to transforms, animation timing or document fitting.
+3. Desktop hero engineer helmet clipped in initial capture; corrected image crop to top alignment.
 
-## Findings and iteration history
-1. P1 first auth capture still showed navy due to a late globals.css palette plus responsive root redeclarations. Removed obsolete palette/type ownership from globals/mobile/desktop styles. Final auth-desktop.jpg and both comparison boards confirm exact indigo/plum/lavender values and intended typography.
-2. P2 framed mobile report pushed Practise again below844px. Kept the framed card but removed duplicate header inset, tightened icon gaps and reduced score-area padding. Report-mobile.jpg shows both primary controls fully visible; final Career Studio29 responsive/state checks passed, preserving its above-fold assertion.
-3. P2 removing duplicated typography revealed a legacy journey-guide alias. Restored that alias in the central typography file; source token-resolution regression passed. Existing code-owned roles now resolve in one system.
-No actionable P0/P1/P2 remains in inspected representative states. P3: an original GCC illustration could be explored separately; outside this requested theme/type/button scope.
+## Required surfaces
+Typography uses existing UDS responsive roles,36/44/52px hero and existing font choices; heading weight700, balanced wrapping. Navy/teal/light surfaces and restrained gold map to existing semantic tokens. Spacing remains configurable per breakpoint; no added stylesheet or token system. Images are WebP brand illustrations; authentic founder portrait and exact country SVGs. No fake figures or endorsement logos.
 
-## Interaction and verification
-Cloud browser: desktop/mobile auth presentation and show/hide-password control, loaded landing, desktop/mobile workspace, mobile services drawer open/close. No credentials entered or authentication submitted. Console review saw extension-origin metadata errors, no app-origin errors in inspected state. Local review uses actual built UI plus fictional APIs; sign-in adapter disables submission.
+## Verification
+Browser controls: mobile menu open/Escape/focus return/anchor close;13preserved service destinations inventoried; FAQ/service disclosure; three interview states/interviewer selection; globe country selection. 200%text390px no horizontal overflow. Page errors checked. These are anonymous presentation checks, not authenticated SaaS end-to-end testing.
 
-Completed: typecheck/lint, all80/80 repository checks, final production build, independent scoped palette/layout/control/document-isolation checks320/390/768/1440; production-CSS mobile/enlarged typography/reflow; Career Studio29 responsive/state checks including optimistic profile save/interview answer submission/report; actual profile CTA/WhatsApp selection alignment320/390/768/1440; universal typography propagation/document isolation. Assertions updated only for explicitly approved palette/type roles; overflow, document isolation and interaction assertions retained.
+final result: blocked
 
-Protected directories app/api,lib,types,supabase,components/templates,components/resume have no changes. No dependency/auth/scoring/prompt/data/export changes. No performance benchmark or live customer persistence/auth/provider certification claimed. Required GitHub CI, main merge and exact Vercel production/browser checks remain separate release gates; see PR release record.
+Release is blocked by inherited mounted-orbit stability and pending founder acceptance. Do not merge PR78/79/V2 or publish production.

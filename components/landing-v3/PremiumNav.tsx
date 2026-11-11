@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowUpRight } from 'lucide-react'
+import { ArrowUpRight, Waves } from 'lucide-react'
 import { LandingSectionMenu } from './LandingSectionMenu'
 import p from './premium.module.css'
 
@@ -7,7 +7,7 @@ export function PremiumNav({ anchors }: { anchors: ReadonlyArray<readonly [strin
   return <header className={p.header}>
     <a href="#main-content" className={p.skipLink}>Skip to content</a>
     <div className={p.navInner}>
-      <Link href="/" className={p.brand} aria-label="GCC Mentor home"><span className={p.brandMark}>G</span><span>GCC <b>MENTOR</b></span></Link>
+      <Link href="/" className={p.brand} aria-label="GCC Mentor home"><span className={p.brandMark}><Waves size={31} aria-hidden="true" /></span><span>GCC <b>MENTOR</b></span></Link>
       <nav aria-label="Page sections" className={p.desktopNav}><Link href="/tools">Free Tools</Link>{anchors.map(([label, href]) => <a key={href} href={href}>{label}</a>)}</nav>
       <div className={p.navActions}><Link href="/login" className={p.signIn}>Sign in</Link><Link href="/gulf-readiness-score" className={p.navCta}>Check free readiness <ArrowUpRight size={16} aria-hidden="true" /></Link><LandingSectionMenu anchors={anchors} /></div>
     </div>
