@@ -204,4 +204,4 @@
   .featureCard { min-height: 88px; gap: 4px 12px; }
   .faqItem summary { gap: 16px; }
 }
-@media(prefers-reduced-motion:reduce) { .system * { scroll-behavior: auto; } .featureCard,.faqPlus { transition: none; } }
+@media(prefers-reduced-motion:reduce) { .system * { scroll-behavior: auto; } .featureCard,.faqPlus,.goldCta,.ghostCta,.whiteCta,.btnNavyOutline,.navCta { transition: none; } .goldCta:hover,.ghostCta:hover,.whiteCta:hover,.btnNavyOutline:hover,.navCta:hover { transform:none; } }
