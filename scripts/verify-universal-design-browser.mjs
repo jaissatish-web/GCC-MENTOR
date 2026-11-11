@@ -119,7 +119,7 @@ try {
     await page.evaluate(() => scrollTo(0,0))
     const state = await page.evaluate(() => {
       const style = value => getComputedStyle(document.querySelector(`[data-uds="${value}"]`))
-      return {overflow:document.documentElement.scrollWidth > innerWidth+1,hero:style('hero-title').fontSize,cardRadius:style('card').borderRadius,cardPadding:style('card').paddingTop,buttonHeight:style('button-secondary').minHeight,primaryHeight:style('button-primary').minHeight,section:style('section').paddingTop,orbitCount:document.querySelectorAll('.actual-template-orbit-face').length,globe:!!document.querySelector('#markets-title')}
+      return {overflow:document.documentElement.scrollWidth > innerWidth+1,hero:style('hero-title').fontSize,cardRadius:style('card').borderRadius,cardPadding:style('card').paddingTop,buttonHeight:style('button-secondary').minHeight,primaryHeight:style('button-primary').minHeight,section:style('section').paddingTop,orbitCount:document.querySelectorAll('.actual-template-orbit-face').length,globe:!!document.querySelector('#markets-title'),selectFonts:[...document.querySelectorAll('select')].map(e=>parseFloat(getComputedStyle(e).fontSize))}
     })
     const device = width<768 ? 'mobile' : width<1024 ? 'tablet' : 'desktop'
     await page.screenshot({path:`${output}/landing-${width}.png`,fullPage:true})
@@ -132,6 +132,7 @@ try {
     assert.equal(state.primaryHeight,DEFAULT_THEME[device].primaryHeight+'px')
     assert.equal(state.section,DEFAULT_THEME[device].landingGap+'px')
     assert.ok(state.globe && state.orbitCount>=3,'Preserved landing experiences')
+    assert.ok(state.selectFonts.length>0 && state.selectFonts.every(size=>size>=16),'Accessible select text size')
     results.push({kind:'landing',width,...state,pass:true})
   })
   const prepareFrame = async width => {
@@ -159,10 +160,12 @@ try {
     await sendTheme(page,frame,theme)
     const state = await frame.evaluate(() => {
       const s = role => getComputedStyle(document.querySelector(`[data-uds="${role}"]`))
-      return {brand:s('button-primary').backgroundColor,hero:s('hero-title').fontSize,radius:s('card').borderRadius,padding:s('card').paddingTop,section:s('section').paddingTop,height:s('button-secondary').minHeight,overflow:document.documentElement.scrollWidth>innerWidth+1}
+      const fonts=Object.fromEntries(['[data-uds=hero-title]','[data-uds=kicker]','[data-uds=hero] p','[data-uds=button-primary]','[data-uds=card] h3','header nav a'].map(selector=>[selector,getComputedStyle(document.querySelector(selector)).fontFamily]));
+      return {fonts,brand:s('button-primary').backgroundColor,hero:s('hero-title').fontSize,radius:s('card').borderRadius,padding:s('card').paddingTop,section:s('section').paddingTop,height:s('button-secondary').minHeight,overflow:document.documentElement.scrollWidth>innerWidth+1}
     })
     // Persist every measured setting and screenshot before assertions, even when a setting fails.
     const checks = {
+      websiteFont:Object.values(state.fonts).every(font=>/^Arial(?:,|$)/i.test(font)),
       primaryColor:state.brand==='rgb(89, 70, 163)',
       mobileHeading:state.hero===(width<768 ? 40 : DEFAULT_THEME.desktop.heroSize)+'px',
       cardRadius:state.radius==='20px',

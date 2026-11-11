@@ -57,6 +57,8 @@ const phase=(process.env.QA_PHASE??'after').replace(/[^a-z0-9_-]/gi,'-'),out=res
 mkdirSync(out,{recursive:true})
 const properties=['font-family','font-size','font-weight','font-style','line-height','letter-spacing','color','background-color','border-radius','border-top-width','border-top-color','box-shadow','padding-top','padding-right','padding-bottom','padding-left','margin-top','margin-bottom','width','max-width','height','min-height','gap','display','position','overflow-x','transform','zoom','--ui-font','--uds-font','--ui-body-size','--uds-body-size','--ui-brand-rgb','--uds-brand-rgb']
 const targets={
+  kicker:'[data-uds="hero"] [data-uds="kicker"]',
+  select:'select',
   hero:'#hero-title',
   title:'#hero-title span',
   h2:'#services h2',

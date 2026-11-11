@@ -103,3 +103,5 @@ unapproved screens and risk document inheritance.
 Full runtime verification remains a release gate. Static compilation or a source
 exclusion alone does not prove mounted resume/PDF equivalence. See CI evidence
 and RESUME.md for current results; do not merge or deploy while any gate fails.
+
+Source review caught two remaining conflicts before final verification: the separate legacy Plex Mono/kicker policy had no migration opt-out, and InterviewDemo select base/mobile styles restored a 13px font after removing the pilot. The existing mono policy is now scoped out of migrated document-free UI while preserving original document behavior. The actual select owner now uses the centralized input height and a 16px minimum text size; its duplicate mobile font declaration is removed. Browser tests explicitly verify switched fonts across hero/kicker/body/buttons/cards/navigation and input text size.
