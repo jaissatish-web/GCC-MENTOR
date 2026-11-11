@@ -109,6 +109,11 @@ jobs:
       - name: Capture six landing widths and verify live preview settings
         if: ${{ !cancelled() && steps.changed_build.outcome == 'success' }}
         run: node scripts/verify-universal-design-browser.mjs
+      - name: Capture approved V2 responsive presentation and interactions
+        if: ${{ !cancelled() && steps.changed_build.outcome == 'success' }}
+        run: |
+          node scripts/verify-premium-landing-v2.mjs
+          node scripts/verify-orbit-depth.mjs
       - name: Verify actual admin component and independent recovery settings
         if: ${{ !cancelled() && steps.changed_build.outcome == 'success' }}
         run: node scripts/verify-universal-design-recovery.mjs
@@ -135,5 +140,7 @@ jobs:
             artifacts/typography-documents
             artifacts/cascade-audit
             artifacts/recovery-079
+            artifacts/premium-landing-v2
+            artifacts/orbit-depth
           if-no-files-found: warn
           retention-days: 14

@@ -2013,3 +2013,8 @@ Founder requires actual computed/winning-selector audit and consolidation, not a
 
 ## 11 November 2026 — PR79 recovery
 Founder authorizes root-cause audit and bounded website theme repairs only. Publishing remains proposal-only; strict orbit failures must remain visible; no protected renderer edits, merge, production change or V2 redesign.
+
+## 11 November 2026 — Founder approves Premium Landing Page V2 implementation
+Six selected reference images are the primary specification. Separate draft branch/preview authorized; main/PR78/79remain unmerged. All protected document/backend/animation behavior unchanged; visual browser verification mandatory, no build-only completion.
+
+11November2026 — Founder approves V2 preview eb2ff78 for main subject to passing required CI and final verification; PR79 must not merge separately. Approves front/rear decorative orbit occlusion with protected document/animation logic untouched. Stop for approval if those protected systems require changes.

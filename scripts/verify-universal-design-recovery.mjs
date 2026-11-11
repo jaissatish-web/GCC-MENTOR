@@ -46,7 +46,7 @@ try{
   await page.setViewport({width:2200,height:1000});await page.goto(origin+'/__qa_admin',{waitUntil:'networkidle0'});await page.waitForSelector('iframe');const device=width===390?'Mobile':'Desktop';await page.$$eval('button',(es,t)=>es.find(e=>e.textContent===t).click(),device);let frame=await (await page.$('iframe')).contentFrame();await frame.waitForSelector('#hero-title');await frame.$eval('#markets',e=>e.scrollIntoView());await frame.waitForSelector('#markets-title');await frame.evaluate(()=>scrollTo(0,0));
   const change=async(name,act,check)=>{
    console.log('Checking',width,name)
-   await page.$$eval('button',es=>es.find(e=>e.textContent==='Reset to default').click());await frame.waitForFunction(()=>getComputedStyle(document.querySelector('[data-uds=button-primary]')).backgroundColor==='rgb(8, 127, 118)');
+   await page.$$eval('button',es=>es.find(e=>e.textContent==='Reset to default').click());await frame.waitForFunction(()=>getComputedStyle(document.querySelector('[data-uds=button-primary]')).backgroundColor==='rgb(0, 127, 120)');
    await frame.$eval('[data-uds=visual]',e=>e.scrollIntoView({behavior:'instant'}))
    await frame.waitForFunction(()=>document.querySelectorAll('.actual-template-orbit-face').length>=3)
    await frame.evaluate(n=>{const top=n==='radius28'||n==='spacing-plus24'?document.querySelector('#services').getBoundingClientRect().top+scrollY:0;scrollTo({top,behavior:'instant'})},name)

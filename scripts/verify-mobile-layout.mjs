@@ -161,7 +161,7 @@ try {
       if (metrics.scroll > width + 1) await page.screenshot({path:'artifacts/typography/landing-overflow.png',fullPage:false})
       assert.ok(metrics.scroll <= width + 1, `Landing overflow at ${width}, enlarged=${enlarged}: ${JSON.stringify(metrics)}`)
       assert.ok(!metrics.clipped, `Clipped landing title at ${width}`)
-      assert.equal(metrics.weight, '600')
+      assert.equal(metrics.weight, '700')
       assert.ok(metrics.font.includes('Inter'), `Inter is not applied: ${metrics.font}`)
       const textScale = enlarged ? 2 : 1
       const expectedHero = (width >= 1024 ? 52 : width >= 768 ? 44 : 36) * textScale
@@ -169,7 +169,8 @@ try {
       assert.ok(Math.abs(metrics.size - expectedHero) < .02, 'Marketing hero uses its responsive display scale')
       assert.ok(Math.abs(metrics.sectionSize - expectedSection) < .02, 'Marketing sections use their responsive display scale')
       await page.screenshot({ path: `artifacts/typography/landing-${width}${enlarged ? '-enlarged' : ''}.png`, fullPage: true })
-      for (const selector of ['#challenges details', '#how-it-works']) {
+      assert.equal(await page.$$eval('#how-it-works ol > li', items => items.length), 3, 'Approved V2 journey remains visible with three connected stages')
+      for (const selector of ['details#challenges', '#services details']) {
         assert.equal(await page.$eval(selector, el => el.open), false, 'Landing disclosures start collapsed')
         await page.click(`${selector} > summary`)
         assert.equal(await page.$eval(selector, el => el.open), true, 'Summary expands content')
