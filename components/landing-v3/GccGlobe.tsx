@@ -421,15 +421,15 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
   const arrivalTo = arrival ? GCC.find((g) => g.code === arrival.to) : null
 
   return (
-    <div className={cn("relative overflow-hidden rounded-[20px] border border-line bg-white p-4 sm:p-6", compact ? "lg:p-6" : "lg:p-10")}>
+    <div data-uds="globe-card" className="relative overflow-hidden rounded-[var(--uds-card-radius,var(--ui-card-radius))] border-[length:var(--uds-border-width,1px)] border-[var(--uds-border,var(--ui-line))] bg-[var(--uds-surface,var(--ui-surface))] p-[var(--uds-card-padding,var(--ui-card-padding))]">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_70%_at_78%_50%,rgba(21,128,83,0.04),transparent_70%)]" aria-hidden="true" />
       <div className="relative grid grid-cols-[minmax(0,1fr)] items-center gap-3 lg:grid-cols-[0.8fr_1.2fr] lg:gap-8">
         <div className="order-2 lg:order-1">
-          <span className="font-semibold type-caption uppercase tracking-[0.08em] text-teal">Six Gulf markets</span>
-          <h2 id="markets-title" className="mt-2 type-marketing-title text-ink">
-            Six Gulf destinations.<br /><em className="not-italic text-teal">Your next chapter.</em>
+          <span className="font-[number:var(--uds-heading-weight,var(--ui-weight-heading))] text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))] tracking-[var(--uds-tracking,var(--ui-tracking))] text-[var(--uds-brand,var(--ui-brand))]">Six Gulf markets</span>
+          <h2 data-uds="globe-title" id="markets-title" className="mt-2 text-[length:var(--uds-marketing-size,var(--ui-marketing-size))] leading-[var(--uds-heading-line,var(--ui-heading-line))] font-[number:var(--uds-heading-weight,var(--ui-weight-heading))] text-[var(--uds-ink,var(--ui-ink))]">
+            Six Gulf destinations.<br /><em className="not-italic text-[var(--uds-brand,var(--ui-brand))]">Your next chapter.</em>
           </h2>
-          <p className="mt-2.5 max-w-[440px] type-lead text-ink-soft">
+          <p className="mt-2.5 max-w-[440px] text-[length:var(--uds-body-size,var(--ui-body-size))] leading-[var(--uds-body-line,var(--ui-body-line))] text-[var(--uds-muted,var(--ui-muted))]">
             Select a destination. Explore what to prepare.
           </p>
 
@@ -438,6 +438,7 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
               <li key={g.code}>
                 <button
                   type="button"
+                  data-uds="globe-country"
                   aria-pressed={focus === g.code}
 
 
@@ -445,38 +446,38 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
 
                   onClick={() => setFocus(g.code)}
                   className={cn(
-                    'grid min-h-14 w-full grid-cols-[24px_minmax(0,1fr)] items-center gap-1.5 rounded-[12px] px-2 text-left type-caption font-semibold ring-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal sm:gap-2 sm:px-3 ',
-                    focus === g.code ? 'bg-teal text-white ring-teal' : 'bg-canvas text-ink ring-line hover:ring-teal/50',
+                    'grid min-h-14 w-full grid-cols-[24px_minmax(0,1fr)] items-center gap-1.5 rounded-[var(--uds-button-radius,var(--ui-control-radius))] px-2 text-left text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))] font-[number:var(--uds-heading-weight,var(--ui-weight-heading))] ring-1 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--uds-brand,var(--ui-brand))] sm:gap-2 sm:px-3 ',
+                    focus === g.code ? 'bg-[var(--uds-brand,var(--ui-brand))] text-[var(--uds-primary-text,rgb(var(--ui-inverse-rgb)))] ring-[var(--uds-brand,var(--ui-brand))]' : 'bg-[var(--uds-canvas,var(--ui-canvas))] text-[var(--uds-ink,var(--ui-ink))] ring-[var(--uds-border,var(--ui-line))] hover:ring-[var(--uds-brand,var(--ui-brand))]',
                   )}
                 >
                   <Image src={gccDestinations.find((destination) => destination.country === (g.code === 'AE' ? 'United Arab Emirates' : g.country))!.src} alt="" aria-hidden="true" width={24} height={18} unoptimized className="h-[18px] w-6 shrink-0 rounded-sm object-cover" />
-                  <span className="min-w-0 text-xs leading-snug">{g.country}</span>
+                  <span className="min-w-0 text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))]">{g.country}</span>
                 </button>
               </li>
             ))}
           </ul>
 
           {/* Live card: the focused country, or the latest "landing". */}
-          <div className="mt-3 min-h-[76px] rounded-[16px] bg-canvas p-3.5 ring-1 ring-line lg:mt-4" aria-live={focus ? 'polite' : 'off'}>
+          <div className="mt-3 min-h-[76px] rounded-[var(--uds-card-radius,var(--ui-card-radius))] bg-[var(--uds-canvas,var(--ui-canvas))] p-[var(--uds-card-padding,var(--ui-card-padding))] ring-1 ring-[var(--uds-border,var(--ui-line))] lg:mt-4" aria-live={focus ? 'polite' : 'off'}>
             {focused ? (
               <>
-                <div className="font-semibold type-caption uppercase tracking-[0.08em] text-gold-ink">{focused.country} · preparation guidance</div>
-                <div className="mt-1 text-[15px] font-semibold text-ink">{focused.role}</div><p className="mt-2 text-[13px] leading-relaxed text-ink-soft">Match the role’s skills. Prepare your resume, qualification records and availability details. Confirm documentation requests with the employer.</p>
-                <div className="type-caption text-ink-muted">Resume, cover letter and interview prep made for {focused.country} jobs.</div>
+                <div className="font-[number:var(--uds-heading-weight,var(--ui-weight-heading))] text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))] tracking-[var(--uds-tracking,var(--ui-tracking))] text-[var(--uds-brand-hover,var(--ui-brand-hover))]">{focused.country} · preparation guidance</div>
+                <div className="mt-1 text-[length:var(--uds-body-size,var(--ui-body-size))] leading-[var(--uds-body-line,var(--ui-body-line))] font-[number:var(--uds-heading-weight,var(--ui-weight-heading))] text-[var(--uds-ink,var(--ui-ink))]">{focused.role}</div><p className="mt-2 text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))] text-[var(--uds-muted,var(--ui-muted))]">Match the role’s skills. Prepare your resume, qualification records and availability details. Confirm documentation requests with the employer.</p>
+                <div className="text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))] text-[var(--uds-muted,var(--ui-muted))]">Resume, cover letter and interview prep made for {focused.country} jobs.</div>
               </>
             ) : arrival && arrivalTo ? (
               <>
-                <div className="font-semibold flex items-center gap-2 type-caption uppercase tracking-[0.08em] text-teal">
-                  <span className="size-1.5 animate-glow-pulse rounded-full bg-teal" aria-hidden="true" />
+                <div className="font-[number:var(--uds-heading-weight,var(--ui-weight-heading))] flex items-center gap-2 text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))] tracking-[var(--uds-tracking,var(--ui-tracking))] text-[var(--uds-brand,var(--ui-brand))]">
+                  <span className="size-1.5 animate-glow-pulse rounded-full bg-[var(--uds-brand,var(--ui-brand))]" aria-hidden="true" />
                   Gulf career paths
                 </div>
-                <div className="mt-1 text-[15px] font-semibold text-ink">
+                <div className="mt-1 text-[length:var(--uds-body-size,var(--ui-body-size))] leading-[var(--uds-body-line,var(--ui-body-line))] font-[number:var(--uds-heading-weight,var(--ui-weight-heading))] text-[var(--uds-ink,var(--ui-ink))]">
                   {cityOf(arrival.from).name} → {arrivalTo.name}, {arrivalTo.country}
                 </div>
-                <div className="type-caption text-ink-muted">Prepare for {arrival.role} opportunities</div>
+                <div className="text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))] text-[var(--uds-muted,var(--ui-muted))]">Prepare for {arrival.role} opportunities</div>
               </>
             ) : (
-              <div className="type-helper text-ink-muted">Watch the routes — or pick a country.</div>
+              <div className="text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))] text-[var(--uds-muted,var(--ui-muted))]">Watch the routes — or pick a country.</div>
             )}
           </div>
         </div>
@@ -494,7 +495,7 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
           />
         </div>
       </div>
-<p className="relative mt-3 text-center type-caption text-ink-muted lg:text-right">Drag the globe to explore Gulf markets.</p>
+<p className="relative mt-3 text-center text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))] text-[var(--uds-muted,var(--ui-muted))] lg:text-right">Drag the globe to explore Gulf markets.</p>
     </div>
   )
 }
