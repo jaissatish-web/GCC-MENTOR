@@ -33,7 +33,7 @@
 .system .desktopNav a:hover { color: var(--uds-brand); background: var(--uds-brand-soft); }
 .navActions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px 12px; min-width: 0; max-width: 100%; }
 .system .signIn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 8px 12px; color: var(--uds-ink); font-size: var(--uds-nav-size); font-weight: var(--uds-heading-weight); white-space: nowrap; }
-.system .navCta { display: none; align-items: center; justify-content: center; gap: 10px; min-height: var(--uds-button-height); padding: 8px var(--uds-button-padding); border: var(--uds-border-width) solid var(--uds-brand); border-radius: var(--uds-button-radius); background: var(--uds-brand); color: var(--uds-primary-text); font-size: var(--uds-button-size); font-weight: var(--uds-button-weight); line-height: var(--uds-body-line); white-space: normal; }
+.system .navCta { display: none; align-items: center; justify-content: center; gap: 10px; min-height: var(--uds-button-height); padding: 8px var(--uds-button-padding); border: var(--uds-border-width) solid var(--uds-button-background); border-radius: var(--uds-button-radius); background: var(--uds-button-background); color: var(--uds-primary-text); font-size: var(--uds-button-size); font-weight: var(--uds-button-weight); line-height: var(--uds-body-line); white-space: normal; }
 .system .navCta svg { flex-shrink: 0; }
 .system .navCta:hover { background: var(--uds-brand-hover); }
 .system :is(a,button,summary):focus-visible { outline: 3px solid var(--uds-brand); outline-offset: 4px; }
@@ -47,7 +47,7 @@
 .menuNav { position: absolute; right: 0; top: 54px; width: min(300px, calc(100vw - 32px)); max-height: calc(100dvh - 100px); overflow-y: auto; padding: 8px; border: var(--uds-border-width) solid var(--uds-border); border-radius: var(--uds-card-radius); background: var(--uds-surface); box-shadow: 0 16px 32px rgb(var(--uds-ink-rgb) / .08); }
 .system .menuNav>a { display: flex; align-items: center; min-height: 44px; padding: 11px 12px; border-radius: var(--uds-button-radius); color: var(--uds-ink); font-size: var(--uds-helper-size); font-weight: var(--uds-button-weight); }
 .system .menuNav>a:hover { background: var(--uds-brand-soft); color: var(--uds-brand); }
-.system .menuNav>a:last-child { margin-top: 6px; justify-content: center; background: var(--uds-brand); color: var(--uds-primary-text); }
+.system .menuNav>a:last-child { margin-top: 6px; justify-content: center; background: var(--uds-button-background); color: var(--uds-primary-text); }
 
 .heroNavy { position: relative; overflow: hidden; padding-block: var(--uds-section-gap); background: var(--uds-canvas); color: var(--lp-ink); border-radius: 0; }
 .heroNavy::before { content: ''; position: absolute; right: -120px; top: -80px; width: min(420px, 50vw); aspect-ratio: 1; border-radius: 50%; background: none; pointer-events: none; }
@@ -64,9 +64,9 @@
 .heroCtas { display: flex; flex-direction: column; gap: var(--uds-grid-gap); align-items: stretch; margin-top: 20px; }
 .goldCta,.ghostCta,.whiteCta,.btnNavyOutline { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: var(--uds-button-height); padding: 8px var(--uds-button-padding); border: var(--uds-border-width) solid transparent; border-radius: var(--uds-button-radius); font-size: var(--uds-button-size); line-height: var(--uds-body-line); font-weight: var(--uds-button-weight); text-align: center; text-decoration: none; }
 /* Primary and secondary action variants share the universal control geometry. */
-.goldCta { min-height: var(--uds-primary-height); color: var(--uds-primary-text); background: var(--uds-brand); border-color: var(--uds-brand); box-shadow: none; transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease; }
+.goldCta { min-height: var(--uds-primary-height); color: var(--uds-primary-text); background: var(--uds-button-background); border-color: var(--uds-button-background); box-shadow: none; transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease; }
 .goldCta:hover { background: var(--uds-brand-hover); color: var(--uds-primary-text); box-shadow: none; transform: translateY(-1px); }
-.whiteCta { min-height: var(--uds-primary-height); color: var(--uds-primary-text); background: var(--uds-brand); border-color: var(--uds-brand); }
+.whiteCta { min-height: var(--uds-primary-height); color: var(--uds-primary-text); background: var(--uds-button-background); border-color: var(--uds-button-background); }
 .whiteCta:hover { background: var(--uds-brand-hover); color: var(--uds-primary-text); }
 .ghostCta,.btnNavyOutline { color: var(--uds-ink); background: var(--uds-surface); border-color: var(--uds-border); }
 .ghostCta:hover,.btnNavyOutline:hover { background: var(--uds-brand-soft); border-color: var(--uds-brand); color: var(--uds-brand); }

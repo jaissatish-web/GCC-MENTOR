@@ -58,3 +58,10 @@ for (const path of [
   assert.ok(!/--uds-|(?:lib|components)\/design-system/.test(readFileSync(path, 'utf8')), `${path}: document renderer must not consume website theme settings`)
 }
 console.log('PASS: one scoped component owner, no important or legacy UI dependencies in shared foundation, document renderer isolation')
+
+const recovered = normalizeTheme({ fontFamily: 'georgia', buttonBackground: '#ff8800', mobile: { cardRadius: 28 } })
+assert.equal(recovered.mobile.cardRadius, 28)
+assert.equal(themeVariables(recovered)['--uds-button-background' as keyof ReturnType<typeof themeVariables>], '#FF8800')
+assert.match(String(themeVariables(recovered)['--uds-font' as keyof ReturnType<typeof themeVariables>]), /^Georgia/)
+assert.equal(normalizeTheme({ buttonBackground: 'red;display:none' }).buttonBackground, undefined)
+assert.equal((themeVariables({ colors: { brand: '#AA00FF' } }) as Record<string,string>)['--uds-button-background'], '#AA00FF', 'Existing drafts follow brand')

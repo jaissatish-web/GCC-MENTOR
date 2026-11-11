@@ -109,6 +109,9 @@ jobs:
       - name: Capture six landing widths and verify live preview settings
         if: ${{ !cancelled() && steps.changed_build.outcome == 'success' }}
         run: node scripts/verify-universal-design-browser.mjs
+      - name: Verify actual admin component and independent recovery settings
+        if: ${{ !cancelled() && steps.changed_build.outcome == 'success' }}
+        run: node scripts/verify-universal-design-recovery.mjs
       - name: Compare authored previews against original build
         if: ${{ !cancelled() && steps.original_build.outcome == 'success' && steps.changed_build.outcome == 'success' }}
         run: |
@@ -131,5 +134,6 @@ jobs:
             artifacts/universal-design-v1
             artifacts/typography-documents
             artifacts/cascade-audit
+            artifacts/recovery-079
           if-no-files-found: warn
           retention-days: 14

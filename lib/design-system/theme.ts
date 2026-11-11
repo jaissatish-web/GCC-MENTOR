@@ -4,6 +4,7 @@ export const FONT_OPTIONS = [
   { value: 'inter', label: 'Inter' },
   { value: 'system', label: 'System sans serif' },
   { value: 'arial', label: 'Arial' },
+  { value: 'georgia', label: 'Georgia' },
 ] as const
 export const COLOR_FIELDS = [
   { key: 'canvas', label: 'Main canvas', value: '#F8FAFC' },
@@ -53,7 +54,7 @@ export const NUMBER_FIELDS = [
   { key: 'buttonSize', label: 'Button text', min: 13, max: 20, step: 1, unit: 'px', section: 'Buttons', defaults: [14,14,14] },
   { key: 'buttonPadding', label: 'Button horizontal padding', min: 12, max: 40, step: 2, unit: 'px', section: 'Buttons', defaults: [20,20,20] },
   { key: 'buttonWeight', label: 'Button weight', min: 500, max: 600, step: 100, unit: '', section: 'Buttons', defaults: [600,600,600] },
-  { key: 'cardRadius', label: 'Card radius', min: 0, max: 24, step: 1, unit: 'px', section: 'Cards and forms', defaults: [12,12,12] },
+  { key: 'cardRadius', label: 'Card radius', min: 0, max: 32, step: 1, unit: 'px', section: 'Cards and forms', defaults: [12,12,12] },
   { key: 'borderWidth', label: 'Border width', min: 1, max: 3, step: 1, unit: 'px', section: 'Cards and forms', defaults: [1,1,1] },
   { key: 'shadow', label: 'Shadow strength', min: 0, max: 12, step: 1, unit: '', section: 'Cards and forms', defaults: [3,3,3] },
   { key: 'inputHeight', label: 'Input height', min: 44, max: 60, step: 2, unit: 'px', section: 'Cards and forms', defaults: [46,46,46] },
@@ -62,6 +63,8 @@ export const NUMBER_FIELDS = [
 export type NumberKey = typeof NUMBER_FIELDS[number]['key']
 export interface ThemeSettings {
   version: 1
+  /** Absent means follow the primary brand color, including existing drafts. */
+  buttonBackground?: string
   fontFamily: typeof FONT_OPTIONS[number]['value']
   colors: Record<ColorKey, string>
   mobile: Record<NumberKey, number>
@@ -79,6 +82,7 @@ export function normalizeTheme(input: unknown): ThemeSettings {
   const source = record(input)
   const result: ThemeSettings = { ...DEFAULT_THEME, colors: { ...DEFAULT_THEME.colors }, mobile: { ...DEFAULT_THEME.mobile }, tablet: { ...DEFAULT_THEME.tablet }, desktop: { ...DEFAULT_THEME.desktop } }
   if (FONT_OPTIONS.some(option => option.value === source.fontFamily)) result.fontFamily = source.fontFamily as ThemeSettings['fontFamily']
+  if (typeof source.buttonBackground === 'string' && /^#[0-9a-f]{6}$/i.test(source.buttonBackground)) result.buttonBackground = source.buttonBackground.toUpperCase()
   const colors = record(source.colors)
   for (const field of COLOR_FIELDS) {
     const value = colors[field.key]
@@ -96,10 +100,10 @@ export function normalizeTheme(input: unknown): ThemeSettings {
   return result
 }
 const cssName = (key: string) => key.replace(/[A-Z]/g, char => `-${char.toLowerCase()}`)
-const FONTS = { inter: 'var(--font-inter, Inter), ui-sans-serif, system-ui, sans-serif', system: 'ui-sans-serif, system-ui, sans-serif', arial: 'Arial, Helvetica, sans-serif' }
+const FONTS = { inter: 'var(--font-inter, Inter), ui-sans-serif, system-ui, sans-serif', system: 'ui-sans-serif, system-ui, sans-serif', arial: 'Arial, Helvetica, sans-serif', georgia: 'Georgia, \"Times New Roman\", serif' }
 export function themeVariables(input: unknown): CSSProperties {
   const theme = normalizeTheme(input)
-  const vars: Record<string,string> = { '--uds-font': FONTS[theme.fontFamily] }
+  const vars: Record<string,string> = { '--uds-font': FONTS[theme.fontFamily], '--uds-button-background': theme.buttonBackground ?? theme.colors.brand }
   for (const field of COLOR_FIELDS) {
     const color = theme.colors[field.key]
     vars[`--uds-${cssName(field.key)}`] = color

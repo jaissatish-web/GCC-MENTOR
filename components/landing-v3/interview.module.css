@@ -42,7 +42,7 @@
 .answer p,.feedback p,.details p,.compact .answer p,.compact .feedback p,.compact .details p { margin: 8px 0 0!important; color: var(--ui-muted); font-size: var(--ui-helper-size)!important; line-height: var(--ui-body-line)!important; }
 .note,.compact .note { display: block; margin: 14px 0 0!important; color: var(--ui-muted); font-size: var(--ui-helper-size)!important; line-height: var(--ui-body-line)!important; }
 a.note { display: flex; align-items: center; min-height: 44px; color: var(--ui-brand); font-weight: var(--ui-weight-label); }
-.action,.record button,.play { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: var(--ui-control-height); padding: var(--ui-control-padding-y) 16px; border: 1px solid var(--ui-brand); border-radius: var(--ui-control-radius); background: var(--ui-brand); color: #fff; font-size: var(--ui-helper-size); font-weight: var(--ui-weight-heading); line-height: var(--ui-body-line); }
+.action,.record button,.play { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: var(--ui-control-height); padding: var(--ui-control-padding-y) 16px; border: 1px solid var(--ui-brand); border-radius: var(--ui-control-radius); background: var(--uds-button-background,var(--ui-brand)); color: var(--uds-primary-text,#fff); font-size: var(--ui-helper-size); font-weight: var(--ui-weight-heading); line-height: var(--ui-body-line); }
 .action:hover,.record button:hover,.play:hover { background: var(--ui-brand-hover); }
 .stage .action { margin-top: 12px; }
 .play { margin: 0 20px 16px; }

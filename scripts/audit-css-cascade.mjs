@@ -98,7 +98,7 @@ try {
     postcss.parse(source,{from:file}).walkRules(rule=>{const props=[];rule.walkDecls(d=>{declarations++;if(d.important)important++;props.push({property:d.prop,value:d.value,important:!!d.important})});rules.push({selector:rule.selector,line:rule.source?.start?.line,declarations:props})})
     report.sourceInventory.push({file:relative(root,file),sha256:createHash('sha256').update(source).digest('hex'),important,declarations,rules})
   }
-  browser=await puppeteer.launch({executablePath:process.env.CHROME_PATH,headless:true,pipe:true,args:['--no-sandbox','--disable-dev-shm-usage']})
+  browser=await puppeteer.launch({executablePath:process.env.CHROME_PATH,headless:true,pipe:true,args:['--no-sandbox','--disable-dev-shm-usage','--disable-gpu','--no-zygote','--single-process']})
   for(const width of [390,1440]) {
     const page=await browser.newPage(),errors=[],failedRequests=[]
     page.on('pageerror',error=>errors.push(error.message));page.on('requestfailed',request=>failedRequests.push({url:request.url(),error:request.failure()?.errorText}))

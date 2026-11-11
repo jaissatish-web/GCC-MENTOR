@@ -86,7 +86,7 @@ export function DesignSettings() {
   const contrastWarnings = [
     ['Primary text on cards', theme.colors.ink, theme.colors.surface],
     ['Secondary text on cards', theme.colors.muted, theme.colors.surface],
-    ['Primary button text', theme.colors.primaryText, theme.colors.brand],
+    ['Primary button text', theme.colors.primaryText, theme.buttonBackground ?? theme.colors.brand],
   ].filter(([, foreground, background]) => contrastRatio(foreground, background) < 4.5).map(([label]) => label)
 
   return (
@@ -135,6 +135,21 @@ export function DesignSettings() {
                   <span className={styles.hex}>{theme.colors[field.key].toUpperCase()}</span>
                 </label>
               ))}
+            </div>
+          </details>
+
+          <details open>
+            <summary>Primary button background</summary>
+            <div className={styles.fields}>
+              <label className={styles.field}>
+                <span>Follow primary color</span>
+                <input type="checkbox" checked={!theme.buttonBackground} onChange={(event) => update({ ...theme, buttonBackground: event.target.checked ? undefined : theme.colors.brand })} />
+              </label>
+              {theme.buttonBackground && <label className={styles.colorField}>
+                <span>Button background</span>
+                <input type="color" value={theme.buttonBackground} onChange={(event) => update({ ...theme, buttonBackground: event.target.value })} />
+                <span className={styles.hex}>{theme.buttonBackground}</span>
+              </label>}
             </div>
           </details>
 

@@ -229,7 +229,7 @@
 .theme .success { border-color:var(--uds-success); }
 .theme .warning { border-color:var(--uds-warning); }
 .theme .error { border-color:var(--uds-error); }
-.theme .button { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:var(--uds-primary-height); padding:8px var(--uds-button-padding); border:var(--uds-border-width) solid transparent; border-radius:var(--uds-button-radius); font-family:var(--uds-font); font-size:var(--uds-button-size); font-weight:var(--uds-button-weight); line-height:var(--uds-body-line); text-align:center; text-decoration:none; cursor:pointer; background:var(--uds-brand); color:var(--uds-primary-text); transition:background-color var(--uds-motion), border-color var(--uds-motion); }
+.theme .button { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:var(--uds-primary-height); padding:8px var(--uds-button-padding); border:var(--uds-border-width) solid transparent; border-radius:var(--uds-button-radius); font-family:var(--uds-font); font-size:var(--uds-button-size); font-weight:var(--uds-button-weight); line-height:var(--uds-body-line); text-align:center; text-decoration:none; cursor:pointer; background:var(--uds-button-background); color:var(--uds-primary-text); transition:background-color var(--uds-motion), border-color var(--uds-motion); }
 .theme .button:hover { background:var(--uds-brand-hover); }
 .theme .secondary,.theme .tertiary { min-height:var(--uds-button-height); background:var(--uds-surface); color:var(--uds-ink); border-color:var(--uds-border); }
 .theme .secondary:hover,.theme .tertiary:hover { background:var(--uds-brand-soft); color:var(--uds-ink); }
