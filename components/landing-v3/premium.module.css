@@ -138,7 +138,7 @@
 .resumeBenefits svg { flex: none; color: color-mix(in srgb,var(--uds-brand) 40%,var(--uds-primary-text)); }
 .resumeCta { background: var(--uds-surface); color: var(--uds-ink); width: 100%; margin-top: 10px; }
 /* No UDS inheritance is applied to this document-bearing wrapper. */
-.heroVisual { min-width: 0; position: relative; color: var(--lp-ink); font-family: var(--ui-font); }
+.heroVisual { min-width: 0; position: relative; isolation: isolate; color: var(--lp-ink); font-family: var(--ui-font); }
 .visualLabel { display: flex; justify-content: space-between; align-items: center; gap: 12px; color: var(--uds-primary-text); font-size: var(--uds-helper-size); padding: 12px 8px; }
 .visualLabel strong { font-weight: var(--uds-heading-weight); }
 .visualFoot { display: flex; justify-content: center; padding-bottom: 12px; }
@@ -253,4 +253,9 @@
 @media(min-width:1180px) { .desktopNav { display: flex; } .menu { display: none; } }
 @media(prefers-reduced-motion:reduce) { .system * { scroll-behavior: auto; } }
 
-.heroVisual::after { content: ""; position: absolute; pointer-events: none; inset: 38% -3% 8%; background: url("/landing/v2/resume-halo.webp") center / contain no-repeat; }
+/* A single ellipse plane, split at its horizon. Rear arc is below the live
+   carousel stacking context; front arc is above. Neither intercepts input. */
+.heroVisual::before,.heroVisual::after { content: ""; position: absolute; pointer-events: none; inset: 38% -3% 8%; background: url("/landing/v2/resume-halo.webp") center / contain no-repeat; }
+.heroVisual::before { z-index: 0; clip-path: inset(0 0 50% 0); }
+.heroVisual>div { position: relative; z-index: 1; }
+.heroVisual::after { z-index: 2; clip-path: inset(50% 0 0 0); }

@@ -60,7 +60,7 @@ const targets={
   globe:'#markets [data-uds="website-widget"] > div > div',
   globeTitle:'#markets-title',
   globeCountry:'#markets button',
-  kicker:'[data-uds="hero"] [data-uds="kicker"]',
+  kicker:'[data-uds="kicker"]',
   select:'select',
   hero:'#hero-title',
   title:'#hero-title span',

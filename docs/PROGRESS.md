@@ -385,3 +385,7 @@ RECOVERY-079 local verification: Georgia,28px radius and independent primary-but
 
 ## PREMIUM-LANDING-V2 — 11 November 2026
 Founder approved six visual references and implementation on separate design/premium-landing-v2 based on9b3cbf04. Scope, file owners, protected invariants and visual acceptance recorded in PREMIUM_LANDING_V2.md before implementation. No merge/production permission. Reuse actual orbit/globe/interview behaviors; generate grounded illustrative scene assets; verify six widths, CTAs and documents. Implementation/verification pending.
+
+ORBIT-DEPTH approved11November2026: founder conditional main merge approval for V2 only. Decorative depth correction and390/1440 visual/control checks authorized, protected rendering/animation unchanged. PR80 currently stacked on PR79; old CI782 and universal visual16 both fail. Inspect exact failures and dependencies; do not merge the foundation or bypass gates. Implementation pending.
+
+ORBIT-DEPTH local evidence: visual layer split and390/1440screenshots verified; all93repository checks, build, mobile typography/reflow, six V2 widths, cascade capture pass. Depth harness confirms keyboard/reader/animation and no input interception. Protected source unchanged. Stale V2 test assumptions corrected, strict mounted gate unchanged. Publish corrected draft/preview and inspect fresh CI; main/production remain untouched until all gates and V2-only dependency isolation pass.
