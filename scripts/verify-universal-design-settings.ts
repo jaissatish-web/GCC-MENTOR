@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { parse } from 'postcss'
 import { DEFAULT_THEME, DEVICES, NUMBER_FIELDS, normalizeTheme, themeVariables, themeStyleText, contrastRatio } from '../lib/design-system/theme'
 
@@ -36,6 +36,25 @@ for (const device of DEVICES) for (const field of NUMBER_FIELDS) {
 }
 console.log('PASS: bounded themes, rejected CSS injection, independent responsive values, scoped variables and default text contrast')
 
-const pilotCss = readFileSync("components/landing-v3/universal-pilot.module.css", "utf8")
-assert.ok(pilotCss.includes(":global(.actual-template-orbit-face)"), "Document classes must retain their global identity inside CSS Modules")
-assert.ok(pilotCss.includes(":global(#resume-render)"), "Document IDs must retain their global identity inside CSS Modules")
+// The component owner consumes tokens directly. An extra pilot override layer
+// would recreate the competing cascade this migration removes.
+const landingPath = 'components/landing-v3/premium.module.css'
+const landingSource = readFileSync(landingPath, 'utf8')
+assert.equal(existsSync('components/landing-v3/universal-pilot.module.css'), false, 'Remove the obsolete pilot override layer')
+assert.ok(!readFileSync('app/page.tsx', 'utf8').includes('universal-pilot'), 'Landing must not import a second design owner')
+for (const [path, sheet] of [['foundation', css], [landingPath, parse(landingSource)]] as const) {
+  sheet.walkDecls(decl => assert.equal(Boolean(decl.important), false, `${path}: ${decl.prop} must use the scoped cascade rather than important`))
+}
+css.walkDecls(decl => assert.ok(!decl.value.includes('--ui-'), 'Shared foundation must use self-contained UDS values'))
+assert.match(readFileSync('app/admin/design-system/FoundationPreview.tsx', 'utf8'), /<div\s+data-website-ui\s+data-universal-theme/, 'Shared specimen opts out of legacy application typography at its existing root')
+// These document renderers must remain independent of website configuration.
+// This checks architectural isolation; visual/PDF equivalence is tested separately.
+for (const path of [
+  'components/templates/engine.tsx', 'components/templates/GulfPremium.tsx',
+  'components/templates/AtsClassic.tsx', 'components/templates/tokens.ts',
+  'components/templates/themes.ts', 'components/templates/visualThemes.ts',
+  'components/resume/ResumeDocumentView.tsx', 'lib/pdf/renderPackage.ts',
+]) {
+  assert.ok(!/--uds-|(?:lib|components)\/design-system/.test(readFileSync(path, 'utf8')), `${path}: document renderer must not consume website theme settings`)
+}
+console.log('PASS: one scoped component owner, no important or legacy UI dependencies in shared foundation, document renderer isolation')

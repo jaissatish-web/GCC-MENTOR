@@ -9,7 +9,6 @@ import { DocumentOrbit, GccGlobe } from '@/components/landing-v3/lazy'
 import { InterviewDemo } from '@/components/landing-v3/InterviewDemo'
 import { services } from '@/components/landing-premium/data'
 import s from '@/components/landing-v3/premium.module.css'
-import pilot from '@/components/landing-v3/universal-pilot.module.css'
 import { UniversalTheme } from '@/components/design-system/UniversalTheme'
 
 /** White editorial landing: presentation-only, preserving service destinations,
@@ -91,7 +90,7 @@ const faq = [
 export default function Home() {
   return (
     <UniversalTheme>
-    <div className={`${s.system} ${pilot.pilot} font-redesign-sans`} data-marketing="white">
+    <div className={`${s.system} font-redesign-sans`} data-marketing="white" data-website-ui>
       <PremiumNav anchors={anchors} />
       <AuthLinkCatcher />
       <main id="main-content" tabIndex={-1}>

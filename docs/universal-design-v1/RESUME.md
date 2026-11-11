@@ -36,3 +36,23 @@ The general CI run https://github.com/jaissatish-web/GCC-MENTOR/actions/runs/428
 - Hosted admin route returns existing middleware message “Supabase is not configured”. Preview lacks required Supabase configuration. Authenticated admin interaction/draft save/reload remains unverified; no credentials/env/auth settings were changed.
 - Persistent publishing/rollback not implemented. Exact storage/atomic versioning/cache proposal in PUBLISHING_PROPOSAL.md; approval required.
 - No founder visual approval yet. Keep PR draft and do not merge/deploy production.
+
+## 2026-11-11 — Founder-requested cascade audit/refactor
+
+Read CASCADE_SOURCE_AUDIT.md and CASCADE_PLAN.md first. The founder explicitly
+requested source consolidation before continuing visual work. Actual pre-change
+browser CSSOM evidence is retained in evidence/cascade/browser-before-1363.json.
+The old pilot layer was removed; existing landing component owners now consume
+UDS directly. Guarded legacy enforcement opts out only of migrated document-free
+UI; original document-bearing ancestor inheritance stays fixed. responsive.css,
+root UI tokens, templates, rendering/scaling and PDF source remain unchanged.
+
+Local typecheck, lint, production build and focused settings validation pass.
+Full deterministic suite and new CI before/after computed-style/screenshot,
+settings, authored-preview and PDF comparisons are pending at this checkpoint.
+The mounted orbit stability failure from the prior run remains an unresolved
+blocking gate until tested again; never change renderer code or weaken checks.
+
+Keep PR #79 DRAFT/UNMERGED and production unchanged. No persistent publishing,
+authentication/environment or database changes are authorized. Backend/storage
+publishing proposal still requires separate approval.

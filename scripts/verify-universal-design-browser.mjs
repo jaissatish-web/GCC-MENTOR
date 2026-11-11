@@ -38,7 +38,14 @@ const server = createServer((req,res) => {
 await new Promise(r => server.listen(0,'127.0.0.1',r))
 const origin = `http://127.0.0.1:${server.address().port}`
 let browser
-const results = [], runtimeErrors = [], blockedExternal = []
+const results = [], failures = [], runtimeErrors = [], blockedExternal = []
+let originalServer
+async function exercise(kind, width, callback) {
+  try { await callback() } catch (error) {
+    const failure = { kind, width, message:error.message, stack:error.stack }
+    failures.push(failure);results.push({...failure,pass:false});console.error(`FAIL ${kind} ${width}px: ${error.message}`)
+  }
+}
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 async function documentSnapshot(frame) {
   return frame.evaluate(() => [...document.querySelectorAll('.actual-template-orbit-face')].map(root => {
@@ -101,7 +108,7 @@ try {
     if (request.url().startsWith(origin + '/') || request.url().startsWith('data:')) request.continue()
     else { blockedExternal.push(new URL(request.url()).origin); request.abort() }
   })
-  for (const width of [360,390,430,768,1024,1440]) {
+  for (const width of [360,390,430,768,1024,1440]) await exercise('landing',width,async () => {
     await page.setViewport({width,height:900,deviceScaleFactor:1})
     await page.goto(origin + '/', {waitUntil:'networkidle0'})
     await page.evaluate(() => document.fonts.ready)
@@ -115,6 +122,8 @@ try {
       return {overflow:document.documentElement.scrollWidth > innerWidth+1,hero:style('hero-title').fontSize,cardRadius:style('card').borderRadius,cardPadding:style('card').paddingTop,buttonHeight:style('button-secondary').minHeight,primaryHeight:style('button-primary').minHeight,section:style('section').paddingTop,orbitCount:document.querySelectorAll('.actual-template-orbit-face').length,globe:!!document.querySelector('#markets-title')}
     })
     const device = width<768 ? 'mobile' : width<1024 ? 'tablet' : 'desktop'
+    await page.screenshot({path:`${output}/landing-${width}.png`,fullPage:true})
+    results.push({kind:'landing-measurements',width,...state})
     assert.equal(state.overflow,false,`Landing overflow at${width}`)
     assert.equal(state.hero,DEFAULT_THEME[device].heroSize+'px',`Hero role at${width}`)
     assert.equal(state.cardRadius,DEFAULT_THEME[device].cardRadius+'px')
@@ -123,10 +132,9 @@ try {
     assert.equal(state.primaryHeight,DEFAULT_THEME[device].primaryHeight+'px')
     assert.equal(state.section,DEFAULT_THEME[device].landingGap+'px')
     assert.ok(state.globe && state.orbitCount>=3,'Preserved landing experiences')
-    await page.screenshot({path:`${output}/landing-${width}.png`,fullPage:true})
     results.push({kind:'landing',width,...state,pass:true})
-  }
-  for (const width of [390,1440]) {
+  })
+  const prepareFrame = async width => {
     await page.setViewport({width,height:900,deviceScaleFactor:1})
     await page.goto(origin + '/__design-qa',{waitUntil:'networkidle0'})
     const iframe = await page.$('iframe'), frame = await iframe.contentFrame()
@@ -134,32 +142,95 @@ try {
     await frame.waitForFunction(() => document.querySelectorAll('.actual-template-orbit-face').length>=3)
     await frame.evaluate(() => document.fonts.ready)
     await sendTheme(page,frame,DEFAULT_THEME)
-    const before = await stableDocuments(frame), beforeHashes = await documentPixels(frame,'default',width)
-    assert.deepEqual(await stableDocuments(frame),before,`Baseline resume drift without any theme change at${width}`)
+    return frame
+  }
+  const modifiedTheme = () => {
     const theme = JSON.parse(JSON.stringify(DEFAULT_THEME))
     theme.colors.brand='#5946A3'
     theme.mobile.heroSize=40
     theme.desktop.landingGap=112
     theme.fontFamily='arial'
     for (const device of ['mobile','tablet','desktop']) { theme[device].cardRadius=20;theme[device].cardPadding=28;theme[device].buttonHeight=56;theme[device].primaryHeight=58 }
+    return theme
+  }
+  // Settings evidence is independent from the strict mounted-document stability gate.
+  for (const width of [390,1440]) await exercise('settings',width,async () => {
+    const frame = await prepareFrame(width), theme = modifiedTheme()
     await sendTheme(page,frame,theme)
     const state = await frame.evaluate(() => {
       const s = role => getComputedStyle(document.querySelector(`[data-uds="${role}"]`))
       return {brand:s('button-primary').backgroundColor,hero:s('hero-title').fontSize,radius:s('card').borderRadius,padding:s('card').paddingTop,section:s('section').paddingTop,height:s('button-secondary').minHeight,overflow:document.documentElement.scrollWidth>innerWidth+1}
     })
-    assert.equal(state.brand,'rgb(89, 70, 163)')
-    assert.equal(state.hero,(width<768 ? 40 : DEFAULT_THEME.desktop.heroSize)+'px')
-    assert.equal(state.radius,'20px'); assert.equal(state.padding,'28px'); assert.equal(state.height,'56px')
-    assert.equal(state.section,(width>=1024 ? 112 : DEFAULT_THEME.mobile.landingGap)+'px')
-    assert.equal(state.overflow,false,`Modified setting overflow at${width}`)
+    // Persist every measured setting and screenshot before assertions, even when a setting fails.
+    const checks = {
+      primaryColor:state.brand==='rgb(89, 70, 163)',
+      mobileHeading:state.hero===(width<768 ? 40 : DEFAULT_THEME.desktop.heroSize)+'px',
+      cardRadius:state.radius==='20px',
+      cardPadding:state.padding==='28px',
+      desktopSpacing:state.section===(width>=1024 ? 112 : DEFAULT_THEME.mobile.landingGap)+'px',
+      buttonHeight:state.height==='56px',
+      noOverflow:state.overflow===false,
+    }
+    results.push({kind:'settings-measurements',width,...state,checks,pass:Object.values(checks).every(Boolean)})
+    await page.screenshot({path:`${output}/settings-modified-${width}.png`,fullPage:true})
+    for (const [role,label] of [['hero','hero'],['card','card'],['section','section']]) {
+      const element=await frame.$(`[data-uds="${role}"]`)
+      if(element)await element.screenshot({path:`${output}/settings-${label}-${width}.png`})
+    }
+    assert.ok(Object.values(checks).every(Boolean),`Independent setting failures at${width}: ${JSON.stringify(checks)}`)
+  })
+  // Use fresh frames; setting screenshots and scrolling cannot contaminate the baseline.
+  for (const width of [390,1440]) await exercise('mounted-resumes',width,async () => {
+    const frame = await prepareFrame(width)
+    const before = await stableDocuments(frame), beforeHashes = await documentPixels(frame,'default',width)
+    assert.deepEqual(await stableDocuments(frame),before,`Baseline resume drift without any theme change at${width}`)
+    await sendTheme(page,frame,modifiedTheme())
     assert.deepEqual(await stableDocuments(frame),before,`Mounted resume styling/geometry changed at${width}`)
     assert.deepEqual(await documentPixels(frame,'modified',width),beforeHashes,`Resume pixels changed at${width}`)
-    results.push({kind:'settings-and-mounted-resumes',width,...state,resumeCount:before.length,pixelHashes:beforeHashes,pass:true})
-  }
+    results.push({kind:'mounted-resumes',width,resumeCount:before.length,pixelHashes:beforeHashes,pass:true})
+  })
+  // Exact original-main built assets are a separate diagnostic, never a substitute
+  // for the unchanged strict current-build document-equivalence assertions above.
+  const originalBuild = resolve(process.env.QA_ORIGINAL_BUILD ?? `${output}/original-build`)
+  const originalIndex = existsSync(originalBuild+'/server/app/index.html') ? originalBuild+'/server/app/index.html' : originalBuild+'/index.html'
+  if (existsSync(originalIndex)) {
+    originalServer=createServer((req,res)=>{
+      const url=new URL(req.url,'http://localhost')
+      if(url.pathname.startsWith('/api/')) {res.writeHead(req.method==='GET'?200:409,{'Content-Type':'application/json'});res.end(JSON.stringify(req.method==='GET'?{user:null,profile:null,packages:[],summary:null}:{error:'Read-only fictional fixture'}));return}
+      const path=url.pathname==='/_next/image'?url.searchParams.get('url')??'':url.pathname
+      const file=path==='/'?originalIndex:path.startsWith('/_next/static/')?resolve(originalBuild,path.slice(7)):resolve(root,'public','.'+path)
+      if((!file.startsWith(originalBuild+'/')&&!file.startsWith(root+'/public/'))||!existsSync(file)){res.writeHead(404);res.end();return}
+      res.writeHead(200,{'Content-Type':mime[extname(file)]??'application/octet-stream'});res.end(readFileSync(file))
+    })
+    await new Promise(resolve=>originalServer.listen(0,'127.0.0.1',resolve))
+    const originalOrigin=`http://127.0.0.1:${originalServer.address().port}`
+    const originalPage=await browser.newPage()
+    await originalPage.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'reduce'}])
+    originalPage.on('pageerror',error=>runtimeErrors.push(`original-main: ${error.message}`))
+    await originalPage.setRequestInterception(true)
+    originalPage.on('request',request=>request.url().startsWith(originalOrigin+'/')||request.url().startsWith('data:')?request.continue():request.abort())
+    for(const width of [390,1440]) await exercise('original-main-orbit-diagnostic',width,async()=>{
+      await originalPage.setViewport({width,height:900,deviceScaleFactor:1})
+      await originalPage.goto(originalOrigin+'/',{waitUntil:'networkidle0'})
+      await originalPage.waitForFunction(()=>document.querySelectorAll('.actual-template-orbit-face').length>=3)
+      await originalPage.evaluate(()=>document.fonts.ready)
+      const first=await documentSnapshot(originalPage),entry={kind:'original-main-orbit-diagnostic',diagnosticOnly:true,width,sourceRef:process.env.TYPE_BASE_REF??null,indexSha256:hash(readFileSync(originalIndex)),first}
+      try {
+        const stable=await stableDocuments(originalPage),second=await stableDocuments(originalPage)
+        entry.stable=stable;entry.second=second;entry.exactlyEqual=JSON.stringify(stable)===JSON.stringify(second)
+        assert.deepEqual(second,stable,`Original-main orbit drift without a theme mutation at${width}`)
+        entry.pass=true
+      } catch(error) {entry.pass=false;entry.error=error.message;entry.final=await documentSnapshot(originalPage)}
+      finally {results.push(entry);writeFileSync(`${output}/original-orbit-${width}.json`,JSON.stringify(entry,null,2));await originalPage.screenshot({path:`${output}/original-orbit-${width}.png`,fullPage:true})}
+    })
+    await originalPage.close()
+  } else results.push({kind:'original-main-orbit-diagnostic',status:'not-run',reason:'No exact original build supplied; no claim about pre-existing drift'})
+  if (failures.length) throw new AggregateError(failures.map(failure=>new Error(`${failure.kind} ${failure.width}px: ${failure.message}`)),'Universal design browser verification has blocking failures; independent evidence retained')
   assert.deepEqual(runtimeErrors,[],'Unexpected client runtime errors')
-  console.log('PASS: six landing widths, six setting changes, and mounted document style/pixel isolation. This does not certify pre-change PDF/preview equivalence or authenticated admin persistence.')
+  console.log('PASS: six landing widths, independent six-setting evidence and strict mounted document style/pixel isolation. Original-main drift evidence is reported separately; authenticated admin persistence remains outside this fixture.')
 } finally {
-  writeFileSync(`${output}/results.json`,JSON.stringify({results,runtimeErrors,blockedExternal:[...new Set(blockedExternal)]},null,2))
+  writeFileSync(`${output}/results.json`,JSON.stringify({results,failures,runtimeErrors,blockedExternal:[...new Set(blockedExternal)]},null,2))
   await browser?.close()
+  if(originalServer) await new Promise(r=>originalServer.close(r))
   await new Promise(r => server.close(r))
 }

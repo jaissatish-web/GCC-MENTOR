@@ -5,7 +5,7 @@ import styles from './foundation-preview.module.css'
 /** Illustrative UI only: no profile data, service actions or document rendering. */
 export function FoundationPreview({ theme, device }: { theme: ThemeSettings; device: Device }) {
   return (
-    <div data-universal-theme data-uds-specimen data-uds-device={device} style={themeVariables(theme)} className={`${foundation.theme} ${foundation.surface} ${styles.specimen}`}>
+    <div data-website-ui data-universal-theme data-uds-specimen data-uds-device={device} style={themeVariables(theme)} className={`${foundation.theme} ${foundation.surface} ${styles.specimen}`}>
       <header>
         <h2 className={foundation.pageTitle}>Shared component preview</h2>
         <p className={foundation.helper}>Foundation samples for controls and states. Remaining application pages are not connected yet.</p>

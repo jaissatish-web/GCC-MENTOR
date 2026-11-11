@@ -4,11 +4,18 @@ on:
   pull_request:
     paths:
       - 'app/page.tsx'
+      - 'app/layout.tsx'
+      - 'app/globals.css'
+      - 'app/typography.css'
+      - 'app/ui-system.css'
+      - 'app/responsive.css'
       - 'app/admin/design-system/**'
       - 'components/design-system/**'
-      - 'components/landing-v3/universal-pilot.module.css'
+      - 'components/landing-v3/**'
+      - 'components/landing-premium/**'
       - 'lib/design-system/**'
       - 'scripts/verify-universal-design*'
+      - 'scripts/audit-css-cascade.mjs'
       - '.github/workflows/universal-design-qa.yml'
 permissions:
   contents: read
@@ -27,6 +34,7 @@ jobs:
       SUPABASE_SERVICE_ROLE_KEY: ci-placeholder-service-role-key
       NEXT_PUBLIC_APP_URL: http://localhost:3000
       TYPE_BASE_REF: f72e2faccf4e287f9ac7d213d988f8045a10a961
+      CASCADE_BASE_REF: 1813fc5750cdd2db2929847f6290a71abd625261
     steps:
       - uses: actions/checkout@v4
         with:
@@ -41,6 +49,10 @@ jobs:
           git cat-file -e "$TYPE_BASE_REF^{commit}"
           git diff --exit-code "$TYPE_BASE_REF" -- package.json package-lock.json components/templates lib/pdf lib/resumeStyle.ts app/api/resume/pdf
       - run: npm ci
+      - name: Validate cascade instrument
+        run: |
+          node --check scripts/audit-css-cascade.mjs
+          node scripts/audit-css-cascade.mjs --self-test
       - name: Install local QA browser and PDF rasterizer
         run: |
           npx puppeteer browsers install chrome
@@ -64,10 +76,38 @@ jobs:
         run: |
           OUT="$GITHUB_WORKSPACE/artifacts/universal-design-v1/pdfs/before/default" node node_modules/sucrase/bin/sucrase-node scripts/verify-template-pdfs.ts ats_classic falcon_executive emerald_professional --short
           STYLE='{"ink":"black","highlight":"none"}' OUT="$GITHUB_WORKSPACE/artifacts/universal-design-v1/pdfs/before/configured" node node_modules/sucrase/bin/sucrase-node scripts/verify-template-pdfs.ts ats_classic falcon_executive emerald_professional --short
+      # Separate pre-refactor PR snapshot. The original-main document/PDF baseline above remains unchanged.
+      - name: Prepare exact pre-refactor PR source
+        if: ${{ !cancelled() }}
+        run: |
+          git cat-file -e "$CASCADE_BASE_REF^{commit}"
+          git worktree add --detach "$RUNNER_TEMP/gcc-cascade-before" "$CASCADE_BASE_REF"
+          ln -s "$GITHUB_WORKSPACE/node_modules" "$RUNNER_TEMP/gcc-cascade-before/node_modules"
+      - name: Build pre-refactor PR cascade baseline
+        id: cascade_before_build
+        if: ${{ !cancelled() }}
+        working-directory: ${{ runner.temp }}/gcc-cascade-before
+        run: npm run build
+      - name: Capture before cascade and protected inheritance
+        if: ${{ !cancelled() && steps.cascade_before_build.outcome == 'success' }}
+        env:
+          QA_PHASE: before
+          QA_ROOT: ${{ github.workspace }}
+          QA_BUILD: ${{ runner.temp }}/gcc-cascade-before/.next
+        run: node scripts/audit-css-cascade.mjs
       - name: Build changed source
         id: changed_build
+        if: ${{ !cancelled() }}
         run: npm run build
+      - name: Capture after cascade and protected inheritance
+        if: ${{ !cancelled() && steps.changed_build.outcome == 'success' }}
+        env:
+          QA_PHASE: after
+          QA_ROOT: ${{ github.workspace }}
+          QA_BUILD: .next
+        run: node scripts/audit-css-cascade.mjs
       - name: Capture six landing widths and verify live preview settings
+        if: ${{ !cancelled() && steps.changed_build.outcome == 'success' }}
         run: node scripts/verify-universal-design-browser.mjs
       - name: Compare authored previews against original build
         if: ${{ !cancelled() && steps.original_build.outcome == 'success' && steps.changed_build.outcome == 'success' }}
@@ -90,5 +130,6 @@ jobs:
           path: |
             artifacts/universal-design-v1
             artifacts/typography-documents
+            artifacts/cascade-audit
           if-no-files-found: warn
           retention-days: 14
