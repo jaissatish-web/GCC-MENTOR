@@ -83,3 +83,20 @@ native zoom feedback has been made. Changing preview zoom, measurement, height
 or containment requires separate explicit founder approval. Keep the strict test
 and release block intact. Authenticated admin verification and publishing/storage
 approval remain separate outstanding gates.
+
+### Follow the latest PR checks after the final widget follow-up
+
+The run referenced above was superseded by documentation synchronization. Read the
+latest checks linked from https://github.com/jaissatish-web/GCC-MENTOR/pull/79 for
+current runtime outcome; do not rely on a canceled run. Run42954402682 established
+all independent settings checks and broad CI pass, six widths pass,64authored
+documents+12PDFs exact. Strict current390baseline stability and1440clinical_care
+pixels remain blocking. Originalmain cycles at both widths in that run too; only
+zoom/layout phases differ, with no font/size/weight/line/color differences.
+
+Final GccGlobe JSX utility coverage fix connects its UI colors/type/card settings
+at its actual owner with legacy fallbacks; painter/hooks/animation/handlers remain
+unchanged. New browser assertions verify selected-country brand and globe card
+radius/padding/heading. Read latest artifact before certifying this follow-up.
+Do not change native zoom, renderer/preview dimensions, strict equality or PNG
+pixel checks without separate founder approval. Keep PR draft and production intact.

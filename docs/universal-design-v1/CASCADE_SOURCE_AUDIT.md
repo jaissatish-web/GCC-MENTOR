@@ -121,3 +121,7 @@ metrics are retained. All64documentfixtures (128states) and12PDFs match original
 main in that prior run. Exact mounted runtime geometry remains a blocking gate;
 see RESUME.md and current-orbit/original-orbit diagnostic JSON. No rendering code
 or exact-comparison threshold was changed to achieve a pass.
+
+Final widget coverage review found `GccGlobe` JSX utilities still read hardcoded Tailwind canvas/teal/ink/line values after opting out of legacy utility remapping. Replaced those UI classes in the actual component owner with direct UDS color/type/card/control values (legacy fallbacks preserve isolated reuse). Added selected-country/card computed checks. Globe hooks, painter, timing, masks and interactions remain unchanged; reduced-motion country transitions now resolve immediately.
+
+Run42954402682 passed broad CI, all independent setting checks and six default widths,64authored documents and12PDFs. Its strict live gate failed at390 baseline stability and1440 clinical_care pixel comparison. Diagnostics show only native-zoom/layout cycle states; no font/size/weight/line/color change. Original main also cycled at both widths in that run. This supports a protected auto-fit feedback issue but does not replace or pass the same-width pixel gate. The final widget-only follow-up still requires a fresh run.

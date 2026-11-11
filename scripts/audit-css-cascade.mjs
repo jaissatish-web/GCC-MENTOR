@@ -57,6 +57,9 @@ const phase=(process.env.QA_PHASE??'after').replace(/[^a-z0-9_-]/gi,'-'),out=res
 mkdirSync(out,{recursive:true})
 const properties=['font-family','font-size','font-weight','font-style','line-height','letter-spacing','color','background-color','border-radius','border-top-width','border-top-color','box-shadow','padding-top','padding-right','padding-bottom','padding-left','margin-top','margin-bottom','width','max-width','height','min-height','gap','display','position','overflow-x','transform','zoom','--ui-font','--uds-font','--ui-body-size','--uds-body-size','--ui-brand-rgb','--uds-brand-rgb']
 const targets={
+  globe:'#markets [data-uds="website-widget"] > div > div',
+  globeTitle:'#markets-title',
+  globeCountry:'#markets button',
   kicker:'[data-uds="hero"] [data-uds="kicker"]',
   select:'select',
   hero:'#hero-title',
@@ -103,6 +106,8 @@ try {
     await page.goto(origin,{waitUntil:'networkidle0',timeout:60000});await page.evaluate(()=>document.fonts.ready)
     await page.waitForSelector('#hero-title',{timeout:15000})
     // Trigger ordinary lazy intersection loading; never alter element styles or renderers.
+    await page.$eval('#markets',element=>element.scrollIntoView({block:'center'}))
+    await page.waitForSelector('#markets-title',{timeout:20000})
     await page.$eval('#templates',element=>element.scrollIntoView({block:'center'}))
     await page.waitForFunction(()=>document.querySelector('.actual-template-orbit-face'),{timeout:20000})
     await page.evaluate(()=>window.scrollTo(0,0))

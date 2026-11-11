@@ -157,14 +157,19 @@ try {
   // Settings evidence is independent from the strict mounted-document stability gate.
   for (const width of [390,1440]) await exercise('settings',width,async () => {
     const frame = await prepareFrame(width), theme = modifiedTheme()
+    await frame.$eval('#markets',element=>element.scrollIntoView())
+    await frame.waitForSelector('[data-uds=globe-card]',{visible:true})
+    await frame.click('[data-uds=globe-country]')
     await sendTheme(page,frame,theme)
     const state = await frame.evaluate(() => {
       const s = role => getComputedStyle(document.querySelector(`[data-uds="${role}"]`))
       const fonts=Object.fromEntries(['[data-uds=hero-title]','[data-uds=kicker]','[data-uds=hero] p','[data-uds=button-primary]','[data-uds=card] h3','header nav a'].map(selector=>[selector,getComputedStyle(document.querySelector(selector)).fontFamily]));
-      return {fonts,brand:s('button-primary').backgroundColor,hero:s('hero-title').fontSize,radius:s('card').borderRadius,padding:s('card').paddingTop,section:s('section').paddingTop,height:s('button-secondary').minHeight,overflow:document.documentElement.scrollWidth>innerWidth+1}
+      const globe={radius:s('globe-card').borderRadius,padding:s('globe-card').paddingTop,title:s('globe-title').fontSize,selected:getComputedStyle(document.querySelector('[data-uds=globe-country][aria-pressed=true]')).backgroundColor};
+      return {globe,fonts,brand:s('button-primary').backgroundColor,hero:s('hero-title').fontSize,radius:s('card').borderRadius,padding:s('card').paddingTop,section:s('section').paddingTop,height:s('button-secondary').minHeight,overflow:document.documentElement.scrollWidth>innerWidth+1}
     })
     // Persist every measured setting and screenshot before assertions, even when a setting fails.
     const checks = {
+      globeSettings:state.globe.radius==='20px' && state.globe.padding==='28px' && state.globe.title===DEFAULT_THEME[width<768?'mobile':'desktop'].marketingSize+'px' && state.globe.selected==='rgb(89, 70, 163)',
       websiteFont:Object.values(state.fonts).every(font=>/^Arial(?:,|$)/i.test(font)),
       primaryColor:state.brand==='rgb(89, 70, 163)',
       mobileHeading:state.hero===(width<768 ? 40 : DEFAULT_THEME.desktop.heroSize)+'px',
