@@ -53,6 +53,9 @@ jobs:
         run: |
           CHROME_PATH="$(node --input-type=module -e "import puppeteer from 'puppeteer'; console.log(await puppeteer.executablePath())")" node scripts/verify-premium-landing-v2.mjs
           CHROME_PATH="$(node --input-type=module -e "import puppeteer from 'puppeteer'; console.log(await puppeteer.executablePath())")" node scripts/verify-orbit-depth.mjs
+      - name: Verify employer logo motion and responsive accessibility
+        run: |
+          CHROME_PATH="$(node --input-type=module -e "import puppeteer from 'puppeteer'; console.log(await puppeteer.executablePath())")" node scripts/verify-employer-marquee.mjs
       - name: Verify public free-tool pages and calculations
         run: |
           CHROME_PATH="$(node --input-type=module -e "import puppeteer from 'puppeteer'; console.log(await puppeteer.executablePath())")" node scripts/verify-free-tools-pages.mjs
