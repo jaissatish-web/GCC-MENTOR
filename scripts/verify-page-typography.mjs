@@ -93,9 +93,10 @@ try{
    })
    assert.equal(data.overflow,false,`Overflow ${path}/${width}: ${JSON.stringify(data.overflowNodes)}`)
    for(const h of data.headings){
-    const size=h.dashboard?(h.tag==='H1'?(width>=768?20:19):h.tag==='H2'&&h.section==='next-action'?14:(width>=768?18:17)):h.footer&&h.tag==='H2'?14:h.tag==='H1'?(h.marketing?(width>=768?48:36):(width>=768?32:28)):h.tag==='H2'?(width>=768?24:21):(width>=768?18:17)
+    const pilot = path === '/' && h.marketing
+    const size=pilot ? (h.footer && h.tag === 'H2' ? 13 : h.tag === 'H1' ? (width>=1024?52:width>=768?44:36) : h.tag === 'H2' ? (width>=1024?34:width>=768?30:26) : 16) : h.dashboard?(h.tag==='H1'?(width>=768?20:19):h.tag==='H2'&&h.section==='next-action'?14:(width>=768?18:17)):h.footer&&h.tag==='H2'?14:h.tag==='H1'?(h.marketing?(width>=768?48:36):(width>=768?32:28)):h.tag==='H2'?(width>=768?24:21):(width>=768?18:17)
     assert.equal(h.size,size+'px',`${path}/${width} ${h.tag}: ${h.text} (${h.class})`)
-    assert.equal(h.weight,h.tag==='H1'&&!h.dashboard?'700':'600',`${path}/${width} heading emphasis: ${h.text}`)
+    assert.equal(h.weight,h.tag==='H1'&&!h.dashboard&&!pilot?'700':'600',`${path}/${width} heading emphasis: ${h.text}`)
    }
    for(const f of data.fields)assert.equal(f,'16px',`Input readability ${path}/${width}`)
    if(!data.headings.length)console.log(await page.evaluate(()=>document.body.innerText.slice(0,1200)))

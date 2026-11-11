@@ -11,14 +11,15 @@
 .tabs button[aria-pressed=true] { background: var(--ui-brand-soft); color: var(--ui-brand); font-weight: var(--ui-weight-heading); }
 .stage,.compact .stage,.expanded .stage,.expanded.compact .stage { height: auto; min-height: 0; overflow: visible; padding: 20px; }
 .stage>h3 { font-size: var(--ui-section-size); line-height: var(--ui-label-line); margin: 14px 0 22px; }
-.options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.options { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; margin-bottom: 20px; }
 .options label { min-width: 0; color: var(--ui-muted); font-size: var(--ui-helper-size); }
 .options label:first-child { grid-column: 1/-1; }
-.options select { width: 100%; min-height: 44px; margin-top: 6px; padding: 8px 10px; border: 1px solid var(--ui-line-strong); border-radius: var(--ui-control-radius); color: var(--ui-ink); background: var(--ui-surface); font-size: var(--ui-helper-size); }
-.interviewer { display: flex; align-items: center; gap: 16px; }
-.portrait,.compact .portrait { position: relative; width: 72px; height: 80px; overflow: hidden; flex: none; border-radius: var(--ui-control-radius); background: var(--ui-brand-soft); }
+.options select { width: 100%; min-height: var(--uds-input-height,44px); margin-top: 6px; padding: 8px 10px; border: 1px solid var(--ui-line-strong); border-radius: var(--ui-control-radius); color: var(--ui-ink); background: var(--ui-surface); font-size: max(16px,var(--uds-body-size,var(--ui-body-size))); }
+.interviewer { display: grid; grid-template-columns: 1fr; gap: 0; background: var(--ui-surface); border-radius: var(--ui-card-radius); overflow: hidden; }
+.portrait,.compact .portrait { position: relative; width: 100%; height: 220px; overflow: hidden; flex: none; border-radius: var(--ui-control-radius); background: var(--ui-brand-soft); }
+.portrait img { object-position: center 18%; }
 .portrait[data-speaking=true] { box-shadow: 0 0 0 3px var(--ui-brand-soft); }
-.interviewer>div:last-child { min-width: 0; }
+.interviewer>div:last-child { min-width: 0; padding: 12px 16px; }
 .interviewer span,.question>span,.label { font-size: var(--ui-caption-size); line-height: var(--ui-body-line); font-weight: var(--ui-weight-heading); letter-spacing: var(--ui-tracking); color: var(--ui-brand); }
 .interviewer h3,.compact .interviewer h3 { font-size: var(--ui-card-title-size); margin: 4px 0; }
 .interviewer p,.interviewer b { font-size: var(--ui-helper-size); font-weight: var(--ui-weight-regular); line-height: var(--ui-body-line); margin: 0!important; color: var(--ui-muted); }
@@ -42,7 +43,7 @@
 .answer p,.feedback p,.details p,.compact .answer p,.compact .feedback p,.compact .details p { margin: 8px 0 0!important; color: var(--ui-muted); font-size: var(--ui-helper-size)!important; line-height: var(--ui-body-line)!important; }
 .note,.compact .note { display: block; margin: 14px 0 0!important; color: var(--ui-muted); font-size: var(--ui-helper-size)!important; line-height: var(--ui-body-line)!important; }
 a.note { display: flex; align-items: center; min-height: 44px; color: var(--ui-brand); font-weight: var(--ui-weight-label); }
-.action,.record button,.play { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: var(--ui-control-height); padding: var(--ui-control-padding-y) 16px; border: 1px solid var(--ui-brand); border-radius: var(--ui-control-radius); background: var(--ui-brand); color: #fff; font-size: var(--ui-helper-size); font-weight: var(--ui-weight-heading); line-height: var(--ui-body-line); }
+.action,.record button,.play { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: var(--ui-control-height); padding: var(--ui-control-padding-y) 16px; border: 1px solid var(--ui-brand); border-radius: var(--ui-control-radius); background: var(--uds-button-background,var(--ui-brand)); color: var(--uds-primary-text,#fff); font-size: var(--ui-helper-size); font-weight: var(--ui-weight-heading); line-height: var(--ui-body-line); }
 .action:hover,.record button:hover,.play:hover { background: var(--ui-brand-hover); }
 .stage .action { margin-top: 12px; }
 .play { margin: 0 20px 16px; }
@@ -100,13 +101,21 @@ a.note { display: flex; align-items: center; min-height: 44px; color: var(--ui-b
 .demo :is(button,select,summary,a):focus-visible,.stage:focus-visible { outline: 3px solid var(--ui-brand); outline-offset: 3px; }
 .demo button:disabled { opacity: .65; }
 @keyframes speak { from { transform: scaleY(.45); } to { transform: scaleY(1); } }
+@media(min-width:960px) {
+  .stage:has(.interviewer) { display: grid; grid-template-columns: minmax(0,.9fr) minmax(0,1.1fr); gap: 0 28px; }
+  .options { grid-column: 1/-1; grid-template-columns: repeat(3,minmax(0,1fr)); }
+  .options label:first-child { grid-column: auto; }
+  .interviewer { grid-column: 1; grid-row: 2/9; align-self: start; }
+  .portrait { height: 340px; }
+  .turnSteps,.question,.turnStatus,.wave,.answer,.stage .action,.stage a.note { grid-column: 2; }
+}
 @media(max-width:599px) {
   .head,.compact .head { padding: 16px; font-size: var(--ui-helper-size); }
   .tabs { padding: 8px; }
   .tabs button,.compact .tabs button { font-size: var(--ui-caption-size); }
   .stage,.compact .stage { padding: 16px; }
   .options { gap: 10px; }
-  .options select,.compact .options select { min-height: 44px; font-size: var(--ui-helper-size); padding-inline: 8px; }
+  .options select,.compact .options select { padding-inline: 8px; }
   .interviewer { gap: 12px; }
   .verdictGrid,.reviewGrid { grid-template-columns: 1fr; }
   .action { width: 100%; }
