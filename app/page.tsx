@@ -7,6 +7,7 @@ import { PremiumNav } from '@/components/landing-v3/PremiumNav'
 import { LandingFooter } from '@/components/landing-v3/LandingFooter'
 import { DocumentOrbit, GccGlobe } from '@/components/landing-v3/lazy'
 import { InterviewDemo } from '@/components/landing-v3/InterviewDemo'
+import { EmployerMarquee } from '@/components/landing-v3/EmployerMarquee'
 import { services } from '@/components/landing-premium/data'
 import { UniversalTheme } from '@/components/design-system/UniversalTheme'
 import s from '@/components/landing-v3/premium.module.css'
@@ -55,6 +56,7 @@ export default function Home() {
         </div></div>
       </section>
       <section className={s.countryBand} aria-label="GCC career destinations"><div className={s.inner}><ul className={s.countryGrid}>{COUNTRIES.map(([code,name])=><li key={code} className={s.countryCard}><Image src={`/landing/v2/flags/${code}.svg`} width={36} height={26} alt="" /><span className={s.countryName}>{name}</span></li>)}</ul></div></section>
+      <EmployerMarquee />
       <section id="how-it-works" className={s.journeySection} data-uds="section" aria-labelledby="journey-title"><div className={s.inner}>
         <div className={s.sectionHeadCenter}><span className={s.kickerGold} data-uds="kicker">The GCC Mentor journey</span><h2 id="journey-title" className={s.sectionTitle} data-uds="marketing-title"><span className={s.mobileHeadline}>Your Gulf career journey</span><span className={s.desktopHeadline}>From your profile to a Gulf career</span></h2><p className={s.sectionLead}>A simple, guided journey to prepare for your next opportunity.</p></div>
         <ol className={s.journeyGrid}>{journey.map(({title,text,Icon,href},i)=><li key={title}><Link href={href} className={s.journeyCard}><span className={s.journeyIcon}><Icon size={28} aria-hidden="true" /></span><div><h3>{title}</h3><p>{text}</p></div><ChevronRight className={s.journeyArrow} size={20} aria-hidden="true" /></Link>{i<2&&<span className={s.journeyConnector} aria-hidden="true"><ArrowRight size={22}/></span>}</li>)}</ol>

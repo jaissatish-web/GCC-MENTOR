@@ -371,3 +371,12 @@ PREMIUM-TOOLS-V1 reference implemented and locally verified: PR#70, final applic
 
 ## V2-only release —11November2026
 Founder repeats merge-to-main approval after disclosure of existing mounted-preview drift. Prepare a temporary main-based release PR, not a merge of PR79. Import approved V2 presentation/assets plus minimum UDS runtime, website CSS opt-out/widget adapter and matching presentation tests. Exclude admin routes, admin navigation, publishing proposals and foundation audit workflow/history. Preserve all rendering, templates/PDF, animation logic and backend/auth/API/schema/payment source. Required existing main CI must pass; verify exact-source preview and production after protected merge. Retain known mounted drift as an explicit pre-existing limitation; no protected fix or test relaxation authorized.
+
+## EMPLOYER-MARQUEE —11November2026
+Founder authorizes one two-row current-brand logo section on separate branch design/dual-employer-marquee, preview only. Scope/placement/accessibility/performance/protected invariants recorded in EMPLOYER_MARQUEE.md before implementation. Source official assets/current brand names; preserve approved page and all protected logic. Implementation and verification pending; no merge authorization.
+
+Employer marquee implemented: 21 sourced local logos; build and92/92 repository checks passed; new and existing landing Chromium suites passed all six widths; orbit depth passed390/1440. Scoped sources protected. Preview/draft delivery pending, no merge. See docs/EMPLOYER_MARQUEE.md and logo source manifest.
+
+Approved: restore employer-logo original brand colors, using dark slate windows for existing official white/reversed assets. Implementation and browser verification pending; PR82 remains draft, no merge.
+
+Implemented and verified: original company colors restored; white/reversed variants stay authentic on slate windows. Build and six-width marquee browser checks passed. Updating PR82 preview; no merge.
