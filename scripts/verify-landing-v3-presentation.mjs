@@ -62,8 +62,10 @@ try{
  }
  for(const width of [390,1440]) {
   await page.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'no-preference'}]);await page.setViewport({width,height:width===390?844:900,deviceScaleFactor:1});await page.goto(origin,{waitUntil:'networkidle0'});
-  for(const id of ['templates','markets','interview']) await page.$eval('#'+id,e=>e.scrollIntoView({behavior:'instant'}));
-  await page.waitForSelector('.actual-template-orbit-face');await page.waitForSelector('#markets-title');
+  await page.$eval('#templates',e=>e.scrollIntoView({behavior:'instant'}));
+  await page.waitForFunction(()=>document.querySelectorAll('.actual-template-orbit-face').length===10);
+  await page.$eval('#markets',e=>e.scrollIntoView({behavior:'instant'}));await page.waitForSelector('#markets-title');
+  await page.$eval('#interview',e=>e.scrollIntoView({behavior:'instant'}));
   await page.$$eval('#employers button',es=>es[0].click());
   await page.$$eval('#interview button',es=>es.find(e=>e.textContent.includes('Pause demo')).click());
   assert.equal(await page.$eval('#interview [data-motion]',e=>e.dataset.motion),'static');
