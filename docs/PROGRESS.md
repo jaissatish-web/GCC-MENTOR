@@ -1,3 +1,11 @@
+## 2026-11-15 — V3 isolated implementation and local verification
+
+Implemented approved issue #87 presentation in design/premium-landing-v3. Final local build, typecheck, lint, 92/92 checks, seven-width V3 browser matrix, 200% text, mobile typography, marquee and orbit/reader regressions PASS. Selected download PDFs (optimized and raw; photo/no-photo and long CVs) PASS. Independent review Important fixes are verified RED→GREEN. Actual template/PDF/AI/auth/backend sources unchanged. Existing test:interview dashboard timeout also reproduces on unchanged baseline; no protected fix attempted. Real production/authenticated/CDN-DPR2/screen-reader/field performance remain unverified; one minor gap-label repetition remains deferred. Draft PR/preview publication follows; no merge or production promotion authorized. See design-qa.md and docs/plans/2026-11-15-landing-v3.md.
+
+## 2026-11-15 — Approved V3 implementation started
+
+Satish approved issue #87 final desktop/mobile references and all V3 batches. Isolated branch design/premium-landing-v3 from 47cf8c2. Scope/acceptance and protected files: docs/plans/2026-11-15-landing-v3.md. Current main baseline: build PASS, 92/92 checks PASS. Implementation and responsive verification pending. No merge/production release authorized.
+
 # QUALITY-FOUNDATION-1A — 15 November 2026
 
 Founder approved documentation/development-quality foundation only, separate main-based branch and one review PR. Base: ca0abcf3ab386a252dc39a08ba26707d07019816. Scope: the ten-file allowlist in [working agreement](16_WORKING_AGREEMENT.md). No merge/deployment approval.

@@ -1,3 +1,7 @@
+## 2026-11-15 — V3 landing presentation authorization
+
+Founder-approved issue #87 implementation supersedes earlier documentation-only and between-batch approval notes for this task. All batches, draft PR and preview are authorized; production/merge remain prohibited. Preserve orbit/globe underlying source and all protected service/document behavior. Exact local compiled captures are distinguished from live external evidence.
+
 # 2026-11-15 — Controlled quality adoption, Batch 1A
 
 Satish approves only the ten documentation files named in docs/16_WORKING_AGREEMENT.md, on a separate branch from verified main, with one PR for founder review. Explicitly no application/production changes, dependency/plugin installation, paid AI evaluation, production API calls, interference with existing PRs, merge or deployment.

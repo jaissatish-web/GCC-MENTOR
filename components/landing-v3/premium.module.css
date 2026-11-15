@@ -58,7 +58,7 @@
 .footer a:not(.footerBrand) { display: flex; align-items: center; min-height: 44px; color: var(--uds-muted); font-size: var(--uds-helper-size); line-height: var(--uds-body-line); overflow-wrap: anywhere; }
 .footer a:hover { color: var(--uds-brand); }
 .footerBottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 24px; margin-top: 32px; padding-top: 22px; border-top: var(--uds-border-width) solid var(--uds-border); color: var(--uds-muted); font-size: var(--uds-helper-size); line-height: var(--uds-body-line); }
-/* Approved V2: this module is the single owner of landing composition.
+/* Approved V3: this module is the single owner of landing composition.
    Document-bearing ancestors retain the original fixed UI inheritance above. */
 .desktopHeadline { display: none; }
 .mobileHeadline { display: block; }
@@ -66,7 +66,7 @@
 .heroImage { position: relative; height: clamp(230px, 66vw, 340px); overflow: hidden; border-radius: 0 0 48% 8%; }
 .heroImage img { object-fit: cover; object-position: 76% 42%; }
 .heroInner { position: relative; width: min(var(--uds-content-max), calc(100% - var(--uds-gutter) * 2)); margin-inline: auto; }
-.heroCopy { position: relative; padding: 8px 0 20px; }
+.heroCopy { position: relative; padding: 18px 0 24px; }
 .heroTitle { position: relative; margin: 0 0 18px; color: var(--uds-ink); font-family: var(--uds-font); font-size: var(--uds-hero-size); font-weight: var(--uds-heading-weight); line-height: var(--uds-heading-line); letter-spacing: var(--uds-tracking); }
 .heroTitle em { color: var(--uds-brand); font-style: italic; }
 .heroTitle .mobileHeadline em { display: inline-block; border-bottom: 3px solid var(--uds-warning); padding-bottom: 6px; }
@@ -85,7 +85,7 @@
 .countryCard { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 84px; padding: 10px 4px; border-radius: var(--uds-card-radius); background: var(--uds-canvas); color: var(--uds-ink); }
 .countryCard img { width: 32px; height: 24px; object-fit: contain; }
 .countryName { font-size: var(--uds-helper-size); font-weight: var(--uds-heading-weight); line-height: var(--uds-body-line); text-align: center; }
-.journeySection,.servicesSection,.interviewSection,.industriesSection,.marketsSection,.founderSection,.plansSection,.faqSection { padding-block: var(--uds-landing-gap); background: var(--uds-surface); }
+.journeySection,.servicesSection,.interviewSection,.industriesSection,.marketsSection,.founderSection,.plansSection,.faqSection { padding-block: clamp(28px,4vw,48px); background: var(--uds-surface); }
 .journeySection,.servicesSection,.interviewSection,.plansSection { background: var(--uds-canvas); }
 .sectionHeadCenter { text-align: center; margin-bottom: 24px; }
 .kickerGold { display: inline-block; color: var(--uds-brand-hover); font-size: var(--uds-helper-size); font-weight: var(--uds-heading-weight); line-height: var(--uds-body-line); }
@@ -93,6 +93,8 @@
 .sectionTitle em { color: var(--uds-brand); font-style: normal; }
 .sectionLead { margin: 0; color: var(--uds-muted); font-size: var(--uds-body-size); line-height: var(--uds-body-line); }
 .journeySection .sectionLead { display: none; }
+.journeyTitle { margin:8px 0 0; font-size:var(--uds-card-size); color:var(--uds-muted); font-weight:var(--uds-body-weight); }
+.accessNote { margin:18px 0 0; color:var(--uds-muted); text-align:center; font-size:var(--uds-helper-size); }
 .journeyGrid { display: grid; gap: 14px; margin: 0; padding: 0 0 0 22px; list-style: none; position: relative; }
 .journeyGrid::before { content: ''; position: absolute; left: 5px; top: 30px; bottom: 30px; width: 2px; background: var(--uds-brand); }
 .journeyGrid>li { min-width: 0; position: relative; }
@@ -126,9 +128,9 @@
 .serviceLinks span { flex: 1; }
 .serviceLinks strong,.serviceLinks small { display: block; font-size: var(--uds-helper-size); line-height: var(--uds-body-line); }
 .serviceLinks small { color: var(--uds-muted); }
-.resumeSection { padding-block: var(--uds-landing-gap); position: relative; background: var(--uds-ink); border-radius: 14% 0 12% 0 / 3% 0 3% 0; }
+.resumeSection { padding-block: var(--uds-landing-gap); position: relative; background: var(--uds-canvas); border-radius: 0; }
 .resumeInner { display: grid; gap: 12px; width: min(var(--uds-content-max), calc(100% - var(--uds-gutter) * 2)); margin-inline: auto; }
-.resumeCopy { position: relative; z-index: 1; text-align: center; }
+.resumeCopy { order:2; position: relative; z-index: 1; text-align: center; }
 .resumeCopy .kickerGold { color: var(--uds-primary-text); }
 .resumeTitle { margin: 10px 0 14px; font-family: var(--uds-font); font-size: var(--uds-marketing-size); font-weight: var(--uds-heading-weight); line-height: var(--uds-heading-line); letter-spacing: var(--uds-tracking); color: var(--uds-primary-text); }
 .resumeTitle em { color: color-mix(in srgb,var(--uds-warning) 65%,var(--uds-primary-text)); font-style: italic; }
@@ -138,11 +140,11 @@
 .resumeBenefits svg { flex: none; color: color-mix(in srgb,var(--uds-brand) 40%,var(--uds-primary-text)); }
 .resumeCta { background: var(--uds-surface); color: var(--uds-ink); width: 100%; margin-top: 10px; }
 /* No UDS inheritance is applied to this document-bearing wrapper. */
-.heroVisual { min-width: 0; position: relative; isolation: isolate; color: var(--lp-ink); font-family: var(--ui-font); }
-.visualLabel { display: flex; justify-content: space-between; align-items: center; gap: 12px; color: var(--uds-primary-text); font-size: var(--uds-helper-size); padding: 12px 8px; }
+.heroVisual { order:1; min-width: 0; position: relative; isolation: isolate; color: var(--lp-ink); font-family: var(--ui-font); }
+.visualLabel { display: flex; justify-content: space-between; align-items: center; gap: 12px; color: var(--uds-ink); font-size: var(--uds-helper-size); padding: 12px 8px; }
 .visualLabel strong { font-weight: var(--uds-heading-weight); }
 .visualFoot { display: flex; justify-content: center; padding-bottom: 12px; }
-.visualFoot a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; color: var(--uds-primary-text); font-size: var(--uds-helper-size); }
+.visualFoot a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; color: var(--uds-brand-hover); font-size: var(--uds-helper-size); }
 .interviewHeading { display: grid; gap: 6px; margin-bottom: 20px; }
 .interviewHeading .sectionTitle { margin-top: 8px; }
 .demoBoundary { min-width: 0; }
@@ -209,12 +211,27 @@
  .centerAction .goldCta { width: auto; }
 }
 @media(min-width:960px) {
+ .secondaryGrid,.lowerGrid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:24px; width:min(var(--uds-content-max),calc(100% - var(--uds-gutter) * 2)); margin-inline:auto; align-items:start; }
+ .secondaryGrid .inner,.lowerGrid .inner { width:100%; }
+ .secondaryGrid .sectionTitle,.lowerGrid .sectionTitle { font-size:var(--uds-section-size); text-align:left; }
+ .secondaryGrid .sectionLead { text-align:left; }
+ .secondaryGrid .industryGrid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+ .secondaryGrid .industryTile { aspect-ratio:1.4; }
+ .secondaryGrid [data-uds="globe-card"] { padding:16px; }
+ .secondaryGrid ul[aria-label="GCC countries"] { grid-template-columns:minmax(0,1fr); }
+ .secondaryGrid [data-uds="globe-title"] { font-size:var(--uds-section-size); }
+ .lowerGrid .accessCards { grid-template-columns:minmax(0,1fr); gap:10px; }
+ .lowerGrid .sectionHeadCenter { text-align:left; margin-bottom:14px; }
+ .lowerGrid .accessCard { padding:14px; }
+ .lowerGrid .faqList { gap:0; }
+ .lowerGrid .faqItem { border-radius:0; border-width:0 0 1px; }
+ .lowerGrid .faqItem summary { padding:10px 0; }
  .desktopHeadline { display: block; }
  .mobileHeadline { display: none; }
  .heroNavy { background: var(--uds-ink); }
  .heroImage { position: absolute; inset: 0 0 0 auto; width: 74%; height: auto; border-radius: 0; }
  .heroImage img { object-position: right top; }
- .heroCopy { width: 51%; padding: 58px 0 54px; isolation: isolate; }
+ .heroCopy { width: 51%; padding: 38px 0 36px; isolation: isolate; }
  .heroCopy::before { content: ''; position: absolute; z-index: -1; inset: 0 -70px 0 -100vw; border-radius: 0 0 120px 0; background: var(--uds-ink); }
  .heroTitle { color: var(--uds-primary-text); margin-bottom: 18px; }
  .heroTitle em { color: color-mix(in srgb,var(--uds-brand) 40%,var(--uds-primary-text)); font-style: normal; }
@@ -227,10 +244,10 @@
  .countryCard { background: var(--uds-surface); border-radius: 0; }
  .countryCard:not(:last-child) { border-right: var(--uds-border-width) solid var(--uds-border); }
  .journeySection .sectionLead { display: block; }
- .journeySection,.servicesSection,.interviewSection,.industriesSection,.marketsSection,.founderSection,.plansSection,.faqSection { padding-block: var(--uds-landing-gap); }
+ .journeySection,.servicesSection,.interviewSection,.industriesSection,.marketsSection,.founderSection,.plansSection,.faqSection { padding-block: clamp(28px,4vw,48px); }
  .journeyGrid { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 36px; padding: 0; }
  .journeyGrid::before,.journeyGrid>li::before { display: none; }
- .journeyCard { grid-template-columns: 1fr; min-height: 176px; padding: var(--uds-card-padding); gap: 12px; }
+ .journeyCard { grid-template-columns: 46px minmax(0,1fr); min-height: 100px; padding: 16px; gap: 12px; }
  .journeyIcon { border-radius: var(--uds-button-radius); }
  .journeyArrow { display: none; }
  .journeyConnector { position: absolute; display: grid; place-items: center; top: calc(50% - 20px); right: -36px; z-index: 1; width: 38px; height: 38px; border-radius: 50%; background: var(--uds-surface); color: var(--uds-ink); box-shadow: 0 2px 8px rgb(var(--uds-ink-rgb) / .08); }
@@ -243,12 +260,12 @@
  .interviewHeading { grid-template-columns: 1fr 1fr; align-items: center; gap: 44px; }
  .industryGrid { grid-template-columns: repeat(6,minmax(0,1fr)); }
  .industryTile { aspect-ratio: 1.45; }
- .founderPanel { min-height: 310px; }
+ .founderPanel { min-height: 220px; }
  .founderColumn { width: 57%; padding: 32px; background: rgb(var(--uds-canvas-rgb) / .94); }
  .founderScene { position: absolute; inset: 0 0 0 auto; width: 60%; height: auto; border-radius: 0; }
  .accessCards { grid-template-columns: repeat(3,minmax(0,1fr)); }
  .footerGrid { grid-template-columns: 1fr 1.2fr .8fr; }
- .finalBand { min-height: 300px; }
+ .finalBand { min-height: 180px; }
 }
 @media(min-width:1180px) { .desktopNav { display: flex; } .menu { display: none; } }
 @media(prefers-reduced-motion:reduce) { .system * { scroll-behavior: auto; } }

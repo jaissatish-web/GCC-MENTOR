@@ -25,8 +25,8 @@ export function EmployerMarquee() {
   const [paused, setPaused] = useState(false)
   return <section id="employers" className={s.section} aria-labelledby="employers-title" data-paused={paused}>
     <div className={s.intro}>
-      <h2 id="employers-title">Prepare Confidently for Leading Gulf Employers</h2>
-      <p>Build a stronger resume, improve ATS readiness and prepare for interviews for top EPC, PMC, construction, oil &amp; gas and energy companies across the Gulf.</p>
+      <h2 id="employers-title">Prepare for opportunities across the Gulf</h2>
+
       <button type="button" className={s.control} aria-pressed={paused} aria-controls="employer-strips" aria-label={paused ? 'Resume logo animation' : 'Pause logo animation'} onClick={() => setPaused(!paused)}>
         {paused ? <Play size={14} aria-hidden="true" /> : <Pause size={14} aria-hidden="true" />}
         {paused ? 'Resume logos' : 'Pause logos'}
