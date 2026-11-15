@@ -2,67 +2,72 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useRef, useState } from 'react'
-import { ArrowRight, Check, Mic, MessageCircle, Target, Volume2, CircleAlert, Sparkles } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { ArrowRight, CheckCircle2, CircleAlert, Pause, Play, Sparkles } from 'lucide-react'
 import { INTERVIEWERS, getInterviewer } from '@/lib/voice/interviewers'
 import { useInView, useReducedMotion } from './hooks'
 import s from './interview.module.css'
+
 const stages = ['Practice', 'Question feedback', 'Progress']
-const metrics = [['Technical knowledge','Explain your checks'],['Role fit','Connect relevant experience'],['Gulf readiness','Review preparation gaps'],['Answer structure','Situation, action, result']] as const
-const reviews = [
-  ['Confidence & clarity', 'Be more specific', 'State your responsibility and action clearly. This is an answer-clarity cue, not a measurement of vocal confidence.'],
-  ['Speaking & delivery', 'Steady delivery', 'Keep a steady pace. Pause between the problem, action and result. Keep the wording clear and direct.'],
-  ['Grammar', 'Correction needed', '“Then we find” → “Then we found.” Use past tense consistently for a past event.'],
-  ['Technical detail', 'Evidence missing', 'The cause, checks and result are not explained. There is not enough technical detail to judge correctness.'],
-  ['Resume & job fit', 'Connect your experience', 'Use an example supported by your optimized resume and explain how it relates to the target role.'],
-  ['Answer correctness', 'Partly demonstrated', 'Reviewing records and involving the team are relevant steps. Explain how you verified the corrective action.'],
-] as const
+const attempts = [46, 61, 74] as const
+const question = 'Describe a problem you solved in your role.'
+const answer = 'I checked the records and spoke with the team.'
+
+/** Local synthetic learning example. No recording, service calls or saved results. */
 export function InterviewDemo({ compact = false }: { compact?: boolean }) {
   const reduced = useReducedMotion()
   const { ref, visible } = useInView<HTMLDivElement>(0.1)
-  const [index,setIndex] = useState(0)
-  const [interacted, setInteracted] = useState(false)
-  const stageRef = useRef<HTMLDivElement>(null)
-  const [clock,setClock] = useState(0)
-  const [length,setLength] = useState(10)
-  const [mode,setMode] = useState('Mixed')
-  const [hostId,setHostId] = useState<string>('arab-man')
+  const [index, setIndex] = useState(0)
+  const [paused, setPaused] = useState(false)
+  const [clock, setClock] = useState(0)
+  const [length, setLength] = useState(10)
+  const [mode, setMode] = useState('Mixed')
+  const [hostId, setHostId] = useState('arab-man')
   const host = getInterviewer(hostId)
-  const answering = clock % 12 >= 5
-  const moving = visible && !reduced
+  const moving = visible && !reduced && !paused
   useEffect(() => {
-    if (!visible || reduced || interacted) return
-    const timer = window.setInterval(() => { if (!document.hidden) setIndex(i => (i + 1) % 3) }, index === 1 ? 40000 : 18000)
+    if (!moving || index !== 0) return
+    const timer = window.setInterval(() => { if (!document.hidden) setClock(c=>c+1) }, 1000)
     return () => window.clearInterval(timer)
-  }, [visible, reduced, index, hostId, interacted])
-  useEffect(() => {
-    if (!visible || index !== 0 || reduced) return
-    const timer = window.setInterval(() => { if (!document.hidden) setClock(c => c + 1) }, 1000)
-    return () => window.clearInterval(timer)
-  }, [visible, index, reduced])
-  function choose(next:number) { setInteracted(true); setIndex(next); setClock(0); stageRef.current?.scrollTo({ top: 0 }) }
-  return <div ref={ref} className={s.demo + (compact ? ' ' + s.compact : '')} data-motion={moving?'playing':'static'} onPointerDownCapture={() => setInteracted(true)} onFocusCapture={() => setInteracted(true)}>
-    <div className={s.head}><span><Mic size={17} aria-hidden="true" />Interview practice &amp; feedback</span></div>
-    <div className={s.tabs} aria-label="Interview stages">{stages.map((t,i)=><button type="button" key={t} aria-pressed={index===i} onClick={()=>choose(i)}>{t}</button>)}</div>
-    <div ref={stageRef} className={s.stage} tabIndex={0} role="region" aria-label={`${stages[index]} details`}>
-      {index===0?<>
-        <div className={s.options}><label>Interviewer<select value={hostId} onChange={e=>{setInteracted(true);setHostId(e.target.value);setClock(0)}}>{INTERVIEWERS.map(person=><option key={person.id} value={person.id}>{person.name} · {person.label}</option>)}</select></label><label>Session<select value={length} onChange={e=>{setInteracted(true);setLength(Number(e.target.value))}}><option value={5}>Quick · 5 questions</option><option value={10}>Standard · 10 questions</option><option value={15}>Deep · 15 questions</option></select></label><label>Mode<select value={mode} onChange={e=>{setInteracted(true);setMode(e.target.value)}}>{['HR','Technical','Gulf readiness','Manager','Mixed'].map(m=><option key={m}>{m}</option>)}</select></label></div>
-        <div className={s.interviewer}><div className={s.portrait} data-speaking={!answering}><Image key={host.id} src={host.image} alt={`${host.name}, ${host.label}, virtual interviewer`} fill sizes="112px" className="object-cover" /></div><div><span>YOUR VIRTUAL INTERVIEWER</span><h3>{host.name}</h3><p>{mode} mode · Question {Math.min(4,length)} of {length}</p><b>{host.label}</b></div></div>
-        <div className={s.turnSteps} aria-label="Practice flow"><span data-active={!answering}><Volume2 size={15}/>1. Listen</span><ArrowRight size={14}/><span data-active={answering}><Mic size={15}/>2. Answer</span><ArrowRight size={14}/><span><MessageCircle size={15}/>3. Review</span></div>
-        <div className={s.question}><span>CURRENT QUESTION</span><h3>Describe a problem you solved in your role.</h3></div>
-        <div className={s.turnStatus} data-answering={answering}>{answering?<Mic size={22}/>:<Volume2 size={22}/>}<div><strong>{answering?'Your turn — prepare your answer':'Read the interview question'}</strong><small>{answering?'Focus on your own action and result':'Then explain your own experience'}</small></div></div>
-        <div className={s.wave} data-answering={answering} aria-hidden="true">{Array.from({length:25},(_,i)=><i key={i} style={{height:12+(i*17%35)+'px',animationDelay:i*.06+'s',animationPlayState:moving?'running':'paused'}} />)}</div>
-        <div className={s.answer}><strong>Answer to review</strong><p>“I checked the records and spoke with the team, then we find the cause. I documented the corrective action.”</p></div><button type="button" className={s.action} onClick={()=>choose(1)}>Review this answer <ArrowRight size={15}/></button><Link href="/mock-interview" className={s.note}>Open mock interview →</Link>
-      </>:index===1?<>
-        <span className={s.label}>QUESTION 4 · ANSWER REVIEW</span><h3>See what worked. Know what to improve.</h3>
-        <div className={s.reviewQuestion}><strong>Question</strong><p>Describe a problem you solved in your role.</p></div>
-        <div className={s.verdictGrid}><div className={s.correct}><Check size={18}/><strong>What is right</strong><p>You reviewed records, involved the team and documented the correction.</p></div><div className={s.correction}><CircleAlert size={18}/><strong>What needs correction</strong><p>Past tense is inconsistent. Your own action, the cause and verification are unclear.</p></div></div>
-        <details className={s.feedbackDetails}><summary>Explore all 6 feedback areas</summary><div className={s.reviewGrid} aria-label="What we review for each answer">{reviews.map(([title,status,detail],i)=><div key={title} className={s.reviewItem} data-warning={i===2||i===3}><span><b>{i+1}</b><strong>{title}</strong></span><small>{status}</small><p>{detail}</p></div>)}</div></details>
-        <div className={s.betterAnswer}><span><Sparkles size={18}/><strong>Suggested corrected answer</strong></span><p>“I reviewed the records and spoke with the team to understand the issue. I documented the corrective action.”</p><small>Then add your real responsibility, checks, cause and verified result. Only include work you actually performed.</small></div>
-        <div className={s.nextSteps}><Target size={18}/><div><strong>Your next practice</strong><ol><li>Explain your own action and the checks you performed.</li><li>Add a verified result. Keep past tense consistent.</li><li>Try the question again and compare your next report.</li></ol></div></div>
-        <button type="button" className={s.action} onClick={()=>choose(2)}>See repeat-session progress <ArrowRight size={15}/></button>
-      </>:<><span className={s.label}>SAME APPLICATION · COMPARABLE SETTINGS</span><h3>Practice. Review. Prepare. Repeat.</h3><div className={s.overall}><span>Your practice cycle</span><strong style={{fontSize:'var(--ui-card-title-size)'}}>Practise → Review → Repeat</strong></div><div className={s.metrics}>{metrics.map(([label,focus])=><div key={label}><span>{label}</span><b>{focus}</b></div>)}</div><div className={s.answer}><strong>Your next improvement plan</strong><p>Practise explaining your own action and verification steps. Try another relevant question set and compare saved reports.</p></div><p className={s.note}>Compare saved sessions with the same optimized resume and settings.</p><Link href="/dashboard" className={s.note}>Open my saved progress →</Link><button type="button" className={s.action} onClick={()=>choose(0)}>Return to practice <ArrowRight size={15}/></button></>}
+  }, [moving, index])
+  return <div ref={ref} className={`${s.demo} ${compact ? s.compact : ''}`} data-motion={moving?'playing':'static'}>
+    <div className={s.learning}>
+      <div className={s.head}><span>Illustrative demonstration</span><button type="button" aria-pressed={paused} onClick={()=>setPaused(!paused)}>{paused?<Play size={15} aria-hidden="true"/>:<Pause size={15} aria-hidden="true"/>}{paused?'Resume demo':'Pause demo'}</button></div>
+      <details className={s.settings}><summary>Adjust demo</summary><div className={s.options}>
+        <label>Interviewer<select value={hostId} onChange={e=>setHostId(e.target.value)}>{INTERVIEWERS.map(person=><option key={person.id} value={person.id}>{person.name} · {person.label}</option>)}</select></label>
+        <label>Session<select value={length} onChange={e=>setLength(Number(e.target.value))}><option value={5}>Quick · 5 questions</option><option value={10}>Standard · 10 questions</option><option value={15}>Deep · 15 questions</option></select></label>
+        <label>Mode<select value={mode} onChange={e=>setMode(e.target.value)}>{['HR','Technical','Gulf readiness','Manager','Mixed'].map(m=><option key={m}>{m}</option>)}</select></label>
+      </div></details>
+      <div className={s.stage} role="region" aria-label={`${stages[index]} details`}>
+        <div className={s.practiceIntro}><div className={s.portrait}><Image key={host.id} src={host.image} alt={`${host.name}, ${host.label}, virtual interviewer`} fill sizes="(min-width: 960px) 280px, (min-width: 600px) 45vw, 100vw" /><span>AI interviewer · {host.name}</span></div><div className={s.question}><span>Q · QUESTION {Math.min(4,length)} OF {length}</span><h3>{question}</h3><p>{mode} · {host.name}</p></div></div>
+        <div className={s.answer}><strong>A · Illustrative answer</strong><p>{answer}</p></div>
+        <div className={s.wave} data-inactive={index!==0} aria-hidden="true">{Array.from({length:18},(_,i)=><i key={i} style={{height:8+(i*11%18),animationDelay:i*.06+'s',animationPlayState:moving&&index===0?'running':'paused'}} />)}<span>{clock%12<6?'Read the question':'Prepare your own answer'}</span></div>
+        <div className={s.feedback}>
+          <article><CheckCircle2 size={20} aria-hidden="true"/><div><h4>What worked</h4><p>You showed an action and a basic approach.</p></div></article>
+          <article data-warning><CircleAlert size={20} aria-hidden="true"/><div><h4>What is missing</h4><p>Add your responsibility, the checks and verified result.</p></div></article>
+          <article><Sparkles size={20} aria-hidden="true"/><div><h4>Suggested answer structure</h4><p>Explain your own action, checks and verified result.</p></div></article>
+        </div>
+        <div className={s.tabs} role="group" aria-label="Interview stages">{stages.map((stage,i)=><button type="button" key={stage} aria-pressed={index===i} onClick={()=>setIndex(i)}>{stage}</button>)}</div>
+        <button type="button" className={s.action} onClick={()=>setIndex(index===0?1:index===1?2:0)}>{index===0?'Review this answer':index===1?'See repeat-session progress':'Return to practice'}<ArrowRight size={16} aria-hidden="true"/></button>
+        {index===1&&<div className={s.review}>
+          <h3>What needs correction</h3><p>The cause and result are not provided. There is not enough evidence to judge technical correctness.</p>
+          <h4>A useful structure for your next answer</h4><p>“My responsibility was [your role]. I checked [what you actually checked]. I verified [your real result].”</p><p>Use only work you performed. This text example does not measure voice, confidence or technical competence.</p>
+        </div>}
+        {index===2&&<p className={s.review}>Practice. Review. Prepare. Repeat. Compare attempts for the same application and settings. Use each question’s feedback to choose your next focus.</p>}
+        <Link href="/mock-interview" className={s.link}>Open mock interview <ArrowRight size={16} aria-hidden="true"/></Link>
+      </div>
     </div>
+    <figure className={s.progress} aria-labelledby="progress-title">
+      <figcaption><h3 id="progress-title">See the pattern across attempts.</h3><span className={s.badge}>ILLUSTRATIVE DATA · NOT CUSTOMER RESULTS</span></figcaption>
+      <p className={s.axis}>Answer-structure score / 100</p>
+      <svg className={s.chart} viewBox="0 0 420 230" role="img" aria-labelledby="attempt-chart-title attempt-chart-desc"><title id="attempt-chart-title">Illustrative three-attempt progress</title><desc id="attempt-chart-desc">Attempt 1: 46. Attempt 2: 61. Attempt 3: 74. Synthetic answer-structure examples, not real results.</desc>
+        {[0,25,50,75,100].map(v=><g key={v}><line x1="38" x2="402" y1={192-v*1.65} y2={192-v*1.65} stroke="#CBD5E1"/><text x="28" y={196-v*1.65} textAnchor="end">{v}</text></g>)}
+        <polyline points="60,116.1 220,91.35 380,69.9" fill="none" stroke="currentColor" strokeWidth="3"/>
+        {attempts.map((value,i)=><g key={value}><circle cx={60+i*160} cy={192-value*1.65} r="5" fill="currentColor"/><text x={60+i*160} y={178-value*1.65} textAnchor="middle" className={s.value}>{value}</text><text x={60+i*160} y="220" textAnchor="middle">Attempt {i+1}</text></g>)}
+      </svg>
+      <table className={s.attemptTable}><caption>Illustrative attempt values</caption><thead><tr><th scope="col">Attempt</th>{attempts.map((_,i)=><th key={i} scope="col">{i+1}</th>)}</tr></thead><tbody><tr><th scope="row">Score / 100</th>{attempts.map(v=><td key={v}>{v}</td>)}</tr></tbody></table>
+      <p>Same application and settings. Not a hiring probability. These synthetic values explain the practice journey; they do not predict your improvement.</p>
+      <div className={s.next}><CheckCircle2 size={20} aria-hidden="true"/><strong>Next practice: explain your verification.</strong></div><Link href="/dashboard" className={s.link}>Open my saved progress <ArrowRight size={16} aria-hidden="true"/></Link>
+    </figure>
   </div>
 }
-
