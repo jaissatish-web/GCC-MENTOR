@@ -1,3 +1,26 @@
+# Current quality proposals — 15 November 2026
+
+This is the sole unresolved-work surface. Entries below are proposals/investigations, not implementation permission. Older dated items remain historical leads unless freshly verified; do not infer current production defects or resolution from their presence.
+
+| ID | Service / evidence and impact | Proposed next step | Effort / API impact | Status / approval |
+|---|---|---|---|---|
+| QUALITY-001 | V3 output baseline missing for actual orchestration; older evaluator/lab paths are not equivalent | Specify six synthetic profiles, levels/consent/JD cases and deterministic gates | Medium; offline first, paid cap TBD | Proposed; separate batch approval |
+| QUALITY-002 | Mock answer prompts use /10, reports /100 with normalization; fairness/consistency needs measurement | Expert-labeled weak/partial/strong/incorrect/empty answers and repeatability protocol | Medium; paid trials only with cap | Proposed; no scoring change |
+| QUALITY-003 | Q&A/letter schema and grounding tests cannot certify technical truth or personalization | Expert reference cases and per-dimension review | Medium; cost TBD before live runs | Proposed |
+| QUALITY-004 | Typical-duties route checks allowance then increments after generation | Reproduce concurrent limit behavior with synthetic provider; propose smallest guard change | Medium; no paid calls needed for reproduction | Investigate; no guard/schema changes approved |
+| QUALITY-005 | No central security-header setup in inspected config/middleware; live edge headers unverified | Inspect effective headers and compatibility before proposal | Medium; no AI cost | Investigate; security changes need approval |
+| QUALITY-006 | Base PDF route launches Chromium without visible per-user reservation | Investigate resource/concurrency limits without changing renderer | Medium; no AI cost | Investigate; document protection applies |
+| QUALITY-007 | Three resume style guards use inherited-key-sensitive 'in' | Add proposed adversarial cases and separately seek protected-area approval | Small; no AI cost | Proposed; no template/style fix authorized |
+| QUALITY-008 | Retention/voice scheduling and prior CRON_SECRET notes need live confirmation | Separately authorize metadata/staging checks; do not assume configuration absent today | Medium; no AI generation required | Blocked on scoped authorization |
+| QUALITY-009 | Older baseline/design/task documents disagree | Batch 1A adds scoped authority notices; out-of-allowlist historical cleanup deferred | Small; zero API cost | Batch 1A only approved |
+| QUALITY-010 | Current structural CI is not a measured AI-quality baseline | Record final-head evidence and failure/duplicate/save scenarios per approved service batch | Medium; offline first | Proposed |
+
+For each approved investigation, expand its row with severity/user impact, root-cause evidence, exact files/workflows, measurable acceptance criteria, coverage, baseline/candidate results, expected benefit, actual cost, PR and rollback before implementation. Until measurements exist, results are **not measured**, not zero or improved. Default rollback for this documentation batch: close PR or revert its documentation commit; runtime proposals need their own rollback.
+
+Superpowers plugin installation/activation remains a separate proposal; no additional dependency is authorized. PR #79/#80 blockers remain owned by their existing work, untouched.
+
+## Historical unresolved-item records follow
+
 # OPEN ITEMS — every known defect and every undecided decision
 
 ## AUDIO-DELETE-001 — release verification

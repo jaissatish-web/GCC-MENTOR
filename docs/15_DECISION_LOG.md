@@ -1,3 +1,15 @@
+# 2026-11-15 — Controlled quality adoption, Batch 1A
+
+Satish approves only the ten documentation files named in docs/16_WORKING_AGREEMENT.md, on a separate branch from verified main, with one PR for founder review. Explicitly no application/production changes, dependency/plugin installation, paid AI evaluation, production API calls, interference with existing PRs, merge or deployment.
+
+Adopt Superpowers-inspired brainstorming, planning, root-cause debugging, TDD for approved code, actual-diff review and verification before completion. This is methodology adaptation, not plugin activation. Future quality work spans V3, letters, Q&A, mock, ATS and Career Profile, plus approved UX/reliability work; each requires measurable baselines, approval and reversible isolated implementation.
+
+Latest explicit Executive Slate & Teal/Gulf-reference instruction governs future design proposals; older color records remain historical. No recoloring or resume/PDF change is approved. Keep one approved batch at a time; no uncontrolled autonomous changes. Plugin adoption, offline evaluation implementation and paid trials are separate future decisions.
+
+Rollback: close unmerged documentation PR, or revert its commit after an approved merge. Preserve existing PR #79/#80 and all protected data/service behavior.
+
+## Earlier dated decisions follow
+
 ## 2026-11-05 — Simple Profile overview
 
 Founder requests only a polished identity header (name/title/location), direct crop-adjust-save photo controls, current resume visibility settings, resume preview and canonical Career Profile editor action. Duplicate career details stay in the editor. Keep existing save/validation, authored resume behavior and backend unchanged.
