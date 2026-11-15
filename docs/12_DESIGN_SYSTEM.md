@@ -1,6 +1,18 @@
-# Current visual approval — 26 October 2026
+# Current founder visual authority — 15 November 2026
 
-The active approved direction is **SKILLPILOT-BRAND-001**, which replaces the compact indigo palette with a navy, blue and cyan presentation across the public site and SaaS. See [the approved scope and acceptance criteria](SKILLPILOT_BRAND_2026-10-26.md). Preserve service behavior and resume/template output. Historical palette sections below explain earlier choices and do not override this dated approval.
+For future proposals, respect Executive Slate & Teal and the founder-approved Gulf landing references. Preserve the deployed approved composition until a specific visual batch is approved. Batch 1A changes documentation only; it does not recolor, redesign or migrate CSS.
+
+The older SKILLPILOT, Meridian, soft-indigo and Azure/Slate records describe earlier decisions/implementations. Their “current” wording below is historical where it conflicts with this notice. This decision does not assert every deployed surface already matches the requested direction.
+
+Application styling is distributed across shared typography/UI/responsive CSS, scoped modules and the minimal universal-theme runtime. PR #79's full settings/publishing foundation remains unmerged; do not describe persistent publishing/rollback as shipped. Do not merge or alter #79/#80 as part of quality adoption.
+
+Use existing token owners rather than another hardcoded override layer. Resume templates, document fonts/layout, previews and PDF rendering remain isolated and protected. A future visual proposal must identify actual style owners, approved reference versions, mobile/desktop before/after, accessibility/performance criteria and rollback; it requires separate approval.
+
+---
+
+# Historical visual approval — 26 October 2026
+
+The historical approved direction was **SKILLPILOT-BRAND-001**, which replaces the compact indigo palette with a navy, blue and cyan presentation across the public site and SaaS. See [the approved scope and acceptance criteria](SKILLPILOT_BRAND_2026-10-26.md). Preserve service behavior and resume/template output. Historical palette sections below explain earlier choices and do not override this dated approval.
 
 ---
 
@@ -25,7 +37,7 @@ manual controls, pausing and reduced-motion support.
 
 ## 00. MERIDIAN — the current identity, and one product system (2026-09-23)
 
-**This section is the current truth.** §0 below (Blueprint) and §2–§5 (the navy/gold
+**Historical identity section; the dated authority notice above takes precedence.** §0 below (Blueprint) and §2–§5 (the navy/gold
 era) are kept for their reasoning and measurements; where they disagree with this
 section, this section wins. The Meridian tokens were chosen by the founder on
 2026-09-09 and are defined, with every contrast ratio, in `tailwind.config.ts`.

@@ -1,3 +1,24 @@
+# Inspected baseline — 15 November 2026
+
+Batch 1A baseline is verified main ca0abcf3ab386a252dc39a08ba26707d07019816 (PR #82 employer marquee). This current notice supersedes older baseline/status descriptions below; older evidence remains dated, not recertified. Batch 1A changes documentation only.
+
+| Area | Source/inspection evidence |
+|---|---|
+| Stack | Next.js 15.5, React 19, TypeScript, Tailwind 3; Supabase; Vercel |
+| AI boundary | lib/ai/provider.ts, providerConfig.ts, runTask.ts and serviceGuard.ts; admin-backed provider settings are not a verified live configuration inventory |
+| Optimizer | app/api/optimize/route.ts defaults to v3; v2 remains an environment-selectable alternative; no engine change authorized |
+| Preparation | Cover letter, multipart Q&A, text/recorded mock and report/history paths exist; shape/grounding checks are not expert technical certification |
+| Scores | Profile Readiness, Gulf preparation and job-specific matching are distinct; engineering output-quality metrics must remain separate |
+| Resume | Shared document derivation, template registry and PDF renderer are protected; do not infer exhaustive current PDF health from selected checks |
+| Main CI | Run 43080782582 on this exact main SHA succeeded, including dependency audit, type/lint/tests/build, browser and selected PDF checks; historical remote evidence, not newly rerun tests |
+| Open PRs at inspection | #29, #71, #72, #78, #79, #80. #79 remains unmerged; #80 targets #79's branch and says not to merge. Separate V2 release history is recorded in #80; no open PR is changed by this batch |
+| Superpowers | Catalog assessment found available, not installed; methodology adaptation only |
+| Live limits | Production commit parity, real auth/provider generation, applied migrations/RLS, retention scheduler and private configuration are not certified by this documentation work |
+
+Known source findings and proposals are tracked in [14_OPEN_ITEMS.md](14_OPEN_ITEMS.md). See [evaluation protocol](engineering/AI_SERVICE_EVALUATION.md). No paid evaluations or production API calls were made. Current founder visual authority is recorded in [12_DESIGN_SYSTEM.md](12_DESIGN_SYSTEM.md); this is not a palette rollout.
+
+## Historical baseline and evidence follows
+
 ## Career Profile consolidation — 25 October 2026
 
 SINGLE-EDITOR-001 is implemented and locally verified, release pending. Career Profile summary/reports are read-only; Edit Career Profile opens the sole full editor. All14 logical blocks, resume-import review, photo and resume visibility share that editor and one Cancel/Save changes bar. Dashboard, readiness, settings, optimizer skill/certificate gaps and preview photo controls link into it. Imported facts require acknowledgement and permit explicit deferral of missing information; malformed supplied values require correction. Photo requests occur during Save, after the existing profile PUT; errors distinguish any saved details from a failed photo. Existing backend APIs/schema/scoring/auth/templates are unchanged. See [CAREER_PROFILE_BLOCKS.md](CAREER_PROFILE_BLOCKS.md) and [PROGRESS.md](PROGRESS.md) for current evidence and release status; older editor descriptions below are historical.

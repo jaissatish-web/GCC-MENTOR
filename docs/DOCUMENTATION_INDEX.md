@@ -1,3 +1,20 @@
+# Quality foundation authority — 15 November 2026
+
+Current scoped instructions: [AGENTS.md](../AGENTS.md) → [working agreement](16_WORKING_AGREEMENT.md) → [current baseline](CURRENT_STATE.md) → relevant domain document. Latest explicit founder decisions override older task/palette/branch language. The inventory below is historical where it conflicts; no older report certifies current production health.
+
+| Document | Authority |
+|---|---|
+| [AI service evaluation](engineering/AI_SERVICE_EVALUATION.md) | Proposed measurable baseline protocol; no paid run or runtime change authorized |
+| [Release checklist](SAAS_RELEASE_CHECKLIST.md) | Current evidence/approval gate above historical hardening runbook |
+| [Open items](14_OPEN_ITEMS.md) | Sole unresolved-proposal/report surface |
+| [Progress](PROGRESS.md) | Implementation/verification evidence, not another task queue |
+| [Decisions](15_DECISION_LOG.md) | Dated founder scope and rationale |
+| [Design system](12_DESIGN_SYSTEM.md) | Current visual authority notice; no CSS rollout permission |
+
+Known out-of-allowlist drift in 00_START_HERE.md, PROJECT_PLAN.md and PLATFORM_MASTER.md is not silently rewritten in Batch 1A. Their historical scope/baseline claims do not override the current notices. Broader cleanup requires a separately scoped batch.
+
+## Earlier inventory follows
+
 # Documentation index and authority
 
 Inventory dated 22 October 2026. Canonical files were established against main `81fdcf1`. This is a full Markdown inventory and authority map, not an assertion that every historical line was retested.

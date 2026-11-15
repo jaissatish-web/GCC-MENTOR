@@ -1,3 +1,15 @@
+# QUALITY-FOUNDATION-1A — 15 November 2026
+
+Founder approved documentation/development-quality foundation only, separate main-based branch and one review PR. Base: ca0abcf3ab386a252dc39a08ba26707d07019816. Scope: the ten-file allowlist in [working agreement](16_WORKING_AGREEMENT.md). No merge/deployment approval.
+
+Implemented documentation: workflow/approval standards, evidence/rollback gates, refreshed baseline and visual authority notices, proposed issue report and six-service evaluation protocol. No plugin installation, dependency change, paid AI evaluation or production API call. Existing PRs are untouched.
+
+Verification contract: compare base-to-head changed paths against exactly ten approved files; compare every other tree entry; validate all new/edited relative links and referenced source paths; check preservation of historical content except explicitly superseded design wording; review approval/installation/baseline claims. Results and exact final head are reported in the PR after remote readback. Runtime tests are not rerun for documentation-only changes; existing CI may run automatically and must be reported separately.
+
+Next proposed sequence, not approved: verify/install official Superpowers through supported plugin route in a separate batch; then offline V3 evaluation foundation; finally capped synthetic live evaluations only after model/budget approval. No service-quality improvement measured or claimed.
+
+## Earlier progress records follow
+
 ## PROFILE-OVERVIEW-003 — 5 November 2026
 
 Implemented, release governed by the protected PR: simplify /profile summary to responsive name, professional title and location; direct photo selection with local crop/zoom/horizontal/vertical adjustment; collapsible existing Resume visibility controls; Preview resume and Edit Career Profile. Remove repeated contacts/experience/education/skills/preferences, completeness/preparation/scan/optimizer panels from this overview only. Preserve full editor/report routes and all facts. Photo crop stages a JPEG locally; explicit existing Save changes persists photo/visibility together with existing validation, optimistic versioning and refresh. Cancel restores saved state; preview requires saving pending changes. No upload occurs on selection or crop alone. Reuse existing photo API through unchanged save flow; no schema/auth/API/scoring/AI/template changes. Affected: app/profile/page.tsx, new scoped summary/photo-picker UI, optional preview button label, existing profile browser regression. Acceptance: narrow/desktop long-name reflow, labeled crop controls, crop cancel/no writes, save/refetch photo and visibility, single edit action, no duplicate details. Verification: local typecheck/lint and production build passed before final layout-only min-width refinement; actual diff reviewed. Existing browser suite now checks 320/768px long identity, 390/1440px crop positioning by image pixels, crop cancellation/no writes, cropped JPEG upload and visibility save/refetch through existing endpoints. Full CI/browser results and automatic Vercel deployment govern release status; no live authenticated save is claimed.

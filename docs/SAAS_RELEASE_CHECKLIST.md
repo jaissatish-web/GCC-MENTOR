@@ -1,3 +1,25 @@
+# Current release gate — 15 November 2026
+
+This gate governs future approved batches. The hardening checklist below is a dated historical runbook, not a current instruction to apply migrations, change environment settings or deploy.
+
+- [ ] Record approved scope, base SHA, final head, changed files and protected boundaries.
+- [ ] Review the actual diff; no unrelated files, secrets or personal evaluation data.
+- [ ] Documentation-only batch: validate new/edited relative links, source claims, authority consistency and exact file allowlist. Do not claim application tests were rerun.
+- [ ] Approved code batch: record red/green regression, relevant type/lint/test/build and final-head CI; explain failures rather than weakening gates.
+- [ ] Service batch: compare baseline/candidate under the [evaluation protocol](engineering/AI_SERVICE_EVALUATION.md), report per-case regressions and actual API cost.
+- [ ] Protected documents: unchanged renderer/template/PDF source unless separately approved; appropriate HTML/PDF/font/photo/visibility/extraction regressions. Never reset goldens to conceal drift.
+- [ ] Visual batch: approved references, before/after 390px and 1440px plus narrow/enlarged-text, keyboard, contrast and reduced-motion checks.
+- [ ] Auth/database/provider/retention checks require separately authorized staging/live evidence; offline CI cannot certify production configuration.
+- [ ] Record rollback owner, exact previous compatible artifact and any data compatibility limits.
+- [ ] Present PR/evidence and obtain explicit founder merge/deployment approval. CI success is not approval.
+- [ ] Only after approved release, verify actual deployed commit and affected journey; distinguish unavailable checks.
+
+Batch 1A changes documentation only. No plugin install, paid AI evaluation, production API call, merge or deployment is authorized. Opening a PR may invoke existing repository CI/preview automation; do not change that configuration or claim an automatically created preview is a production release.
+
+---
+
+## Historical hardening runbook follows
+
 # SAAS RELEASE CHECKLIST — shipping the 2026-09-15 hardening safely
 
 **For branch `claude/saas-production-hardening`.** Nothing on that branch has been

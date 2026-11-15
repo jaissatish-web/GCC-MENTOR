@@ -1,3 +1,34 @@
+## Batch 1A quality foundation — 15 November 2026
+
+Status: founder-approved documentation implementation; merge/deployment pending separate approval. This section supersedes conflicting historical task/branch wording below. Source baseline: main ca0abcf3ab386a252dc39a08ba26707d07019816. Superpowers practices are adapted from obra/superpowers; no plugin or dependency is installed.
+
+### Authorized file boundary
+
+Only: AGENTS.md; docs/16_WORKING_AGREEMENT.md; docs/SAAS_RELEASE_CHECKLIST.md; docs/CURRENT_STATE.md; docs/12_DESIGN_SYSTEM.md; docs/14_OPEN_ITEMS.md; docs/PROGRESS.md; docs/15_DECISION_LOG.md; docs/DOCUMENTATION_INDEX.md; docs/engineering/AI_SERVICE_EVALUATION.md. Preserve older evidence with dated authority notices. No application, workflow, package/lockfile, SQL, prompt, scoring or template edits. Do not interfere with existing PRs #79/#80 or other open PRs.
+
+### Development standards
+
+1. **Brainstorm:** state the user problem, evidence, affected users, constraints and smallest useful alternatives. Resolve material product choices with the founder; no redesign based solely on trends.
+2. **Plan:** map exact files/dependencies, protected boundaries, complexity, API cost, acceptance thresholds, tests and rollback. Record proposed versus approved work explicitly.
+3. **Debug systematically:** reproduce, inspect errors/recent changes, trace input through boundaries and test one root-cause hypothesis. Use synthetic/redacted diagnostics; never log raw resumes, credentials or private user data. An unreproduced issue is an investigation, not a verified fix.
+4. **TDD for approved code:** write a behavioral regression that fails for the intended reason, implement the smallest fix, observe green, then refactor with checks intact. Never weaken assertions or recapture a golden merely to obtain green. Documentation-only changes require source/link/diff review instead.
+5. **Review:** inspect the actual base-to-head diff against the approved specification, security/data boundaries and tests. Record critical/important findings and resolve them before readiness. Independent review, when available and authorized, supplements lead review; never fabricate a reviewer or claim independence for self-review.
+6. **Verify before completion:** record exact head, command/environment, result, evidence and limits. Distinguish source inspection, offline tests, synthetic browser checks, expert review and live verification. Prior-head green is insufficient after edits. No unmeasured quality claims.
+
+### Controlled continuous improvement
+
+Observe → Identify → Investigate → Propose → Approve → Implement → Test → Review → Deploy.
+
+For Resume Optimizer V3, Cover Letter, Interview Q&A, Mock Interview, ATS and Career Profile, use the [evaluation protocol](engineering/AI_SERVICE_EVALUATION.md). Each proposal identifies evidence/root cause, affected users, smallest solution, effort and API cost, files/database/workflows, measurable criteria and rollback. Founder approval precedes implementation. Work on one approved batch in an isolated branch; compare identical baseline/candidate fixtures. Stop for high-risk scope changes. A PR is not merge/deployment approval.
+
+### Lightweight founder report
+
+Use 14_OPEN_ITEMS.md for unresolved proposals and PROGRESS.md for evidence; do not create another production dashboard or parallel task list. Each issue records: ID, service/component, severity/user impact, evidence, proposal/benefit, effort/API cost, coverage, baseline/candidate results, status, approval needed, PR and rollback. Statuses: observed → investigated → proposed → approved → implementing → verified → review → released, or blocked/rejected. Advance only with evidence and authorization. UI/UX and reliability work use the same process; visual changes require approved references and mobile/desktop comparison.
+
+### Rollback and cost boundaries
+
+Documentation PR: close before merge or revert its commit after an approved merge. Code releases require their own compatible deployment/data rollback plan; never assume an engine switch reverses data. No credentials/user data to third-party judges. Paid evaluations need an approved model, synthetic dataset, hard spend/call limits and stop conditions. Plugin installation is a separate approval and must be verified in a new session before claiming activation.
+
 # Working agreement
 
 Updated by founder instruction, 22 October 2026. Applies to future sessions and replaces the former tool-specific Claude/Hermes handoff arrangement.

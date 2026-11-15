@@ -1,3 +1,13 @@
+## Current founder authorization — Batch 1A, 15 November 2026
+
+Documentation and development-quality foundation only, on a separate branch from verified main. This dated instruction supersedes older task-specific scope/branch notes below for Batch 1A. Modify only this file and the nine documentation paths listed in docs/16_WORKING_AGREEMENT.md. Open one PR; stop for founder review. No merge or deployment without explicit founder approval.
+
+Superpowers-inspired practices are development guidance, not a runtime integration or proof of plugin activation. Superpowers is not installed for this batch. No dependency installation, paid evaluations or production API calls. Do not modify existing PRs, particularly #79/#80.
+
+Use brainstorming before plans, root-cause investigation before fixes, red/green/refactor for approved code changes, actual-diff review and verification before completion. Follow docs/16_WORKING_AGREEMENT.md and docs/engineering/AI_SERVICE_EVALUATION.md. Documentation-only work uses consistency/link/scope checks; do not manufacture TDD or claim runtime verification.
+
+Future improvements require a measured baseline, smallest safe proposal, founder approval, isolated implementation, comparison, review and separate merge/deployment approval. One approved batch at a time unless parallel work is explicitly authorized. Protect facts, prompts, scoring, auth, database/RLS/configuration, provider keys, quotas/payments/referrals, user data and resume/template/preview/PDF behavior. No automatic agent may broaden scope or approve itself.
+
 # GCC Mentor — instructions for every working session
 
 Read these files before planning or changing anything:
