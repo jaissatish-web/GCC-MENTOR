@@ -57,10 +57,21 @@ try{
   assert.ok(await page.$$eval('a[href="/templates"]', es=>es.every(e=>e.textContent.includes('sign-in required'))), 'Protected templates must disclose sign-in');
   await page.$eval('[data-job-package]',e=>e.scrollIntoView({behavior:'instant'}));
   for(const label of ['Cover Letter','Interview Q&A','Optimized Resume']){
-    await page.$$eval('[data-job-package] button',(es,label)=>es.find(e=>e.textContent===label).click(),label);
-    assert.ok(await page.$eval('#package-preview',e=>e.textContent.includes('Instrumentation Commissioning Engineer')),'Same target role');
-    assert.ok(await page.$eval('#package-preview',e=>e.textContent.includes('Your Career Profile remains unchanged.')));
+    await page.$$eval('[data-job-package] button',(es,label)=>es.find(e=>e.textContent===label).focus(),label);
+    await page.keyboard.press('Enter');
+    const expected={'Cover Letter':'A focused introduction to your application.','Interview Q&A':'How does your experience relate to this role?','Optimized Resume':'Clear structure. Relevant emphasis.'};
+    assert.ok(await page.$eval('#package-preview',(e,copy)=>e.textContent.includes(copy),expected[label]),`Distinct neutral preview: ${label}`);
+    assert.ok(await page.$eval('#package-preview',e=>e.textContent.includes('Your Career Profile stays unchanged.')));
+    assert.ok(await page.$eval('#package-preview',e=>!/loop.check|offshore|Example candidate/i.test(e.textContent)));
+    assert.ok(await page.$eval('[data-job-package] button[aria-pressed=true]',e=>e===document.activeElement&&e.getBoundingClientRect().height>=44),'Package selection keeps keyboard focus and touch size');
   }
+  assert.equal(await page.$$eval('#services [data-profile-field]',es=>es.length),5,'All profile categories shown');
+  assert.equal(await page.$$eval('#services [data-requirement-row]',es=>es.length),3,'Three neutral requirement categories');
+  const founder=await page.$eval('#about img',i=>({src:i.getAttribute('src'),width:i.getBoundingClientRect().width,height:i.getBoundingClientRect().height,natural:i.naturalWidth}));
+  // naturalWidth is density-corrected for Next's width-descriptor srcset;
+  // the fixture serves original bytes, so it is not the source file width.
+  assert.ok(founder.src.includes('founder-satish.webp')&&founder.width<=184&&founder.width>=104&&founder.width===founder.height&&founder.natural>=founder.width,`Authentic founder photo at supported responsive size: ${JSON.stringify(founder)}`);
+  assert.ok(await page.$$eval('#interview ol li',es=>es.every(e=>{const t=e.firstChild;const start=t.textContent.indexOf('responsibility');if(start<0)return true;const r=document.createRange();r.setStart(t,start);r.setEnd(t,start+'responsibility'.length);return r.getClientRects().length===1})), 'Answer framework words must remain readable without mid-word wrapping');
   const state=await page.evaluate(()=>{
    const h=document.querySelector('#hero-title'),s=getComputedStyle(h);const images=[...document.images].filter(i=>i.getBoundingClientRect().width>0)
    const navigation=performance.getEntriesByType("navigation")[0]; const resources=performance.getEntriesByType("resource");
@@ -70,13 +81,13 @@ try{
   if(width===1440) assert.ok(await page.evaluate(()=>Math.abs(document.querySelector('#industries').getBoundingClientRect().top-document.querySelector('#markets').getBoundingClientRect().top)<2),'Approved desktop industries and globe share a row');
   if(width===1440)assert.ok(await page.$$eval('[data-uds=globe-country]',es=>es.every(e=>e.getBoundingClientRect().height<=88)),'Globe country labels must not wrap character by character');
   await page.screenshot({path:`${out}/landing-${width}.png`,fullPage:true})
-  for(const id of ['hero-title','how-it-works','services','templates','interview','industries','markets','about','plans','faq']){const e=await page.$('#'+id);if(e){await e.screenshot({path:`${out}/${id}-${width}.png`}).catch(()=>{})}}
+  for(const id of ['hero-title','how-it-works','services','templates','interview','industries','markets','about','plans','faq']){const e=await page.$('#'+id);if(e){const clip=await e.evaluate(e=>{const r=e.getBoundingClientRect();return{x:r.left+scrollX,y:r.top+scrollY,width:r.width,height:r.height}});await page.screenshot({path:`${out}/${id}-${width}.png`,clip,captureBeyondViewport:true})}}
   assert.ok(state.scrollWidth<=width+1,`Overflow at${width}`);assert.equal(state.orbitCount,10);assert.equal(state.flags,6);assert.equal(state.industryTiles,6);assert.deepEqual(state.brokenImages,[]);assert.deepEqual(state.invalidAnchors,[]);assert.ok(state.selectFonts.every(x=>parseFloat(x)>=16))
   if(width<1180){await page.$eval('summary[aria-label="Open section menu"]',e=>e.click());assert.equal(await page.$eval('header details',e=>e.open),true);await page.focus('summary[aria-label="Open section menu"]');await page.keyboard.press('Escape');assert.equal(await page.$eval('header details',e=>e.open),false);assert.equal(await page.$eval('summary[aria-label="Open section menu"]',e=>document.activeElement===e),true);await page.$eval('summary[aria-label="Open section menu"]',e=>e.click());await page.$eval('header details a[href="#templates"]',e=>e.click());assert.equal(await page.$eval('header details',e=>e.open),false)}
   await page.$eval('#services details>summary',e=>e.click());for(const href of ['/gulf-readiness-score','/templates','/optimize/target','/cover-letter','/interview-qa','/mock-interview','/dashboard/library','/linkedin-optimization','/naukrigulf-optimization','/settings','/signup','/login','/tools'])assert.ok(state.links.some(l=>l.href===href),`Destination missing ${href}`)
   await page.$eval('#faq details>summary',e=>e.click());assert.equal(await page.$eval('#faq details',e=>e.open),true)
   await page.$eval('#interview',e=>e.scrollIntoView({behavior:'instant'}));await page.$eval('#interview details>summary',e=>e.click());await page.select('#interview select','british-woman');assert.ok(await page.$eval('#interview',e=>e.textContent.includes('Emma')))
-  await focusDemoAction('Review this answer');const actionBefore=await page.evaluate(()=>document.activeElement.getBoundingClientRect().top);await page.keyboard.press('Enter');assert.ok(await page.evaluate(y=>Math.abs(document.activeElement.getBoundingClientRect().top-y)<2,actionBefore),'Stage control must remain visibly stable');assert.ok(await page.evaluate(()=>document.activeElement?.textContent.includes('See repeat-session progress')),'Stage control retains keyboard focus');assert.ok(await page.$eval('#interview',e=>e.textContent.includes('What needs correction')));if([390,1440].includes(width))await (await page.$('#interview')).screenshot({path:`${out}/feedback-${width}.png`})
+  await focusDemoAction('Review this answer');const actionBefore=await page.evaluate(()=>document.activeElement.getBoundingClientRect().top);await page.keyboard.press('Enter');assert.ok(await page.evaluate(y=>Math.abs(document.activeElement.getBoundingClientRect().top-y)<2,actionBefore),'Stage control must remain visibly stable');assert.ok(await page.evaluate(()=>document.activeElement?.textContent.includes('See repeat-session progress')),'Stage control retains keyboard focus');assert.ok(await page.$eval('#interview',e=>e.textContent.includes('Review each question and answer')));if([390,1440].includes(width))await (await page.$('#interview')).screenshot({path:`${out}/feedback-${width}.png`})
   await focusDemoAction('See repeat-session progress');const progressBefore=await page.evaluate(()=>document.activeElement.getBoundingClientRect().top);await page.keyboard.press('Enter');assert.ok(await page.evaluate(y=>Math.abs(document.activeElement.getBoundingClientRect().top-y)<2,progressBefore),'Progress control remains visible');assert.ok(await page.$eval('#interview',e=>e.textContent.includes('Practice. Review. Prepare. Repeat.')))
   await focusDemoAction('Return to practice');const returnBefore=await page.evaluate(()=>document.activeElement.getBoundingClientRect().top);await page.keyboard.press('Enter');assert.ok(await page.evaluate(y=>Math.abs(document.activeElement.getBoundingClientRect().top-y)<2,returnBefore),'Return control remains visible');
   await page.$$eval('#interview button',es=>es.find(e=>e.textContent.includes('Pause demo')).click());assert.equal(await page.$eval('#interview [data-motion]',e=>e.dataset.motion),'static');
@@ -101,14 +112,14 @@ try{
  await page.setViewport({width:textWidth,height:900});await page.goto(origin,{waitUntil:'networkidle0'});
  await page.click('[data-concern-choice=interview]');
  const enlarged=await page.evaluate(()=>{
-   const nodes=[...document.querySelectorAll('#challenges h2,#challenges h3,#challenges p,#challenges strong,#challenges span,#challenges small,#challenges a')];
+   const nodes=[...document.querySelectorAll('#challenges h2,#challenges h3,#challenges p,#challenges strong,#challenges span,#challenges small,#challenges a,#services h2,#services h3,#services p,#services strong,#services li span,#templates h2,#templates h3,#templates p,#templates button,#templates .paper strong,#interview h2,#interview h3,#interview h4,#interview p,#interview ol li,#interview button,#about h2,#about h3,#about p,#about span,#about a')];
    const before=nodes.map(e=>parseFloat(getComputedStyle(e).fontSize));
    nodes.forEach((e,i)=>e.style.setProperty('font-size',`${before[i]*2}px`,'important'));
    return nodes.every((e,i)=>Math.abs(parseFloat(getComputedStyle(e).fontSize)-before[i]*2)<.1);
  });
  assert.ok(enlarged,'New story text must actually double');
  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Actual 200% story text must not overflow');
- assert.ok(await page.$$eval('#challenges h3,#challenges p,#solutions h2,#solutions p',es=>es.filter(e=>e.getBoundingClientRect().width>1).every(e=>e.scrollWidth<=e.clientWidth+1)),'No visible story text clipping');
+ assert.ok(await page.$$eval('#challenges h3,#challenges p,#solutions h2,#solutions p,#services h3,#services p,#templates h2,#templates h3,#templates p,#about h2,#about h3,#about p',es=>es.filter(e=>e.getBoundingClientRect().width>1).every(e=>e.scrollWidth<=e.clientWidth+1)),'No visible story text clipping');
  await page.screenshot({path:`${out}/candidate-text-200-${textWidth}.png`,fullPage:true});
  }
  // Large-text responsiveness is separate from the visual reference screenshots.

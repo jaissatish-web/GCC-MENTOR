@@ -10,8 +10,7 @@ import s from './interview.module.css'
 
 const stages = ['Practice', 'Question feedback', 'Progress']
 const attempts = [46, 61, 74] as const
-const question = 'Describe a problem you solved in your role.'
-const answer = 'I checked the records and spoke with the team.'
+const question = 'How would you explain an achievement from your experience?'
 
 /** Local synthetic learning example. No recording, service calls or saved results. */
 export function InterviewDemo({ compact = false }: { compact?: boolean }) {
@@ -40,18 +39,19 @@ export function InterviewDemo({ compact = false }: { compact?: boolean }) {
       </div></details>
       <div className={s.stage} role="region" aria-label={`${stages[index]} details`}>
         <div className={s.practiceIntro}><div className={s.portrait}><Image key={host.id} src={host.image} alt={`${host.name}, ${host.label}, virtual interviewer`} fill sizes="(min-width: 960px) 280px, (min-width: 600px) 45vw, 100vw" /><span>AI interviewer · {host.name}</span></div><div className={s.question}><span>Q · QUESTION {Math.min(4,length)} OF {length}</span><h3>{question}</h3><p>{mode} · {host.name}</p></div></div>
-        <div className={s.answer}><strong>A · Illustrative answer</strong><p>{answer}</p></div>
+        <div className={s.answer}><strong>Your answer (structure)</strong><ol className={s.answerSteps}>{['Your responsibility', 'Your actions', 'Your result'].map(step => <li key={step}>{step}</li>)}</ol></div>
         <div className={s.wave} data-inactive={index!==0} aria-hidden="true">{Array.from({length:18},(_,i)=><i key={i} style={{height:8+(i*11%18),animationDelay:i*.06+'s',animationPlayState:moving&&index===0?'running':'paused'}} />)}<span>{clock%12<6?'Read the question':'Prepare your own answer'}</span></div>
+        <p className={s.layoutNote}>Illustrative feedback layout</p>
         <div className={s.feedback}>
-          <article><CheckCircle2 size={20} aria-hidden="true"/><div><h4>What worked</h4><p>You showed an action and a basic approach.</p></div></article>
-          <article data-warning><CircleAlert size={20} aria-hidden="true"/><div><h4>What is missing</h4><p>Add your responsibility, the checks and verified result.</p></div></article>
-          <article><Sparkles size={20} aria-hidden="true"/><div><h4>Suggested answer structure</h4><p>Explain your own action, checks and verified result.</p></div></article>
+          <article><CheckCircle2 size={20} aria-hidden="true"/><div><h4>Strengths to build on</h4><p>Review what your answer explains clearly.</p></div></article>
+          <article data-warning><CircleAlert size={20} aria-hidden="true"/><div><h4>Areas to improve</h4><p>Identify details that need a clearer explanation.</p></div></article>
+          <article><Sparkles size={20} aria-hidden="true"/><div><h4>Suggested next practice</h4><p>Choose one focus from your question feedback.</p></div></article>
         </div>
         <div className={s.tabs} role="group" aria-label="Interview stages">{stages.map((stage,i)=><button type="button" key={stage} aria-pressed={index===i} onClick={()=>setIndex(i)}>{stage}</button>)}</div>
         <button type="button" className={s.action} onClick={()=>setIndex(index===0?1:index===1?2:0)}>{index===0?'Review this answer':index===1?'See repeat-session progress':'Return to practice'}<ArrowRight size={16} aria-hidden="true"/></button>
         {index===1&&<div className={s.review}>
-          <h3>What needs correction</h3><p>The cause and result are not provided. There is not enough evidence to judge technical correctness.</p>
-          <h4>A useful structure for your next answer</h4><p>“My responsibility was [your role]. I checked [what you actually checked]. I verified [your real result].”</p><p>Use only work you performed. This text example does not measure voice, confidence or technical competence.</p>
+          <h3>Review each question and answer</h3><p>Revisit the question, your response, strengths and areas to improve. Use the feedback to choose your next practice focus.</p>
+          <h4>A useful structure for your next answer</h4><p>Your responsibility → Your actions → Your result. Use examples you can explain from your own work.</p><p>Use only work you performed. This illustration does not assess your ability or predict an interview outcome.</p>
         </div>}
         {index===2&&<p className={s.review}>Practice. Review. Prepare. Repeat. Compare attempts for the same application and settings. Use each question’s feedback to choose your next focus.</p>}
         <Link href="/mock-interview" className={s.link}>Open mock interview <ArrowRight size={16} aria-hidden="true"/></Link>
@@ -67,7 +67,7 @@ export function InterviewDemo({ compact = false }: { compact?: boolean }) {
       </svg>
       <table className={s.attemptTable}><caption>Illustrative attempt values</caption><thead><tr><th scope="col">Attempt</th>{attempts.map((_,i)=><th key={i} scope="col">{i+1}</th>)}</tr></thead><tbody><tr><th scope="row">Score / 100</th>{attempts.map(v=><td key={v}>{v}</td>)}</tr></tbody></table>
       <p>Same application and settings. Not a hiring probability. These synthetic values explain the practice journey; they do not predict your improvement.</p>
-      <div className={s.next}><CheckCircle2 size={20} aria-hidden="true"/><strong>Next practice: explain your verification.</strong></div><Link href="/dashboard" className={s.link}>Open my saved progress <ArrowRight size={16} aria-hidden="true"/></Link>
+      <div className={s.next}><CheckCircle2 size={20} aria-hidden="true"/><strong>Next practice: make your own contribution clear.</strong></div><Link href="/dashboard" className={s.link}>Open my saved progress <ArrowRight size={16} aria-hidden="true"/></Link>
     </figure>
   </div>
 }
