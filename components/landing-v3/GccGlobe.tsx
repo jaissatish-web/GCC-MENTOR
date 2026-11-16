@@ -26,12 +26,12 @@ type City = { name: string; lat: number; lng: number }
 type Gcc = City & { code: string; country: string; role: string; dx: number; dy: number }
 
 const GCC: Gcc[] = [
-  { code: 'SA', country: 'Saudi Arabia', name: 'Riyadh', lat: 24.71, lng: 46.68, role: 'your next role', dx: -104, dy: 34 },
-  { code: 'KW', country: 'Kuwait', name: 'Kuwait City', lat: 29.38, lng: 47.99, role: 'your next role', dx: -112, dy: -58 },
-  { code: 'BH', country: 'Bahrain', name: 'Manama', lat: 26.23, lng: 50.59, role: 'your next role', dx: 14, dy: -88 },
-  { code: 'QA', country: 'Qatar', name: 'Doha', lat: 25.29, lng: 51.53, role: 'your next role', dx: 10, dy: 78 },
-  { code: 'AE', country: 'UAE', name: 'Dubai', lat: 25.2, lng: 55.27, role: 'your next role', dx: 92, dy: -56 },
-  { code: 'OM', country: 'Oman', name: 'Muscat', lat: 23.59, lng: 58.41, role: 'your next role', dx: 104, dy: 22 },
+  { code: 'SA', country: 'Saudi Arabia', name: 'Riyadh', lat: 24.71, lng: 46.68, role: 'Your next role', dx: -104, dy: 34 },
+  { code: 'KW', country: 'Kuwait', name: 'Kuwait City', lat: 29.38, lng: 47.99, role: 'Your next role', dx: -112, dy: -58 },
+  { code: 'BH', country: 'Bahrain', name: 'Manama', lat: 26.23, lng: 50.59, role: 'Your next role', dx: 14, dy: -88 },
+  { code: 'QA', country: 'Qatar', name: 'Doha', lat: 25.29, lng: 51.53, role: 'Your next role', dx: 10, dy: 78 },
+  { code: 'AE', country: 'UAE', name: 'Dubai', lat: 25.2, lng: 55.27, role: 'Your next role', dx: 92, dy: -56 },
+  { code: 'OM', country: 'Oman', name: 'Muscat', lat: 23.59, lng: 58.41, role: 'Your next role', dx: 104, dy: 22 },
 ]
 
 const ORIGINS: Record<string, City> = {
@@ -51,12 +51,12 @@ const LABELLED_ORIGINS = new Set(['Kochi', 'Mumbai', 'Delhi'])
 
 /** from → to (GCC code), with an example role. `move` = changing jobs inside the Gulf. */
 const FLIGHTS: Array<{ from: string; to: string; role: string; move?: boolean }> = [
-  { from: 'Delhi', to: 'SA', role: 'your next role' },
-  { from: 'Mumbai', to: 'AE', role: 'your next role' },
-  { from: 'Kochi', to: 'QA', role: 'your next role' },
-  { from: 'Delhi', to: 'KW', role: 'your next role' },
-  { from: 'Mumbai', to: 'BH', role: 'your next role' },
-  { from: 'Kochi', to: 'OM', role: 'your next role' },
+  { from: 'Delhi', to: 'SA', role: 'Your next role' },
+  { from: 'Mumbai', to: 'AE', role: 'Your next role' },
+  { from: 'Kochi', to: 'QA', role: 'Your next role' },
+  { from: 'Delhi', to: 'KW', role: 'Your next role' },
+  { from: 'Mumbai', to: 'BH', role: 'Your next role' },
+  { from: 'Kochi', to: 'OM', role: 'Your next role' },
 ]
 
 const DEG = Math.PI / 180
@@ -474,7 +474,7 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
                 <div className="mt-1 text-[length:var(--uds-body-size,var(--ui-body-size))] leading-[var(--uds-body-line,var(--ui-body-line))] font-[number:var(--uds-heading-weight,var(--ui-weight-heading))] text-[var(--uds-ink,var(--ui-ink))]">
                   {cityOf(arrival.from).name} → {arrivalTo.name}, {arrivalTo.country}
                 </div>
-                <div className="text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))] text-[var(--uds-muted,var(--ui-muted))]">Prepare for {arrival.role} opportunities</div>
+                <div className="text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))] text-[var(--uds-muted,var(--ui-muted))]">Prepare for your next Gulf opportunity.</div>
               </>
             ) : (
               <div className="text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))] text-[var(--uds-muted,var(--ui-muted))]">Watch the routes — or pick a country.</div>
