@@ -61,9 +61,18 @@ Target was under 650 KB. Achieved 504.7 KB.
 
 `scripts/verify-resume.ts` reports `32767/32768 permutations differ`. The script contains
 no reference to the landing page, the flags, the industry tiles or `lib/design-system/theme.ts`,
-and it ran for 204s where comparable checks finish in 1–3s. It is being re-run against clean
-`main` and against this branch to establish whether it is pre-existing or a timing flake.
-**Result is recorded here once both runs finish. No test threshold was weakened.**
+and it ran for 204s where comparable checks finish in 1–3s.
+
+**It fails identically on clean `main` 714c106.** The failure was reproduced twice against a
+separate clean-`main` worktree, using the exact invocation path from `scripts/run-checks.mjs`
+(`stdio: ['ignore','pipe','pipe']`) and with the same `NEXT_PUBLIC_APP_URL` environment:
+both trees produce the same output and the same exit code. The script also aborts with
+`stdin is not a tty` when run outside that harness. It is therefore **pre-existing and
+environment-specific, not caused by this change**. No threshold was weakened and no check
+was skipped.
+
+Pull request: **#92** — https://github.com/jaissatish-web/GCC-MENTOR/pull/92
+(branch `perf/mobile-landing-weight`, base `main`, commit `1ed1d44`).
 
 ### Two environment limitations found, not caused by this change
 
