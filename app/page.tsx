@@ -24,7 +24,7 @@ const journey = [
   { title: 'Job Package', text: 'Prepare for one target role.', Icon: FileText, href: '/optimize/target' },
   { title: 'Interview Preparation', text: 'Practise. Review. Improve.', Icon: Mic, href: '/interview-qa' },
 ]
-const industries = [ ['Oil & Gas',Droplets],['Construction',HardHat],['Engineering',Factory],['Operations',Waves],['Projects',Building2],['Corporate',BriefcaseBusiness] ] as const
+const industries = [ ['Oil & Gas',Droplets,'oil-gas'],['Construction',HardHat,'construction'],['Engineering',Factory,'engineering'],['Operations',Waves,'operations'],['Projects',Building2,'projects'],['Corporate',BriefcaseBusiness,'corporate'] ] as const
 const icons = { readiness: Target, match: ClipboardCheck, cv: FileText, letter: Mail, qa: BookOpen, interview: Mic, templates: FileText, reports: FolderOpen }
 const faq = [
   ['Who is GCC Mentor for?', 'Preparation follows your own profile and job description. Examples include engineering, QA/QC, HSE, construction, IT, healthcare, finance, logistics and administration.'],
@@ -72,7 +72,7 @@ export default function Home() {
         <div className={s.demoBoundary} data-uds="website-widget"><InterviewDemo /></div>
       </div></section>
       <div className={s.secondaryGrid}>
-      <section id="industries" className={s.industriesSection} aria-labelledby="industries-title"><div className={s.inner}><h2 id="industries-title" className={s.sectionTitle} data-uds="marketing-title">Preparation across industries and career stages</h2><p className={s.sectionLead}>Prepare from your own experience, whatever your profession or career stage.</p><ul className={s.industryGrid}>{industries.map(([name,Icon],i)=><li key={name} className={s.industryTile}><span className={s.industryPhoto} data-industry={i} role="img" aria-label={`${name} illustrative scene`} /><span className={s.industryLabel}><Icon size={19} aria-hidden="true" />{name}</span></li>)}</ul></div></section>
+      <section id="industries" className={s.industriesSection} aria-labelledby="industries-title"><div className={s.inner}><h2 id="industries-title" className={s.sectionTitle} data-uds="marketing-title">Preparation across industries and career stages</h2><p className={s.sectionLead}>Prepare from your own experience, whatever your profession or career stage.</p><ul className={s.industryGrid}>{industries.map(([name,Icon,file],i)=><li key={name} className={s.industryTile}><span className={s.industryPhoto} data-industry={i} role="img" aria-label={`${name} illustrative scene`}><Image src={`/landing/v2/industries/${file}.webp`} alt="" fill sizes="(min-width:960px) 16vw, (min-width:600px) 31vw, 46vw" /></span><span className={s.industryLabel}><Icon size={19} aria-hidden="true" />{name}</span></li>)}</ul></div></section>
       <section id="markets" className={s.marketsSection} data-uds="section" aria-label="Explore the six Gulf markets"><div className={s.inner}><div className={s.globeBoundary} data-uds="website-widget"><GccGlobe compact /></div></div></section>
       </div>
       <section id="about" className={s.founderSection} data-uds="section" aria-labelledby="about-title"><div className={s.inner}><div className={s.founderPanel}>

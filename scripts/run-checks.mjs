@@ -106,6 +106,7 @@ function run(label, args) {
 
 for (const script of TS_CHECKS) run(script, [sucrase, join('scripts', script)])
 run('verify-career-profile-services.mjs', [join(root, 'scripts', 'verify-career-profile-services.mjs')])
+run('verify-mobile-weight.mjs', [join(root, 'scripts', 'verify-mobile-weight.mjs')])
 run('verify-resume-export-api.mjs', [join(root, 'scripts', 'verify-resume-export-api.mjs')])
 run('verify-linkedin-api.mjs', [join(root, 'scripts', 'verify-linkedin-api.mjs')])
 run('verify-naukrigulf-api.mjs', [join(root, 'scripts', 'verify-naukrigulf-api.mjs')])
