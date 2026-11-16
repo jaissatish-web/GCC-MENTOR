@@ -1,3 +1,19 @@
+# Approved Option2 — implementation QA, 16 November 2026
+
+Source visual truth: docs/evidence/2026-11-16-shortlisting/option2-reference.webp (second displayed generated design, desktop1440/mobile390 targets). Actual mock raster1536×1024; exact browser baselines are not supplied by a generated image.
+
+Implementation: CandidateConcerns.tsx and concerns.module.css. Four visible choices, default third job-suitability concern, four local response states, decorative12KB WebP. Uses existing typography/theme/icons, no global override or service change.
+
+Final result: blocked
+
+Local build, typecheck, lint, full92/92 offline checks and responsive typography/mounted markup with normal200% text passed. Final hydrated seven-width matrix and normalized source-versus-render comparison are pending. Cloud local preview returned an upstream connection error; do not substitute process startup or HTTP checks for visual verification. Vercel branch preview must be inspected before release.
+
+Review fixes: explicit screen-reader service descriptions added following failing regression; enlarged text harness covers spans at320/390. Image decoding now targets rendered images because hidden lazy artwork at320 never requests bytes; visible-image health assertions retained. Keyboard baseline waits for native focus scrolling to settle (same existing demo pattern), retaining the2px threshold.
+
+Protected: template/PDF/document styling, AI/auth/payments/credits/backend/schema/configuration and original marquee/orbit/globe sources unchanged.
+
+## Historical V3 QA record
+
 # GCC Mentor V3 visual QA
 
 final result: blocked

@@ -1,3 +1,7 @@
+## 16 November 2026 — Approved Option2
+
+Option2 approved for build and merge; implement four visible concern selectors and matching preparation response; all verification gates before merge. Plan: docs/superpowers/plans/2026-11-16-candidate-focus.md.
+
 ## 16 November 2026 — V3 candidate pain points
 
 Approved: move pain points after employer disclaimer and before solutions/journey/demos; exact founder copy, practical explanations, mobile-only extra-problem disclosure. Implemented in an isolated follow-up; plan: docs/plans/2026-11-15-landing-v3.md. Released PR88 cannot be reused; focused follow-up only. No merge/production approval. Build (existing-font local fixture), typecheck, lint, seven-width browser matrix and expanded 200% text pass. Independent source review has no Critical/Important finding; coverage suggestions addressed. Screenshots and evidence: docs/evidence/2026-11-16-shortlisting/README.md. Full post-change offline suite: 92/92 PASS. Evidence report records local-only limits.

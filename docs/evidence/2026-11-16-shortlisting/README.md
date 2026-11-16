@@ -1,3 +1,17 @@
+# Latest revision — approved Option2, 16 November 2026
+
+Founder selected “Find your preparation focus” (second displayed image), approved build and merge after verification, and superseded the rejected original PR90 design below. Same branch/PR90, WorkReport89. Original source release remains main b6667b0 until checked merge.
+
+Four always-visible candidate concerns directly show service mappings. Selecting one updates a single illustrative response canvas; default is job suitability. Explicit example/limits wording, no fake score, no user data or actual assessment. Shorter approved-mock quotes reduce mobile height. Original colorful employer rows/disclaimer, journey, orbit, globe and services retained.
+
+Build, typecheck/lint, full92/92 offline suite and mobile typography suite passed locally. Hydrated final matrix, visual comparisons, remote CI and preview verification are pending at this checkpoint. Do not merge from this checkpoint alone.
+
+Assets: option2-reference.webp is the approved concept board; public/landing/v3/preparation-evidence.webp is the generated decorative paper illustration. Both are illustrative; no template or real resume was altered.
+
+Plan: ../../superpowers/plans/2026-11-16-candidate-focus.md. Current QA: ../../../design-qa.md.
+
+## Historical rejected first PR90 revision
+
 # V3 shortlisting preparation section — 16 November 2026
 
 Founder-approved follow-up to released V3, main `b6667b0756cfeeb8bf91ea67474f55ff7c9f79ed` (tree `e8ccddca68f24dc1b7d210cca0a7f80e4423c970`). PR #88 is already merged; a focused follow-up PR is required. Work Report: [#89](https://github.com/jaissatish-web/GCC-MENTOR/issues/89). Do not merge or release without new explicit founder approval.

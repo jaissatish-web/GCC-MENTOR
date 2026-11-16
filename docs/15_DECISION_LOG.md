@@ -1,3 +1,7 @@
+## 16 November 2026 — Approved Option2
+
+Founder selected second displayed visual “Find your preparation focus” and explicitly requested build and merge. This supersedes the PR90 no-merge hold after checks pass. Preserve protected services/documents. Plan: docs/superpowers/plans/2026-11-16-candidate-focus.md.
+
 ## 16 November 2026 — Shortlisting preparation narrative
 
 Founder approved Hero → countries → employer logos/disclaimer → relatable concerns → solutions → journey → demos. Exact supplied copy; retain animations and protected application/document logic. Builder choice: first two concerns always visible on mobile, remaining two behind one accessible button; all four visible on desktop. No new feature-card grid or shortlisting promise.
