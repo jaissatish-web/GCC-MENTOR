@@ -27,7 +27,31 @@ try{
   await page.$eval('#templates',e=>e.scrollIntoView({behavior:'instant'}));await page.waitForFunction(()=>document.querySelectorAll('.actual-template-orbit-face').length===10)
   await page.$eval('#markets',e=>e.scrollIntoView({behavior:'instant'}));await page.waitForSelector('#markets-title');await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))))
   // Lazy images must enter view and finish decoding before asserting their health.
-  await page.evaluate(async()=>{for(const image of document.images){image.scrollIntoView({behavior:'instant'});try{await image.decode()}catch{}}scrollTo({top:0,behavior:'instant'})})
+  await page.evaluate(async()=>{for(const image of [...document.images].filter(image=>image.getBoundingClientRect().width>0)){image.scrollIntoView({behavior:'instant'});try{await image.decode()}catch{}}scrollTo({top:0,behavior:'instant'})})
+  const order=await page.evaluate(()=>['employers','challenges','solutions','how-it-works','services'].map(id=>document.getElementById(id).getBoundingClientRect().top+scrollY));
+  assert.ok(order.every((top,i)=>i===0||top>order[i-1]),'Approved visual section sequence');
+  assert.equal(await page.$eval('#challenges',e=>!!e.closest('details')),false);
+  assert.equal(await page.$$eval('[data-concern-choice]',es=>es.filter(e=>e.getBoundingClientRect().height>0).length),4,'Every concern visible');
+  assert.equal(await page.$eval('[data-concern-choice="fit"]',e=>e.getAttribute('aria-pressed')),'true','Default third concern matches selected mock');
+  const focusCopy={applications:'Prepare for one vacancy.',experience:'Make your actual work visible.',fit:'Understand your fit before you tailor.',interview:'Explain the work you know.'};
+  for(const [key,heading] of Object.entries(focusCopy)){
+    await page.$eval(`[data-concern-choice="${key}"]`,e=>{e.scrollIntoView({block:"center",behavior:"instant"});e.focus({preventScroll:true})});
+    await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
+    const before=await page.$eval(`[data-concern-choice="${key}"]`,e=>e.getBoundingClientRect().top);
+    await page.keyboard.press(key==='interview'?'Space':'Enter');
+    assert.equal(await page.$eval(`[data-concern-choice="${key}"]`,e=>e.getAttribute('aria-pressed')),'true');
+    assert.equal(await page.$$eval('[data-concern-choice][aria-pressed="true"]',es=>es.length),1);
+    assert.equal(await page.$eval('#preparation-response-title',e=>e.textContent),heading);
+    assert.ok(await page.$eval('#preparation-response',e=>e.textContent.includes('Illustrative example — not a real assessment')));
+    const focusState=await page.$eval(`[data-concern-choice="${key}"]`,(e,before)=>({focused:document.activeElement===e,before,after:e.getBoundingClientRect().top}),before);
+    assert.ok(focusState.focused&&Math.abs(focusState.after-focusState.before)<2,`Selection retains focus and position: ${width}/${key} ${JSON.stringify(focusState)}`);
+  }
+  await page.click('[data-concern-choice="fit"]');
+  if([390,1440].includes(width)){
+    await page.evaluate(()=>{document.activeElement?.blur();scrollTo({top:0,behavior:'instant'})});
+    const clip=await page.$eval('#challenges',e=>{const r=e.getBoundingClientRect();return{x:0,y:r.top+scrollY,width:innerWidth,height:r.height}});
+    await page.screenshot({path:`${out}/candidate-story-${width}.png`,clip});
+  }
   assert.ok(await page.$('meta[property="og:image"]'), 'Homepage needs explicit social image');
   assert.equal(await page.$eval('meta[name="twitter:card"]', e=>e.content), 'summary_large_image');
   assert.ok(await page.$$eval('a[href="/templates"]', es=>es.every(e=>e.textContent.includes('sign-in required'))), 'Protected templates must disclose sign-in');
@@ -69,8 +93,23 @@ try{
   await page.$$eval('#employers button',es=>es[0].click());
   await page.$$eval('#interview button',es=>es.find(e=>e.textContent.includes('Pause demo')).click());
   assert.equal(await page.$eval('#interview [data-motion]',e=>e.dataset.motion),'static');
-  await page.evaluate(async()=>{for(const image of document.images){image.scrollIntoView({behavior:'instant'});try{await image.decode()}catch{}}scrollTo({top:0,behavior:'instant'})});await page.waitForFunction(()=>scrollY===0);await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
+  await page.evaluate(async()=>{for(const image of [...document.images].filter(image=>image.getBoundingClientRect().width>0)){image.scrollIntoView({behavior:'instant'});try{await image.decode()}catch{}}scrollTo({top:0,behavior:'instant'})});await page.waitForFunction(()=>scrollY===0);await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
   await page.screenshot({path:`${out}/presentation-${width}.png`,fullPage:true});
+ }
+ // Enlarge actual computed text, because UDS sizes are fixed pixel values.
+ for(const textWidth of [320,390]){
+ await page.setViewport({width:textWidth,height:900});await page.goto(origin,{waitUntil:'networkidle0'});
+ await page.click('[data-concern-choice=interview]');
+ const enlarged=await page.evaluate(()=>{
+   const nodes=[...document.querySelectorAll('#challenges h2,#challenges h3,#challenges p,#challenges strong,#challenges span,#challenges small,#challenges a')];
+   const before=nodes.map(e=>parseFloat(getComputedStyle(e).fontSize));
+   nodes.forEach((e,i)=>e.style.setProperty('font-size',`${before[i]*2}px`,'important'));
+   return nodes.every((e,i)=>Math.abs(parseFloat(getComputedStyle(e).fontSize)-before[i]*2)<.1);
+ });
+ assert.ok(enlarged,'New story text must actually double');
+ assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Actual 200% story text must not overflow');
+ assert.ok(await page.$$eval('#challenges h3,#challenges p,#solutions h2,#solutions p',es=>es.filter(e=>e.getBoundingClientRect().width>1).every(e=>e.scrollWidth<=e.clientWidth+1)),'No visible story text clipping');
+ await page.screenshot({path:`${out}/candidate-text-200-${textWidth}.png`,fullPage:true});
  }
  // Large-text responsiveness is separate from the visual reference screenshots.
  await page.setViewport({width:390,height:900});await page.goto(origin,{waitUntil:'networkidle0'});await page.addStyleTag({content:'html{font-size:200%}'});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'200%text horizontal overflow');await page.screenshot({path:`${out}/text-200-390.png`,fullPage:true});results.largeText={width:390,pass:true}

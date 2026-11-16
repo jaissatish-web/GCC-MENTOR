@@ -8,6 +8,7 @@ import { LandingFooter } from '@/components/landing-v3/LandingFooter'
 import { DocumentOrbit, GccGlobe } from '@/components/landing-v3/lazy'
 import { InterviewDemo } from '@/components/landing-v3/InterviewDemo'
 import { PreparationProof, JobPackagePreview } from '@/components/landing-v3/PreparationProof'
+import { CandidateConcerns } from '@/components/landing-v3/CandidateConcerns'
 import { EmployerMarquee } from '@/components/landing-v3/EmployerMarquee'
 import { services } from '@/components/landing-premium/data'
 import { UniversalTheme } from '@/components/design-system/UniversalTheme'
@@ -25,7 +26,6 @@ const journey = [
 ]
 const industries = [ ['Oil & Gas',Droplets],['Construction',HardHat],['Engineering',Factory],['Operations',Waves],['Projects',Building2],['Corporate',BriefcaseBusiness] ] as const
 const icons = { readiness: Target, match: ClipboardCheck, cv: FileText, letter: Mail, qa: BookOpen, interview: Mic, templates: FileText, reports: FolderOpen }
-const CHALLENGES = ['Applying everywhere. No interview calls.', 'One generic CV for every job.', 'Unsure if my CV matches the role.', 'Good openings. Late applications.', 'My Gulf profile gets overlooked.', 'Interview nerves take over.', 'No clear preparation plan.']
 const faq = [
   ['Is GCC Mentor suitable for non-engineering professionals?', 'Yes. Preparation follows your own profile and job description. Examples include engineering, QA/QC, HSE, construction, IT, healthcare, finance, logistics and administration.'],
   ['Can I prepare for a LinkedIn or NaukriGulf job?', 'Yes. Copy the job description and use your Career Profile to prepare a relevant resume, cover letter and interview material. You review and update those profiles yourself; GCC Mentor does not automatically import jobs or submit applications.'],
@@ -52,6 +52,7 @@ export default function Home() {
       </section>
       <section className={s.countryBand} aria-label="GCC career destinations"><div className={s.inner}><ul className={s.countryGrid}>{COUNTRIES.map(([code,name])=><li key={code} className={s.countryCard}><Image src={`/landing/v2/flags/${code}.svg`} width={36} height={26} alt="" /><span className={s.countryName}>{name}</span></li>)}</ul></div></section>
       <EmployerMarquee />
+      <CandidateConcerns />
       <section id="how-it-works" className={s.journeySection} data-uds="section" aria-labelledby="journey-title"><div className={s.inner}>
         <div className={s.sectionHeadCenter}><span className={s.kickerGold} data-uds="kicker">THE GCC MENTOR JOURNEY</span><h2 id="journey-title" className={s.journeyTitle}>From your profile to interview preparation</h2></div>
         <ol className={s.journeyGrid}>{journey.map(({title,text,Icon,href},i)=><li key={title}><Link href={href} className={s.journeyCard}><span className={s.journeyIcon}><Icon size={28} aria-hidden="true" /></span><div><h3>{title}</h3><p>{text}</p></div><ChevronRight className={s.journeyArrow} size={20} aria-hidden="true" /></Link>{i<2&&<span className={s.journeyConnector} aria-hidden="true"><ArrowRight size={22}/></span>}</li>)}</ol>
@@ -84,7 +85,6 @@ export default function Home() {
         <article className={s.accessCard}><span className={s.accessIcon}><ShieldCheck size={27}/></span><div><h3>More service access</h3><p>Sign in to check available credits or contact us.</p><Link href="/settings" className={s.textLink}>See my available services <ArrowRight size={16}/></Link></div></article>
       </div><p className={s.accessNote}>Card checkout is not live. Any direct purchase is agreed before payment.</p></div></section>
       <section id="faq" className={s.faqSection} data-uds="section" aria-labelledby="faq-title"><div className={s.inner}><h2 id="faq-title" className={s.sectionTitle} data-uds="marketing-title">Your questions, answered.</h2><div className={s.faqList}>{faq.map(([question,answer],index)=><details key={question} className={s.faqItem} id={index===faq.length-2?'privacy':undefined}><summary>{question}<span className={s.faqPlus} aria-hidden="true">+</span></summary><p>{answer}</p></details>)}</div>
-        <details id="challenges" className={s.challengeDisclosure}><summary>Not getting shortlisted?</summary><ul>{CHALLENGES.map(text=><li key={text}>{text}</li>)}</ul><Link href="#how-it-works" className={s.textLink}>How it works <ArrowRight size={16}/></Link></details>
       </div></section>
       </div>
       <section className={s.finalBand} data-uds="final" aria-labelledby="final-title"><Image src="/landing/v2/gulf-skyline.webp" alt="" fill sizes="100vw" /><div className={s.finalContent}><h2 id="final-title" className={s.finalTitle} data-uds="marketing-title">Your experience. Better prepared.</h2><Link href="/gulf-readiness-score" className={s.goldCta} data-uds="button-primary">Check my readiness <ArrowRight size={19} aria-hidden="true" /></Link><small className={s.finalSmall}>Your real experience. Guided preparation.<br />Employment is not guaranteed.</small></div></section>
