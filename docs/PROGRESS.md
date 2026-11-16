@@ -1,6 +1,6 @@
 ## 16 November 2026 — Approved Option2
 
-Option2 approved for build and merge; implement four visible concern selectors and matching preparation response; all verification gates before merge. Plan: docs/superpowers/plans/2026-11-16-candidate-focus.md.
+Option2 implemented on PR90: four visible concern selectors and matching local response states. Build/typecheck/lint,92/92 checks, mobile typography, seven-width hydrated matrix, keyboard/focus and200% text pass. Hosted preview READY; all four selections verified in cloud browser. Design QA passed with explicit mobile readability/density notes. Exact-head CI remains merge gate; founder approved merge after checks. Plan: docs/superpowers/plans/2026-11-16-candidate-focus.md.
 
 ## 16 November 2026 — V3 candidate pain points
 

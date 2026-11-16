@@ -27,17 +27,17 @@
 ### Task 1: Selected concept, regression and implementation
 **Files:** components/landing-v3/CandidateConcerns.tsx, concerns.module.css; public/landing/v3/preparation-evidence.webp; scripts/verify-landing-v3-story.mjs, verify-landing-v3-presentation.mjs, verify-mobile-layout.mjs.
 **Interface:** CandidateConcerns(): JSX.Element, no props. #challenges is outer region, #solutions is nested response region after selectors; #preparation-response updates from four selected buttons. Default third concern. CTA #how-it-works remains.
-- [ ] Write compiled/browser assertions for new headline, all four selectors, explicit illustrative caption and default response; observe RED against existing PR90 build.
-- [ ] Reproduce old test:mobile failure at details#challenges; replace only obsolete accordion assertions with always-visible-selection invariants. Retain services disclosure and all previous responsive/document checks.
-- [ ] Implement selected mock composition and four data-driven response states; add generated paper asset, no CSS drawing or invented document text.
-- [ ] Verify browser widths320/360/390/430/768/1024/1440, every selector and keyboard Enter/Space, focus position, default/reset, useful responses, no requests, no overflow, enlarged text and reduced motion.
-- [ ] Run build, typecheck/lint, full npm test, mobile and original landing/orbit/marquee/PDF CI gates. Use bundled Chromium locally; existing font bytes fixture only if network font fetch stalls; disclose fixture limits.
+- [x] Write compiled/browser assertions for new headline, all four selectors, explicit illustrative caption and default response; observe RED against existing PR90 build.
+- [x] Reproduce old test:mobile failure at details#challenges; replace only obsolete accordion assertions with always-visible-selection invariants. Retain services disclosure and all previous responsive/document checks.
+- [x] Implement selected mock composition and four data-driven response states; add generated paper asset, no CSS drawing or invented document text.
+- [x] Verify browser widths320/360/390/430/768/1024/1440, every selector and keyboard Enter/Space, focus position, default/reset, useful responses, no requests, no overflow, enlarged text and reduced motion.
+- [x] Run build, typecheck/lint, full npm test, mobile and original landing/orbit/marquee/PDF CI gates. Use bundled Chromium locally; existing font bytes fixture only if network font fetch stalls; disclose fixture limits.
 
 ### Task 2: Review, visual parity and approved release
 **Files:** design-qa.md, docs/evidence/2026-11-16-shortlisting/*, docs/PROGRESS.md, docs/15_DECISION_LOG.md, existing V3 plan.
-- [ ] Compare normalized desktop/mobile crops of selected mock and real browser render; fix P0/P1/P2 differences; retain comparison image and actual screenshots.
-- [ ] Independent read-only source review, fix material findings with regression evidence; verify protected diff and whitespace.
-- [ ] Update existing PR90/WorkReport89, push exact verified tree with lease, obtain green CI and working preview where available.
+- [x] Compare normalized desktop/mobile crops of selected mock and real browser render; fix P0/P1/P2 differences; retain comparison image and actual screenshots.
+- [x] Independent read-only source review, fix material findings with regression evidence; verify protected diff and whitespace.
+- [x] Update existing PR90/WorkReport89, push exact verified tree with lease, obtain green CI and working preview where available.
 - [ ] Mark ready and merge exact approved PR head after CI passes. Verify main deployment reaches READY and live DOM/interaction/copy reflect selected direction. No unrelated source/config changes.
 
 Rollback: before merge retain PR branch; after release revert only this PR through review or restore prior known-good deployment if separately needed. No data/schema rollback.

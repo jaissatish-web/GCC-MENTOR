@@ -1,34 +1,37 @@
-# Approved Option2 — implementation QA, 16 November 2026
+# Candidate preparation focus — approved Option2 QA
 
-Source visual truth: docs/evidence/2026-11-16-shortlisting/option2-reference.webp (second displayed generated design, desktop1440/mobile390 targets). Actual mock raster1536×1024; exact browser baselines are not supplied by a generated image.
+**Source visual truth:** docs/evidence/2026-11-16-shortlisting/option2-reference.webp, second displayed concept approved by Satish. Original raster1536×1024 contains desktop1440/mobile390 intended layouts, not exact device baselines.
+**Implementation evidence:** docs/evidence/2026-11-16-shortlisting/option2-1440.webp, option2-390.webp, option2-hosted-default.jpg.
+**Comparisons:** option2-compare-1440.webp and option2-compare-390.webp in that folder. These put source and actual render in the same image. Reference content crops1122×581 and349×660 are normalized proportionally to1440×746 and390×738; actual CSS viewports1440/390, DPR1, screenshots1440×787 and390×1397. No pixel-exact equivalence is claimed for generated artboards.
+**State:** default third concern, job suitability; same dark response and service mapping. All four interactive states tested separately.
 
-Implementation: CandidateConcerns.tsx and concerns.module.css. Four visible choices, default third job-suitability concern, four local response states, decorative12KB WebP. Uses existing typography/theme/icons, no global override or service change.
+## Findings and accepted constraints
 
-Final result: blocked
+No unresolved P0/P1/P2 functional or composition issue after the iterations below. The expected mobile text-density difference is explicit: generated helper text is too small to treat as production typography. Existing central16px concern/13px helper tokens, 44px+ controls, full readable status details and a mandatory illustrative caption make the actual mobile section taller than the raster. All four main problems/mappings remain visible, with no section accordion or horizontal carousel. This implements the approved responsive structure while preserving the brief's readability and truthfulness requirements.
 
-Local build, typecheck, lint, full92/92 offline checks and responsive typography/mounted markup with normal200% text passed. Final hydrated seven-width matrix and normalized source-versus-render comparison are pending. Cloud local preview returned an upstream connection error; do not substitute process startup or HTTP checks for visual verification. Vercel branch preview must be inspected before release.
+- Fonts/typography: existing Inter, centralized UDS marketing/page/card/body/helper tokens. Strong headline/teal emphasis, clear concern/service hierarchy; readable labels and true200% text pass. No document typography change.
+- Spacing/layout: matching centered intro, desktop selector/response split and mobile stack; fine separators, selected teal rule/background, dark response, CTA then original journey. Target and actual section crops inspected together. Existing rounded CTA geometry follows current global token; no new override layer.
+- Colors/tokens: existing white/canvas/navy/teal/soft-teal palette. Selected concern and response text have semantic labels, not color-only meaning. Dark canvas uses existing UDS ink (slightly more navy than the generated slate approximation).
+- Images: generated decorative transparent paper illustration, optimized320×320 WebP11,514bytes, sharp at100–160px. Original employer artwork, orbit documents, globe and founder image retained. No CSS-drawn replacement or fake assessment screenshot.
+- Copy/content: approved emotional headline, concise mock concern wording, all four direct mappings, four useful grounded responses, clear illustrative caption and employer-decision limitation. No scores or guarantees.
 
-Review fixes: explicit screen-reader service descriptions added following failing regression; enlarged text harness covers spans at320/390. Image decoding now targets rendered images because hidden lazy artwork at320 never requests bytes; visible-image health assertions retained. Keyboard baseline waits for native focus scrolling to settle (same existing demo pattern), retaining the2px threshold.
+## Iteration history
 
-Protected: template/PDF/document styling, AI/auth/payments/credits/backend/schema/configuration and original marquee/orbit/globe sources unchanged.
+1. Initial mobile render used the full brief questions and repeated more text than the selected mock. Replaced with the selected mock's concise four quotes; final captures retain all intended concerns/mappings and improve scan speed.
+2. Review requested service descriptions for assistive technology and complete enlarged-text coverage. Added aria-describedby mapping links following a failing compiled regression; all native buttons remain keyboard accessible and role=status announces the selected preparation focus. Measured2× text includes spans at320/390, with root200% typography matrix also passing.
+3. Browser-harness failures were investigated rather than weakening gates: skip image.decode only for non-rendered lazy artwork at320 (existing visible-image health assertion retained); settle native focus scrolling before baseline, keeping2px stability threshold; exclude the intentional1px visually hidden status text from visible-clipping assertions. Final full hydrated matrix passes.
 
-## Historical V3 QA record
+## Browser verification
 
-# GCC Mentor V3 visual QA
+- Actual compiled application with anonymous API/image fixtures:320/360/390/430/768/1024/1440; all choices Enter/Space, exactly one selected, matching title/content, retained focus/position, default reset, existing menu/destinations/package/interview/globe/orbit assertions, no overflow/broken visible images/invalid anchors/page errors.
+- Enlarged text: measured2× at320/390 and existing seven-width normal/root200% typography suite PASS. Reduced-motion matrix; component introduces no animation/auto-advance.
+- Cloud local preview was blocked by upstream connection failure; no local-preview process/health claim substitutes for browser verification.
+- Hosted Vercel preview dpl_9tLRmbncdtk3g7JzH83jW3xxQBaA READY at application commit cc8a896. Cloud browser opened the real page and exercised all four selections, confirmed their corresponding headings/evidence/announcements, then restored default. Actual hosted screenshot saved. Application error log empty; browser-extension metadata errors are recorded separately and not attributed to the app.
+- Cloud browser viewport is its native desktop size, not a claimed390/1440 device. Exact-width screenshots come from the actual compiled browser harness.
+- Section comparison images already isolate all new UI at readable resolution, including selected response/icon/text detail; an additional microscopic crop is unnecessary.
 
-final result: blocked
+## Remaining limits
 
-## References and method
-Founder-approved issue #87 revised final desktop mockup and matching three mobile artboards. The 1024×1536 design images are composition references, not live 1440/390 captures. Current approved source assets, real resume orbit/halo, six flags, colored logos, dotted globe and founder photo are retained. Landing CSS modules own composition; Universal Design tokens own website typography; authored documents retain fixed UI inheritance.
+No authenticated generation, payment, real account/data writes, paid model calls, physical devices, full screen-reader or field-performance certification. Protected sources unchanged. Remote exact-head CI is a separate merge gate and must complete before release. Final evidence-only commit changes no application code from the hosted preview.
 
-Exact local Chromium captures exercise actual Next production HTML/JS/CSS at 320, 360, 390, 430, 768, 1024 and 1440 CSS pixels, DPR1. Anonymous API fixtures avoid production data/AI. Remote production browser navigation failed ERR_EMPTY_RESPONSE. This is local responsive evidence, not production-network or authenticated flow certification. The fixture serves original assets for Next image URLs, so optimized CDN output and DPR2 sharpness remain unverified.
-
-## Findings and review
-- New story, persistent synthetic labels, same-job previews, accessible 46/61/74 chart, manual interview stages and motion controls implemented.
-- Exact-width overflow, image health, destinations, menu/Escape/focus, globe country selection, orbit keyboard/preview/animation, 200% text and reduced motion exercised.
-- Independent review identified two Important issues: a remaining undisclosed protected template link and a focused interview control moving below the viewport. Both were reproduced with failing assertions before correction. The final seven-width rerun passes, including all template disclosures and stable native control position across every transition. The compact globe country labels also pass the added wrapping check.
-- Minor deferred: the specific offshore commissioning gap is explicit in the resume excerpt but only general unsupported-experience protection remains in the Cover Letter/Q&A excerpts. No unsupported fact is added.
-- Earlier flattened-globe captures came from an obsolete intermediate build and must not be used as final evidence.
-
-## Limits before production approval
-Existing test:interview times out waiting for the dashboard progress report on unchanged main and V3. Protected services are not modified to resolve that separate fixture issue. Actual screen-reader testing, authenticated service generation, payment/credits, live optimized-image delivery and field performance remain unverified. No pixel-identical fidelity claim; useful real controls, readable type and retained document functionality govern adaptation of the compressed composition artboards.
+**final result: passed**

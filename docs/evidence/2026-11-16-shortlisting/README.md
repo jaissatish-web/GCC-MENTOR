@@ -4,11 +4,20 @@ Founder selected “Find your preparation focus” (second displayed image), app
 
 Four always-visible candidate concerns directly show service mappings. Selecting one updates a single illustrative response canvas; default is job suitability. Explicit example/limits wording, no fake score, no user data or actual assessment. Shorter approved-mock quotes reduce mobile height. Original colorful employer rows/disclaimer, journey, orbit, globe and services retained.
 
-Build, typecheck/lint, full92/92 offline suite and mobile typography suite passed locally. Hydrated final matrix, visual comparisons, remote CI and preview verification are pending at this checkpoint. Do not merge from this checkpoint alone.
+Build, typecheck/lint, full92/92 offline suite and mobile typography suite passed locally. Final hydrated matrix PASS at320/360/390/430/768/1024/1440; all four selectors, keyboard/focus, measured200% at320/390, no page errors/overflow. Hosted preview READY and all four states exercised in cloud browser. Normalized comparisons reviewed; design-qa.md final result passed. Exact-head remote CI remains the merge gate.
 
 Assets: option2-reference.webp is the approved concept board; public/landing/v3/preparation-evidence.webp is the generated decorative paper illustration. Both are illustrative; no template or real resume was altered.
 
 Plan: ../../superpowers/plans/2026-11-16-candidate-focus.md. Current QA: ../../../design-qa.md.
+
+## Final Option2 evidence
+
+- [Desktop browser capture](option2-1440.webp) · [Mobile browser capture](option2-390.webp)
+- [Desktop comparison](option2-compare-1440.webp) · [Mobile comparison](option2-compare-390.webp)
+- [Hosted browser capture](option2-hosted-default.jpg)
+- Preview: https://gcc-mentor-gu8htyph7-satishs-projects-c02c354b.vercel.app/ (application commit cc8a896; final evidence commit changes docs/tests only).
+
+The mobile implementation uses readable central typography and explicit example labels rather than the generated board's tiny helper type, so it is taller than the conceptual raster. It preserves every main concern/mapping and avoids full-section collapse. See design-qa.md for normalization, iterations and accepted differences.
 
 ## Historical rejected first PR90 revision
 

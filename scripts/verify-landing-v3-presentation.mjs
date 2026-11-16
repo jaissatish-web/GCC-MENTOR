@@ -108,7 +108,7 @@ try{
  });
  assert.ok(enlarged,'New story text must actually double');
  assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Actual 200% story text must not overflow');
- assert.ok(await page.$$eval('#challenges h3,#challenges p,#solutions h2,#solutions p',es=>es.every(e=>e.scrollWidth<=e.clientWidth+1)),'No story text clipping');
+ assert.ok(await page.$$eval('#challenges h3,#challenges p,#solutions h2,#solutions p',es=>es.filter(e=>e.getBoundingClientRect().width>1).every(e=>e.scrollWidth<=e.clientWidth+1)),'No visible story text clipping');
  await page.screenshot({path:`${out}/candidate-text-200-${textWidth}.png`,fullPage:true});
  }
  // Large-text responsiveness is separate from the visual reference screenshots.
