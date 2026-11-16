@@ -23,7 +23,7 @@
 .inner,.navInner,.heroInner { width: min(var(--uds-content-max), calc(100% - var(--uds-gutter) * 2)); margin-inline: auto; }
 .system .header { position: sticky; top: 0; z-index: 40; background: var(--uds-surface); border-bottom: var(--uds-border-width) solid var(--uds-border); }
 .navInner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; min-height: 68px; padding-block: 8px; }
-.system .brand { display: flex; align-items: center; gap: 10px; color: var(--uds-ink); flex-shrink: 0; font-size: var(--uds-nav-size); font-weight: var(--uds-heading-weight); letter-spacing: var(--uds-tracking); white-space: nowrap; }
+.system .brand { display: flex; align-items: center; gap: 10px; min-height: 44px; color: var(--uds-ink); flex-shrink: 0; font-size: var(--uds-nav-size); font-weight: var(--uds-heading-weight); letter-spacing: var(--uds-tracking); white-space: nowrap; }
 .brand b { color: var(--uds-brand); font-weight: var(--uds-heading-weight); }
 .brandMark { display: grid; place-items: center; width: 36px; height: 40px; border-radius: var(--uds-button-radius); color: var(--uds-brand); background: transparent; font-size: var(--uds-section-size); font-weight: var(--uds-heading-weight); }
 .brandMark>span { display: none; }
@@ -151,12 +151,11 @@
 .industriesSection .sectionLead { text-align: center; margin-top: -12px; margin-bottom: 22px; }
 .industryGrid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
 .industryTile { position: relative; overflow: hidden; border-radius: var(--uds-card-radius); aspect-ratio: 1.5; background: var(--uds-ink); }
-.industryPhoto { position: absolute; inset: 0; background-image: url('/landing/v2/industries.webp'); background-size: 300% 200%; background-position: 0 0; }
-.industryPhoto[data-industry='1'] { background-position: 50% 0; }
-.industryPhoto[data-industry='2'] { background-position: 100% 0; }
-.industryPhoto[data-industry='3'] { background-position: 0 100%; }
-.industryPhoto[data-industry='4'] { background-position: 50% 100%; }
-.industryPhoto[data-industry='5'] { background-position: 100% 100%; }
+/* Six individual scene files, not one 1536px sheet. A single sheet cannot be
+   lazy-loaded, so every phone downloaded 294 KB to show six thumbnails.
+   data-industry stays as the scene index hook used by the landing checks. */
+.industryPhoto { position: absolute; inset: 0; overflow: hidden; }
+.industryPhoto img { object-fit: fill; }
 .industryLabel { position: absolute; bottom: 0; left: 0; right: 0; padding: 8px; display: flex; align-items: center; gap: 6px; min-height: 40px; color: var(--uds-primary-text); background: rgb(var(--uds-ink-rgb) / .9); font-size: var(--uds-helper-size); font-weight: var(--uds-heading-weight); }
 .industryLabel svg { flex: none; }
 .marketsSection { background: var(--uds-canvas); }
@@ -277,6 +276,9 @@
 /* A single ellipse plane, split at its horizon. Rear arc is below the live
    carousel stacking context; front arc is above. Neither intercepts input. */
 .heroVisual::before,.heroVisual::after { content: ""; position: absolute; pointer-events: none; inset: 38% -3% 8%; background: url("/landing/v2/resume-halo.webp") center / contain no-repeat; }
+/* Phones get their own smaller halo: the desktop file is an 86 KB decoration
+   that is pure weight on a narrow screen. */
+@media(max-width:959px) { .heroVisual::before,.heroVisual::after { background-image: url("/landing/v2/resume-halo-mobile.webp"); } }
 .heroVisual::before { z-index: 0; clip-path: inset(0 0 50% 0); }
 .heroVisual>div { position: relative; z-index: 1; }
 .heroVisual::after { z-index: 2; clip-path: inset(50% 0 0 0); }

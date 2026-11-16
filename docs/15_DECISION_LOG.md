@@ -1,3 +1,17 @@
+## 16 November 2026 — Mobile landing weight reduction
+
+Founder authorized direct implementation of the mobile landing optimisation in the
+repository. Requirement, acceptance criteria, protected scope and evidence plan are in
+docs/superpowers/plans/2026-11-16-mobile-landing-weight.md. Scope is landing assets
+only: split the 1536px industries sprite into six next/image tiles, give mobile a 560px
+resume halo, re-export flags/om.svg and flags/sa.svg at svgo precision 0, raise the
+mobile marketing type floor (helperSize 13 to 15, bodySize 15 to 16) and bring the
+brand link to a 44px target. Measured cold 390px mobile transfer baseline 984.3 KB,
+target under 650 KB. No visual change, no copy or section-order change, no protected
+file, no dependency, no backend/AI/auth/payment/scoring change. A sticky mobile CTA,
+analytics, security headers, JSON-LD and a public pricing page are explicitly out of
+scope and remain separate proposals. Merge remains with the founder.
+
 ## 16 November 2026 — Approved Option2
 
 Founder selected second displayed visual “Find your preparation focus” and explicitly requested build and merge. This supersedes the PR90 no-merge hold after checks pass. Preserve protected services/documents. Plan: docs/superpowers/plans/2026-11-16-candidate-focus.md.
