@@ -28,6 +28,28 @@ try{
   await page.$eval('#markets',e=>e.scrollIntoView({behavior:'instant'}));await page.waitForSelector('#markets-title');await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))))
   // Lazy images must enter view and finish decoding before asserting their health.
   await page.evaluate(async()=>{for(const image of document.images){image.scrollIntoView({behavior:'instant'});try{await image.decode()}catch{}}scrollTo({top:0,behavior:'instant'})})
+  const order=await page.$$eval('main>section',es=>es.map(e=>e.id).filter(Boolean));
+  assert.ok(order.indexOf('challenges')===order.indexOf('employers')+1);
+  assert.ok(order.indexOf('solutions')===order.indexOf('challenges')+1);
+  assert.ok(order.indexOf('how-it-works')===order.indexOf('solutions')+1);
+  assert.equal(await page.$eval('#challenges',e=>!!e.closest('details')),false);
+  assert.equal(await page.$$eval('#challenges>div>div ul:first-of-type h3',es=>es.filter(e=>e.getBoundingClientRect().height>0).length),2);
+  assert.ok(await page.$eval('#solutions',e=>e.getBoundingClientRect().height>0));
+  assert.equal(await page.$eval('#more-candidate-concerns',e=>getComputedStyle(e).display!=='none'),width>=768);
+  if(width<768){
+    await page.focus('#challenges button');await page.keyboard.press('Enter');
+    assert.equal(await page.$eval('#challenges button',e=>e.getAttribute('aria-expanded')),'true');
+    assert.ok(await page.$eval('#more-candidate-concerns',e=>getComputedStyle(e).display!=='none'));
+    assert.ok(await page.$eval('#challenges button',e=>document.activeElement===e));
+    await page.keyboard.press('Enter');assert.equal(await page.$eval('#challenges button',e=>e.getAttribute('aria-expanded')),'false');
+    assert.equal(await page.$eval('#more-candidate-concerns',e=>getComputedStyle(e).display),'none');
+  }
+  if([390,1440].includes(width)){
+    await page.$eval('#challenges',e=>e.scrollIntoView({behavior:'instant'}));
+    const clip=await page.evaluate(()=>{const a=document.querySelector('#challenges').getBoundingClientRect(),b=document.querySelector('#solutions').getBoundingClientRect();return{x:0,y:a.top+scrollY,width:innerWidth,height:b.bottom-a.top}});
+    await page.screenshot({path:`${out}/candidate-story-${width}.png`,clip});
+    await (await page.$('#solutions')).screenshot({path:`${out}/solutions-${width}.png`});
+  }
   assert.ok(await page.$('meta[property="og:image"]'), 'Homepage needs explicit social image');
   assert.equal(await page.$eval('meta[name="twitter:card"]', e=>e.content), 'summary_large_image');
   assert.ok(await page.$$eval('a[href="/templates"]', es=>es.every(e=>e.textContent.includes('sign-in required'))), 'Protected templates must disclose sign-in');
@@ -72,6 +94,19 @@ try{
   await page.evaluate(async()=>{for(const image of document.images){image.scrollIntoView({behavior:'instant'});try{await image.decode()}catch{}}scrollTo({top:0,behavior:'instant'})});await page.waitForFunction(()=>scrollY===0);await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
   await page.screenshot({path:`${out}/presentation-${width}.png`,fullPage:true});
  }
+ // Enlarge actual computed text, because UDS sizes are fixed pixel values.
+ await page.setViewport({width:390,height:900});await page.goto(origin,{waitUntil:'networkidle0'});
+ await page.$eval('#challenges button',e=>e.click());
+ const enlarged=await page.evaluate(()=>{
+   const nodes=[...document.querySelectorAll('#challenges h2,#challenges h3,#challenges p,#challenges span,#challenges button,#solutions h2,#solutions span,#solutions a,#solutions p,#solutions small')];
+   const before=nodes.map(e=>parseFloat(getComputedStyle(e).fontSize));
+   nodes.forEach((e,i)=>e.style.setProperty('font-size',`${before[i]*2}px`,'important'));
+   return nodes.every((e,i)=>Math.abs(parseFloat(getComputedStyle(e).fontSize)-before[i]*2)<.1);
+ });
+ assert.ok(enlarged,'New story text must actually double');
+ assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Actual 200% story text must not overflow');
+ assert.ok(await page.$$eval('#challenges h3,#challenges p,#solutions h2,#solutions p',es=>es.every(e=>e.scrollWidth<=e.clientWidth+1)),'No story text clipping');
+ await page.screenshot({path:`${out}/candidate-text-200-390.png`,fullPage:true});
  // Large-text responsiveness is separate from the visual reference screenshots.
  await page.setViewport({width:390,height:900});await page.goto(origin,{waitUntil:'networkidle0'});await page.addStyleTag({content:'html{font-size:200%}'});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'200%text horizontal overflow');await page.screenshot({path:`${out}/text-200-390.png`,fullPage:true});results.largeText={width:390,pass:true}
  assert.deepEqual(results.errors,[]);results.pass=true

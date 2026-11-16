@@ -1,3 +1,7 @@
+## 16 November 2026 — Shortlisting preparation narrative
+
+Founder approved Hero → countries → employer logos/disclaimer → relatable concerns → solutions → journey → demos. Exact supplied copy; retain animations and protected application/document logic. Builder choice: first two concerns always visible on mobile, remaining two behind one accessible button; all four visible on desktop. No new feature-card grid or shortlisting promise.
+
 ## 2026-11-15 — V3 landing presentation authorization
 
 Founder-approved issue #87 implementation supersedes earlier documentation-only and between-batch approval notes for this task. All batches, draft PR and preview are authorized; production/merge remain prohibited. Preserve orbit/globe underlying source and all protected service/document behavior. Exact local compiled captures are distinguished from live external evidence.
