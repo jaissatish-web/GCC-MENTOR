@@ -2,45 +2,52 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { ArrowRight, CheckCircle2, CircleAlert, FileText, UserRound } from 'lucide-react'
+import { ArrowRight, Award, BriefcaseBusiness, CheckCircle2, CircleAlert, GraduationCap, Target, UserRound, Wrench } from 'lucide-react'
 import s from './proof.module.css'
 
-// One local, synthetic record. This demonstration never reads or writes user data.
-const profile = { name: 'Example candidate', role: 'Instrumentation Commissioning Engineer', evidence: 'Loop checks', gap: 'Offshore commissioning' }
+const fields = [['Work experience', BriefcaseBusiness], ['Skills', Wrench], ['Education', GraduationCap], ['Achievements', Award], ['Career goals', Target]] as const
+const requirements = [['Relevant experience', 'Evidence found', false], ['Required skills', 'Review your evidence', true], ['Qualifications', 'Areas to review', true]] as const
 const previews = [
-  ['Optimized Resume', 'Relevant experience', 'Loop-check experience from the confirmed Career Profile, presented for the Instrumentation Commissioning Engineer role. Offshore commissioning remains unconfirmed and is excluded.'],
-  ['Cover Letter', 'A relevant introduction', 'I am applying for the Instrumentation Commissioning Engineer role. My confirmed loop-check experience is relevant to the stated requirement.'],
-  ['Interview Q&A', 'Practise your own experience', 'How would you explain the loop checks you personally carried out? Structure your answer around your responsibility, checks and verified result.'],
+  { label: 'Optimized Resume', title: 'Clear structure. Relevant emphasis.', description: 'Your confirmed experience, prepared for this job.', sections: ['Experience', 'Skills', 'Education'] },
+  { label: 'Cover Letter', title: 'A focused introduction to your application.', description: 'Connect your real experience to this job.', sections: ['Introduction', 'Relevant experience', 'Closing'] },
+  { label: 'Interview Q&A', title: 'How does your experience relate to this role?', description: 'Prepare questions. Structure answers. Identify areas to improve.' },
 ] as const
 
+/** Marketing anatomy only: no synthetic person, assessment or generated document. */
 export function PreparationProof() {
   return <div className={s.proof}>
     <article className={s.panel} aria-labelledby="profile-example-title">
-      <span className={s.label}>Illustrative profile</span>
-      <div className={s.profile}><UserRound size={38} aria-hidden="true" /><div><h3 id="profile-example-title">Career Profile <small>(Example)</small></h3><p>{profile.role}</p></div></div>
-      <dl className={s.facts}><div><dt>Professional summary</dt><dd>Experience in instrumentation and loop checks.</dd></div><div><dt>Confirmed skill</dt><dd>{profile.evidence}</dd></div></dl>
-      <p className={s.confirmed}><CheckCircle2 size={18} aria-hidden="true" />User-confirmed facts</p><p className={s.note}>Missing information stays visible. Review and confirm before you prepare. These facts are confirmed by the user, not independently verified.</p>
+      <div className={s.profile}><UserRound size={27} aria-hidden="true" /><h3 id="profile-example-title">Career Profile</h3></div>
+      <ul className={s.facts}>{fields.map(([label, Icon]) => <li key={label} data-profile-field><Icon size={19} aria-hidden="true" /><strong>{label}</strong><span className={s.placeholder} aria-hidden="true"><i /><i /></span></li>)}</ul>
+      <p className={s.confirmed}><CheckCircle2 size={18} aria-hidden="true" />Reviewed and confirmed by you</p>
+      <p className={s.note}>Your master record. You review the facts; they are not independently verified.</p>
     </article>
-    <article className={s.panel} aria-labelledby="analysis-example-title">
-      <span className={s.label}>Illustrative job analysis</span><h3 id="analysis-example-title">See the requirement. Understand the gap.</h3>
-      <p className={s.note}>Target job: {profile.role}</p>
-      <ul className={s.requirements}><li><CheckCircle2 size={20} aria-hidden="true" /><div><strong>Requirement: loop checks</strong><span>Evidence found in profile</span></div></li><li data-gap><CircleAlert size={20} aria-hidden="true" /><div><strong>Requirement: offshore commissioning</strong><span>Not confirmed — review the gap</span></div></li></ul>
-      <p className={s.note}>A gap is not added as experience.</p>
+    <article className={`${s.panel} ${s.analysis}`} aria-labelledby="analysis-example-title">
+      <h3 id="analysis-example-title">ATS Job Match</h3>
+      <p className={s.label}>MARKETING ILLUSTRATION · NOT A REAL ASSESSMENT</p>
+      <div className={s.columnLabels} aria-hidden="true"><span>Job requirements</span><span>Your Career Profile</span></div>
+      <ul className={s.requirements}>{requirements.map(([label, status, review]) => <li key={label} data-requirement-row data-gap={review || undefined}><strong>{label}</strong><span>{review ? <CircleAlert size={18} aria-hidden="true" /> : <CheckCircle2 size={18} aria-hidden="true" />}{status}</span></li>)}</ul>
+      <p className={s.note}>Understand the requirements. Review your evidence. A gap is not added as experience.</p>
     </article>
   </div>
 }
 
+function DocumentOutline({ sections }: { sections: readonly string[] }) {
+  return <div className={s.paper} aria-label="Illustrative document structure">{sections.map(label => <div key={label}><strong>{label}</strong><span aria-hidden="true"><i /><i /><i /></span></div>)}</div>
+}
+
 export function JobPackagePreview() {
   const [selected, setSelected] = useState(0)
+  const preview = previews[selected]
   return <div className={s.package} data-job-package>
     <h2 id="templates-title">One job. A connected preparation package.</h2>
-    <div className={s.tabs} role="group" aria-label="Package previews">{previews.map(([label], i)=><button key={label} type="button" aria-pressed={selected===i} aria-controls="package-preview" onClick={()=>setSelected(i)}>{label}</button>)}</div>
-    <div id="package-preview" className={s.preview} role="region" aria-label={previews[selected][0]}>
-      <span className={s.label}>Illustrative preview · Same profile + target job</span>
-      <p className={s.context}>{profile.name} · {profile.role}</p>
-      <div className={s.previewBody}><FileText size={28} aria-hidden="true" /><div><h3>{previews[selected][1]}</h3><p>{previews[selected][2]}</p></div></div>
-      <p className={s.confirmed}><CheckCircle2 size={18} aria-hidden="true" />Your Career Profile remains unchanged.</p>
-      <p className={s.note}>Every preview uses the same confirmed facts. No unsupported experience is added.</p>
+    <div className={s.tabs} role="group" aria-label="Package previews">{previews.map(({ label }, i) => <button key={label} type="button" aria-pressed={selected === i} aria-controls="package-preview" onClick={() => setSelected(i)}>{label}</button>)}</div>
+    <div id="package-preview" className={s.preview} role="region" aria-label={preview.label}>
+      <p className={s.label}>Illustrative preparation preview</p>
+      {'sections' in preview ? <div className={s.previewBody}><DocumentOutline sections={preview.sections} /><div><h3>{preview.title}</h3><p>{preview.description}</p><p className={s.context}>Your Career Profile + job requirements</p></div></div>
+        : <div className={s.qa}><p>{preview.description}</p><div><b aria-hidden="true">Q</b><h3>{preview.title}</h3></div><div><b aria-hidden="true">A</b><p><small>Answer framework</small>Your responsibility → Your actions → Your result</p></div><p className={s.note}>Preparation focus: use examples you can explain from your own work.</p></div>}
+      <p className={s.confirmed}><CheckCircle2 size={18} aria-hidden="true" />Your Career Profile stays unchanged.</p>
+      <p className={s.note}>Review before you use. No unsupported experience is added.</p>
     </div>
     <Link className={s.cta} href="/templates">Browse designs — sign-in required <ArrowRight size={17} aria-hidden="true" /></Link>
   </div>

@@ -1,0 +1,1881 @@
+{
+  "source": "Compiled actual landing; read-only anonymous fixture APIs, not authenticated service verification",
+  "viewports": [
+    {
+      "navigation": {
+        "domContentLoadedMs": 218.69999999995343,
+        "loadMs": 270.69999999995343,
+        "resourceCount": 64,
+        "transferBytes": 2548241
+      },
+      "width": 320,
+      "height": 13072,
+      "scrollWidth": 320,
+      "hero": {
+        "font": "Inter, \"Inter Fallback\", ui-sans-serif, system-ui, sans-serif",
+        "size": "36px",
+        "weight": "700",
+        "color": "rgb(16, 37, 77)",
+        "box": {
+          "x": 16,
+          "y": -5211,
+          "width": 288,
+          "height": 129.5625,
+          "top": -5211,
+          "right": 304,
+          "bottom": -5081.4375,
+          "left": 16
+        }
+      },
+      "orbitCount": 10,
+      "flags": 6,
+      "industryTiles": 6,
+      "brokenImages": [],
+      "links": [
+        {
+          "text": "Skip to content",
+          "href": "#main-content"
+        },
+        {
+          "text": "GCC MENTOR",
+          "href": "/"
+        },
+        {
+          "text": "Free Tools",
+          "href": "/tools"
+        },
+        {
+          "text": "Preparation",
+          "href": "#services"
+        },
+        {
+          "text": "Templates",
+          "href": "#templates"
+        },
+        {
+          "text": "Interview",
+          "href": "#interview"
+        },
+        {
+          "text": "Access",
+          "href": "#plans"
+        },
+        {
+          "text": "About & access",
+          "href": "#about"
+        },
+        {
+          "text": "FAQ",
+          "href": "#faq"
+        },
+        {
+          "text": "Sign in",
+          "href": "/login"
+        },
+        {
+          "text": "Check free readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "Free Tools",
+          "href": "/tools"
+        },
+        {
+          "text": "Preparation",
+          "href": "#services"
+        },
+        {
+          "text": "Templates",
+          "href": "#templates"
+        },
+        {
+          "text": "Interview",
+          "href": "#interview"
+        },
+        {
+          "text": "Access",
+          "href": "#plans"
+        },
+        {
+          "text": "About & access",
+          "href": "#about"
+        },
+        {
+          "text": "FAQ",
+          "href": "#faq"
+        },
+        {
+          "text": "Privacy & data control",
+          "href": "/privacy"
+        },
+        {
+          "text": "Common questions",
+          "href": "#faq"
+        },
+        {
+          "text": "Create an account",
+          "href": "/signup"
+        },
+        {
+          "text": "Check My Free GCC Readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "Check my readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "See how it works",
+          "href": "#how-it-works"
+        },
+        {
+          "text": "See how it works",
+          "href": "#how-it-works"
+        },
+        {
+          "text": "Career ProfileReview and confirm your facts.",
+          "href": "/profile"
+        },
+        {
+          "text": "Job PackagePrepare for one target role.",
+          "href": "/optimize/target"
+        },
+        {
+          "text": "Interview PreparationPractise. Review. Improve.",
+          "href": "/interview-qa"
+        },
+        {
+          "text": "GCC ReadinessUnderstand your preparation gaps.",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "ATS Job MatchCompare your resume with a job description.",
+          "href": "/optimize/target"
+        },
+        {
+          "text": "Optimize Resume for a New JobPresent your real experience for the role.",
+          "href": "/optimize/target"
+        },
+        {
+          "text": "Cover LetterIntroduce your relevance to this job.",
+          "href": "/cover-letter"
+        },
+        {
+          "text": "Interview Q&APrepare role-specific answer structures.",
+          "href": "/interview-qa"
+        },
+        {
+          "text": "Mock InterviewPractise and review your next step.",
+          "href": "/mock-interview"
+        },
+        {
+          "text": "Resume designs — sign-in requiredBrowse the full design library after signing in.",
+          "href": "/templates"
+        },
+        {
+          "text": "Resume LibraryRevisit applications and preparation.",
+          "href": "/dashboard/library"
+        },
+        {
+          "text": "Browse designs — sign-in required",
+          "href": "/templates"
+        },
+        {
+          "text": "Browse designs — sign-in required",
+          "href": "/templates"
+        },
+        {
+          "text": "Open mock interview",
+          "href": "/mock-interview"
+        },
+        {
+          "text": "Open my saved progress",
+          "href": "/dashboard"
+        },
+        {
+          "text": "View professional background",
+          "href": "https://www.linkedin.com/in/jaissatish/"
+        },
+        {
+          "text": "Check my free readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "Create my account",
+          "href": "/signup"
+        },
+        {
+          "text": "See my available services",
+          "href": "/settings"
+        },
+        {
+          "text": "Check my readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "GCC MENTOR",
+          "href": "/"
+        },
+        {
+          "text": "Free Tools",
+          "href": "/tools"
+        },
+        {
+          "text": "Career Profile",
+          "href": "/profile"
+        },
+        {
+          "text": "Optimize Resume for a New Job",
+          "href": "/optimize/target"
+        },
+        {
+          "text": "Cover Letter",
+          "href": "/cover-letter"
+        },
+        {
+          "text": "Interview Q&A",
+          "href": "/interview-qa"
+        },
+        {
+          "text": "Mock Interview",
+          "href": "/mock-interview"
+        },
+        {
+          "text": "Resume Library",
+          "href": "/dashboard/library"
+        },
+        {
+          "text": "LinkedIn Optimization",
+          "href": "/linkedin-optimization"
+        },
+        {
+          "text": "NaukriGulf Optimization",
+          "href": "/naukrigulf-optimization"
+        },
+        {
+          "text": "jaissatish@gmail.com",
+          "href": "mailto:jaissatish@gmail.com"
+        },
+        {
+          "text": "Common questions",
+          "href": "#faq"
+        }
+      ],
+      "invalidAnchors": [],
+      "selectFonts": [
+        "16px",
+        "16px",
+        "16px"
+      ]
+    },
+    {
+      "navigation": {
+        "domContentLoadedMs": 50.39999999990687,
+        "loadMs": 192.5999999998603,
+        "resourceCount": 65,
+        "transferBytes": 2560055
+      },
+      "width": 360,
+      "height": 12639,
+      "scrollWidth": 360,
+      "hero": {
+        "font": "Inter, \"Inter Fallback\", ui-sans-serif, system-ui, sans-serif",
+        "size": "36px",
+        "weight": "700",
+        "color": "rgb(16, 37, 77)",
+        "box": {
+          "x": 16,
+          "y": -4969.40625,
+          "width": 328,
+          "height": 86.375,
+          "top": -4969.40625,
+          "right": 344,
+          "bottom": -4883.03125,
+          "left": 16
+        }
+      },
+      "orbitCount": 10,
+      "flags": 6,
+      "industryTiles": 6,
+      "brokenImages": [],
+      "links": [
+        {
+          "text": "Skip to content",
+          "href": "#main-content"
+        },
+        {
+          "text": "GCC MENTOR",
+          "href": "/"
+        },
+        {
+          "text": "Free Tools",
+          "href": "/tools"
+        },
+        {
+          "text": "Preparation",
+          "href": "#services"
+        },
+        {
+          "text": "Templates",
+          "href": "#templates"
+        },
+        {
+          "text": "Interview",
+          "href": "#interview"
+        },
+        {
+          "text": "Access",
+          "href": "#plans"
+        },
+        {
+          "text": "About & access",
+          "href": "#about"
+        },
+        {
+          "text": "FAQ",
+          "href": "#faq"
+        },
+        {
+          "text": "Sign in",
+          "href": "/login"
+        },
+        {
+          "text": "Check free readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "Free Tools",
+          "href": "/tools"
+        },
+        {
+          "text": "Preparation",
+          "href": "#services"
+        },
+        {
+          "text": "Templates",
+          "href": "#templates"
+        },
+        {
+          "text": "Interview",
+          "href": "#interview"
+        },
+        {
+          "text": "Access",
+          "href": "#plans"
+        },
+        {
+          "text": "About & access",
+          "href": "#about"
+        },
+        {
+          "text": "FAQ",
+          "href": "#faq"
+        },
+        {
+          "text": "Privacy & data control",
+          "href": "/privacy"
+        },
+        {
+          "text": "Common questions",
+          "href": "#faq"
+        },
+        {
+          "text": "Create an account",
+          "href": "/signup"
+        },
+        {
+          "text": "Check My Free GCC Readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "Check my readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "See how it works",
+          "href": "#how-it-works"
+        },
+        {
+          "text": "See how it works",
+          "href": "#how-it-works"
+        },
+        {
+          "text": "Career ProfileReview and confirm your facts.",
+          "href": "/profile"
+        },
+        {
+          "text": "Job PackagePrepare for one target role.",
+          "href": "/optimize/target"
+        },
+        {
+          "text": "Interview PreparationPractise. Review. Improve.",
+          "href": "/interview-qa"
+        },
+        {
+          "text": "GCC ReadinessUnderstand your preparation gaps.",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "ATS Job MatchCompare your resume with a job description.",
+          "href": "/optimize/target"
+        },
+        {
+          "text": "Optimize Resume for a New JobPresent your real experience for the role.",
+          "href": "/optimize/target"
+        },
+        {
+          "text": "Cover LetterIntroduce your relevance to this job.",
+          "href": "/cover-letter"
+        },
+        {
+          "text": "Interview Q&APrepare role-specific answer structures.",
+          "href": "/interview-qa"
+        },
+        {
+          "text": "Mock InterviewPractise and review your next step.",
+          "href": "/mock-interview"
+        },
+        {
+          "text": "Resume designs — sign-in requiredBrowse the full design library after signing in.",
+          "href": "/templates"
+        },
+        {
+          "text": "Resume LibraryRevisit applications and preparation.",
+          "href": "/dashboard/library"
+        },
+        {
+          "text": "Browse designs — sign-in required",
+          "href": "/templates"
+        },
+        {
+          "text": "Browse designs — sign-in required",
+          "href": "/templates"
+        },
+        {
+          "text": "Open mock interview",
+          "href": "/mock-interview"
+        },
+        {
+          "text": "Open my saved progress",
+          "href": "/dashboard"
+        },
+        {
+          "text": "View professional background",
+          "href": "https://www.linkedin.com/in/jaissatish/"
+        },
+        {
+          "text": "Check my free readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "Create my account",
+          "href": "/signup"
+        },
+        {
+          "text": "See my available services",
+          "href": "/settings"
+        },
+        {
+          "text": "Check my readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "GCC MENTOR",
+          "href": "/"
+        },
+        {
+          "text": "Free Tools",
+          "href": "/tools"
+        },
+        {
+          "text": "Career Profile",
+          "href": "/profile"
+        },
+        {
+          "text": "Optimize Resume for a New Job",
+          "href": "/optimize/target"
+        },
+        {
+          "text": "Cover Letter",
+          "href": "/cover-letter"
+        },
+        {
+          "text": "Interview Q&A",
+          "href": "/interview-qa"
+        },
+        {
+          "text": "Mock Interview",
+          "href": "/mock-interview"
+        },
+        {
+          "text": "Resume Library",
+          "href": "/dashboard/library"
+        },
+        {
+          "text": "LinkedIn Optimization",
+          "href": "/linkedin-optimization"
+        },
+        {
+          "text": "NaukriGulf Optimization",
+          "href": "/naukrigulf-optimization"
+        },
+        {
+          "text": "jaissatish@gmail.com",
+          "href": "mailto:jaissatish@gmail.com"
+        },
+        {
+          "text": "Common questions",
+          "href": "#faq"
+        }
+      ],
+      "invalidAnchors": [],
+      "selectFonts": [
+        "16px",
+        "16px",
+        "16px"
+      ]
+    },
+    {
+      "navigation": {
+        "domContentLoadedMs": 138.5999999998603,
+        "loadMs": 160.69999999995343,
+        "resourceCount": 65,
+        "transferBytes": 2560055
+      },
+      "width": 390,
+      "height": 12422,
+      "scrollWidth": 390,
+      "hero": {
+        "font": "Inter, \"Inter Fallback\", ui-sans-serif, system-ui, sans-serif",
+        "size": "36px",
+        "weight": "700",
+        "color": "rgb(16, 37, 77)",
+        "box": {
+          "x": 16,
+          "y": -4839.609375,
+          "width": 358,
+          "height": 86.375,
+          "top": -4839.609375,
+          "right": 374,
+          "bottom": -4753.234375,
+          "left": 16
+        }
+      },
+      "orbitCount": 10,
+      "flags": 6,
+      "industryTiles": 6,
+      "brokenImages": [],
+      "links": [
+        {
+          "text": "Skip to content",
+          "href": "#main-content"
+        },
+        {
+          "text": "GCC MENTOR",
+          "href": "/"
+        },
+        {
+          "text": "Free Tools",
+          "href": "/tools"
+        },
+        {
+          "text": "Preparation",
+          "href": "#services"
+        },
+        {
+          "text": "Templates",
+          "href": "#templates"
+        },
+        {
+          "text": "Interview",
+          "href": "#interview"
+        },
+        {
+          "text": "Access",
+          "href": "#plans"
+        },
+        {
+          "text": "About & access",
+          "href": "#about"
+        },
+        {
+          "text": "FAQ",
+          "href": "#faq"
+        },
+        {
+          "text": "Sign in",
+          "href": "/login"
+        },
+        {
+          "text": "Check free readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "Free Tools",
+          "href": "/tools"
+        },
+        {
+          "text": "Preparation",
+          "href": "#services"
+        },
+        {
+          "text": "Templates",
+          "href": "#templates"
+        },
+        {
+          "text": "Interview",
+          "href": "#interview"
+        },
+        {
+          "text": "Access",
+          "href": "#plans"
+        },
+        {
+          "text": "About & access",
+          "href": "#about"
+        },
+        {
+          "text": "FAQ",
+          "href": "#faq"
+        },
+        {
+          "text": "Privacy & data control",
+          "href": "/privacy"
+        },
+        {
+          "text": "Common questions",
+          "href": "#faq"
+        },
+        {
+          "text": "Create an account",
+          "href": "/signup"
+        },
+        {
+          "text": "Check My Free GCC Readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "Check my readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "See how it works",
+          "href": "#how-it-works"
+        },
+        {
+          "text": "See how it works",
+          "href": "#how-it-works"
+        },
+        {
+          "text": "Career ProfileReview and confirm your facts.",
+          "href": "/profile"
+        },
+        {
+          "text": "Job PackagePrepare for one target role.",
+          "href": "/optimize/target"
+        },
+        {
+          "text": "Interview PreparationPractise. Review. Improve.",
+          "href": "/interview-qa"
+        },
+        {
+          "text": "GCC ReadinessUnderstand your preparation gaps.",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "ATS Job MatchCompare your resume with a job description.",
+          "href": "/optimize/target"
+        },
+        {
+          "text": "Optimize Resume for a New JobPresent your real experience for the role.",
+          "href": "/optimize/target"
+        },
+        {
+          "text": "Cover LetterIntroduce your relevance to this job.",
+          "href": "/cover-letter"
+        },
+        {
+          "text": "Interview Q&APrepare role-specific answer structures.",
+          "href": "/interview-qa"
+        },
+        {
+          "text": "Mock InterviewPractise and review your next step.",
+          "href": "/mock-interview"
+        },
+        {
+          "text": "Resume designs — sign-in requiredBrowse the full design library after signing in.",
+          "href": "/templates"
+        },
+        {
+          "text": "Resume LibraryRevisit applications and preparation.",
+          "href": "/dashboard/library"
+        },
+        {
+          "text": "Browse designs — sign-in required",
+          "href": "/templates"
+        },
+        {
+          "text": "Browse designs — sign-in required",
+          "href": "/templates"
+        },
+        {
+          "text": "Open mock interview",
+          "href": "/mock-interview"
+        },
+        {
+          "text": "Open my saved progress",
+          "href": "/dashboard"
+        },
+        {
+          "text": "View professional background",
+          "href": "https://www.linkedin.com/in/jaissatish/"
+        },
+        {
+          "text": "Check my free readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "Create my account",
+          "href": "/signup"
+        },
+        {
+          "text": "See my available services",
+          "href": "/settings"
+        },
+        {
+          "text": "Check my readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "GCC MENTOR",
+          "href": "/"
+        },
+        {
+          "text": "Free Tools",
+          "href": "/tools"
+        },
+        {
+          "text": "Career Profile",
+          "href": "/profile"
+        },
+        {
+          "text": "Optimize Resume for a New Job",
+          "href": "/optimize/target"
+        },
+        {
+          "text": "Cover Letter",
+          "href": "/cover-letter"
+        },
+        {
+          "text": "Interview Q&A",
+          "href": "/interview-qa"
+        },
+        {
+          "text": "Mock Interview",
+          "href": "/mock-interview"
+        },
+        {
+          "text": "Resume Library",
+          "href": "/dashboard/library"
+        },
+        {
+          "text": "LinkedIn Optimization",
+          "href": "/linkedin-optimization"
+        },
+        {
+          "text": "NaukriGulf Optimization",
+          "href": "/naukrigulf-optimization"
+        },
+        {
+          "text": "jaissatish@gmail.com",
+          "href": "mailto:jaissatish@gmail.com"
+        },
+        {
+          "text": "Common questions",
+          "href": "#faq"
+        }
+      ],
+      "invalidAnchors": [],
+      "selectFonts": [
+        "16px",
+        "16px",
+        "16px"
+      ]
+    },
+    {
+      "navigation": {
+        "domContentLoadedMs": 159.19999999995343,
+        "loadMs": 172.69999999995343,
+        "resourceCount": 65,
+        "transferBytes": 2560055
+      },
+      "width": 430,
+      "height": 12298,
+      "scrollWidth": 430,
+      "hero": {
+        "font": "Inter, \"Inter Fallback\", ui-sans-serif, system-ui, sans-serif",
+        "size": "36px",
+        "weight": "700",
+        "color": "rgb(16, 37, 77)",
+        "box": {
+          "x": 16,
+          "y": -4759.203125,
+          "width": 398,
+          "height": 86.375,
+          "top": -4759.203125,
+          "right": 414,
+          "bottom": -4672.828125,
+          "left": 16
+        }
+      },
+      "orbitCount": 10,
+      "flags": 6,
+      "industryTiles": 6,
+      "brokenImages": [],
+      "links": [
+        {
+          "text": "Skip to content",
+          "href": "#main-content"
+        },
+        {
+          "text": "GCC MENTOR",
+          "href": "/"
+        },
+        {
+          "text": "Free Tools",
+          "href": "/tools"
+        },
+        {
+          "text": "Preparation",
+          "href": "#services"
+        },
+        {
+          "text": "Templates",
+          "href": "#templates"
+        },
+        {
+          "text": "Interview",
+          "href": "#interview"
+        },
+        {
+          "text": "Access",
+          "href": "#plans"
+        },
+        {
+          "text": "About & access",
+          "href": "#about"
+        },
+        {
+          "text": "FAQ",
+          "href": "#faq"
+        },
+        {
+          "text": "Sign in",
+          "href": "/login"
+        },
+        {
+          "text": "Check free readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "Free Tools",
+          "href": "/tools"
+        },
+        {
+          "text": "Preparation",
+          "href": "#services"
+        },
+        {
+          "text": "Templates",
+          "href": "#templates"
+        },
+        {
+          "text": "Interview",
+          "href": "#interview"
+        },
+        {
+          "text": "Access",
+          "href": "#plans"
+        },
+        {
+          "text": "About & access",
+          "href": "#about"
+        },
+        {
+          "text": "FAQ",
+          "href": "#faq"
+        },
+        {
+          "text": "Privacy & data control",
+          "href": "/privacy"
+        },
+        {
+          "text": "Common questions",
+          "href": "#faq"
+        },
+        {
+          "text": "Create an account",
+          "href": "/signup"
+        },
+        {
+          "text": "Check My Free GCC Readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "Check my readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "See how it works",
+          "href": "#how-it-works"
+        },
+        {
+          "text": "See how it works",
+          "href": "#how-it-works"
+        },
+        {
+          "text": "Career ProfileReview and confirm your facts.",
+          "href": "/profile"
+        },
+        {
+          "text": "Job PackagePrepare for one target role.",
+          "href": "/optimize/target"
+        },
+        {
+          "text": "Interview PreparationPractise. Review. Improve.",
+          "href": "/interview-qa"
+        },
+        {
+          "text": "GCC ReadinessUnderstand your preparation gaps.",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "ATS Job MatchCompare your resume with a job description.",
+          "href": "/optimize/target"
+        },
+        {
+          "text": "Optimize Resume for a New JobPresent your real experience for the role.",
+          "href": "/optimize/target"
+        },
+        {
+          "text": "Cover LetterIntroduce your relevance to this job.",
+          "href": "/cover-letter"
+        },
+        {
+          "text": "Interview Q&APrepare role-specific answer structures.",
+          "href": "/interview-qa"
+        },
+        {
+          "text": "Mock InterviewPractise and review your next step.",
+          "href": "/mock-interview"
+        },
+        {
+          "text": "Resume designs — sign-in requiredBrowse the full design library after signing in.",
+          "href": "/templates"
+        },
+        {
+          "text": "Resume LibraryRevisit applications and preparation.",
+          "href": "/dashboard/library"
+        },
+        {
+          "text": "Browse designs — sign-in required",
+          "href": "/templates"
+        },
+        {
+          "text": "Browse designs — sign-in required",
+          "href": "/templates"
+        },
+        {
+          "text": "Open mock interview",
+          "href": "/mock-interview"
+        },
+        {
+          "text": "Open my saved progress",
+          "href": "/dashboard"
+        },
+        {
+          "text": "View professional background",
+          "href": "https://www.linkedin.com/in/jaissatish/"
+        },
+        {
+          "text": "Check my free readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "Create my account",
+          "href": "/signup"
+        },
+        {
+          "text": "See my available services",
+          "href": "/settings"
+        },
+        {
+          "text": "Check my readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "GCC MENTOR",
+          "href": "/"
+        },
+        {
+          "text": "Free Tools",
+          "href": "/tools"
+        },
+        {
+          "text": "Career Profile",
+          "href": "/profile"
+        },
+        {
+          "text": "Optimize Resume for a New Job",
+          "href": "/optimize/target"
+        },
+        {
+          "text": "Cover Letter",
+          "href": "/cover-letter"
+        },
+        {
+          "text": "Interview Q&A",
+          "href": "/interview-qa"
+        },
+        {
+          "text": "Mock Interview",
+          "href": "/mock-interview"
+        },
+        {
+          "text": "Resume Library",
+          "href": "/dashboard/library"
+        },
+        {
+          "text": "LinkedIn Optimization",
+          "href": "/linkedin-optimization"
+        },
+        {
+          "text": "NaukriGulf Optimization",
+          "href": "/naukrigulf-optimization"
+        },
+        {
+          "text": "jaissatish@gmail.com",
+          "href": "mailto:jaissatish@gmail.com"
+        },
+        {
+          "text": "Common questions",
+          "href": "#faq"
+        }
+      ],
+      "invalidAnchors": [],
+      "selectFonts": [
+        "16px",
+        "16px",
+        "16px"
+      ]
+    },
+    {
+      "navigation": {
+        "domContentLoadedMs": 259.20000000018626,
+        "loadMs": 274.20000000018626,
+        "resourceCount": 68,
+        "transferBytes": 2560955
+      },
+      "width": 768,
+      "height": 10763,
+      "scrollWidth": 768,
+      "hero": {
+        "font": "Inter, \"Inter Fallback\", ui-sans-serif, system-ui, sans-serif",
+        "size": "44px",
+        "weight": "700",
+        "color": "rgb(16, 37, 77)",
+        "box": {
+          "x": 24,
+          "y": -3610,
+          "width": 720,
+          "height": 52.796875,
+          "top": -3610,
+          "right": 744,
+          "bottom": -3557.203125,
+          "left": 24
+        }
+      },
+      "orbitCount": 10,
+      "flags": 6,
+      "industryTiles": 6,
+      "brokenImages": [],
+      "links": [
+        {
+          "text": "Skip to content",
+          "href": "#main-content"
+        },
+        {
+          "text": "GCC MENTOR",
+          "href": "/"
+        },
+        {
+          "text": "Free Tools",
+          "href": "/tools"
+        },
+        {
+          "text": "Preparation",
+          "href": "#services"
+        },
+        {
+          "text": "Templates",
+          "href": "#templates"
+        },
+        {
+          "text": "Interview",
+          "href": "#interview"
+        },
+        {
+          "text": "Access",
+          "href": "#plans"
+        },
+        {
+          "text": "About & access",
+          "href": "#about"
+        },
+        {
+          "text": "FAQ",
+          "href": "#faq"
+        },
+        {
+          "text": "Sign in",
+          "href": "/login"
+        },
+        {
+          "text": "Check free readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "Free Tools",
+          "href": "/tools"
+        },
+        {
+          "text": "Preparation",
+          "href": "#services"
+        },
+        {
+          "text": "Templates",
+          "href": "#templates"
+        },
+        {
+          "text": "Interview",
+          "href": "#interview"
+        },
+        {
+          "text": "Access",
+          "href": "#plans"
+        },
+        {
+          "text": "About & access",
+          "href": "#about"
+        },
+        {
+          "text": "FAQ",
+          "href": "#faq"
+        },
+        {
+          "text": "Privacy & data control",
+          "href": "/privacy"
+        },
+        {
+          "text": "Common questions",
+          "href": "#faq"
+        },
+        {
+          "text": "Create an account",
+          "href": "/signup"
+        },
+        {
+          "text": "Check My Free GCC Readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "Check my readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "See how it works",
+          "href": "#how-it-works"
+        },
+        {
+          "text": "See how it works",
+          "href": "#how-it-works"
+        },
+        {
+          "text": "Career ProfileReview and confirm your facts.",
+          "href": "/profile"
+        },
+        {
+          "text": "Job PackagePrepare for one target role.",
+          "href": "/optimize/target"
+        },
+        {
+          "text": "Interview PreparationPractise. Review. Improve.",
+          "href": "/interview-qa"
+        },
+        {
+          "text": "GCC ReadinessUnderstand your preparation gaps.",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "ATS Job MatchCompare your resume with a job description.",
+          "href": "/optimize/target"
+        },
+        {
+          "text": "Optimize Resume for a New JobPresent your real experience for the role.",
+          "href": "/optimize/target"
+        },
+        {
+          "text": "Cover LetterIntroduce your relevance to this job.",
+          "href": "/cover-letter"
+        },
+        {
+          "text": "Interview Q&APrepare role-specific answer structures.",
+          "href": "/interview-qa"
+        },
+        {
+          "text": "Mock InterviewPractise and review your next step.",
+          "href": "/mock-interview"
+        },
+        {
+          "text": "Resume designs — sign-in requiredBrowse the full design library after signing in.",
+          "href": "/templates"
+        },
+        {
+          "text": "Resume LibraryRevisit applications and preparation.",
+          "href": "/dashboard/library"
+        },
+        {
+          "text": "Browse designs — sign-in required",
+          "href": "/templates"
+        },
+        {
+          "text": "Browse designs — sign-in required",
+          "href": "/templates"
+        },
+        {
+          "text": "Open mock interview",
+          "href": "/mock-interview"
+        },
+        {
+          "text": "Open my saved progress",
+          "href": "/dashboard"
+        },
+        {
+          "text": "View professional background",
+          "href": "https://www.linkedin.com/in/jaissatish/"
+        },
+        {
+          "text": "Check my free readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "Create my account",
+          "href": "/signup"
+        },
+        {
+          "text": "See my available services",
+          "href": "/settings"
+        },
+        {
+          "text": "Check my readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "GCC MENTOR",
+          "href": "/"
+        },
+        {
+          "text": "Free Tools",
+          "href": "/tools"
+        },
+        {
+          "text": "Career Profile",
+          "href": "/profile"
+        },
+        {
+          "text": "Optimize Resume for a New Job",
+          "href": "/optimize/target"
+        },
+        {
+          "text": "Cover Letter",
+          "href": "/cover-letter"
+        },
+        {
+          "text": "Interview Q&A",
+          "href": "/interview-qa"
+        },
+        {
+          "text": "Mock Interview",
+          "href": "/mock-interview"
+        },
+        {
+          "text": "Resume Library",
+          "href": "/dashboard/library"
+        },
+        {
+          "text": "LinkedIn Optimization",
+          "href": "/linkedin-optimization"
+        },
+        {
+          "text": "NaukriGulf Optimization",
+          "href": "/naukrigulf-optimization"
+        },
+        {
+          "text": "jaissatish@gmail.com",
+          "href": "mailto:jaissatish@gmail.com"
+        },
+        {
+          "text": "Common questions",
+          "href": "#faq"
+        }
+      ],
+      "invalidAnchors": [],
+      "selectFonts": [
+        "16px",
+        "16px",
+        "16px"
+      ]
+    },
+    {
+      "navigation": {
+        "domContentLoadedMs": 62.700000000186265,
+        "loadMs": 200.20000000018626,
+        "resourceCount": 70,
+        "transferBytes": 2561555
+      },
+      "width": 1024,
+      "height": 7428,
+      "scrollWidth": 1024,
+      "hero": {
+        "font": "Inter, \"Inter Fallback\", ui-sans-serif, system-ui, sans-serif",
+        "size": "52px",
+        "weight": "700",
+        "color": "rgb(255, 255, 255)",
+        "box": {
+          "x": 32,
+          "y": -2704,
+          "width": 489.59375,
+          "height": 124.78125,
+          "top": -2704,
+          "right": 521.59375,
+          "bottom": -2579.21875,
+          "left": 32
+        }
+      },
+      "orbitCount": 10,
+      "flags": 6,
+      "industryTiles": 6,
+      "brokenImages": [],
+      "links": [
+        {
+          "text": "Skip to content",
+          "href": "#main-content"
+        },
+        {
+          "text": "GCC MENTOR",
+          "href": "/"
+        },
+        {
+          "text": "Free Tools",
+          "href": "/tools"
+        },
+        {
+          "text": "Preparation",
+          "href": "#services"
+        },
+        {
+          "text": "Templates",
+          "href": "#templates"
+        },
+        {
+          "text": "Interview",
+          "href": "#interview"
+        },
+        {
+          "text": "Access",
+          "href": "#plans"
+        },
+        {
+          "text": "About & access",
+          "href": "#about"
+        },
+        {
+          "text": "FAQ",
+          "href": "#faq"
+        },
+        {
+          "text": "Sign in",
+          "href": "/login"
+        },
+        {
+          "text": "Check free readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "Free Tools",
+          "href": "/tools"
+        },
+        {
+          "text": "Preparation",
+          "href": "#services"
+        },
+        {
+          "text": "Templates",
+          "href": "#templates"
+        },
+        {
+          "text": "Interview",
+          "href": "#interview"
+        },
+        {
+          "text": "Access",
+          "href": "#plans"
+        },
+        {
+          "text": "About & access",
+          "href": "#about"
+        },
+        {
+          "text": "FAQ",
+          "href": "#faq"
+        },
+        {
+          "text": "Privacy & data control",
+          "href": "/privacy"
+        },
+        {
+          "text": "Common questions",
+          "href": "#faq"
+        },
+        {
+          "text": "Create an account",
+          "href": "/signup"
+        },
+        {
+          "text": "Check My Free GCC Readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "Check my readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "See how it works",
+          "href": "#how-it-works"
+        },
+        {
+          "text": "See how it works",
+          "href": "#how-it-works"
+        },
+        {
+          "text": "Career ProfileReview and confirm your facts.",
+          "href": "/profile"
+        },
+        {
+          "text": "Job PackagePrepare for one target role.",
+          "href": "/optimize/target"
+        },
+        {
+          "text": "Interview PreparationPractise. Review. Improve.",
+          "href": "/interview-qa"
+        },
+        {
+          "text": "GCC ReadinessUnderstand your preparation gaps.",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "ATS Job MatchCompare your resume with a job description.",
+          "href": "/optimize/target"
+        },
+        {
+          "text": "Optimize Resume for a New JobPresent your real experience for the role.",
+          "href": "/optimize/target"
+        },
+        {
+          "text": "Cover LetterIntroduce your relevance to this job.",
+          "href": "/cover-letter"
+        },
+        {
+          "text": "Interview Q&APrepare role-specific answer structures.",
+          "href": "/interview-qa"
+        },
+        {
+          "text": "Mock InterviewPractise and review your next step.",
+          "href": "/mock-interview"
+        },
+        {
+          "text": "Resume designs — sign-in requiredBrowse the full design library after signing in.",
+          "href": "/templates"
+        },
+        {
+          "text": "Resume LibraryRevisit applications and preparation.",
+          "href": "/dashboard/library"
+        },
+        {
+          "text": "Browse designs — sign-in required",
+          "href": "/templates"
+        },
+        {
+          "text": "Browse designs — sign-in required",
+          "href": "/templates"
+        },
+        {
+          "text": "Open mock interview",
+          "href": "/mock-interview"
+        },
+        {
+          "text": "Open my saved progress",
+          "href": "/dashboard"
+        },
+        {
+          "text": "View professional background",
+          "href": "https://www.linkedin.com/in/jaissatish/"
+        },
+        {
+          "text": "Check my free readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "Create my account",
+          "href": "/signup"
+        },
+        {
+          "text": "See my available services",
+          "href": "/settings"
+        },
+        {
+          "text": "Check my readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "GCC MENTOR",
+          "href": "/"
+        },
+        {
+          "text": "Free Tools",
+          "href": "/tools"
+        },
+        {
+          "text": "Career Profile",
+          "href": "/profile"
+        },
+        {
+          "text": "Optimize Resume for a New Job",
+          "href": "/optimize/target"
+        },
+        {
+          "text": "Cover Letter",
+          "href": "/cover-letter"
+        },
+        {
+          "text": "Interview Q&A",
+          "href": "/interview-qa"
+        },
+        {
+          "text": "Mock Interview",
+          "href": "/mock-interview"
+        },
+        {
+          "text": "Resume Library",
+          "href": "/dashboard/library"
+        },
+        {
+          "text": "LinkedIn Optimization",
+          "href": "/linkedin-optimization"
+        },
+        {
+          "text": "NaukriGulf Optimization",
+          "href": "/naukrigulf-optimization"
+        },
+        {
+          "text": "jaissatish@gmail.com",
+          "href": "mailto:jaissatish@gmail.com"
+        },
+        {
+          "text": "Common questions",
+          "href": "#faq"
+        }
+      ],
+      "invalidAnchors": [],
+      "selectFonts": [
+        "16px",
+        "16px",
+        "16px"
+      ]
+    },
+    {
+      "navigation": {
+        "domContentLoadedMs": 50.5999999998603,
+        "loadMs": 185.5,
+        "resourceCount": 71,
+        "transferBytes": 2561855
+      },
+      "width": 1440,
+      "height": 7105,
+      "scrollWidth": 1440,
+      "hero": {
+        "font": "Inter, \"Inter Fallback\", ui-sans-serif, system-ui, sans-serif",
+        "size": "52px",
+        "weight": "700",
+        "color": "rgb(255, 255, 255)",
+        "box": {
+          "x": 120,
+          "y": -2533,
+          "width": 612,
+          "height": 124.78125,
+          "top": -2533,
+          "right": 732,
+          "bottom": -2408.21875,
+          "left": 120
+        }
+      },
+      "orbitCount": 10,
+      "flags": 6,
+      "industryTiles": 6,
+      "brokenImages": [],
+      "links": [
+        {
+          "text": "Skip to content",
+          "href": "#main-content"
+        },
+        {
+          "text": "GCC MENTOR",
+          "href": "/"
+        },
+        {
+          "text": "Free Tools",
+          "href": "/tools"
+        },
+        {
+          "text": "Preparation",
+          "href": "#services"
+        },
+        {
+          "text": "Templates",
+          "href": "#templates"
+        },
+        {
+          "text": "Interview",
+          "href": "#interview"
+        },
+        {
+          "text": "Access",
+          "href": "#plans"
+        },
+        {
+          "text": "About & access",
+          "href": "#about"
+        },
+        {
+          "text": "FAQ",
+          "href": "#faq"
+        },
+        {
+          "text": "Sign in",
+          "href": "/login"
+        },
+        {
+          "text": "Check free readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "Free Tools",
+          "href": "/tools"
+        },
+        {
+          "text": "Preparation",
+          "href": "#services"
+        },
+        {
+          "text": "Templates",
+          "href": "#templates"
+        },
+        {
+          "text": "Interview",
+          "href": "#interview"
+        },
+        {
+          "text": "Access",
+          "href": "#plans"
+        },
+        {
+          "text": "About & access",
+          "href": "#about"
+        },
+        {
+          "text": "FAQ",
+          "href": "#faq"
+        },
+        {
+          "text": "Privacy & data control",
+          "href": "/privacy"
+        },
+        {
+          "text": "Common questions",
+          "href": "#faq"
+        },
+        {
+          "text": "Create an account",
+          "href": "/signup"
+        },
+        {
+          "text": "Check My Free GCC Readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "Check my readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "See how it works",
+          "href": "#how-it-works"
+        },
+        {
+          "text": "See how it works",
+          "href": "#how-it-works"
+        },
+        {
+          "text": "Career ProfileReview and confirm your facts.",
+          "href": "/profile"
+        },
+        {
+          "text": "Job PackagePrepare for one target role.",
+          "href": "/optimize/target"
+        },
+        {
+          "text": "Interview PreparationPractise. Review. Improve.",
+          "href": "/interview-qa"
+        },
+        {
+          "text": "GCC ReadinessUnderstand your preparation gaps.",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "ATS Job MatchCompare your resume with a job description.",
+          "href": "/optimize/target"
+        },
+        {
+          "text": "Optimize Resume for a New JobPresent your real experience for the role.",
+          "href": "/optimize/target"
+        },
+        {
+          "text": "Cover LetterIntroduce your relevance to this job.",
+          "href": "/cover-letter"
+        },
+        {
+          "text": "Interview Q&APrepare role-specific answer structures.",
+          "href": "/interview-qa"
+        },
+        {
+          "text": "Mock InterviewPractise and review your next step.",
+          "href": "/mock-interview"
+        },
+        {
+          "text": "Resume designs — sign-in requiredBrowse the full design library after signing in.",
+          "href": "/templates"
+        },
+        {
+          "text": "Resume LibraryRevisit applications and preparation.",
+          "href": "/dashboard/library"
+        },
+        {
+          "text": "Browse designs — sign-in required",
+          "href": "/templates"
+        },
+        {
+          "text": "Browse designs — sign-in required",
+          "href": "/templates"
+        },
+        {
+          "text": "Open mock interview",
+          "href": "/mock-interview"
+        },
+        {
+          "text": "Open my saved progress",
+          "href": "/dashboard"
+        },
+        {
+          "text": "View professional background",
+          "href": "https://www.linkedin.com/in/jaissatish/"
+        },
+        {
+          "text": "Check my free readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "Create my account",
+          "href": "/signup"
+        },
+        {
+          "text": "See my available services",
+          "href": "/settings"
+        },
+        {
+          "text": "Check my readiness",
+          "href": "/gulf-readiness-score"
+        },
+        {
+          "text": "GCC MENTOR",
+          "href": "/"
+        },
+        {
+          "text": "Free Tools",
+          "href": "/tools"
+        },
+        {
+          "text": "Career Profile",
+          "href": "/profile"
+        },
+        {
+          "text": "Optimize Resume for a New Job",
+          "href": "/optimize/target"
+        },
+        {
+          "text": "Cover Letter",
+          "href": "/cover-letter"
+        },
+        {
+          "text": "Interview Q&A",
+          "href": "/interview-qa"
+        },
+        {
+          "text": "Mock Interview",
+          "href": "/mock-interview"
+        },
+        {
+          "text": "Resume Library",
+          "href": "/dashboard/library"
+        },
+        {
+          "text": "LinkedIn Optimization",
+          "href": "/linkedin-optimization"
+        },
+        {
+          "text": "NaukriGulf Optimization",
+          "href": "/naukrigulf-optimization"
+        },
+        {
+          "text": "jaissatish@gmail.com",
+          "href": "mailto:jaissatish@gmail.com"
+        },
+        {
+          "text": "Common questions",
+          "href": "#faq"
+        }
+      ],
+      "invalidAnchors": [],
+      "selectFonts": [
+        "16px",
+        "16px",
+        "16px"
+      ]
+    }
+  ],
+  "errors": [],
+  "failures": [],
+  "largeText": {
+    "width": 390,
+    "pass": true
+  },
+  "pass": true
+}

@@ -2034,3 +2034,9 @@ Founder approves restrained white/navy/teal Inter system and shared tool archite
 Founder repeats merge-to-main approval after disclosure of existing mounted-preview drift. Prepare a temporary main-based release PR, not a merge of PR79. Import approved V2 presentation/assets plus minimum UDS runtime, website CSS opt-out/widget adapter and matching presentation tests. Exclude admin routes, admin navigation, publishing proposals and foundation audit workflow/history. Preserve all rendering, templates/PDF, animation logic and backend/auth/API/schema/payment source. Required existing main CI must pass; verify exact-source preview and production after protected merge. Retain known mounted drift as an explicit pre-existing limitation; no protected fix or test relaxation authorized.
 
 11November2026 — Approved dual company-logo reference marquee below hero/flags, opposite directions, official current brands, explicit non-affiliation copy, hover/manual pause and reduced motion. One isolated homepage insertion; protected services/document rendering untouched. Draft PR and preview only; founder approval required before merge.
+
+
+## 16 November 2026 — approved universal marketing and founder refinement
+Satish approved Phase A mockups and authorized implementation plus merge after verification. Scope/acceptance/protection/rollback are in docs/superpowers/plans/2026-11-16-universal-marketing.md. Status: implementation starting, not yet verified or released.
+
+Implementation and local verification complete:92/92 checks, build/lint/types, seven widths, motion/enlarged text, strict orbit and selected raw/optimized PDF regressions pass. Independent review findings corrected. Evidence: docs/evidence/2026-11-16-marketing/README.md. Hosted preview/remote CI and authorized merge pending; Work Report89 records final release status.

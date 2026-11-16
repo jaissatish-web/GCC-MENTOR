@@ -1,0 +1,50 @@
+[
+  {
+    "width": 390,
+    "layers": {
+      "isolation": "isolate",
+      "rear": {
+        "z": "0",
+        "clip": "inset(0px 0px 50%)",
+        "pointer": "none",
+        "box": "178.703px -10.7344px 37.6094px"
+      },
+      "front": {
+        "z": "2",
+        "clip": "inset(50% 0px 0px)",
+        "pointer": "none",
+        "box": "178.703px -10.7344px 37.6094px"
+      },
+      "carouselZ": "1",
+      "faces": 10
+    },
+    "keyboardSelection": true,
+    "readerOpenEscape": true,
+    "animationMovement": true,
+    "overlayInterceptsInput": false
+  },
+  {
+    "width": 1440,
+    "layers": {
+      "isolation": "isolate",
+      "rear": {
+        "z": "0",
+        "clip": "inset(0px 0px 50%)",
+        "pointer": "none",
+        "box": "220.453px -20.1719px 46.4062px"
+      },
+      "front": {
+        "z": "2",
+        "clip": "inset(50% 0px 0px)",
+        "pointer": "none",
+        "box": "220.453px -20.1719px 46.4062px"
+      },
+      "carouselZ": "1",
+      "faces": 10
+    },
+    "keyboardSelection": true,
+    "readerOpenEscape": true,
+    "animationMovement": true,
+    "overlayInterceptsInput": false
+  }
+]
