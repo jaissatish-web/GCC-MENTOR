@@ -8,16 +8,26 @@ Plan: `docs/superpowers/plans/2026-11-16-mobile-landing-weight.md`
 Cold mobile transfer, device-emulated 390×844 DPR 3, `Network.setCacheDisabled`,
 summed from `Network.loadingFinished.encodedDataLength`.
 
-| Type | Before (live 714c106) | After (this branch) | Change |
-|---|---|---|---|
-| Images | 616.2 KB | 174.6 KB | −441.6 KB (−72%) |
-| JS | 228.9 KB | 226.2 KB | −2.7 KB |
-| Fonts | 82.4 KB | 47.6 KB | −34.8 KB |
-| CSS | 53.8 KB | 52.4 KB | −1.4 KB |
-| XHR | 3.2 KB | 3.4 KB | +0.2 KB |
-| **Total** | **984.3 KB** | **504.7 KB** | **−479.6 KB (−48.7%)** |
+**Live site, after the merge (authoritative): 984.3 KB → 576.7 KB (−407.6 KB, −41.4%).**
 
-Target was under 650 KB. Achieved 504.7 KB.
+| Type | Before (live 714c106) | After (live 7a187ad) | Change |
+|---|---|---|---|
+| Images | 616.2 KB | 208.8 KB | −407.4 KB (−66%) |
+| JS | 228.9 KB | 228.7 KB | −0.2 KB |
+| Fonts | 82.4 KB | 82.4 KB | — |
+| CSS | 53.8 KB | 53.6 KB | −0.2 KB |
+| XHR | 3.2 KB | 3.2 KB | — |
+| **Total** | **984.3 KB** | **576.7 KB** | **−407.6 KB (−41.4%)** |
+
+Target was under 650 KB. The live site now measures 576.7 KB on a cold phone load.
+A local `next start` build measured 504.7 KB; the live figure above is the one that counts,
+because it is what a visitor on mobile data actually receives.
+
+### Next size win, not taken here
+
+`hero-gulf.webp` is served at `w=1200` (53.8 KB) to a 390px phone, and
+`/landing/employers/ccc.svg` is 15.5 KB. Both are over-served on mobile and are the
+next obvious target. They were left alone to keep this change to one clear, reversible step.
 
 ## What each change saved
 
@@ -72,7 +82,24 @@ environment-specific, not caused by this change**. No threshold was weakened and
 was skipped.
 
 Pull request: **#92** — https://github.com/jaissatish-web/GCC-MENTOR/pull/92
-(branch `perf/mobile-landing-weight`, base `main`, commit `1ed1d44`).
+Branch `perf/mobile-landing-weight` (head `64ff9bf`), merged to `main` by squash as
+**`7a187ad`** on 16 November 2026 after GitHub CI passed both runs
+(11m1s and 10m21s). The branch was deleted from the remote after the merge.
+
+## Live verification after the merge
+
+Confirmed on `https://gcc-mentor.vercel.app/` after Vercel deployed `7a187ad`:
+
+- `/landing/v2/industries/oil-gas.webp` returned 404 before the deploy and 200 after.
+- The old `/landing/v2/industries.webp` sheet now returns 404 — it is gone.
+- The live HTML references the six new tiles
+  (`construction, corporate, engineering, oil-gas, operations, projects`).
+- Full-page scroll at 390×844: **74 images, 0 broken**, 6 industry tiles loaded,
+  6 country flags loaded, the resume-designs section resolves, and
+  `scrollWidth 390` against `viewport 390` — **no horizontal overflow**.
+- Visual check of the industries section at 390px confirms all six scenes render
+  correctly with no distortion: Oil & Gas, Construction, Engineering, Operations,
+  Projects, Corporate.
 
 ### Two environment limitations found, not caused by this change
 
