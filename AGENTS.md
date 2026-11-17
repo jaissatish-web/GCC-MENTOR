@@ -17,6 +17,27 @@ Read these files before planning or changing anything:
 4. `docs/16_WORKING_AGREEMENT.md`
 5. `docs/PROGRESS.md` and the relevant domain specification.
 
+## Documentation scope — current only (17 November 2026)
+
+`main` carries **current** documentation only. Historical design campaigns, dated
+audit/QA/rollout reports and superseded design directions were moved out of `main`
+on 17 November 2026 and now live only on the `archive/docs-history-pre-2026-11`
+branch.
+
+- **Do not** look for retired design directions in `main`. They are not here.
+- **Do not** add new dated campaign reports to `docs/`. Record the outcome in the
+  relevant domain document and `docs/15_DECISION_LOG.md` instead.
+- If a historical file is genuinely needed, read it from the archive branch:
+  `git show archive/docs-history-pre-2026-11:<path>` — never copy it back into
+  `main`.
+- The current visual authority is stated once, in `docs/12_DESIGN_SYSTEM.md`.
+  There is no second or earlier direction to reconcile against.
+
+This exists because five competing visual directions (Meridian, soft-indigo,
+SKILLPILOT, compact-brand and Executive Slate & Teal) were readable as
+same-authority instructions at once, and agents re-applied retired palettes.
+`docs/DOCUMENTATION_INDEX.md` lists every file that remains.
+
 The founder is Satish, a non-coder. Explain outcomes, impact and choices in plain language. Help research and refine his ideas. Do not assume every suggestion in old chats is an approved requirement.
 
 ## Documents first, implementation second
