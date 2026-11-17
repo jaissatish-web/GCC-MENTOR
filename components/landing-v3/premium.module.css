@@ -65,6 +65,22 @@
 .heroNavy { position: relative; background: var(--uds-surface); }
 .heroImage { position: relative; height: clamp(230px, 66vw, 340px); overflow: hidden; border-radius: 0 0 48% 8%; }
 .heroImage img { object-fit: cover; object-position: 76% 42%; }
+/* Brand-colour treatment for the hero photograph, applied at every width because
+   the band is full-width on mobile. Measured on the live landing: the image's
+   dominant family is violet/pink/peach - 36.8% of pixels are warm (red exceeds
+   blue by more than 20), average #9E939A - while every brand colour is cool
+   (teal R-B -120, ink R-B -61). The gradient lifts the base toward teal and the
+   filter takes the violet and pink down without flattening the photograph.
+   At 960px and above a second rule adds a navy fade at the left edge, where the
+   photograph has to meet the solid panel behind the headline. */
+.heroImage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(0deg, color-mix(in srgb, var(--uds-brand) 26%, transparent) 0%, transparent 62%);
+}
+.heroImage img { filter: saturate(0.7); }
 .heroInner { position: relative; width: min(var(--uds-content-max), calc(100% - var(--uds-gutter) * 2)); margin-inline: auto; }
 .heroCopy { position: relative; padding: 18px 0 24px; }
 .heroTitle { position: relative; margin: 0 0 18px; color: var(--uds-ink); font-family: var(--uds-font); font-size: var(--uds-hero-size); font-weight: var(--uds-heading-weight); line-height: var(--uds-heading-line); letter-spacing: var(--uds-tracking); }
@@ -233,6 +249,11 @@
  .heroNavy { background: var(--uds-ink); }
  .heroImage { position: absolute; inset: 0 0 0 auto; width: 74%; height: auto; border-radius: 0; }
  .heroImage img { object-position: right top; }
+ .heroImage::after {
+   background:
+     linear-gradient(90deg, var(--uds-ink) 0%, color-mix(in srgb, var(--uds-ink) 42%, transparent) 20%, transparent 48%),
+     linear-gradient(0deg, color-mix(in srgb, var(--uds-brand) 26%, transparent) 0%, transparent 62%);
+ }
  .heroCopy { width: 51%; padding: 38px 0 36px; isolation: isolate; }
  .heroCopy::before { content: ''; position: absolute; z-index: -1; inset: 0 -70px 0 -100vw; border-radius: 0 0 120px 0; background: var(--uds-ink); }
  .heroTitle { color: var(--uds-primary-text); margin-bottom: 18px; }
