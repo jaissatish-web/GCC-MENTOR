@@ -1,4 +1,80 @@
-﻿## 16 November 2026 â€” Mobile landing weight reduction
+﻿## 17 November 2026 â€” Documentation scope: current only, history archived
+
+**Founder instruction:** clean the outdated and duplicated material out of `main` so the
+repository gives one clear picture of what the platform is, keeping anything needed for
+later reference somewhere retrievable.
+
+**Decision.** `main` carries current documentation only. Historical design campaigns,
+dated audit/QA/rollout reports and superseded visual directions are removed from `main`
+and preserved on branch `archive/docs-history-pre-2026-11` (pushed before any deletion,
+so nothing is lost; retrieve any file with
+`git show archive/docs-history-pre-2026-11:<path>`).
+
+**Rationale.** Five competing visual directions were readable at the same apparent
+authority and agents re-applied retired palettes. `docs/12_DESIGN_SYSTEM.md` needed a
+notice warning readers about its own older sections, and `DOCUMENTATION_INDEX.md`
+carried three stacked authority layers. A repository that states five design truths
+equally confidently cannot be followed reliably by a human or an agent.
+
+**Rules added to `AGENTS.md`:** no new dated campaign reports in `docs/`; one design
+authority, stated once, in `docs/12_DESIGN_SYSTEM.md`; record outcomes in the relevant
+domain document and this log instead.
+
+**Delivered as:** PR #97. CI green. **Merge not yet authorized** â€” merging `main`
+deploys to production.
+
+## 17 November 2026 â€” Verification runs must not write into `docs/`
+
+**Decision.** Scripts that produce browser screenshots or measurement reports write
+under `artifacts/`, never under `docs/`.
+
+**Rationale.** Three verification scripts wrote evidence into the documentation tree and
+one *recreated* `docs/desktop-redesign/` on every run. This is the mechanism by which
+`docs/` accumulated campaign screenshots and stray reports in the first place; cleaning
+the folder without fixing the writers would only defer the problem. `artifacts/` matches
+the path convention the other CI verification scripts already use.
+
+**Changed:** `scripts/verify-premium-tools.mjs`, `scripts/verify-workspace-navigation.mjs`,
+`scripts/pdf-loadtest.ts`.
+
+**Delivered as:** PR #97 (the first two) and PR #98 (`pdf-loadtest.ts`).
+
+## 17 November 2026 â€” Verification checks must target the live surface
+
+**Decision.** A verification script that asserts something about the public landing page
+must read the landing page that is actually deployed.
+
+**Rationale.** `verify-landing-anchors.ts` â€” whose own comment says anchors "have drifted
+twice in one day" â€” was reading `components/landing-premium/PremiumLanding.tsx`, a
+retired composition, while the live anchors live in `app/page.tsx` and are passed to
+`components/landing-v3/PremiumNav.tsx`. It reported PASS on every run while anchor drift
+on the live page went unverified. `verify-universal-theme.ts` scanned both the retired
+and the live premium stylesheet.
+
+**Changed:** both scripts retargeted to the live landing. All six live anchors
+(`#services #templates #interview #plans #about #faq`) verified resolving.
+
+**Delivered as:** PR #98.
+
+## 17 November 2026 â€” Dead code removed only where provably unreferenced
+
+**Decision.** No file is removed on the strength of a name or folder pattern. Every
+candidate is checked for importers using real module resolution, re-checked after
+removal, and scripts that reference files **by path** are checked separately.
+
+**Rationale.** `components/landing-premium/` initially appeared to be wholly dead.
+`data.ts` is imported by `app/page.tsx` (the homepage) and `gccDestinations.ts` by
+`components/landing-v3/GccGlobe.tsx`; deleting the folder would have broken the
+homepage. Import analysis alone also missed three scripts that read files by path.
+`types/pdf-parse.d.ts` is not dead either: `tsconfig` `include: ["**/*.ts"]` auto-loads
+declaration files.
+
+**Changed:** 15 files / 1,582 lines removed, all verified. `lib/pricing.ts` kept
+deliberately and raised as AUDIT-003 rather than deleted.
+
+**Delivered as:** PR #98. **Merge not yet authorized.**
+
+## 16 November 2026 â€” Mobile landing weight reduction
 
 Founder authorized direct implementation of the mobile landing optimisation in the
 repository. Requirement, acceptance criteria, protected scope and evidence plan are in

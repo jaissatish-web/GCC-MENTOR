@@ -1,4 +1,94 @@
-﻿## 16 November 2026 â€” Approved Option2
+﻿## 17 November 2026 â€” Repository audit, documentation cleanup, dead-code removal
+
+**Read this first if you are a new agent.** It records the state of the repository, what
+was completed, what is in flight, and what remains. Nothing here changed production
+behaviour.
+
+### Starting condition
+
+`main` held **153 Markdown files (2.1 MB)** describing five competing visual directions
+(Meridian, soft-indigo, SKILLPILOT, compact-brand, Executive Slate & Teal) plus dated
+audit/QA/rollout reports. **47 files were not listed in
+[DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md) at all**, including every competing
+palette document. `docs/12_DESIGN_SYSTEM.md` had to open with a notice warning readers
+about its own older sections. Branch names (`codex/skillpilot-brand-001`,
+`design/premium-landing-v2`, `fix/soft-indigo`) trace the same churn.
+
+Consequence: agents could read five same-authority design directions and re-apply a
+retired one. This is the mechanism behind the design churn, not agent error.
+
+### Completed â€” PR #97 (docs cleanup), CI green
+
+- Markdown in `docs/`: **153 â†’ 59 files**. Removed 17 historical campaign folders and
+  45 dated/QA/rollout artifacts.
+- Everything removed is preserved on branch **`archive/docs-history-pre-2026-11`**.
+  Retrieve with `git show archive/docs-history-pre-2026-11:<path>`.
+- `AGENTS.md`: new **"Documentation scope â€” current only"** rule. No new dated campaign
+  reports; one design authority; archive-branch pointer.
+- `DOCUMENTATION_INDEX.md`: rewritten as a current-only index, no historical layers.
+- Fixed 20 broken Markdown links.
+- **Verification runs no longer write into `docs/`.** Three scripts wrote evidence there
+  and one *recreated* `docs/desktop-redesign/` on every run â€” this is how `docs/`
+  accumulated screenshots. All three now write under `artifacts/`:
+  `verify-premium-tools.mjs`, `verify-workspace-navigation.mjs`, `pdf-loadtest.ts`.
+
+### Completed â€” PR #98 (dead code + verification fixes), CI re-running
+
+- Removed **15 files / 1,582 lines** verified to have zero importers.
+  `components/landing-premium/` was **not** wholly dead: `data.ts` is imported by
+  `app/page.tsx` (the homepage) and `gccDestinations.ts` by
+  `components/landing-v3/GccGlobe.tsx`. Both were kept. Only the closed island
+  (`PremiumLanding`, `PreparationStudio`, `SavedProgressPreview`, `InterviewExperience`,
+  `LandingJourney`, `premium.module.css`) was removed.
+- Deliberately kept: `types/pdf-parse.d.ts` (**not** dead â€” `tsconfig` `include: ["**/*.ts"]`
+  auto-loads declaration files) and `lib/pricing.ts` (see AUDIT-003).
+- **Fixed two verification scripts that were validating the retired landing.**
+  `verify-landing-anchors.ts` read its anchor tuple from
+  `components/landing-premium/PremiumLanding.tsx`; the live anchors are in
+  `app/page.tsx` (passed to `PremiumNav`). Anchor drift on the **live** page was
+  therefore unverified. Retargeted to `app/page.tsx` + `components/landing-v3`.
+  All six live anchors verified resolving: `#services #templates #interview #plans
+  #about #faq`. `verify-universal-theme.ts` scanned both the retired and live
+  premium CSS; the retired entry was dropped.
+
+### Method notes for the next agent
+
+Two blind spots caused three near-misses. Both now have tooling:
+
+1. **Import-resolution analysis misses path reads.** Removing
+   `components/landing-premium/` initially looked safe; a script read it by path. Before
+   removing files, search for the file **name** across `scripts/`, `app/`, `lib/` and
+   `components/` â€” not just for imports. A path reference inside a verification script
+   will not appear as an import.
+2. **HTTP status does not show client-side redirects.** `/onboarding` returns **200**
+   and then browser JS sends you to `/login?redirectTo=%2Fdashboard`. Any route audit
+   needs a real browser (REA `capture_browser_scenario`), not a HEAD request.
+
+### Found, not fixed â€” see [14_OPEN_ITEMS.md](14_OPEN_ITEMS.md) AUDIT-001â€¦008
+
+Raised by a live-site and repository audit on 17 November 2026: a whole feature area
+missing from the middleware auth matcher, `/resume-design-lab` returning 404 in
+production, `lib/pricing.ts` describing DB-driven pricing that nothing calls,
+~511 lines of near-duplicate LinkedIn/NaukriGulf route code, **33 abandoned remote
+branches**, and a stock-photo hero on the landing page.
+
+### Remaining, in the order agreed with the founder
+
+1. Merge #97, then #98 (both need explicit founder approval; merging `main` deploys).
+2. Founder decision on AUDIT-001 (NaukriGulf auth matcher) â€” security-adjacent, needs
+   its own scoped batch.
+3. Collapse the 33 abandoned branches into one archive tag, then delete, per the
+   existing rule in `AGENTS.md`.
+4. Full **user-journey audit** (design/UI/UX) â€” blocked pending a test account; the
+   founder's existing resume must **not** be deleted to obtain one.
+
+### Protected scope â€” unchanged
+
+No application code, page, component that renders, schema, migration, prompt, scoring
+rule, auth, RLS, payment or user-facing behaviour was modified in either PR. No resume,
+template, preview or PDF output changed.
+
+## 16 November 2026 â€” Approved Option2
 
 Option2 implemented on PR90: four visible concern selectors and matching local response states. Build/typecheck/lint,92/92 checks, mobile typography, seven-width hydrated matrix, keyboard/focus and200% text pass. Hosted preview READY; all four selections verified in cloud browser. Design QA passed with explicit mobile readability/density notes. Exact-head CI remains merge gate; founder approved merge after checks. Plan: docs/superpowers/plans/2026-11-16-candidate-focus.md.
 
