@@ -11,7 +11,7 @@
 .reverse { animation-duration: 70s; animation-direction: reverse; }
 .group { display: flex; flex-shrink: 0; align-items: center; gap: 10px; margin: 0; padding: 0 10px 0 0; list-style: none; }
 .logo { display: flex; align-items: center; justify-content: center; width: 132px; height: 60px; flex-shrink: 0; padding: var(--uds-space-compact); border: var(--uds-border-width) solid var(--uds-border); border-radius: var(--uds-card-radius); background: var(--uds-canvas); }
-.logo img { display: block; width: 100%; height: 38px; object-fit: contain; }
+.logo img { display: block; width: 100%; height: 38px; object-fit: contain; transform: scale(var(--logo-scale, 1)); }
 .reversed { background: var(--uds-ink); }
 .strip:hover .track, .section[data-paused='true'] .track { animation-play-state: paused; }
 .disclaimer { width: min(840px, calc(100% - var(--uds-gutter) * 2)); margin: 0 auto; text-align: center; font-size: var(--uds-helper-size); line-height: var(--uds-body-line); color: var(--uds-muted); }
