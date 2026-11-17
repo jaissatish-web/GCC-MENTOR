@@ -31,9 +31,9 @@ observations, not implementation permission. **No fix has been applied.**
 | AUDIT-006 | Landing credibility: hero is a composited stock image (visible cut-out edge at 390px), and the employer wall shows 21 logos forced into one `160�52` box, producing wildly different optical weights. The disclaimer in `EmployerMarquee.tsx` is correct, but the visual claim outruns the fine print. | Replace the hero with a real product screenshot; reduce the wall to 6�9 logos with normalised optical sizing. | Medium; visual only | Open � founder review required |
 | AUDIT-007 | `/naukrigulf-optimization/workspace` redirects to `/login?redirectTo=/naukrigulf-optimization`, **dropping `/workspace`**; the LinkedIn equivalent keeps its full path. Post-login the user lands on the parent page. | Resolve naturally once AUDIT-004 shares the redirect logic. | Small | Open |
 | AUDIT-008 | `/gcc-readiness` requires login while `/gulf-readiness` is public � near-identical names with different access rules � while the product is branded **GCC** Mentor. | Choose one term and one access rule. | Small; naming decision | Open � founder decision |
-| AUDIT-009 | **The brand colour does not reach the product.** Primary buttons on every signed-in surface render `#2563EB` (information blue) instead of the brand teal `#007F78`. See the scoped proposal below. | Founder decides the single brand colour, then the token mapping is corrected once. | Small code change, wide visual surface; needs a signed-off decision | **Open � proposal below** |
+| AUDIT-009 | **The brand colour does not reach the product.** Primary buttons on every signed-in surface render `#2563EB` (information blue) instead of the brand teal `#007F78`. See the scoped proposal below. | Founder decides the single brand colour, then the token mapping is corrected once. | Small code change, wide visual surface; needs a signed-off decision | **Fix in PR #103** |
 
-### AUDIT-009 � brand token collision (scoped proposal, not authorized)
+### AUDIT-009 — brand token corrected (fix in PR #103)
 
 **Observed, measured 17 November 2026.** Pixel samples of the live signed-in pages:
 the `/login` "Sign in" button renders **`#2563EB`**. The public landing page renders
@@ -50,14 +50,13 @@ and in [`app/ui-system.css`](../app/ui-system.css) (line 1011):
 --ui-brand:var(--uds-brand); --ui-brand-hover:var(--uds-brand-hover); --ui-brand-soft:var(--uds-brand-soft);
 ```
 
-**Root cause.** Two token layers are stacked. An older `--ui-*` layer is re-pointed at a
-newer `--uds-*` (Universal Design System) layer, so every component reading `--ui-brand`
-now resolves through `--uds-brand`. The `--uds-*` values were seeded with the
-`information` blue in a place where the `brand` teal was intended, and the landing was
-rebranded to teal without the app interior following. [`app/auth-presentation.css`](../app/auth-presentation.css)
-additionally opens with `/* SkillDrift-inspired authentication presentation. */` � a
-sixth visual reference alongside Meridian, soft-indigo, SKILLPILOT, compact-brand and
-Executive Slate & Teal.
+**Root cause — corrected 17 November 2026.** The first version of this entry blamed a token-layer collision and said every component reading `--ui-brand` resolved through `--uds-brand`. **That was wrong.** The adapter that maps `--ui-brand` to `--uds-brand` is scoped to `[data-website-ui] [data-uds="website-widget"]` and is not global; a comment above it states it must never be applied to the website root.
+
+The real cause is simpler: **two brand tokens resolve at once.** `app/ui-system.css` set `--ui-brand-rgb: 37 99 235` (`#2563EB`, palette "Azure & Slate", 5 Nov 2026) while `lib/design-system/theme.ts` has always documented brand as `#007F78` "Primary teal". The public landing reads `--uds-brand` and rendered teal; the signed-in product reads `--ui-brand` and rendered blue.
+
+**The consequence was larger than one button.** `ui-system.css`'s own Tailwind compatibility utilities are *named after the teal brand* and therefore all rendered blue: `.text-teal` 349 uses, `.bg-teal` 224, `.border-teal` 124, `.accent-teal` 23 — **573+ elements whose class name said teal and whose pixels said blue.** The utilities were authored for a teal brand and the palette was changed later without renaming either.
+
+**Fixed in PR #103** by correcting the three `--ui-brand*` tokens to the documented teal, leaving `--ui-info-rgb` blue so informational states stay distinct. `app/auth-presentation.css` still opens with `/* SkillDrift-inspired authentication presentation. */` — a sixth visual reference alongside Meridian, soft-indigo, SKILLPILOT, compact-brand and Executive Slate & Teal — which remains open.
 
 **User impact.** The public site and the product look like two different companies. Every
 signed-in surface inherits the wrong primary colour. This is the largest single visual
