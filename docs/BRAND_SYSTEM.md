@@ -1,27 +1,27 @@
-## AZURE-SLATE-001 — 5 November 2026
+﻿## AZURE-SLATE-001 â€” 5 November 2026
 
 Implemented; local verification complete: founder accepts the recommended Azure & Slate preview. Central palette: white surfaces #FFFFFF, pale canvas #F5F8FC, slate text #172B45, secondary/muted #52647A, azure actions #2563EB (hover #1D4ED8), pale blue #EAF1FF, cyan accents #0891B2 with darker #0E7490 for text. Replace landing navy/gold paint with the shared light palette; remove free-tools local palette overrides so future central theme edits propagate. Preserve typography, layout, animations, authored resumes/documents, external-profile previews, status colors, APIs, AI/scoring/auth/payments/schema. Affected: app/ui-system.css, components/landing-v3/premium.module.css, app/page.tsx (wave fill only), components/landing-v3/DocumentOrbit.tsx (selected border only), scripts/verify-universal-theme.ts and existing browser palette assertions (approved colors). Acceptance: one palette owner; blue buttons with white text; readable light hero; common dashboard/auth/profile/tools surfaces; no document recoloring. Verification: local typecheck, lint, clean production build and all 92 checks passed. Initial build encountered a stale generated export-directory error; clean rebuild passed. Reviewed actual PR diff: presentation and palette assertions only. Release status is governed by PR #75 and its required CI/browser regressions; merge only after green checks, then inspect automatic production deployment. Live authenticated persistence is outside this color-only change.
 
-# Shared light theme — 1 November 2026
+# Shared light theme â€” 1 November 2026
 
-THEME-CONSISTENCY-002 supersedes the historical palette descriptions below. One root palette in app/ui-system.css serves landing, authentication, app shell/navigation, profile/review and services: white surfaces, pale canvas #F7F9FC, slate ink #18253A, blue actions #2563EB, semantic success/warning/error. Resume review consumes these same roles rather than redefining a local palette. Existing app typography/spacing stay centrally owned; authored documents retain their own paint/fonts. See [SHARED_THEME_REPAIR.md](SHARED_THEME_REPAIR.md) for scope and verification; release state is governed by the protected PR/deployment.
+THEME-CONSISTENCY-002 supersedes the historical palette descriptions below. One root palette in app/ui-system.css serves landing, authentication, app shell/navigation, profile/review and services: white surfaces, pale canvas #F7F9FC, slate ink #18253A, blue actions #2563EB, semantic success/warning/error. Resume review consumes these same roles rather than redefining a local palette. Existing app typography/spacing stay centrally owned; authored documents retain their own paint/fonts. See `SHARED_THEME_REPAIR.md` (archived) for scope and verification; release state is governed by the protected PR/deployment.
 
-# Compact shared brand — 26 October 2026
+# Compact shared brand â€” 26 October 2026
 
 COMPACT-BRAND-001 replaces duplicate public/internal palette literals with one root configuration: indigo#4F46E5 (hover#4338CA), slate#202536, secondary#4B5365, muted#62697A, white surfaces, canvas#F8F9FC, borders#E1E4EC. Cards16px/control10px radii,44px minimum controls,16/20px card insets. Status colours and authored documents remain independent. Implemented/local verification complete; protected-main release pending. See COMPACT_BRAND_2026-10-26.md. Earlier specifications below are historical.
 
-## CSS cleanup — 26 October 2026
+## CSS cleanup â€” 26 October 2026
 
-CSS-CLEANUP-001 is implemented and locally verified; release is governed by its protected-main PR. The current effective design is preserved while obsolete/duplicate rules are removed and responsive styling is consolidated. See [CSS_CLEANUP_2026-10-26.md](CSS_CLEANUP_2026-10-26.md).
+CSS-CLEANUP-001 is implemented and locally verified; release is governed by its protected-main PR. The current effective design is preserved while obsolete/duplicate rules are removed and responsive styling is consolidated. See `CSS_CLEANUP_2026-10-26.md` (archived).
 
-# Current direction — soft indigo, 25 October 2026
+# Current direction â€” soft indigo, 25 October 2026
 
-Satish selected the SkillDrift sign-in theme, superseding the prior emerald/no-blue direction. Current implementation is being updated through SOFT-INDIGO-001; see [SOFT_INDIGO_2026-10-25.md](SOFT_INDIGO_2026-10-25.md). Central app tokens: indigo#5B60F1, plum#2B2640, secondary#58527A, near-white#FCFCFD, lavender#EEF2FF, border#E2E0EB. Controls12px, grouped cards24px, restrained shadow. Status red/amber/green and authored resume colours remain independent. Historical specifications below do not override this new approval.
+Satish selected the SkillDrift sign-in theme, superseding the prior emerald/no-blue direction. Current implementation is being updated through SOFT-INDIGO-001; see `SOFT_INDIGO_2026-10-25.md` (archived). Central app tokens: indigo#5B60F1, plum#2B2640, secondary#58527A, near-white#FCFCFD, lavender#EEF2FF, border#E2E0EB. Controls12px, grouped cards24px, restrained shadow. Status red/amber/green and authored resume colours remain independent. Historical specifications below do not override this new approval.
 
-## Internal Clear Path configuration — 24 October 2026
+## Internal Clear Path configuration â€” 24 October 2026
 The `.app-type.internal-ui` configuration in `app/ui-system.css` is the current internal application palette/layout source. Existing public values below remain the landing baseline. Brand #134F3C, ivory canvas #FAFAF7, white surfaces, blue informational cues, semantic success/warning/error states. No name/logo rebrand. Mobile gutters20px (16px below360), tablet32px, large desktop40px; body and form widths remain task appropriate. Typography is owned only by typography.css. Internal opt-in also scopes service drawer/library/guide portals; public SideSheet defaults do not opt in. See CLEAR_PATH_ROLLOUT.md for evidence and limitations.
 
-# GCC Mentor — emerald-led service palette
+# GCC Mentor â€” emerald-led service palette
 
 This visual direction keeps emerald as the primary action colour while using stable service accents for recognition. Applied through the shared application shell, headings, forms, cards, service pages, authentication, Home and landing surfaces. Product routes, account access, scoring, AI prompts and document generation remain unchanged.
 
@@ -42,7 +42,7 @@ This visual direction keeps emerald as the primary action colour while using sta
 
 Typography uses Inter throughout the product. Mobile/desktop title sizes are 26/32px at weight 700, sections 20/24px at 600, card headings 16/18px at 600, body and inputs 16px, labels/buttons/helpers 14px and compact captions 12px. Marketing display headings use their own responsive scale. Resume/document typography remains owned by the document renderer.
 
-Spacing follows the 4/8px scale. Mobile gutters are 16px, page sections 24px apart, working cards have 12–16px corners and primary controls are at least 48px tall. Navigation and secondary actions have 44px minimum touch targets. Colour is paired with icons and text; fields retain visible labels and keyboard focus rings. Main content scrolls normally, with compact navigation rather than large fixed banners.
+Spacing follows the 4/8px scale. Mobile gutters are 16px, page sections 24px apart, working cards have 12â€“16px corners and primary controls are at least 48px tall. Navigation and secondary actions have 44px minimum touch targets. Colour is paired with icons and text; fields retain visible labels and keyboard focus rings. Main content scrolls normally, with compact navigation rather than large fixed banners.
 
 Service colours belong on icons, tabs, thin borders, small highlights and progress-series keys. Main reading surfaces stay white. Actions keep the same emerald identity across tools.
 

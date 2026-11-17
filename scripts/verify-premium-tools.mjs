@@ -8,7 +8,9 @@ import {resolve,extname,join} from 'node:path'
 import puppeteer from 'puppeteer-core'
 
 const origin='https://premium-tools.test'
-const output=resolve('docs/design-system-v1/evidence')
+// Browser evidence belongs under artifacts/, not docs/ — verification runs must
+// never write into the documentation tree (2026-11-17 cleanup).
+const output=resolve('artifacts/premium-tools')
 mkdirSync(output,{recursive:true})
 const mime={'.js':'application/javascript','.css':'text/css','.woff2':'font/woff2','.woff':'font/woff','.svg':'image/svg+xml','.png':'image/png','.ico':'image/x-icon'}
 const widths=[320,360,390,430,768,1024,1440]

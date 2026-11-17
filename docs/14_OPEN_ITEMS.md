@@ -1,4 +1,4 @@
-# Current quality proposals — 15 November 2026
+﻿# Current quality proposals â€” 15 November 2026
 
 This is the sole unresolved-work surface. Entries below are proposals/investigations, not implementation permission. Older dated items remain historical leads unless freshly verified; do not infer current production defects or resolution from their presence.
 
@@ -21,28 +21,28 @@ Superpowers plugin installation/activation remains a separate proposal; no addit
 
 ## Historical unresolved-item records follow
 
-# OPEN ITEMS — every known defect and every undecided decision
+# OPEN ITEMS â€” every known defect and every undecided decision
 
-## AUDIO-DELETE-001 — release verification
+## AUDIO-DELETE-001 â€” release verification
 
 - Configure a server-only `CRON_SECRET` for the production Vercel project and redeploy after the protected PR is approved/merged. Metadata inspection on 30 October2026 found no variable with that name; do not expose or commit the value.
 - After release, verify one owned successful-transcription deletion, retained transcript/coaching history and playback410, failed-STT retry, delayed upload-token cleanup and a real authenticated retention run with the persisted before/after summary. Offline checks do not establish live provider or scheduler operation.
-- Decide the scoped copy correction for existing “recordings are saved/safe” failure text now that successfully transcribed audio is disposable; preserve the current410 text. No copy change is silently included.
+- Decide the scoped copy correction for existing â€œrecordings are saved/safeâ€ failure text now that successfully transcribed audio is disposable; preserve the current410 text. No copy change is silently included.
 
-> **2026-10-30 authority:** This is the only to-do surface, per the founder’s current instruction. PROGRESS.md records implementation and verification evidence. Older issue entries still require source verification; they are not fresh release certification.
+> **2026-10-30 authority:** This is the only to-do surface, per the founderâ€™s current instruction. PROGRESS.md records implementation and verification evidence. Older issue entries still require source verification; they are not fresh release certification.
 
 **This is the only to-do surface.** Anything not here is either done or not agreed.
 
 Nothing is removed from this file until it is genuinely resolved, and when it is
-resolved it is deleted rather than marked — the part-document it affects carries the
+resolved it is deleted rather than marked â€” the part-document it affects carries the
 outcome instead.
 
-**Last reviewed:** 2026-09-15 (full SaaS audit remediation — see
-[`SAAS_REMEDIATION_2026-09-15.md`](SAAS_REMEDIATION_2026-09-15.md))
+**Last reviewed:** 2026-09-15 (full SaaS audit remediation â€” see
+``SAAS_REMEDIATION_2026-09-15.md`` (archived))
 
 ---
 
-## 2026-10-08 — Local PDF heading-recognition verification gap
+## 2026-10-08 â€” Local PDF heading-recognition verification gap
 
 During the UI typography release, `verify-template-pdfs.ts --raw --short
 gulf_premium ats_classic medical_pearl` generated PDFs but failed the ATS
@@ -61,81 +61,81 @@ cases. Browser text scaling to 200% and 320/390/768/1440px layouts also passed.
 
 ---
 
-## 2026-09-15 audit — what is still open after the remediation branch
+## 2026-09-15 audit â€” what is still open after the remediation branch
 
 The code for every audit item is on branch `claude/saas-production-hardening`; what
 remains is deployment work and decisions. Full list, with evidence:
-[`SAAS_REMEDIATION_2026-09-15.md`](SAAS_REMEDIATION_2026-09-15.md) and the go/no-go list
+``SAAS_REMEDIATION_2026-09-15.md`` (archived) and the go/no-go list
 in [`SAAS_RELEASE_CHECKLIST.md`](SAAS_RELEASE_CHECKLIST.md).
 
-- **R-1 · Apply migrations 049–055 to production, in order, before the code deploys.**
+- **R-1 Â· Apply migrations 049â€“055 to production, in order, before the code deploys.**
   Asserted only against a local Postgres-compatible test harness (Supabase partially
   stubbed); never applied to a real database. Code that needs them fails without them.
-- **R-2 · Set `CRON_SECRET` in Vercel and add the auth callback URL to Supabase's
+- **R-2 Â· Set `CRON_SECRET` in Vercel and add the auth callback URL to Supabase's
   redirect list.** Without the first, expired anonymous CVs are still not purged.
-- **R-3 · Signed-in preview walk-through** (signup → profile → CV → letter → Q&A → mock →
-  report → tracker → refresh) on a preview deployment with a staging database. Not
+- **R-3 Â· Signed-in preview walk-through** (signup â†’ profile â†’ CV â†’ letter â†’ Q&A â†’ mock â†’
+  report â†’ tracker â†’ refresh) on a preview deployment with a staging database. Not
   possible from this environment without creating accounts in production.
-- **R-4 · Founder decisions:** legal text (H06), retention and account closure (M11),
+- **R-4 Â· Founder decisions:** legal text (H06), retention and account closure (M11),
   password policy and leaked-password protection (M03), free-plan allowances and a
   spend budget (M14), what to tell users about prices while services are open (M10),
   whether to retire the legacy anonymous `/ats-scan` POST.
-- **R-5 · Existing jobs marked "applied" stay "applied".** There is no evidence which
-  were really submitted; users can move them to "Saved · not applied".
+- **R-5 Â· Existing jobs marked "applied" stay "applied".** There is no evidence which
+  were really submitted; users can move them to "Saved Â· not applied".
 
 ---
 
-## S. Found in the 2026-10-04 platform audit — reported, not fixed
+## S. Found in the 2026-10-04 platform audit â€” reported, not fixed
 
-Full context: [`PLATFORM_AUDIT_2026-10-04.md`](PLATFORM_AUDIT_2026-10-04.md) §2.
+Full context: ``PLATFORM_AUDIT_2026-10-04.md`` (archived) Â§2.
 
-- **S1 · No HTTP security headers.** No `X-Frame-Options` / CSP `frame-ancestors`
-  (signed-in pages, including Settings → delete data, can be framed — clickjacking), no
+- **S1 Â· No HTTP security headers.** No `X-Frame-Options` / CSP `frame-ancestors`
+  (signed-in pages, including Settings â†’ delete data, can be framed â€” clickjacking), no
   `X-Content-Type-Options: nosniff`, no `Referrer-Policy`, no `Permissions-Policy`
   (microphone should be allowed for the mock interview only). Nothing in
   `next.config.mjs`, `middleware.ts` or `vercel.json` sets them.
-- **S2 · PDF routes have no per-user limit.** `/api/resume/pdf` and
+- **S2 Â· PDF routes have no per-user limit.** `/api/resume/pdf` and
   `/api/packages/[id]/pdf` launch headless Chromium on every request; a signed-in user
   can loop them and run up compute.
-- **S3 · Typical duties is outside the AI guard.** `/api/profile/typical-duties` makes a
+- **S3 Â· Typical duties is outside the AI guard.** `/api/profile/typical-duties` makes a
   model call with the older `getRateLimitStatus` + `incrementRateLimit`: no admin pause,
   no concurrency cap, and parallel requests can pass the daily limit together. Every
   other AI route uses `reserveAiAction`.
-- **S4 · The older style guards accept built-in object names.** `isFontKey`,
+- **S4 Â· The older style guards accept built-in object names.** `isFontKey`,
   `isSizeKey` and `isAccentKey` (`lib/resumeStyle.ts`) test `key in OPTIONS`, which is
-  also true for `toString`, `constructor` and the like — so `PATCH
+  also true for `toString`, `constructor` and the like â€” so `PATCH
   /api/packages/[id]` stores `{"font":"toString"}`, and a size of `"toString"` prints
-  the owner's own PDF with broken (NaN) font sizes. No injection — no client string
-  reaches the CSS — but the "only named keys" promise is broken. Fix: `Object.hasOwn`,
+  the owner's own PDF with broken (NaN) font sizes. No injection â€” no client string
+  reaches the CSS â€” but the "only named keys" promise is broken. Fix: `Object.hasOwn`,
   as the 2026-10-04 guards (`isInkKey` and the rest) already do. Found 2026-10-04.
 
 ---
 
-## T. Resume templates — found while adding the 35 Gulf designs (2026-10-04)
+## T. Resume templates â€” found while adding the 35 Gulf designs (2026-10-04)
 
-- **T1 · The Gulf Premium baseline never hid a field.** `scripts/verify-resume.ts` sets
+- **T1 Â· The Gulf Premium baseline never hid a field.** `scripts/verify-resume.ts` sets
   only the switches that are ON; a missing key means SHOWN (`visible()` in
-  `lib/resumeDocument.ts`), so all 32,768 "permutations" render the same full CV —
+  `lib/resumeDocument.ts`), so all 32,768 "permutations" render the same full CV â€”
   `scripts/resume.golden.txt` holds one distinct hash 32,768 times. Gulf Premium is now
   covered properly by `scripts/verify-engine-templates.ts` (every switch set explicitly,
   every template, in `npm test`). Fix: set every key in `verify-resume.ts` explicitly
   and recapture its golden from the current code, or retire it in favour of the new check.
-- **T2 · Two left-rail designs give an ATS the rail before the name — needs a yes.**
+- **T2 Â· Two left-rail designs give an ATS the rail before the name â€” needs a yes.**
   Technical Sidebar and Creative GCC lay their left rail out as a reversed flex row,
   which Chrome writes into the PDF in visual order: a parser reading the downloaded file
   meets nationality, location and visa before the candidate's name. (The user-facing
-  "Check my PDF" still passes them — it looks for the name, not its position.) New left
-  rails use CSS grid: pixel-identical, name first. The switch is one line per theme —
-  delete `railFirstInPdf: true` in `components/templates/themes.ts` — then recapture
+  "Check my PDF" still passes them â€” it looks for the name, not its position.) New left
+  rails use CSS grid: pixel-identical, name first. The switch is one line per theme â€”
+  delete `railFirstInPdf: true` in `components/templates/themes.ts` â€” then recapture
   those two in `scripts/engine-templates.golden.json` and drop them from
   `RAIL_FIRST_UNTIL_APPROVED` in `scripts/verify-template-pdfs.ts`. Held only because it
   changes the files of already-delivered resumes (not how they look).
-- **T3 · Portrait Right and Consultant Right: the name block sits close to a right-hand
+- **T3 Â· Portrait Right and Consultant Right: the name block sits close to a right-hand
   photo.** The 2026-10-04 designs fill the space (`nameFill`); these two were left exactly
   as delivered. One theme line each if wanted.
-- **T4 · The landing page says "10 resume templates"** (`components/landing-v3/
-  LandingPage.tsx`) — there are 50. Left for the home and landing page discussion.
-- **T5 · The three original rail designs stop their colour where the text stops, in
+- **T4 Â· The landing page says "10 resume templates"** (`components/landing-v3/
+  LandingPage.tsx`) â€” there are 50. Left for the home and landing page discussion.
+- **T5 Â· The three original rail designs stop their colour where the text stops, in
   the PDF only.** Technical Sidebar, Project Two-Column and Creative GCC: on screen the
   rail runs the page height; in the downloaded PDF it ends with the content (the print
   CSS releases the page height to avoid a blank second page). The new designs carry
@@ -148,36 +148,36 @@ Full context: [`PLATFORM_AUDIT_2026-10-04.md`](PLATFORM_AUDIT_2026-10-04.md) §2
 ## 0. Standing: the paid locks are off
 
 **Every paid lock was removed on 2026-08-17 by founder decision**, so the full
-pipeline can be built before the locks go back on. This is not a defect — it is a
-deliberate, temporary state — but it has consequences that must not be forgotten.
+pipeline can be built before the locks go back on. This is not a defect â€” it is a
+deliberate, temporary state â€” but it has consequences that must not be forgotten.
 
-**A0 · Re-apply the locks when the pipeline is done.** The specification to restore
+**A0 Â· Re-apply the locks when the pipeline is done.** The specification to restore
 is preserved in [`10_PLANS_AND_PAYMENT.md`](10_PLANS_AND_PAYMENT.md), which reads as
 a restore guide. Three parts, none optional:
 
-1. **The gate itself**, deleted along with `lib/packageAccess.ts` — plus the 18
+1. **The gate itself**, deleted along with `lib/packageAccess.ts` â€” plus the 18
    assertions proving it fails closed on every malformed input. A gate not shown to
    fail closed has not been shown to work.
 2. **The rows created during this phase.** Generation now runs without payment, so
-   rows exist with AI content and `is_paid = false` — the exact shape the old gate
+   rows exist with AI content and `is_paid = false` â€” the exact shape the old gate
    refused. **They must be purged or marked**, not assumed away.
 3. **The credit consume on the cover letter**, restored *after* a validated success,
    never before, with a failed consume discarding the generation.
 4. **`/package/[id]`'s "Edit" button** now opens `/package/[id]/edit` for every
-   resume, generated or not (settled 2026-08-19 after a same-day correction — an
+   resume, generated or not (settled 2026-08-19 after a same-day correction â€” an
    intermediate version ran generation from Edit; the current one never does). Nothing
    here depends on the payment check that used to guard generation, so there is no
    loop condition to re-verify from this specific change. What DOES still need a
    decision before the lock returns: whether hand-editing an ungenerated resume for
    free should keep working once payment gates something, given it is now real, working
    plumbing for the free-tier question in W2. See
-   [`10_PLANS_AND_PAYMENT.md`](10_PLANS_AND_PAYMENT.md) §4 and
-   [`11_USER_JOURNEYS.md`](11_USER_JOURNEYS.md) §6.
+   [`10_PLANS_AND_PAYMENT.md`](10_PLANS_AND_PAYMENT.md) Â§4 and
+   [`11_USER_JOURNEYS.md`](11_USER_JOURNEYS.md) Â§6.
 
-**A0b · Choose the daily allowances deliberately.** Since 2026-09-15 every model call
+**A0b Â· Choose the daily allowances deliberately.** Since 2026-09-15 every model call
 passes a pause switch and a daily allowance (`lib/ai/serviceGuard.ts`), editable in
 `/admin/services`. The defaults are engineering abuse ceilings, not a commercial free
-plan — the founder sets the real numbers (see R-4 above).
+plan â€” the founder sets the real numbers (see R-4 above).
 
 ---
 
@@ -185,7 +185,7 @@ plan — the founder sets the real numbers (see R-4 above).
 
 The auto-save after extraction works. Target fields (migration 042) and
 `education.institution` are optional, so an extracted profile saves without them. But
-`work_experience.start_date` is **still required** — a resume that lists a job with no
+`work_experience.start_date` is **still required** â€” a resume that lists a job with no
 dates would block the auto-save. Left as-is: making `start_date` nullable ripples into
 readiness scoring and date rendering, and the failure is graceful (the draft stays on
 screen, the user fixes and saves). Do the deeper fix only if real resumes often omit job
@@ -193,12 +193,12 @@ dates.
 
 ---
 
-## Post-signup Career Profile build — partly built 2026-08-18
+## Post-signup Career Profile build â€” partly built 2026-08-18
 
-**Built:** the profile→readiness adapter (`lib/gulfReadiness/fromProfile.ts`, same engine,
+**Built:** the profileâ†’readiness adapter (`lib/gulfReadiness/fromProfile.ts`, same engine,
 9 assertions), the live readiness score (since 2026-10-04 the shared `ScoreCards` in
 `components/profile/ProfileOverview.tsx`, on the dashboard and the profile),
-and the Scorecard-handoff restore in `/onboarding` so the resume text is carried forward —
+and the Scorecard-handoff restore in `/onboarding` so the resume text is carried forward â€”
 neither tier re-uploads. GCC Readiness uses the same arithmetic engine as the anonymous
 scan.
 
@@ -207,49 +207,49 @@ scan.
 the saved profile's readiness category (`answersFromReadinessCategory`), so it needs no
 sessionStorage handoff and works for any signed-in user.
 
-**Verified by tsc, lint, a full production build and the test suites — NOT in a browser.**
+**Verified by tsc, lint, a full production build and the test suites â€” NOT in a browser.**
 There is no authenticated session in the CTO environment, so the profile and onboarding
 screens have not been seen rendered. The founder should check them on the deployed site.
 
 **Still to do:**
-- **The tier-gated chooser** (free → type, paid → upload). The restore and all three
-  input paths work, but the chooser is not yet gated by tier — inert anyway while the
+- **The tier-gated chooser** (free â†’ type, paid â†’ upload). The restore and all three
+  input paths work, but the chooser is not yet gated by tier â€” inert anyway while the
   locks are off, so it lands with the paid locks.
-- **One engine, not two.** Two readiness numbers still coexist — the older
+- **One engine, not two.** Two readiness numbers still coexist â€” the older
   `lib/readiness.ts` completeness score (Profile Strength) and the arithmetic Gulf
   Readiness market score. The founder chose **2026-08-18 to show both** (each clearly
   labelled as a different thing): both sit on the dashboard, and since **2026-09-11**
   the Career Profile's "Improve your profile" panel carries both as two tabs, live as
   the user types, each with what raises it. So this is now a deliberate
-  two-number design, not an accidental duplication — reconciling onto a single engine is
+  two-number design, not an accidental duplication â€” reconciling onto a single engine is
   deferred by that decision, not outstanding cleanup.
 
 ---
 
-## The free/paid gates — build with the lock re-application (spec 2026-08-18)
+## The free/paid gates â€” build with the lock re-application (spec 2026-08-18)
 
 The full freemium model is decided and recorded ([`15_DECISION_LOG.md`](15_DECISION_LOG.md),
-2026-08-18) but **not enforced** — it lands when the paid locks return. To wire then:
+2026-08-18) but **not enforced** â€” it lands when the paid locks return. To wire then:
 - **One scan per account**, one template **download per month** (monthly-reset counter),
   the signup extraction free, everything else frozen for free users as visible locked
   tiles.
 - Paid unlocks all services; **dashboard shows the user's bundle**; **guided navigation**.
-- It maps onto `plan_entitlements` + `lib/entitlements.ts`, which already exist — the gap
+- It maps onto `plan_entitlements` + `lib/entitlements.ts`, which already exist â€” the gap
   is the per-feature gates that call them, the monthly counter, and the dashboard/nav.
 - **Confirm:** monthly recurring (assumed) vs one-time-unlocks-forever.
 
 ---
 
-## ATS / Job Readiness — the next build (decided 2026-08-18)
+## ATS / Job Readiness â€” the next build (decided 2026-08-18)
 
-A paid-plan, LLM-based score of readiness against a *specific* job — distinct from the
+A paid-plan, LLM-based score of readiness against a *specific* job â€” distinct from the
 free arithmetic GCC Readiness. Three parts:
 
 1. **Gate it behind the paid plan**, with admin credit / promo unlock so it is testable
-   before a checkout exists. Requires an account — never anonymous.
+   before a checkout exists. Requires an account â€” never anonymous.
 2. **Add a title + industry input path**, so it runs when no job description is given.
    The current Job Match engine structures a JD first and cannot run without one.
-3. **Close the free anonymous LLM leak on `/ats-scan`** — today it fires extraction, JD
+3. **Close the free anonymous LLM leak on `/ats-scan`** â€” today it fires extraction, JD
    structuring and the explanation for a logged-out visitor when a JD is pasted, which
    the two-tier decision forbids. Retire or repurpose that path; the free anonymous entry
    point is now the arithmetic Scorecard only.
@@ -258,27 +258,27 @@ Design and reasoning: [`15_DECISION_LOG.md`](15_DECISION_LOG.md), 2026-08-18.
 
 ---
 
-## Gulf Readiness Scorecard — what remains
+## Gulf Readiness Scorecard â€” what remains
 
-The anonymous flow is built and verified live (funnel → arithmetic score → result →
+The anonymous flow is built and verified live (funnel â†’ arithmetic score â†’ result â†’
 browser handoff). The signup restore is now wired (2026-08-18): after account creation
 `/onboarding/report` re-renders the same result with `locked={false}` and the carried
-resume text feeds the profile extraction — see
-[`11_USER_JOURNEYS.md`](11_USER_JOURNEYS.md) §2. One piece remains before the readiness
+resume text feeds the profile extraction â€” see
+[`11_USER_JOURNEYS.md`](11_USER_JOURNEYS.md) Â§2. One piece remains before the readiness
 routes are fully tidy:
 
-- **The old `/ats-scan` → `/gulf-readiness` flow still exists** alongside the new
+- **The old `/ats-scan` â†’ `/gulf-readiness` flow still exists** alongside the new
   `/gulf-readiness-score`. They overlap. Decide whether the old one is retired or kept for
   the job-description/Job Match path. Two readiness pages still coexist
   (`/gulf-readiness`, `/gulf-readiness-score`); `/gcc-readiness` has been only a redirect
-  since 2026-09-11 — worth consolidating deliberately, not urgently.
+  since 2026-09-11 â€” worth consolidating deliberately, not urgently.
 
 The weights and the twelve band messages are first-draft numbers in
 `lib/gulfReadiness/config.ts`, meant to be tuned once real scores come in.
 
 ---
 
-## ~~Resume optimization can exceed Vercel's function timeout~~ — **fixed 2026-09-05**
+## ~~Resume optimization can exceed Vercel's function timeout~~ â€” **fixed 2026-09-05**
 
 Phase B returned 504 `FUNCTION_INVOCATION_TIMEOUT` in production while passing locally.
 Measured split: 9.6s to structure the advert, 18.4s to write the resume, 29.6s total.
@@ -305,28 +305,28 @@ deadline-aware so it cannot turn a recoverable failure into a timeout.
 **Verified on production after the fix: Phase A 8.0s, Phase B 45.5s, 53/53 green.**
 
 **The margin is thin and should not be read as comfortable.** Production runs about 2.8x
-slower than local (16.1s → 45.5s), so 45.5s of a 60s ceiling leaves roughly 15 seconds.
+slower than local (16.1s â†’ 45.5s), so 45.5s of a 60s ceiling leaves roughly 15 seconds.
 A longer resume, a slower provider minute, or a colder function could still cross it.
 
 Two things stand between that and a repeat of the 504:
 1. **The deadline-aware retry**, which now refuses a doubled-budget retry it cannot
-   finish — so the bad case is a clean error naming the reason, not a timeout.
+   finish â€” so the bad case is a clean error naming the reason, not a timeout.
 2. **The smoke test fails above 50s**, so a regression shows up in a test run rather than
    in a customer's face.
 
 **The two real levers if it gets tighter**, neither taken here because both are the
 founder's call: a faster model (`deepseek-v4-flash` is a reasoning model and spends
-thinking tokens before it writes anything — a non-reasoning model would be markedly
+thinking tokens before it writes anything â€” a non-reasoning model would be markedly
 quicker), or Vercel Pro, which raises the ceiling to 300s.
 
 **What this leaves open, deliberately:** Phase A now costs a model call, which the route
 previously guaranteed it never did. **Metering must not assume Phase A is free** when the
-paid locks return — a package created and abandoned costs one structuring call. The
+paid locks return â€” a package created and abandoned costs one structuring call. The
 charge point is still Phase B.
 
 ---
 
-## ~~Extraction can produce a work entry with no start date, and the save 500s~~ — **fixed 2026-09-05**
+## ~~Extraction can produce a work entry with no start date, and the save 500s~~ â€” **fixed 2026-09-05**
 
 `PUT /api/profile` now validates that a NOT NULL date can actually be stored, and answers
 **400 `work_experience.start_date`** instead of letting Postgres raise a 500. Storage
@@ -341,14 +341,14 @@ dates.
 
 ---
 
-## The anonymous Job Match twin — dead code that still spends money (2026-09-04)
+## The anonymous Job Match twin â€” dead code that still spends money (2026-09-04)
 
 The standalone Job Match service was removed on 2026-09-04 (see the decision log). Its
 **anonymous counterpart survives in `/api/ats-scan`'s POST handler**, which still runs
 extraction, job-description structuring and the LLM match explanation.
 
 **Nothing reaches it.** `/ats-scan` has redirected to `/gulf-readiness-score` since
-2026-08-18, and that POST is the only writer of anonymous sessions — so
+2026-08-18, and that POST is the only writer of anonymous sessions â€” so
 `/api/ats-scan/session`, the signup claim in `/api/anonymous-session/claim`, and the
 Job Match block on the `/gulf-readiness` results page are all already unreachable in
 practice. It is also the last caller of `lib/ai/jobMatchExplanation.ts` and the only
@@ -363,34 +363,34 @@ worth a deliberate change rather than a side effect of removing a different feat
 
 ---
 
-## Found in the 2026-09-12 walk-through — each needs a founder answer
+## Found in the 2026-09-12 walk-through â€” each needs a founder answer
 
 Seen live on production with a throwaway account. Each changes data, scoring or a write
 path, so none was changed in the presentation pass (see the decision log, 2026-09-12).
 
-**W-1 · Every auto-saved profile prints "Visa not transferable" on its CV.** A CV that says
+**W-1 Â· Every auto-saved profile prints "Visa not transferable" on its CV.** A CV that says
 nothing about visas becomes `visa_transferable: false` in `fromDraft`
 (`app/profile/page.tsx`), the auto-save stores it, and `lib/resumeDocument.ts` prints
-`false` as "Visa not transferable" — a negative claim the user never made, in the header of
+`false` as "Visa not transferable" â€” a negative claim the user never made, in the header of
 the document they send to employers. **Recommended fix:** keep "not stated" as null through
 the editor, so nothing prints until the user answers. Small, but it touches the profile
 save contract and the delivered-document builder. Profiles saved before the fix may already
 hold a `false` nobody chose.
 
-**W-2 · Profile Strength awards points for fields the optimizer ignores.** Target country
+**W-2 Â· Profile Strength awards points for fields the optimizer ignores.** Target country
 (+2) and target company (+1) are scored and listed under "what raises your score", while
 the optimizer stopped reading both on 2026-08-18. Stop scoring them, or say what they are
 for.
 
-**W-3 · Cover-letter edits are not stored.** The boxes are editable and the page now says
-the changes are not saved. Persisting them needs a write path — is it wanted?
+**W-3 Â· Cover-letter edits are not stored.** The boxes are editable and the page now says
+the changes are not saved. Persisting them needs a write path â€” is it wanted?
 
-**W-4 · Re-optimize deletes the old job outright** — its CV, cover letters and stage — once
+**W-4 Â· Re-optimize deletes the old job outright** â€” its CV, cover letters and stage â€” once
 the new one exists. The prompt now says so plainly. Keep that, or keep the old version?
 
-**W-5 · A profile recreation counts even when nothing is saved.** `lib/recreateLimit.ts`
+**W-5 Â· A profile recreation counts even when nothing is saved.** `lib/recreateLimit.ts`
 counts a successful CV read, by design (a read is a paid model call). Seen live: a Replace
-with a CV that has no phone stopped on "Phone number is required", saved nothing — and the
+with a CV that has no phone stopped on "Phone number is required", saved nothing â€” and the
 user went from 1 of 2 to 0 of 2. "Keep my profile as it is" also spends one. Keep counting
 at the read (it is the cost), or count only when a reading is saved?
 
@@ -400,7 +400,7 @@ at the read (it is the cost), or count only when a reading is saved?
 
 These block work. Nothing else in this file matters as much as the first one.
 
-### A1 · Which payment provider — **blocking all revenue**
+### A1 Â· Which payment provider â€” **blocking all revenue**
 
 Razorpay's KYC is India-only and the founder is based in Saudi Arabia. There is **no
 self-serve checkout**. Today a customer pays only via a promo code issued by hand or an
@@ -412,7 +412,7 @@ primarily India-based audience.
 
 **Until this is answered the product cannot take money from a stranger.**
 
-### A2 · Career Profile Resume implemented; commerce gates deferred
+### A2 Â· Career Profile Resume implemented; commerce gates deferred
 
 2026-10-08: the existing Library creates one persistent profile-only resume, labelled
 **Raw Career Profile Data**, using all 50 templates and PDF without AI or credits.
@@ -420,62 +420,62 @@ Editing uses Career Profile; optimized snapshots remain independent. No migratio
 Admin entitlement controls remain unenforced while the existing payment locks are off.
 Authenticated production journey still needs founder login for verification.
 
-### A3 · Long-term pricing model — **decided: monthly subscription, deferred**
+### A3 Â· Long-term pricing model â€” **decided: monthly subscription, deferred**
 
 Founder decision 2026-08-17: plans will be **monthly**. Nothing is built and nothing
 should be built until the core product works. **It constrains A1: the payment provider
 must support recurring billing.**
 
-What exists today is one-time credits that never expire — not a subscription. Making it
+What exists today is one-time credits that never expire â€” not a subscription. Making it
 one needs expiry, renewal and reset, which is a schema change, not a config change.
 
 The two bundle tiers on the landing page remain real prices with no purchase path.
 
-### A4 · Legal content — **unblocked 2026-09-09, now waiting only on words**
+### A4 Â· Legal content â€” **unblocked 2026-09-09, now waiting only on words**
 
 There are still no privacy, terms or refund pages. What changed is that writing them no
 longer needs a developer.
 
 **Migration 046 + `/admin/content`.** The three pages live in `site_content` and are
-written and published from the admin panel — same posture as prices and prompt templates
-(`03_ARCHITECTURE.md` §6). Public routes render them at `/privacy`, `/terms`, `/refund`.
+written and published from the admin panel â€” same posture as prices and prompt templates
+(`03_ARCHITECTURE.md` Â§6). Public routes render them at `/privacy`, `/terms`, `/refund`.
 
 **Nothing is written on the founder's behalf**, and that is deliberate: inventing legal
 terms is exactly the class of claim `02_PHILOSOPHY.md` forbids. The rows are seeded
 empty and unpublished.
 
 **A page is invisible until it is written AND published.** An unpublished or empty page
-404s, and the footer links only what is published — so a half-finished privacy policy
+404s, and the footer links only what is published â€” so a half-finished privacy policy
 can never be reachable, and the footer can never advertise a page that says nothing.
 
 **Still the highest-value open item.** The product collects date of birth, nationality,
 passport TYPE and expiry date, visa status and transferability, phone, WhatsApp, email,
-photo and full work histories — and, since 2026-09-11, keeps an unconfirmed CV reading until
+photo and full work histories â€” and, since 2026-09-11, keeps an unconfirmed CV reading until
 the user decides what to do with it (`pending_profile_drafts`), which the policy must also
 say. (**Corrected 2026-09-09:** this said "passport numbers",
 which is wrong and was repeated into two code comments before anyone checked. Migration
-010 stores `passport_type` — an ECR / Non-ECR enum — and `passport_validity_date`. There
+010 stores `passport_type` â€” an ECR / Non-ECR enum â€” and `passport_validity_date`. There
 is no passport number column and there never may be; see
-[`05_SECURITY.md`](05_SECURITY.md) §7. The exposure is real without being that.)
+[`05_SECURITY.md`](05_SECURITY.md) Â§7. The exposure is real without being that.)
 
-No privacy policy is a trust problem in a market `01_PRODUCT.md` §3 describes as actively
+No privacy policy is a trust problem in a market `01_PRODUCT.md` Â§3 describes as actively
 targeted by scams, and a DPDP / GDPR question besides. **The remaining work is the founder writing three pages, and a lawyer reading
 them.**
 
-### A5 · Login method
+### A5 Â· Login method
 
 Email magic link is what ships. Mobile+OTP and Google were both once open options. The
-auth layer is provider-agnostic, so this is still changeable — but it should be decided
+auth layer is provider-agnostic, so this is still changeable â€” but it should be decided
 rather than defaulted into.
 
-### A6 · Package and batch rules
+### A6 Â· Package and batch rules
 
 Whether one payment is always one resume, or whether a batch across multiple targets is
 possible. No database constraint assumes either answer.
 
 ---
 
-### A7 · Bottom navigation — keep it, or go full website?
+### A7 Â· Bottom navigation â€” keep it, or go full website?
 
 The 2026-09-09 redesign brief said *"not an app with bottom navigation."* The shipped
 product has one: four thumb-reachable destinations, safe-area aware, converted to
@@ -486,12 +486,12 @@ hamburger puts every destination two taps away at the far end of the screen.
 
 It is the one point in that brief worth pushing back on, so it stays as it is until the
 founder says otherwise. Recorded here rather than acted on, because reversing it later
-costs more than deciding it now. The palette half of the same conflict **was** decided —
+costs more than deciding it now. The palette half of the same conflict **was** decided â€”
 "Option A", see [`15_DECISION_LOG.md`](15_DECISION_LOG.md) 2026-09-09.
 
 ## B. Defects and gaps, by severity
 
-### ~~B1 · Job Match scores zero on GCC experience for every anonymous scan~~ — **fixed 2026-09-04**
+### ~~B1 Â· Job Match scores zero on GCC experience for every anonymous scan~~ â€” **fixed 2026-09-04**
 
 The category counted only work entries carrying a `gcc_country` value, and that column is
 written by exactly one thing: a dropdown in the profile editor. Extraction never derived
@@ -500,7 +500,7 @@ Measured: a CV with 12 years in Abu Dhabi and Jubail, against a matching Senior 
 Engineer job description, scored **48/100 with three categories at zero**, while the
 semantic layer scored the same candidate 85/95/100.
 
-**Both halves are now closed** — see [`15_DECISION_LOG.md`](15_DECISION_LOG.md),
+**Both halves are now closed** â€” see [`15_DECISION_LOG.md`](15_DECISION_LOG.md),
 2026-09-04, for the two founder decisions and what was rejected.
 
 - `lib/jobMatch/gccLocation.ts` reads a GCC country out of the free-text location the
@@ -515,7 +515,7 @@ semantic layer scored the same candidate 85/95/100.
 **A derived country never overwrites a confirmed one**, and the evidence line says which
 is which. Scoring is identical either way; the user is still told the country was read
 from their resume rather than confirmed, so they can correct it. **Degree equivalence is
-additive** — the original substring match is kept and the two are UNION-ed, so nothing
+additive** â€” the original substring match is kept and the two are UNION-ed, so nothing
 that matched before can stop matching.
 
 **The grounding rule is untouched, and that was the design constraint, not an
@@ -524,7 +524,7 @@ from an employer's name, a nationality, a phone country code or a job title. No 
 location still means no country.
 
 **Verified:** `scripts/verify-gcc-experience.ts`, 47 assertions, including the measured
-case end to end and the false-positive set — "Bucharest, Romania" and "Ottoman Street"
+case end to end and the false-positive set â€” "Bucharest, Romania" and "Ottoman Street"
 must not read as Oman, "Sharjah Road, Karachi, Pakistan" must not become UAE experience,
 and Yemen and Iraq are Middle East but not GCC.
 
@@ -532,55 +532,55 @@ and Yemen and Iraq are Middle East but not GCC.
 Both are real, and both are ordinary English words that would fire on ordinary prose.
 Anyone extending the list should apply the same test.
 
-### ~~B2 · The landing page makes two claims that are not true~~ — **fixed 2026-08-19**
+### ~~B2 Â· The landing page makes two claims that are not true~~ â€” **fixed 2026-08-19**
 
 Both are gone: DOCX is no longer listed on any tier, and the checkout sentence now says
 plainly that card checkout is not live and a purchase is arranged directly. The pricing
-CTAs were corrected in the same pass — "Get Started" pointed at a checkout that does not
+CTAs were corrected in the same pass â€” "Get Started" pointed at a checkout that does not
 exist. Kept below because the *reason* it happened is the durable part.
 
 Both found 2026-08-17 while verifying pricing for this documentation.
 
-1. The ₹499 tier lists **"PDF + DOCX Download"**. The Word download was withdrawn and
+1. The â‚¹499 tier lists **"PDF + DOCX Download"**. The Word download was withdrawn and
    nothing links to it.
 2. The pricing section says **"Instant self-serve checkout today covers Resume
    Optimization"**. There is no self-serve checkout for anything.
 
 A paying customer could reasonably expect a Word file and an instant purchase, and
 receive neither. This is the exact failure mode
-[`02_PHILOSOPHY.md`](02_PHILOSOPHY.md) §2 exists to prevent, and it is copy drift rather
+[`02_PHILOSOPHY.md`](02_PHILOSOPHY.md) Â§2 exists to prevent, and it is copy drift rather
 than a coding error: both sentences were true of an earlier version of the product.
 
-### ~~B3 · The default resume template cannot be restyled~~ — narrower fix shipped 2026-08-19
+### ~~B3 Â· The default resume template cannot be restyled~~ â€” narrower fix shipped 2026-08-19
 
-**Gulf Premium is now styleable** — font, size, accent, photo size and photo on/off —
+**Gulf Premium is now styleable** â€” font, size, accent, photo size and photo on/off â€”
 through its own small, dedicated derivation in `GulfPremium.tsx`, not a port onto the
 shared engine. Every derived value falls back to the exact original constant when no
 override is set, and this was verified rather than assumed: the full 32,768-permutation
 golden baseline was re-run with no overrides and passed byte-identical
-(`docs/08_RESUME_ENGINE.md` §6).
+(`docs/08_RESUME_ENGINE.md` Â§6).
 
 **ATS Classic remains the one true exception, and that is now deliberate rather than
-incidental.** Its whole reason to exist is "maximum ATS compatibility" — a styling
+incidental.** Its whole reason to exist is "maximum ATS compatibility" â€” a styling
 control, especially a photo, works against that, so it stays fixed on purpose. The
 styling panel says so directly.
 
 **The full port onto the shared engine (W6, `WORK_QUEUE.md`) is still open and still
 deferred.** This fix closes the user-facing gap without taking on that Large,
-higher-risk rework — it is a narrower, safer answer to the same complaint, not a
+higher-risk rework â€” it is a narrower, safer answer to the same complaint, not a
 substitute for the eventual port if one is still wanted for its own sake (one rendering
 implementation instead of two, not a defect this leaves behind).
 
-### B4 · Profile-only PDF reachable — resolved 2026-10-08
+### B4 Â· Profile-only PDF reachable â€” resolved 2026-10-08
 
-The existing Library now offers Career Profile Resume → Customize and download →
+The existing Library now offers Career Profile Resume â†’ Customize and download â†’
 PDF using the package renderer and all 50 templates. The legacy `/api/resume/pdf`
 route remains compatible but has no new direct UI entry.
 
-### B5 · Unsaved profile edits are lost on navigation
+### B5 Â· Unsaved profile edits are lost on navigation
 
-**Partly resolved 2026-10-04.** The trigger named here — leaving the editor for the
-visibility screen — is gone: "what appears on your CV" is now the `?view=settings` screen
+**Partly resolved 2026-10-04.** The trigger named here â€” leaving the editor for the
+visibility screen â€” is gone: "what appears on your CV" is now the `?view=settings` screen
 of `/profile`, sharing the editor's state, and every profile screen (overview, full
 profile, completeness, Gulf Readiness, settings) is the same mounted page. **Still open:**
 leaving `/profile` for another route (dashboard, sidebar link) with unsaved edits loses
@@ -591,77 +591,77 @@ Original finding: leaving the editor for the visibility screen mid-typing unmoun
 form's state with no warning; returning reloaded the last **saved** state. Silent data
 loss on the product's main "confirm your profile" screen.
 
-Several reasonable fixes exist — auto-save before navigating, an unsaved-changes
+Several reasonable fixes exist â€” auto-save before navigating, an unsaved-changes
 warning, or carrying draft state through session storage the way the extraction handoff
 already does. **Deliberately not chosen unilaterally.**
 
-### B6 · Two routes one letter apart mean different things
+### B6 Â· Two routes one letter apart mean different things
 
 **Half-resolved 2026-09-11.** `/gcc-readiness` is now only a redirect into `/profile`
 (Career Profile and Profile Strength became one page), so the one-letter trap no longer
 leads to two different pages. What remains is the anonymous side: `/gulf-readiness` (the
-old scan's results) beside `/gulf-readiness-score` (the current Scorecard) — see
+old scan's results) beside `/gulf-readiness-score` (the current Scorecard) â€” see
 `WORK_QUEUE.md` W8.
 
-### ~~`text-ink-400` fails contrast on every surface~~ — **fixed 2026-09-08**
+### ~~`text-ink-400` fails contrast on every surface~~ â€” **fixed 2026-09-08**
 
-`ink-400` is the app's muted-text colour — helper text, timestamps, field hints,
-secondary labels — across **314 call sites in 53 files**. At `#6B7A8D` it failed WCAG AA
+`ink-400` is the app's muted-text colour â€” helper text, timestamps, field hints,
+secondary labels â€” across **314 call sites in 53 files**. At `#6B7A8D` it failed WCAG AA
 on every surface it was used on: 4.38:1 on white cards, 4.15:1 on the page ground,
 3.86:1 on insets.
 
 **Founder decision 2026-09-08: darken the token** rather than move 314 uses to a
-different one. Same hue at 89% lightness, `#5F6D7D` — 5.29 / 5.02 / 4.67, all passing,
+different one. Same hue at 89% lightness, `#5F6D7D` â€” 5.29 / 5.02 / 4.67, all passing,
 and no call site touched.
 
 **Verified the way the `forest` rename was:** every colour declaration in the compiled
 stylesheet compared before and after. Exactly two changed, both the `ink-400` value.
 Nothing else moved.
 
-`ink-400-dark` was checked in the same pass and needed no change — 7.37:1 on
+`ink-400-dark` was checked in the same pass and needed no change â€” 7.37:1 on
 `navy-deepest`, 6.24:1 on `surface-dark`.
 
 ---
 
-### ~~Text below 12px, 238 occurrences~~ — **fixed 2026-09-08**
+### ~~Text below 12px, 238 occurrences~~ â€” **fixed 2026-09-08**
 
 Raised to a 12px floor and consolidated: 305 sizes across 46 files, 24 distinct sizes
-down to 16. Headings (17px+) deliberately untouched — they belong with `PageShell`
+down to 16. Headings (17px+) deliberately untouched â€” they belong with `PageShell`
 adoption. Two mobile nav labels stopped fitting at the larger size and now use a
-bar-only short label. See [`12_DESIGN_SYSTEM.md`](12_DESIGN_SYSTEM.md) §1b.
+bar-only short label. See [`12_DESIGN_SYSTEM.md`](12_DESIGN_SYSTEM.md) Â§1b.
 
-### ~~B7 · Colour tokens are named for the wrong colours~~ — **fixed 2026-09-08**
+### ~~B7 Â· Colour tokens are named for the wrong colours~~ â€” **fixed 2026-09-08**
 
 `forest` was navy and `forest-dark` was a light blue. Renamed across 50 files to
 `navy` / `navy-deep` / `navy-deepest` / `navy-tint` / `navy-tint-dark` / `sky`, and
-**the `forest*` aliases were deleted** — which is the part that actually closes it. While
+**the `forest*` aliases were deleted** â€” which is the part that actually closes it. While
 both names resolved, the trap stayed armed.
 
 Verified by comparing all 191 colour declarations in the compiled stylesheet before and
 after: identical. `lib/resumeStyle.ts`'s **Forest** resume accent (`#2A6F4E`) is a real
 green a user picks for their CV, is unrelated, and was left alone.
 
-Detail in [`12_DESIGN_SYSTEM.md`](12_DESIGN_SYSTEM.md) §1.
+Detail in [`12_DESIGN_SYSTEM.md`](12_DESIGN_SYSTEM.md) Â§1.
 
-### ~~B7b · Three gaps on the AI provider control panel~~ — **resolved 2026-08-17**
+### ~~B7b Â· Three gaps on the AI provider control panel~~ â€” **resolved 2026-08-17**
 
 All three fixed: the third runtime tier exists (default as last resort, skipping any
 provider-and-model already tried), the screen now states that a fallback needs provider,
-model *and* key together, and the service cards are generated from the single registry —
+model *and* key together, and the service cards are generated from the single registry â€”
 so `job_description` and `job_match_explanation` are first-class rather than buried under
 "other overrides", and a new service appears the moment it exists.
 
 **The service list is now in one place**, which also removes the silent-typo class of bug
 the bundle screen warns about on its own face.
 
-### ~~B7c · The prompt admin screen edits nothing~~ — **resolved 2026-08-17**
+### ~~B7c Â· The prompt admin screen edits nothing~~ â€” **resolved 2026-08-17**
 
 Replaced by versioned prompts with draft-then-publish. See
-[`06_AI_PIPELINE.md`](06_AI_PIPELINE.md) §2b. **Nothing is published yet**, which is the
-correct state — each service adopts a stored prompt as it is migrated onto the control
+[`06_AI_PIPELINE.md`](06_AI_PIPELINE.md) Â§2b. **Nothing is published yet**, which is the
+correct state â€” each service adopts a stored prompt as it is migrated onto the control
 layer, and until then runs on its in-code prompt.
 
-### B8 · Two small things on the optimize route, seen and accepted
+### B8 Â· Two small things on the optimize route, seen and accepted
 
 Recorded so the next person does not rediscover them as surprises.
 
@@ -670,9 +670,9 @@ Recorded so the next person does not rediscover them as surprises.
    one-at-a-time cap per user (migration 049), so a second tab is refused as busy before
    it reaches the model.
 2. Creating a package spends no rate-limit slot, so package rows can be created without
-   limit. Storage only — no cost, no user-visible effect.
+   limit. Storage only â€” no cost, no user-visible effect.
 
-### B9 · Accepted tradeoffs, not defects
+### B9 Â· Accepted tradeoffs, not defects
 
 - **A malformed model response does not consume a rate-limit slot**, though the call cost
   money. Charging a user's daily attempt for a random model hiccup is worse.
@@ -687,21 +687,21 @@ Recorded so the next person does not rediscover them as surprises.
 - **Revisiting onboarding with an existing profile** would give a draft-only editor whose
   save could overwrite existing customisations. No UI path reaches it today.
 - **The print tokens file and the Tailwind config must be kept in step by hand.** Print
-  templates cannot use Tailwind classes at all — see
-  [`08_RESUME_ENGINE.md`](08_RESUME_ENGINE.md) §5.
+  templates cannot use Tailwind classes at all â€” see
+  [`08_RESUME_ENGINE.md`](08_RESUME_ENGINE.md) Â§5.
 - **`next.config.mjs` still ships Chromium to a deleted route.** The blurred-preview
   renderer is gone; its file-tracing entry remains. Harmless, and worth removing next time
   that file is touched.
 - **Deleting a user erases what was spent on them.** `ai_usage_log.user_id` is
   `ON DELETE CASCADE`. Found 2026-09-04 when the new smoke test's cleanup made its own
   spend rows vanish. Left alone deliberately: it is a retention decision that belongs
-  with the privacy policy (§A4), not a defect to fix unilaterally. The likely answer is
-  `ON DELETE SET NULL` — the financial record survives, the link to the person does not.
+  with the privacy policy (Â§A4), not a defect to fix unilaterally. The likely answer is
+  `ON DELETE SET NULL` â€” the financial record survives, the link to the person does not.
 - **Extraction can never produce `currently_in_gulf`, and saving a profile requires it.**
   The extraction prompt explicitly forbids the key and `normalizeDraft` strips it, while
   `PUT /api/profile` rejects a body without it as `Invalid field: currently_in_gulf`.
-  Nothing is broken today — the profile editor is the only caller and it defaults the
-  field to `false` — but the two contracts contradict each other and only a client-side
+  Nothing is broken today â€” the profile editor is the only caller and it defaults the
+  field to `false` â€” but the two contracts contradict each other and only a client-side
   default bridges them. **Anyone writing a second caller (an auto-save, a mobile client,
   a new route) will hit a 400 naming a field a resume can never supply.** Found
   2026-09-04 by the smoke test doing exactly that.
@@ -714,11 +714,11 @@ Not defects. They constrain how confidently anything can be verified, and every
 statement of "verified" in this documentation should be read against them.
 
 1. **No authenticated page has ever been SEEN in a live browser** from the CTO's
-   environment — there is no real login session available, so every signed-in screen is
+   environment â€” there is no real login session available, so every signed-in screen is
    verified by diff, build and reasoning rather than by being looked at.
    **Narrowed 2026-09-04 to the visual layer only.** `scripts/e2e-smoke.mjs` now creates
    a throwaway account, mints a real session cookie and drives the authenticated ROUTES
-   end to end — 56 assertions covering extraction, profile save, Job Match, package
+   end to end â€” 56 assertions covering extraction, profile save, Job Match, package
    creation and generation, PDF download and the cover letter, plus the auth wall and
    spend logging. What remains unverified is rendering: layout, styling and anything a
    person would notice by looking.
@@ -738,7 +738,7 @@ Separate branch only. Pending: preview migration 057, transcription credentials,
 Recorded voice update (2026-09-26): founder authorized the existing database; migration 057 is applied and storage/RLS verified. Question TTS is removed for this version. Remaining gates: Vercel branch preview environment values, STT key, scheduled worker and configured end-to-end testing.
 
 
-## 2026-10-08 verification gaps — Career Profile Resume
+## 2026-10-08 verification gaps â€” Career Profile Resume
 
 - Full automated release suite: 39/39 scripts passed; disposable database suite
   includes 131 assertions, including one-per-user raw quota and cross-user denial.
@@ -767,7 +767,7 @@ Recorded voice update (2026-09-26): founder authorized the existing database; mi
 - Raw resume naming is visible at phone widths; optimized workspace naming keeps
   its existing desktop presentation. Actual device interaction remains unverified.
 
-## 2026-10-09 — LinkedIn release verification and existing PDF diagnostic
+## 2026-10-09 â€” LinkedIn release verification and existing PDF diagnostic
 
 The LinkedIn service has deterministic/API/real-SQL tests plus browser fixture
 coverage at 320/390/768/1440 widths. Signed-in production generation and provider

@@ -1,20 +1,20 @@
-# Current application typography — 2 November 2026
+﻿# Current application typography â€” 2 November 2026
 
-MENAJOBS-TYPE-001 replaces the historical scales below. Implemented in app/typography.css: mobile/desktop hero36/48, page28/32, section21/24, card17/18, body15/16, label14, helper13/14, button14/15, caption12/13px; inputs16px. Inter retained. See [implementation and QA report](MENAJOBS_TYPOGRAPHY_2026-11-02.md) for measured reference evidence, protected documents and release limits. Historical sections below explain earlier decisions, not current tokens.
+MENAJOBS-TYPE-001 replaces the historical scales below. Implemented in app/typography.css: mobile/desktop hero36/48, page28/32, section21/24, card17/18, body15/16, label14, helper13/14, button14/15, caption12/13px; inputs16px. Inter retained. See `implementation and QA report` (archived) for measured reference evidence, protected documents and release limits. Historical sections below explain earlier decisions, not current tokens.
 
-# Compact shared typography — 26 October 2026
+# Compact shared typography â€” 26 October 2026
 
-COMPACT-BRAND-001 uses Inter, body15px/1.55, helper/label/button14px, captions12px, inputs16px/1.5; page headings22px mobile/26px desktop at700, section headings18/20px at600, cards16px at600. Landing hero30–48px and sections22–30px. Root typography.css owns the scale; internal levels consume aliases instead of duplicating values. Documents are isolated. Implemented and locally checked; release pending. See COMPACT_BRAND_2026-10-26.md. Earlier sections below retain historical rationale.
+COMPACT-BRAND-001 uses Inter, body15px/1.55, helper/label/button14px, captions12px, inputs16px/1.5; page headings22px mobile/26px desktop at700, section headings18/20px at600, cards16px at600. Landing hero30â€“48px and sections22â€“30px. Root typography.css owns the scale; internal levels consume aliases instead of duplicating values. Documents are isolated. Implemented and locally checked; release pending. See COMPACT_BRAND_2026-10-26.md. Earlier sections below retain historical rationale.
 
-## CSS ownership cleanup — 26 October 2026
+## CSS ownership cleanup â€” 26 October 2026
 
-CSS-CLEANUP-001 preserves the current computed typography. typography.css remains the sole type-scale owner; necessary important rules and document exclusions remain. Obsolete competing module/global declarations are removed and mobile/desktop layouts use responsive.css. See [CSS_CLEANUP_2026-10-26.md](CSS_CLEANUP_2026-10-26.md) for exact equivalence evidence and release status.
+CSS-CLEANUP-001 preserves the current computed typography. typography.css remains the sole type-scale owner; necessary important rules and document exclusions remain. Obsolete competing module/global declarations are removed and mobile/desktop layouts use responsive.css. See `CSS_CLEANUP_2026-10-26.md` (archived) for exact equivalence evidence and release status.
 
-# Current direction — reference typography, 25 October 2026
+# Current direction â€” reference typography, 25 October 2026
 
-SOFT-INDIGO-001 adopts the selected SkillDrift reference with existing bundled Inter. Current scale remains central in app/typography.css: page headings24/28px with800 weight; sections18/20px600; body16px400 at1.625 line; controls16px; helper14px; caption12px. Auth title26px800, desktop story40px800, field labels15px700. Marketing retains its responsive display scale with800 headline emphasis. Only headings receive stronger weight; body stays regular. Auth-specific roles are still configured centrally. Resume/template typography is protected. See [SOFT_INDIGO_2026-10-25.md](SOFT_INDIGO_2026-10-25.md). Earlier sections below are dated context.
+SOFT-INDIGO-001 adopts the selected SkillDrift reference with existing bundled Inter. Current scale remains central in app/typography.css: page headings24/28px with800 weight; sections18/20px600; body16px400 at1.625 line; controls16px; helper14px; caption12px. Auth title26px800, desktop story40px800, field labels15px700. Marketing retains its responsive display scale with800 headline emphasis. Only headings receive stronger weight; body stays regular. Auth-specific roles are still configured centrally. Resume/template typography is protected. See `SOFT_INDIGO_2026-10-25.md` (archived). Earlier sections below are dated context.
 
-# Clear Path internal typography — 24 October 2026
+# Clear Path internal typography â€” 24 October 2026
 
 Current internal configuration is the `.app-type.internal-ui` block in `app/typography.css`. It overrides the preserved public baseline below. AppShell and opted-in internal portals use it; public landing/menu and authored documents do not.
 
@@ -31,7 +31,7 @@ Current internal configuration is the `.app-type.internal-ui` block in `app/typo
 | Caption | 12px | 12px |
 | Input | 16px | 16px |
 
-Each heading has its own `--ui-hN-size`. Shared weights/lines and the body aliases live in the same block. Inter remains the existing bundled family. Change code-owned tokens here; there is no new end-user design control panel. Shared spacing/palette/control configuration remains in `app/ui-system.css`; existing mobile/desktop public defaults are retained to protect landing. See [CLEAR_PATH_ROLLOUT.md](CLEAR_PATH_ROLLOUT.md) for scope, tests and release evidence.
+Each heading has its own `--ui-hN-size`. Shared weights/lines and the body aliases live in the same block. Inter remains the existing bundled family. Change code-owned tokens here; there is no new end-user design control panel. Shared spacing/palette/control configuration remains in `app/ui-system.css`; existing mobile/desktop public defaults are retained to protect landing. See `CLEAR_PATH_ROLLOUT.md` (archived) for scope, tests and release evidence.
 
 ## Preserved baseline and historical rationale
 
@@ -43,7 +43,7 @@ The visual reference is **How it works popup**. `app/typography.css` owns every 
 |---|---:|---:|---:|---|
 | Page heading | 20px | 22px | 600 | h1 / type-title |
 | Section heading | 20px | 22px | 600 | h2 / type-section |
-| Subheading | 16px | 18px | 600 | h3–h6 / type-card |
+| Subheading | 16px | 18px | 600 | h3â€“h6 / type-card |
 | Paragraph, list, normal copy | 15px | 16px | 400 | p, li, dd / type-body |
 | Input and textarea | 16px | 16px | 400 | input, textarea, select |
 | Field label | 14px | 14px | 500 | label, legend, dt / type-label |
@@ -88,7 +88,7 @@ The How it works popup is the visual reference for the entire application. Page 
 
 All these roles remain controlled in `app/typography.css`. The title, description, reading and introduction tokens are aliases, so changing the shared section or body token updates every corresponding role together. Input size stays independent to prevent phone zoom. Resume template fonts, sizes, weights and export layouts remain isolated by the document boundaries above.
 
-## MENAJOBS-TYPE-001 — approved 2 November 2026; implementation pending
+## MENAJOBS-TYPE-001 â€” approved 2 November 2026; implementation pending
 
 Founder authorizes a presentation-only global typography rebuild against live MenaJobs home/extension. Retain bundled Inter, brand, functional layouts, animations, navigation and all service logic. Use one existing owner (`app/typography.css`), with mobile/desktop roles: hero36/48, page28/32, section21/24, card17/18, body15/16, label14/14, helper13/14, button14/15, caption12/13px. Regular400, label500, section/card/button600, page/hero700; body1.55, heading1.25, hero1.15. Desktop breakpoint768px. Inputs16px. Restrained tracking; preserve local functional spacing, normalize only immediate heading-description rhythm. Semantic headings must override legacy utility sizes; explicit helper/caption roles must work on paragraphs.
 

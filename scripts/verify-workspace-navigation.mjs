@@ -1,4 +1,4 @@
-/** Real React screens with isolated, synthetic API replies and production CSS.
+﻿/** Real React screens with isolated, synthetic API replies and production CSS.
  * Run after build: CHROME_PATH=/path/to/chromium node scripts/verify-interview-ui.mjs
  * No production account, AI, storage or microphone calls.
  */
@@ -61,7 +61,9 @@ try {
       return json({}, 404)
     } catch (e) { errors.push(e.message); await r.abort().catch(() => {}) }
   })
-  mkdirSync('docs/desktop-redesign',{recursive:true})
+  // Browser evidence belongs under artifacts/, not docs/ â€” verification runs must
+// never write into the documentation tree (2026-11-17 cleanup).
+mkdirSync('artifacts/workspace-navigation',{recursive:true})
   const required=['/dashboard','/dashboard/library','/optimize/target','/templates','/cover-letter','/interview-qa','/mock-interview','/linkedin-optimization','/naukrigulf-optimization','/profile','/settings']
   for(const width of [360,390,430,768,1024,1366,1440]){
     await page.setViewport({width,height:900})
@@ -72,7 +74,7 @@ try {
     const title=await page.$eval('h1',el=>({size:getComputedStyle(el).fontSize,weight:getComputedStyle(el).fontWeight,internal:!!el.closest('.internal-ui')}))
     assert.equal(title.size,width>=768?'20px':'19px')
     assert.equal(title.weight,'600','Compact candidate identity uses semibold')
-    await page.screenshot({path:`docs/desktop-redesign/dashboard-${width}.webp`,type:'webp',fullPage:true})
+    await page.screenshot({path:`artifacts/workspace-navigation/dashboard-${width}.webp`,type:'webp',fullPage:true})
     await page.click('[data-mobile-header] button[aria-label="All services"]')
     await page.waitForSelector('[role="dialog"]')
     assert.equal(await page.$eval('body',el=>el.style.overflow),'hidden')
@@ -80,8 +82,8 @@ try {
     required.forEach(href=>assert.ok(hrefs.includes(href),`Missing ${href}`))
     assert.ok(!hrefs.includes('/settings?tab=delete'),'Data deletion is accessed through Settings, without a duplicate menu shortcut')
     assert.equal(await page.$$eval('[role="dialog"] form button',els=>els.filter(el=>el.textContent.includes('Sign out')).length),1)
-    await page.screenshot({path:`docs/desktop-redesign/services-${width}.webp`,type:'webp'})
-    if(width===390){await page.$eval('[role="dialog"] form button',el=>el.scrollIntoView({block:'end'}));await page.screenshot({path:'docs/desktop-redesign/services-account-390.webp',type:'webp'})}
+    await page.screenshot({path:`artifacts/workspace-navigation/services-${width}.webp`,type:'webp'})
+    if(width===390){await page.$eval('[role="dialog"] form button',el=>el.scrollIntoView({block:'end'}));await page.screenshot({path:'artifacts/workspace-navigation/services-account-390.webp',type:'webp'})}
     await page.keyboard.press('Tab')
     assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('aria-label')),'Close menu')
     await page.keyboard.down('Shift'); await page.keyboard.press('Tab'); await page.keyboard.up('Shift')
@@ -107,7 +109,7 @@ try {
       assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1))
       assert.equal(await page.$$eval('.studio-readiness progress',els=>els.every(el=>!el.hasAttribute('value') && el.getAttribute('aria-valuetext')==='Unavailable')),true,'Unavailable scores must not look like real zeroes')
       if(scenario==='new') assert.ok(await page.$('.studio-continue a[href="/profile?import=upload"]'),'Missing profile has one clear primary creation action')
-      await page.screenshot({path:`docs/desktop-redesign/dashboard-${scenario}-${width}.webp`,type:'webp',fullPage:true})
+      await page.screenshot({path:`artifacts/workspace-navigation/dashboard-${scenario}-${width}.webp`,type:'webp',fullPage:true})
     }
   }
   scenario='saved'
@@ -118,7 +120,7 @@ try {
   await page.$eval('[role="dialog"] form button',el=>el.scrollIntoView({block:'center'}))
   assert.ok(await page.$eval('[role="dialog"] form button',el=>{const r=el.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight}))
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1))
-  await page.screenshot({path:'docs/desktop-redesign/services-enlarged.webp',type:'webp'})
+  await page.screenshot({path:'artifacts/workspace-navigation/services-enlarged.webp',type:'webp'})
   assert.deepEqual(errors,[])
   assert.deepEqual(writes,[])
   console.log('PASS enlarged text, keyboard focus, account navigation, zero writes')

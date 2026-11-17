@@ -12,7 +12,7 @@
  * app/api/packages/[id]/pdf/route.ts launches a browser per request; 5 concurrent
  * requests = 5 concurrent Chrome instances).
  *
- * Records peak memory and writes docs/BOOT_REPORT.md. HARD STOP: if the peak
+ * Records peak memory and writes artifacts/PDF_LOADTEST_REPORT.md. HARD STOP: if the peak
  * exceeds 1GB, report it — the VPS may need resizing or rendering may need to
  * move to a dedicated service.
  */
@@ -20,7 +20,7 @@ import './resolve-paths'
 import { createElement } from 'react'
 import * as React from 'react'
 import { spawn } from 'node:child_process'
-import { writeFileSync, existsSync, readFileSync } from 'node:fs'
+import { writeFileSync, existsSync, readFileSync, mkdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import puppeteer from 'puppeteer'
 import GulfPremium from '../components/templates/GulfPremium'
@@ -400,7 +400,10 @@ Caveats, for an honest reading of this number:
   re-measured on the actual target VPS hardware, not this dev machine — CPU/memory
   characteristics differ and this number should not be taken as the production figure.
 `
-  const target = resolve(process.cwd(), 'docs/BOOT_REPORT.md')
+  // Load-test evidence belongs under artifacts/, not docs/ — verification runs
+  // must never write into the documentation tree (2026-11-17 cleanup).
+  mkdirSync(resolve(process.cwd(), 'artifacts'), { recursive: true })
+  const target = resolve(process.cwd(), 'artifacts/PDF_LOADTEST_REPORT.md')
   if (existsSync(target)) {
     writeFileSync(target, readFileSync(target) + '\n---\n\n' + report)
   } else {
