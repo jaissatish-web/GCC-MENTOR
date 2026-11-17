@@ -17,7 +17,7 @@ import s from '@/components/landing-v3/premium.module.css'
 const TITLE = 'Gulf Career Preparation & Interview Coaching | GCC MENTOR'
 const DESCRIPTION = 'One profile for job-specific resumes, cover letters and interview practice. Prepare for Gulf opportunities using your real experience.'
 export const metadata: Metadata = { title: { absolute: TITLE }, description: DESCRIPTION, alternates: { canonical: '/' }, openGraph: { title: TITLE, description: DESCRIPTION, url: '/', images: [{ url: '/landing/v2/hero-gulf.webp', width: 1586, height: 992, alt: 'GCC Mentor — grounded Gulf career preparation' }] }, twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION, images: ['/landing/v2/hero-gulf.webp'] } }
-const anchors = [['Preparation', '#services'], ['Templates', '#templates'], ['Interview', '#interview'], ['Access', '#plans'], ['About & access', '#about'], ['FAQ', '#faq']] as const
+const anchors = [['Preparation', '#services'], ['Templates', '#templates'], ['Interview', '#interview'], ['Access', '#plans'], ['About', '#about'], ['FAQ', '#faq']] as const
 const COUNTRIES = [['sa','Saudi Arabia'],['ae','UAE'],['qa','Qatar'],['om','Oman'],['kw','Kuwait'],['bh','Bahrain']] as const
 const journey = [
   { title: 'Career Profile', text: 'Review and confirm your facts.', Icon: UserRound, href: '/profile' },
@@ -85,7 +85,7 @@ export default function Home() {
       </div></div></section>
       <div className={s.lowerGrid}>
       <section id="plans" className={s.plansSection} data-uds="section" aria-labelledby="plans-title"><div className={s.inner}><div className={s.sectionHeadCenter}><h2 id="plans-title" className={s.sectionTitle} data-uds="marketing-title">Start with clarity</h2><p className={s.sectionLead}>Understand access before you begin.</p></div><div className={s.accessCards}>
-        <article className={s.accessCard}><span className={s.accessIcon}><Rocket size={27}/></span><div><h3>Free readiness</h3><p>Start before signup.</p><Link href="/gulf-readiness-score" className={s.textLink}>Check my free readiness <ArrowRight size={16}/></Link></div></article>
+        <article className={s.accessCard}><span className={s.accessIcon}><Rocket size={27}/></span><div><h3>Free readiness</h3><p>Start before signup.</p><Link href="/gulf-readiness-score" className={s.textLink}>Check my readiness <ArrowRight size={16}/></Link></div></article>
         <article className={s.accessCard}><span className={s.accessIcon}><FileText size={27}/></span><div><h3>Your workspace</h3><p>Create a free account. Service access and limits apply.</p><Link href="/signup" className={s.textLink}>Create my account <ArrowRight size={16}/></Link></div></article>
         <article className={s.accessCard}><span className={s.accessIcon}><ShieldCheck size={27}/></span><div><h3>More service access</h3><p>Sign in to check available credits or contact us.</p><Link href="/settings" className={s.textLink}>See my available services <ArrowRight size={16}/></Link></div></article>
       </div><p className={s.accessNote}>Card checkout is not live. Any direct purchase is agreed before payment.</p></div></section>

@@ -25,7 +25,7 @@ export function LandingSectionMenu({ anchors }: { anchors: ReadonlyArray<readonl
         <Link href="/privacy" onClick={close}>Privacy & data control</Link>
         <a href="#faq" onClick={close}>Common questions</a>
         <Link href="/signup" onClick={close}>Create an account</Link>
-        <Link href="/gulf-readiness-score" onClick={close}>Check My Free GCC Readiness</Link>
+        <Link href="/gulf-readiness-score" onClick={close}>Check my readiness</Link>
       </nav>
     </details>
   )
