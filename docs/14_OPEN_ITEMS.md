@@ -89,9 +89,64 @@ one-commit revert. Not a redesign: no layout, spacing, type or component changes
 records a measured defect and a proposed remedy only.
 
 
-For each item, expand with severity/user impact, root-cause evidence, exact files,
-measurable acceptance criteria, baseline/candidate results, PR and rollback before
-implementation. Default rollback is to revert the specific commit.
+| AUDIT-010 | **Signed-in mobile UX.** The public landing is clean at 390px (0 text under 13px, 0 targets under 44px, 0 overflow). The signed-in product is not: 13–41 text elements per page render at 12px and 7–11 interactive targets measure under 44px. Four icon links measure **18×44** — an 18px-wide hit area. | See the detail below. The 12px items are the `type-caption` token used as designed; the target-size anomaly is the real defect. | Small fix, needs cascade investigation first | **Open — detail below** |
+
+### AUDIT-010 — signed-in mobile measurements, and one unresolved cascade anomaly
+
+**Measured 17 November 2026**, 390×844 with the real test account, against production.
+
+| Page | Height | Screens | Horizontal overflow | Text <13px | Targets <44px | Targets <24px |
+|---|---|---|---|---|---|---|
+| dashboard | 2,303px | 2.7 | none | 17 | 11 | 11 |
+| profile | 1,653px | 2.0 | none | 41 | 7 | 7 |
+| tools | 1,466px | 1.7 | none | 13 | 7 | 7 |
+| resumes library | 1,036px | 1.2 | none | 13 | 7 | 7 |
+
+**Not a defect:** every undersized text element is exactly 12px and is the
+`type-caption` token, which the type scale defines. Captions at 12px are a design
+decision, not drift. Two exceptions use hardcoded values rather than a token:
+`.studio-brand` and `.studio-help` in `app/career-studio.css` (lines 712–798).
+
+**The real defect — a declared minimum that does not take effect.** Four links
+measure 18px wide:
+
+```
+18x44  WorkspaceHome_iconLink__I9sbq          "View saved work"
+18x44  WorkspaceHome_iconLink__I9sbq          "Manage applications"
+18x44  WorkspaceHome_iconLink__I9sbq          "Update documents and availability"
+18x44  InterviewProgressOverview_textLink__ZzfDy  "All interviews"
+```
+
+Their CSS declares the minimum:
+
+```css
+/* components/studio/WorkspaceHome.module.css:19 */
+.profileLink,.iconLink { min-width:44px; min-height:44px; display:grid; place-items:center; ... }
+/* components/dashboard/InterviewProgressOverview.module.css:18 */
+.textLink { margin-left:auto; min-width:44px; flex:none; }
+```
+
+The rule is present in the **served** CSS and the element carries the class:
+
+```css
+.WorkspaceHome_iconLink__I9sbq {min-width:44px;min-height:44px;display:grid;place-items:center;...}
+```
+
+Yet the measured computed value is `min-width: 0px` while `min-height` is the
+declared `44px`. **A declared minimum is being overridden, and the 44px height
+must be coming from a different rule.** That is the anomaly to resolve. Root cause
+is not yet identified, so no fix is proposed: the next step is to read the winning
+declaration with CDP `CSS.getMatchedStylesForNode` for one of these nodes rather
+than guessing at the cascade.
+
+**Why it matters.** An 18px-wide hit area is hard to tap deliberately and easy to
+miss, on the primary dashboard actions, on the device type most job seekers in
+this market use.
+
+**Not yet covered.** Deployment health and the remaining signed-in routes
+(`/templates`, `/interview-qa`, `/mock-interview`, `/settings`, `/create-resume`)
+timed out at 90s each during this sweep, so they are unmeasured rather than clean.
+
 
 For each approved investigation, expand its row with severity/user impact, root-cause evidence, exact files/workflows, measurable acceptance criteria, coverage, baseline/candidate results, expected benefit, actual cost, PR and rollback before implementation. Until measurements exist, results are **not measured**, not zero or improved. Default rollback for this documentation batch: close PR or revert its documentation commit; runtime proposals need their own rollback.
 
