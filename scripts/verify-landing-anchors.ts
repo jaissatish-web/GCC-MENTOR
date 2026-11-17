@@ -22,12 +22,15 @@ import './resolve-paths'
 import fs from 'fs'
 import path from 'path'
 
-const NAV = path.join(process.cwd(), 'components/landing-premium/PremiumLanding.tsx')
+// Retargeted 2026-11-17. This scan used to read
+// components/landing-premium/PremiumLanding.tsx and that folder's sections. The
+// live landing is app/page.tsx (which owns the `anchors` tuple passed to
+// PremiumNav) plus the components/landing-v3 composition, so the check was
+// validating a retired page while the live one went unverified.
 const PAGE = path.join(process.cwd(), 'app/page.tsx')
-// The active navigation and section IDs live in the premium landing composition.
-const SECTIONS = path.join(process.cwd(), 'components/landing-premium')
+const SECTIONS = path.join(process.cwd(), 'components/landing-v3')
 
-const nav = fs.readFileSync(NAV, 'utf8')
+const nav = fs.readFileSync(PAGE, 'utf8')
 const page = [PAGE, ...fs.readdirSync(SECTIONS).filter((f) => f.endsWith('.tsx')).map((f) => path.join(SECTIONS, f))]
   .map((f) => fs.readFileSync(f, 'utf8'))
   .join('\n')
@@ -48,7 +51,11 @@ function findAll(source: string, re: RegExp): string[] {
 }
 
 /** Only the hrefs inside the NAV tuple list, not any in prose or comments. */
-const itemsBlock = nav.slice(nav.indexOf('const anchors='), nav.indexOf('] as const'))
+// Tolerant of spacing: app/page.tsx writes `const anchors = [` while the retired
+// landing wrote `const anchors=[`. Search the declaration, then its first `[`.
+const anchorsAt = nav.indexOf('const anchors')
+const arrayStart = nav.indexOf('[', anchorsAt)
+const itemsBlock = nav.slice(arrayStart, nav.indexOf('] as const', arrayStart))
 const anchors = findAll(itemsBlock, /'(#[a-zA-Z0-9-]+)'/g)
 const ids = findAll(page, /id="([a-zA-Z0-9-]+)"/g).map((i) => `#${i}`)
 
