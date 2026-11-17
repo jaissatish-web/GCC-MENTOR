@@ -16,6 +16,11 @@
 .choiceCopy { flex:1; min-width:0; display:grid; gap:5px; }
 .choice strong { font-size:var(--uds-card-size); font-weight:var(--uds-heading-weight); line-height:var(--uds-heading-line); }
 .reason { display:none; color:var(--uds-muted); font-size:var(--uds-helper-size); line-height:var(--uds-body-line); }
+/* A selected or hovered choice paints --uds-brand-soft behind this text, and
+   --uds-muted (#64748B) on that mint measures 4.25:1 - below the 4.5:1 WCAG AA
+   minimum for 13px text. --ui-ink-soft (#52647A) on the same mint measures
+   5.39:1. Selected state is exactly when the reason is read, so it must pass. */
+.choice[aria-pressed=true] .reason,.choice:hover .reason { color:var(--ui-ink-soft); }
 .service { color:var(--uds-brand-hover); font-size:var(--uds-helper-size); font-weight:var(--uds-button-weight); line-height:var(--uds-body-line); }
 .concernIcon { flex-shrink:0; color:var(--uds-brand); width:24px; }
 .chevron { flex-shrink:0; color:var(--uds-brand-hover); }
