@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict'
 import { createRequire } from 'node:module'
 import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import { createSupabaseLikeDb, applyMigrations, asUser, asService, asAnon, createAuthUser } from './db/supabaseStub.mjs'
 
 const db = await createSupabaseLikeDb()
 try {
-  await applyMigrations(db, new URL('../supabase/migrations/', import.meta.url).pathname)
+  await applyMigrations(db, fileURLToPath(new URL('../supabase/migrations/', import.meta.url)))
   const a = await createAuthUser(db, 'dashboard-a@example.test')
   const b = await createAuthUser(db, 'dashboard-b@example.test')
   const c = await createAuthUser(db, 'dashboard-c@example.test')
