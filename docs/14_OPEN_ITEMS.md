@@ -89,7 +89,7 @@ one-commit revert. Not a redesign: no layout, spacing, type or component changes
 records a measured defect and a proposed remedy only.
 
 
-| AUDIT-010 | **Signed-in mobile UX.** The public landing is clean at 390px (0 text under 13px, 0 targets under 44px, 0 overflow). The signed-in product is not: 13–41 text elements per page render at 12px and 7–11 interactive targets measure under 44px. Four icon links measure **18×44** — an 18px-wide hit area. | See the detail below. The 12px items are the `type-caption` token used as designed; the target-size anomaly is the real defect. | Small fix, needs cascade investigation first | **Open — detail below** |
+| AUDIT-010 | **Signed-in mobile UX.** The public landing is clean at 390px (0 text under 13px, 0 targets under 44px, 0 overflow). The signed-in product was not: 7–11 targets per page measured under 44px, four of them only **18px wide**. The 12px text is the `type-caption` token used as designed, not drift. | Root cause found: `career-studio.css:1309` reset `min-width` on `a` and `button` with enough specificity to beat each component's own minimum. | One selector; verified locally with CDP matched styles | **Fixed in PR #108** |
 
 ### AUDIT-010 — signed-in mobile measurements, and one unresolved cascade anomaly
 
@@ -133,13 +133,44 @@ The rule is present in the **served** CSS and the element carries the class:
 ```
 
 Yet the measured computed value is `min-width: 0px` while `min-height` is the
-declared `44px`. **A declared minimum is being overridden, and the 44px height
-must be coming from a different rule.** That is the anomaly to resolve. Root cause
-is not yet identified, so no fix is proposed: the next step is to read the winning
-declaration with CDP `CSS.getMatchedStylesForNode` for one of these nodes rather
-than guessing at the cascade.
+declared `44px`. **A declared minimum was being overridden.**
 
-**Why it matters.** An 18px-wide hit area is hard to tap deliberately and easy to
+**Root cause, resolved with CDP `CSS.getMatchedStylesForNode`:**
+
+```
+[regular] .WorkspaceHome_iconLink__I9sbq, .WorkspaceHome_profileLink__xx2Lh
+            min-width:44px                      <- the intent, specificity (0,1,0)
+[regular] .app-type.internal-ui.career-studio .studio-home
+            :is(header,section,aside,div,a,button)
+            min-width:0                         <- the winner, specificity (0,4,0)
+```
+
+`app/career-studio.css:1309`. A layout reset written for containers was also
+resetting `a` and `button`, so it beat each component's own minimum. It sets
+**only** `min-width`, which is exactly why height survived at 44px while width
+collapsed to the width of the icon. Reading CSS alone could not surface this: the
+winning rule is four classes deep in a different file and the element never
+references it.
+
+**Fixed in PR #108** by dropping `a,button` from that reset:
+
+```diff
+-:is(header,section,aside,div,a,button) { min-width:0; }
++:is(header,section,aside,div)           { min-width:0; }
+```
+
+Two other rules that reset `min-width` on interactive elements
+(`ui-system.css:930`, `:970`) were examined and left alone: both do it on
+purpose, and the second sets `width:100%`, so its targets stay large.
+
+**Verified after the fix:** computed `min-width` `0px` → `44px`; bounding rect
+`18x44` → `44x44`; targets under 44px fall from 11 to 2 on `/dashboard` and from
+7 to 2 on `/profile`. The two remaining are inline text links, which WCAG 2.5.8
+Target Size exempts when constrained by surrounding line-height. No overflow was
+introduced: `scrollWidth == clientWidth == 390` on `/dashboard`, `/profile`,
+`/dashboard/library` and `/dashboard/tools`.
+
+**Why it mattered.** An 18px-wide hit area is hard to tap deliberately and easy to
 miss, on the primary dashboard actions, on the device type most job seekers in
 this market use.
 
