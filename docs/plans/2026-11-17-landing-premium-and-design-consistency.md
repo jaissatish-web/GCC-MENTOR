@@ -209,3 +209,37 @@ or adopt a different brand colour deliberately.
    product must stay hidden pre-signup?
 5. **Employer logos:** keep with corrected sizing, or replace entirely with a "prepared for
    roles like" list that makes no relational implication?
+
+---
+
+## MEASURED CORRECTION - mobile length is content-bound, not whitespace-bound
+
+Added 18 November 2026, after measuring the live landing at 390x844 rather than
+reasoning about it. This corrects an assumption carried in the earlier proposals:
+that reducing density and padding would meaningfully shorten the page.
+
+**It would not.**
+
+| section | total | its own padding | content | content share |
+|---|---|---|---|---|
+| interview | 2,218px | 56px | 2,162px | **97%** |
+| challenges | 1,517px | 64px | 1,453px | **96%** |
+| lowerGrid (plans) | 1,318px | 0px | 1,318px | **100%** |
+| templates | 1,241px | 64px | 1,177px | **95%** |
+| secondaryGrid | 1,188px | 0px | 1,188px | **100%** |
+| services | 1,132px | 56px | 1,076px | **95%** |
+
+**Total section padding across the whole page: 420px = 0.50 screens.** Halving
+every section's padding would save 210px, or **0.25 screens of 14.7 - about 1.7%**.
+
+Every large section is between 95% and 100% content. There is almost no
+whitespace to reclaim. The page is long because of what is on it, not because of
+how it is spaced.
+
+**Consequence for the decision.** The only lever that changes the 14.7 screens by
+a meaningful amount is reducing or condensing CONTENT - which is a founder
+decision about what the landing should say, not a design tweak. Any proposal that
+promises a shorter page without removing content should be treated as wrong.
+
+Retire the "reduce density/padding" line wherever it appears as a length fix. It
+survives only as a small polish item worth roughly a quarter of one screen.
