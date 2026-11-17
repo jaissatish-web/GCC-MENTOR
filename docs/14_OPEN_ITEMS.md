@@ -15,6 +15,27 @@ This is the sole unresolved-work surface. Entries below are proposals/investigat
 | QUALITY-009 | Older baseline/design/task documents disagree | Batch 1A adds scoped authority notices; out-of-allowlist historical cleanup deferred | Small; zero API cost | Batch 1A only approved |
 | QUALITY-010 | Current structural CI is not a measured AI-quality baseline | Record final-head evidence and failure/duplicate/save scenarios per approved service batch | Medium; offline first | Proposed |
 
+## Repository and live-site audit — 17 November 2026
+
+Raised by a repository audit and a live-site review (REA browser captures of
+`gcc-mentor.vercel.app`, plus a route sweep of all 46 static routes). Entries are
+observations, not implementation permission. **No fix has been applied.**
+
+| ID | Evidence and impact | Proposed next step | Effort / risk | Status |
+|---|---|---|---|---|
+| AUDIT-001 | `/naukrigulf-optimization/:path*` is **absent from the middleware matcher**, while `/linkedin-optimization/:path*` is present. `middleware.ts` calls itself "the first of the two independent checks", so this feature area currently has only the page-level check. Removing that second check would leave it unguarded. | Add the route family to the matcher; confirm no intended public sub-route is caught. Security-adjacent — needs its own batch. | Small; auth-adjacent, needs review | **Open — highest priority** |
+| AUDIT-002 | `/resume-design-lab` exists in `app/` but returns **404 in production**. `docs/18_OPTIMIZER_V3_LAB.md` describes it as available. | Determine whether it was never deployed or is broken, then fix or remove the route and correct the doc. | Small | Open |
+| AUDIT-003 | `lib/pricing.ts` states "no price is ever hard-coded — every amount comes from the `pricing` table", but **nothing imports it**. Either pricing lives elsewhere or DB-driven pricing was never wired. File was kept deliberately rather than deleted. | Confirm which. If unwired, either connect it or remove the claim and the file. | Small; payment-adjacent, needs review | Open |
+| AUDIT-004 | `api/linkedin/*` and `api/naukrigulf/*` routes are **95.1%, 91.1% and 76.4% identical** — ~511 duplicated lines across 6 files. Bug fixes must be applied twice; they have already drifted (AUDIT-007). | Extract shared logic behind one module with both route families calling it. Requires test coverage first. | Medium; both features are live | Open |
+| AUDIT-005 | **33 remote branches are unmerged and abandoned** (last commits Oct 24 – Nov 5, each 3–76 commits behind `main`), plus 10 already merged. `AGENTS.md` already specifies: compare, record name/SHA, preserve unique work durably, then delete. | Capture all heads on one archive tag, then delete. Do not merge old experimental logic. | Small; reversible | Open |
+| AUDIT-006 | Landing credibility: hero is a composited stock image (visible cut-out edge at 390px), and the employer wall shows 21 logos forced into one `160×52` box, producing wildly different optical weights. The disclaimer in `EmployerMarquee.tsx` is correct, but the visual claim outruns the fine print. | Replace the hero with a real product screenshot; reduce the wall to 6–9 logos with normalised optical sizing. | Medium; visual only | Open — founder review required |
+| AUDIT-007 | `/naukrigulf-optimization/workspace` redirects to `/login?redirectTo=/naukrigulf-optimization`, **dropping `/workspace`**; the LinkedIn equivalent keeps its full path. Post-login the user lands on the parent page. | Resolve naturally once AUDIT-004 shares the redirect logic. | Small | Open |
+| AUDIT-008 | `/gcc-readiness` requires login while `/gulf-readiness` is public — near-identical names with different access rules — while the product is branded **GCC** Mentor. | Choose one term and one access rule. | Small; naming decision | Open — founder decision |
+
+For each item, expand with severity/user impact, root-cause evidence, exact files,
+measurable acceptance criteria, baseline/candidate results, PR and rollback before
+implementation. Default rollback is to revert the specific commit.
+
 For each approved investigation, expand its row with severity/user impact, root-cause evidence, exact files/workflows, measurable acceptance criteria, coverage, baseline/candidate results, expected benefit, actual cost, PR and rollback before implementation. Until measurements exist, results are **not measured**, not zero or improved. Default rollback for this documentation batch: close PR or revert its documentation commit; runtime proposals need their own rollback.
 
 Superpowers plugin installation/activation remains a separate proposal; no additional dependency is authorized. PR #79/#80 blockers remain owned by their existing work, untouched.
