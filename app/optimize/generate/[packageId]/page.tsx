@@ -129,7 +129,7 @@ export default function GeneratePage(props: { params: Promise<{ packageId: strin
     return (
       <main className="ui-page ui-page-form page-gutter mx-auto w-full pb-10 font-redesign-sans">
         <div className="mx-auto w-full max-w-[480px] rounded-card border border-line bg-white p-8 text-center">
-          <h1 className="font-display text-[26px] leading-tight text-ink">We couldn&apos;t build it</h1>
+          <h1 className="font-display type-title leading-tight text-ink">We couldn&apos;t build it</h1>
           <Alert variant="danger" className="mt-4 text-left" title="Optimization interrupted">{error}</Alert>
           {/* Was "Your payment is safe … without paying twice" — there is no
               payment step while the locks are off, so it reassured the user

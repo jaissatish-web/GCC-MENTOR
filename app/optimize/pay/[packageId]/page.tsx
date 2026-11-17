@@ -119,7 +119,7 @@ function PaymentPageInner({ packageId }: { packageId: string }) {
         >
           ←
         </button>
-        <h1 className="font-display text-[27px] leading-tight text-ink">One payment. No surprises.</h1>
+        <h1 className="font-display type-title leading-tight text-ink">One payment. No surprises.</h1>
 
         {/* Order summary */}
         <div className="flex flex-col gap-3 rounded-card border border-line bg-white p-4.5">

@@ -249,7 +249,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
         {/* Header */}
         <div className="flex flex-col gap-1">
           <p className="font-mono type-helper uppercase tracking-[0.14em] text-ink-muted">Review · edit · save</p>
-          <h1 className="font-display text-[27px] leading-tight text-ink">Your optimized resume</h1>
+          <h1 className="font-display type-title leading-tight text-ink">Your optimized resume</h1>
           <p className="type-helper text-ink-soft">
             For <strong className="text-ink">{pkg.target_job_title}</strong>
             {pkg.target_company ? ` · ${pkg.target_company}` : ''} · {pkg.optimization_level === 'high' ? 'Hard' : pkg.optimization_level.charAt(0).toUpperCase() + pkg.optimization_level.slice(1)} optimization.

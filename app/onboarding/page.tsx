@@ -209,7 +209,7 @@ export default function OnboardingPage() {
 
         {/* Heading */}
         <div className="mt-8 flex flex-col gap-2">
-          <h1 className="font-display text-[28px] leading-tight text-ink sm:text-[32px]">
+          <h1 className="font-display type-title leading-tight text-ink">
             Let&apos;s build your Career Profile
           </h1>
           <p className="type-body leading-relaxed text-ink-soft">

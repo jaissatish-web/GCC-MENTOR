@@ -19,7 +19,7 @@ export default function ToolsPage() {
       <Link href="/tools" className="ui-button">Free Tools — calculators, resume checks and career utilities</Link>
       <section aria-labelledby="premium-services" className="min-w-0 space-y-4">
         <div className="flex items-center justify-between gap-3">
-          <h1 id="premium-services" className="flex items-center gap-2 type-section font-semibold text-ink"><SparklesIcon className="size-5 text-gold-ink" aria-hidden="true" /><span>Your tools</span></h1>
+          <h1 id="premium-services" className="flex items-center gap-2 type-title font-semibold text-ink"><SparklesIcon className="size-5 text-gold-ink" aria-hidden="true" /><span>Your tools</span></h1>
         </div>
 
         <div className="grid min-w-0 grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-3 lg:grid-cols-4">
