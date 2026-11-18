@@ -8,9 +8,10 @@ existing document, and reviewed two rendered concepts before approving.
 **Decision.** The application palette is replaced: ink `#12211D` and ink-soft `#5F6E69` on a
 warm ivory ground `#F6F3EC`, one primary action colour (`#0A4A3F`), one restrained premium
 accent (`#C8A45C` with `#8A6B2E` for accent text), and a single tuned set of status colours.
-Cards are 14px corners with no raised shadow, controls 10px. The type scale is corrected to the
-scale already documented in `docs/12_DESIGN_SYSTEM.md` (16px phone body, 26/30px page title,
-20/22px section, 14px helper, 24px marketing, 32/38px hero), which the code had drifted from.
+Cards are 14px corners with no raised shadow, controls 10px. The documented type-scale correction
+(16px phone body, 26/30px page title, 20/22px section, 14px helper, 24px marketing, 32/38px hero)
+is deliberately NOT part of this change: it re-baselines rendered typography in 13 verification
+scripts across three breakpoints, so it is proposed separately as its own reviewed batch.
 
 **Three deliberate corrections to colour semantics, all previously reported in the design audit.**
 
