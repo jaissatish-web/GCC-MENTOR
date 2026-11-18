@@ -93,7 +93,7 @@ export default async function LegalPage({
 
       <main className="mx-auto flex max-w-[760px] flex-col gap-5 px-3 py-9 sm:px-6">
         <div className="flex flex-col gap-1.5">
-          <h1 className="font-display text-[26px] font-bold leading-tight tracking-[-0.02em] text-ink sm:text-[30px]">
+          <h1 className="font-display type-title tracking-[-0.02em] text-ink">
             {page.title}
           </h1>
           <p className="text-[13px] text-ink-muted type-helper">Last updated: {updated}</p>

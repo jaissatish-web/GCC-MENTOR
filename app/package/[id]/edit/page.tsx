@@ -315,7 +315,7 @@ function EditResumeInner({ packageId }: { packageId: string }) {
     <main ref={editor} className={cn(styles.editor, 'mx-auto w-full max-w-[1400px] px-3 py-5 sm:px-5 lg:px-6')}>
       <div className="flex flex-col gap-3 border-b border-line pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-1">
-          <h1 className="text-[22px] font-bold leading-tight text-ink">Edit your resume</h1>
+          <h1 className="type-title leading-tight text-ink">Edit your resume</h1>
           <p className="type-helper text-ink-muted">
             Change any part of this resume. Changes apply to <strong className="text-ink">this resume only</strong> — your
             Career Profile stays as it is. Nothing is saved until you press Save.

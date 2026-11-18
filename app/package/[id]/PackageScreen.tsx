@@ -607,7 +607,7 @@ function PackageScreenInner({ id }: { id: string }) {
         <div className="flex min-w-0 flex-col gap-0.5 lg:shrink-0">
           <GulfContext>{isRaw ? 'Gulf resume · Career Profile' : 'Gulf application workspace'}</GulfContext>
           {isRaw ? <span className="self-start rounded-full bg-teal-soft px-3 py-1 type-caption font-semibold text-teal">{CAREER_RESUME_BADGE}</span> : null}
-          <h1 className="break-words font-display type-title leading-tight text-ink lg:type-section">
+          <h1 className="break-words font-display type-title leading-tight text-ink">
             {pkg.name || pkg.target_job_title}
           </h1>
           <p className="type-helper text-ink-soft">

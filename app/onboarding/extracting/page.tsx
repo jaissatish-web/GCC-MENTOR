@@ -136,7 +136,7 @@ function ExtractingScreen() {
             ←
           </Link>
 
-          <h1 className="mt-4 font-display text-[30px] leading-snug text-ink">
+          <h1 className="mt-4 font-display type-title leading-snug text-ink">
             {path === 'upload' ? 'Upload your resume' : 'Paste your resume'}
           </h1>
 
@@ -186,7 +186,7 @@ function ExtractingScreen() {
           <div className="mx-auto flex size-24 items-center justify-center rounded-card border border-line bg-canvas font-display text-3xl text-teal">
             !
           </div>
-          <h1 className="mt-6 font-display text-[27px] leading-tight text-ink">
+          <h1 className="mt-6 font-display type-title leading-tight text-ink">
             Your resume import needs attention
           </h1>
           <p className="mt-3 text-sm leading-relaxed text-ink-soft type-helper">{serverMessage}</p>
@@ -218,7 +218,7 @@ function ExtractingScreen() {
         <ProcessingOrbit size={176} glyph="CV" />
 
         <div className="text-center">
-          <h1 className="font-display text-[27px] leading-tight text-ink">Reading your resume</h1>
+          <h1 className="font-display type-title leading-tight text-ink">Reading your resume</h1>
           <p className="mt-2 type-helper leading-relaxed text-ink-soft">
             Reading your details and checking for missing or unclear information. This step stays active until your reading is ready.
           </p>

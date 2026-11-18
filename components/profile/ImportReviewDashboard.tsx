@@ -63,7 +63,7 @@ export function ImportReviewDashboard({ checks, reviewId, busy, saved, onEdit, o
   const passed = checks.filter(c => c.status !== 'optional' && resolved(c)).length
   const optional = checks.filter(c => c.status === 'optional' && !resolved(c)).length
   return <div className="border-t border-line p-4 sm:p-5">
-    <h3 className="type-section-title text-ink">Your resume, clearly checked</h3>
+    <h3 className="type-section text-ink">Your resume, clearly checked</h3>
     <p className="mt-1 type-helper text-ink-soft" role="status" aria-live="polite">{passed} checks passed · {pending} need review{optional ? ` · ${optional} optional wording suggestions` : ''}</p>
     <p className="mt-2 type-helper text-ink-muted">These are import and basic format checks, not an ATS score or a job-match score.</p>
     <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 type-caption text-ink-soft"><span className="inline-flex items-center gap-1"><CheckCircleIcon className="size-4 text-ok" aria-hidden="true" />Passed / confirmed</span><span className="inline-flex items-center gap-1"><ExclamationTriangleIcon className="size-4 text-alert" aria-hidden="true" />Needs review</span><span>Optional suggestions shown separately</span></div>
