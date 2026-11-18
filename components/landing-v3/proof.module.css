@@ -16,6 +16,7 @@
 .placeholder i:last-child,.paper i:last-child { width:65%; }
 .confirmed { display:flex; align-items:flex-start; gap:8px; margin:14px 0 8px!important; color:var(--uds-ink); font-size:var(--uds-helper-size)!important; font-weight:var(--uds-button-weight); line-height:var(--uds-body-line); }
 .confirmed svg { flex:none; color:var(--uds-brand); margin-top:2px; }
+.analysis .note { color:var(--ui-ink-soft); } /* --uds-muted (#64748B) on --uds-brand-soft (#E7F5F1) is 4.25:1, below the 4.5:1 WCAG AA floor for 13px; --ui-ink-soft (#52647A) is 5.39:1 */
 .note { color:var(--uds-muted); font-size:var(--uds-helper-size)!important; line-height:var(--uds-body-line); margin:10px 0 0!important; }
 .columnLabels { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:18px; padding-bottom:10px; color:var(--uds-ink); font-size:var(--uds-helper-size); font-weight:var(--uds-button-weight); }
 .requirements { list-style:none; padding:0; margin:0; background:var(--uds-surface); border-radius:8px; }
