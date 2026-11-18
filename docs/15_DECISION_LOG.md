@@ -37,45 +37,6 @@ role on every tinted surface recomputes at 4.5:1 or better; the run fails otherw
 merging deploys to production, so the change is delivered as one reviewable pull request and
 **merge remains a separate founder decision**.
 
-## 18 November 2026 — Premium palette: Ink & Champagne (replaces Executive Slate & Teal)
-
-**Founder instruction.** "This is a fixed colour palette… we need to change that one, it should
-look premium. Use your scheme and advise me as a mentor." The founder asked for the palette to
-be decided from the design problem rather than by fixing individual colours to match the
-existing document, and reviewed two rendered concepts before approving.
-
-**Decision.** The application palette is replaced: ink `#12211D` and ink-soft `#5F6E69` on a
-warm ivory ground `#F6F3EC`, one primary action colour (`#0A4A3F`), one restrained premium
-accent (`#C8A45C` with `#8A6B2E` for accent text), and a single tuned set of status colours.
-Cards are 14px corners with no raised shadow, controls 10px. The type scale is corrected to the
-scale already documented in `docs/12_DESIGN_SYSTEM.md` (16px phone body, 26/30px page title,
-20/22px section, 14px helper, 24px marketing, 32/38px hero), which the code had drifted from.
-
-**Three deliberate corrections to colour semantics, all previously reported in the design audit.**
-
-1. `.ui-button.bg-gold` was overridden to the brand teal inside the internal app scope, so the
-   documented "purchase" accent was visually identical to every ordinary next-step action. The
-   gold/purchase variant now carries the champagne accent with accent-ink text.
-2. The compatibility adapter scoped to `[data-website-ui] [data-uds="website-widget"]` remapped
-   accent, success-soft and error-soft onto brand tokens. Status colours no longer collapse
-   into the brand colour; that mapping is removed.
-3. The live-recording pill in the voice interview room used a raw `bg-red-500/90`, the only
-   alarm-red element in a calm screen. It now uses the champagne accent.
-
-**Scope discipline.** Colour, radius, shadow and type tokens only. No change to routes,
-navigation, user flow, data, auth, payments, prompts, scoring, or the resume/document renderer.
-Resume templates and PDF output are untouched by design; the app token cascade still excludes
-`[data-document-preview]`, `#resume-render` and `[data-typography="document"]`.
-
-**Evidence.** Palette and target values were measured from the design audit
-(`gcc-mentor-audit/GCC-MENTOR-DESIGN-AUDIT.md`) and the founder approved the concept images
-(`concept-01-premium-dashboard.png`, `concept-02-ai-and-voice.png`). Contrast for every text
-role on every tinted surface recomputes at 4.5:1 or better; the run fails otherwise.
-
-**Approval boundary.** Preparation and this change are authorized. `main` is protected and
-merging deploys to production, so the change is delivered as one reviewable pull request and
-**merge remains a separate founder decision**.
-
 ## ONBOARDING-V4 / DATE-096 — 17 November 2026
 
 Status: approved for development and isolated synthetic testing; implementation in progress. Founder approved #95 V4 design, #96 four nullable date-precision columns and atomic compatibility guard, precision-aware domain handling, limited duration/gaps, affected ATS/optimizer/interview grounding consumers and pending-score policy. This supersedes historical pending-approval wording for these exact items.
