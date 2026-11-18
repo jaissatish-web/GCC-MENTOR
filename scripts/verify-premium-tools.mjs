@@ -130,7 +130,7 @@ try{
   const paneSizes=await page.$$eval('[data-free-tool="41"] h2.type-card',headings=>headings.map(element=>parseFloat(getComputedStyle(element).fontSize)))
   assert.deepEqual(paneSizes,[width<768?17:18,width<768?17:18],'Input and empty-result pane headings use card typography')
   const action=await page.$eval('button[type="submit"]',element=>getComputedStyle(element).backgroundColor)
-  assert.equal(action,'rgb(37, 99, 235)','Primary action uses the shared azure brand')
+  assert.equal(action,'rgb(0, 127, 120)','Primary action uses the shared teal brand (Executive Slate & Teal, founder authority 2026-11-15; brand #007F78 per lib/design-system/theme.ts)')
   const actionText=await page.$eval('button[type="submit"]',element=>getComputedStyle(element).color)
   assert.ok(contrast(actionText,action)>=4.5,'Actual primary action text contrast >=4.5:1')
   if([390,1440].includes(width))await screenshot(`after-calculator-empty-${width}.png`)

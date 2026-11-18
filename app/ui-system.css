@@ -1,6 +1,19 @@
-/* Azure & Slate — 5 Nov 2026. One shared light palette for public and
+/* Slate & Teal — 17 Nov 2026. One shared light palette for public and
    authenticated pages. Edit these semantic tokens for future theme changes.
-   Typography, document colors and service behavior remain independently owned. */
+   Typography, document colors and service behavior remain independently owned.
+
+   Brand corrected from Azure blue to the documented brand teal on 17 Nov 2026.
+   The palette was previously "Azure & Slate" (5 Nov) with
+   --ui-brand-rgb: 37 99 235, while lib/design-system/theme.ts has always
+   documented brand as #007F78 "Primary teal" and the public landing rendered
+   teal through --uds-brand. Two brand colours resolved at once and the
+   signed-in product showed the wrong one.
+
+   The Tailwind compatibility utilities in this file are named after the teal
+   brand (.bg-teal 224 uses, .text-teal 349, .border-teal 124, .accent-teal 23).
+   Before this correction every one of them rendered blue. Keep the class names
+   and this token in agreement: if the brand ever changes again, either rename
+   the utilities or change this token, never only one of the two. */
 :root {
   color-scheme: light;
   --ui-inverse-rgb: 255 255 255;
@@ -22,9 +35,9 @@
   --ui-ink-rgb: 23 43 69;
   --ui-ink-soft-rgb: 82 100 122;
   --ui-ink-muted-rgb: 82 100 122;
-  --ui-brand-rgb: 37 99 235;
-  --ui-brand-hover-rgb: 29 78 216;
-  --ui-brand-soft-rgb: 234 241 255;
+  --ui-brand-rgb: 0 127 120;
+  --ui-brand-hover-rgb: 0 107 100;
+  --ui-brand-soft-rgb: 231 245 241;
   --ui-line-rgb: 223 231 241;
   --ui-line-strong-rgb: 125 141 162;
   --ui-accent-rgb: 8 145 178;
