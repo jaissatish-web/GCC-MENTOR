@@ -88,9 +88,95 @@ one-commit revert. Not a redesign: no layout, spacing, type or component changes
 records a measured defect and a proposed remedy only.
 
 
-For each item, expand with severity/user impact, root-cause evidence, exact files,
-measurable acceptance criteria, baseline/candidate results, PR and rollback before
-implementation. Default rollback is to revert the specific commit.
+| AUDIT-010 | **Signed-in mobile UX.** The public landing is clean at 390px (0 text under 13px, 0 targets under 44px, 0 overflow). The signed-in product was not: 7–11 targets per page measured under 44px, four of them only **18px wide**. The 12px text is the `type-caption` token used as designed, not drift. | Root cause found: `career-studio.css:1309` reset `min-width` on `a` and `button` with enough specificity to beat each component's own minimum. | One selector; verified locally with CDP matched styles | **Fixed in PR #108** |
+
+### AUDIT-010 — signed-in mobile measurements, and one unresolved cascade anomaly
+
+**Measured 17 November 2026**, 390×844 with the real test account, against production.
+
+| Page | Height | Screens | Horizontal overflow | Text <13px | Targets <44px | Targets <24px |
+|---|---|---|---|---|---|---|
+| dashboard | 2,303px | 2.7 | none | 17 | 11 | 11 |
+| profile | 1,653px | 2.0 | none | 41 | 7 | 7 |
+| tools | 1,466px | 1.7 | none | 13 | 7 | 7 |
+| resumes library | 1,036px | 1.2 | none | 13 | 7 | 7 |
+
+**Not a defect:** every undersized text element is exactly 12px and is the
+`type-caption` token, which the type scale defines. Captions at 12px are a design
+decision, not drift. Two exceptions use hardcoded values rather than a token:
+`.studio-brand` and `.studio-help` in `app/career-studio.css` (lines 712–798).
+
+**The real defect — a declared minimum that does not take effect.** Four links
+measure 18px wide:
+
+```
+18x44  WorkspaceHome_iconLink__I9sbq          "View saved work"
+18x44  WorkspaceHome_iconLink__I9sbq          "Manage applications"
+18x44  WorkspaceHome_iconLink__I9sbq          "Update documents and availability"
+18x44  InterviewProgressOverview_textLink__ZzfDy  "All interviews"
+```
+
+Their CSS declares the minimum:
+
+```css
+/* components/studio/WorkspaceHome.module.css:19 */
+.profileLink,.iconLink { min-width:44px; min-height:44px; display:grid; place-items:center; ... }
+/* components/dashboard/InterviewProgressOverview.module.css:18 */
+.textLink { margin-left:auto; min-width:44px; flex:none; }
+```
+
+The rule is present in the **served** CSS and the element carries the class:
+
+```css
+.WorkspaceHome_iconLink__I9sbq {min-width:44px;min-height:44px;display:grid;place-items:center;...}
+```
+
+Yet the measured computed value is `min-width: 0px` while `min-height` is the
+declared `44px`. **A declared minimum was being overridden.**
+
+**Root cause, resolved with CDP `CSS.getMatchedStylesForNode`:**
+
+```
+[regular] .WorkspaceHome_iconLink__I9sbq, .WorkspaceHome_profileLink__xx2Lh
+            min-width:44px                      <- the intent, specificity (0,1,0)
+[regular] .app-type.internal-ui.career-studio .studio-home
+            :is(header,section,aside,div,a,button)
+            min-width:0                         <- the winner, specificity (0,4,0)
+```
+
+`app/career-studio.css:1309`. A layout reset written for containers was also
+resetting `a` and `button`, so it beat each component's own minimum. It sets
+**only** `min-width`, which is exactly why height survived at 44px while width
+collapsed to the width of the icon. Reading CSS alone could not surface this: the
+winning rule is four classes deep in a different file and the element never
+references it.
+
+**Fixed in PR #108** by dropping `a,button` from that reset:
+
+```diff
+-:is(header,section,aside,div,a,button) { min-width:0; }
++:is(header,section,aside,div)           { min-width:0; }
+```
+
+Two other rules that reset `min-width` on interactive elements
+(`ui-system.css:930`, `:970`) were examined and left alone: both do it on
+purpose, and the second sets `width:100%`, so its targets stay large.
+
+**Verified after the fix:** computed `min-width` `0px` → `44px`; bounding rect
+`18x44` → `44x44`; targets under 44px fall from 11 to 2 on `/dashboard` and from
+7 to 2 on `/profile`. The two remaining are inline text links, which WCAG 2.5.8
+Target Size exempts when constrained by surrounding line-height. No overflow was
+introduced: `scrollWidth == clientWidth == 390` on `/dashboard`, `/profile`,
+`/dashboard/library` and `/dashboard/tools`.
+
+**Why it mattered.** An 18px-wide hit area is hard to tap deliberately and easy to
+miss, on the primary dashboard actions, on the device type most job seekers in
+this market use.
+
+**Not yet covered.** Deployment health and the remaining signed-in routes
+(`/templates`, `/interview-qa`, `/mock-interview`, `/settings`, `/create-resume`)
+timed out at 90s each during this sweep, so they are unmeasured rather than clean.
+
 
 For each approved investigation, expand its row with severity/user impact, root-cause evidence, exact files/workflows, measurable acceptance criteria, coverage, baseline/candidate results, expected benefit, actual cost, PR and rollback before implementation. Until measurements exist, results are **not measured**, not zero or improved. Default rollback for this documentation batch: close PR or revert its documentation commit; runtime proposals need their own rollback.
 
