@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, type CSSProperties } from 'react'
 import Image from 'next/image'
 import { Pause, Play } from 'lucide-react'
 import s from './employer-marquee.module.css'
@@ -21,6 +21,53 @@ const rows = [
   ],
 ] as const
 
+/**
+ * Optical balance. Every logo sits in the same 122x38 object-fit box, so the
+ * box is equal but the marks are not: measured live on 17 Nov 2026 by drawing
+ * each mark to a canvas and counting its actual ink coverage, they differ by
+ * 5.5x. adani.webp carries 1.69x the median ink and qatarenergy.svg 0.31x, so
+ * the wall reads as though some employers matter more than others.
+ *
+ * Each factor is sqrt(medianInk / logoInk) - the scale that equalises ink on
+ * screen - then damped into a safe range. The cell has 12px of padding and the
+ * mark fills most of the box, so beyond about 1.15 an upscale would collide
+ * with the next cell. Shrink-only was rejected: it would leave the lighter
+ * marks visibly undersized rather than balanced.
+ *
+ * Result: spread falls from 5.5x to 2.5x. It cannot reach 1.0 in one fixed box,
+ * because the widest mark (maaden.svg, aspect 9.09) is already width-capped and
+ * the most compact (qatarenergy.svg) would need 1.8x to reach the median. The
+ * stronger fix - showing fewer marks - is proposed separately in
+ * docs/plans/2026-11-17-landing-premium-and-design-consistency.md.
+ *
+ * Regenerate with analysis/logo-ink.mjs, then analysis/emit-scales.mjs.
+ */
+const OPTICAL_SCALE: Record<string, number> = {
+  // heavy: scaled down
+  'adani.webp': 0.78,
+  'nmdc-energy.webp': 0.813,
+  'wood.svg': 0.818,
+  'technip-energies.webp': 0.82,
+  'enoc.svg': 0.848,
+  'fluor.png': 0.88,
+  'aramco.webp': 0.885,
+  'hyundai-ec.svg': 0.923,
+  'mcdermott.svg': 0.925,
+  'ccc.svg': 0.95,
+  'kbr.svg': 1.028,
+  // light: scaled up, capped by the cell
+  'atkinsrealis.svg': 1.15,
+  'maaden.svg': 1.15,
+  'bechtel.svg': 1.15,
+  'larsen-toubro.svg': 1.15,
+  'saipem.svg': 1.15,
+  'sabic.svg': 1.15,
+  'worley.svg': 1.15,
+  'qatarenergy-lng.png': 1.15,
+  'qatarenergy.svg': 1.15,
+  // samsung-ea.svg measures 1.00x and is left alone
+}
+
 export function EmployerMarquee() {
   const [paused, setPaused] = useState(false)
   return <section id="employers" className={s.section} aria-labelledby="employers-title" data-paused={paused}>
@@ -36,7 +83,7 @@ export function EmployerMarquee() {
       {rows.map((logos, row) => <div key={row} className={s.strip} data-direction={row === 0 ? 'left' : 'right'}>
         <div className={`${s.track} ${row === 1 ? s.reverse : ''}`}>
           {[false, true].map(duplicate => <ul key={String(duplicate)} className={s.group} aria-label={duplicate ? undefined : row === 0 ? 'Engineering and construction employers' : 'Energy and industrial employers'} aria-hidden={duplicate || undefined}>
-            {logos.map(([name, file]) => <li key={name} className={`${s.logo} ${['mcdermott.svg', 'maaden.svg', 'larsen-toubro.svg'].includes(file) ? s.reversed : ''}`}>
+            {logos.map(([name, file]) => <li key={name} className={`${s.logo} ${['mcdermott.svg', 'maaden.svg', 'larsen-toubro.svg'].includes(file) ? s.reversed : ''}`} style={{ '--logo-scale': OPTICAL_SCALE[file] ?? 1 } as CSSProperties}>
               <Image src={`/landing/employers/${file}`} alt={duplicate ? '' : name} width={160} height={52} unoptimized loading="eager" />
             </li>)}
           </ul>)}
