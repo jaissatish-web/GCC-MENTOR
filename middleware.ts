@@ -150,6 +150,7 @@ export const config = {
     '/create-resume/:path*',
     '/templates/:path*',
     '/linkedin-optimization/:path*',
+    '/naukrigulf-optimization/:path*',
     '/payments/:path*',
     '/login',
     '/signup',
