@@ -1074,7 +1074,7 @@ function ProfileScreen() {
   // Intake is a presentation of the same editing session, not a switch to
   // the read-only summary. Keep unsaved facts and staged photos in memory.
   const view = reviewingImport || isImportRoute || importProcessing || Boolean(importParam) ? 'details' : requestedView
-  const [importConfirmed, setImportConfirmed] = useState(false)
+  const [acknowledgedReview, setAcknowledgedReview] = useState<string | null>(null)
   const [showImportIssues, setShowImportIssues] = useState(false)
   const importIssueRef = useRef<HTMLElement>(null)
   const [photoChange, setPhotoChange] = useState<File | null | undefined>(undefined)
@@ -1140,7 +1140,7 @@ function ProfileScreen() {
           if (restored.presentation.openSectionId) {setOpenSections({[restored.presentation.openSectionId]:true});setActiveReviewSection(restored.presentation.openSectionId)}
         }
         if (restored.scan && typeof restored.scan === 'object' && 'overall_score' in restored.scan) setClaimedScan(restored.scan as AtsScoreResult)
-        setImportConfirmed(false)
+        setAcknowledgedReview(null)
         setRecoveryNotice('Your unsaved review was restored in this tab. Check the details and confirm again before saving.')
         return
       }
@@ -1794,7 +1794,11 @@ function ProfileScreen() {
   }, [savedBaseline, loaded, hasSavedProfile, pendingDraft, reviewingImport, currentBody, editor])
   const isDirty = photoChange !== undefined || reviewingImport || (currentBody !== null && currentBody !== savedBaseline)
 
-  useEffect(() => { setImportConfirmed(false) }, [currentBody, mergeMode, mergeChoices, ambiguousChoices])
+  // Bind acknowledgement to the facts/decisions actually visible when checked.
+  // A later passive render cannot erase a newer confirmation or certify changed facts.
+  const reviewSignature = JSON.stringify([currentBody, mergeMode, mergeChoices, ambiguousChoices])
+  const importConfirmed = acknowledgedReview === reviewSignature
+  const setImportConfirmed = useCallback((confirmed: boolean) => setAcknowledgedReview(confirmed ? reviewSignature : null), [reviewSignature])
   const activeReview: ImportReview = importReview ?? { version: 1, id: 'pending-import', createdAt: '', sourceText: '', imported: { roles: 0, skills: 0, qualifications: 0, certificates: 0 }, wordingStatus: 'not_needed', changes: parseNotes.map((note, i) => ({ id: `note-${i}`, field: note.field, label: 'Please verify', kind: 'check', before: '', after: '', reason: note.message })) }
   const rawReviewChecks = editor ? resumeReviewChecks({ ...activeReview, currentRoles: [...(activeReview.currentRoles ?? []), ...editor.work_experience.filter(job => !job.end_date && !job.end_date_unconfirmed).map(currentRoleFingerprint)] }, editor, change => currentImportValue(editor, change)) : []
   const [fieldConfirmations, setFieldConfirmations] = useState<Record<string, string>>({})
@@ -1833,7 +1837,7 @@ function ProfileScreen() {
     }
     const value = JSON.stringify([check.value, check.reason])
     setFieldConfirmations(previous => ({ ...previous, [id]: value }))
-    setImportConfirmed(false)
+    setAcknowledgedReview(null)
     if (importReview?.id) {
       try {
         const digest = await confirmationDigest(confirmationScope, id, value)
@@ -2259,7 +2263,7 @@ function ProfileScreen() {
       setPendingDraft(null)
       resolvesPendingRef.current = false
       setReviewingImport(false)
-      setImportConfirmed(false)
+      setAcknowledgedReview(null)
       router.replace('/profile')
     } catch {
       setSaveError('We could not discard this resume reading. Your saved profile is unchanged. Please try again.')
@@ -2296,7 +2300,7 @@ function ProfileScreen() {
           We read your resume. What would you like to do with it?
         </p>
 
-        {resumeReview ? <section className="mt-5 rounded-lg border border-line bg-white p-4"><h2 className="type-section">Resume unsaved review</h2><p className="type-helper">Continue the corrections kept in this tab. You will confirm again before saving.</p><Button onClick={()=>{setMergeOrigin(pendingDraft);originalReviewRef.current=resumeReview.original;setSavedBaseline(JSON.stringify(buildPutBody(fromFull(pendingDraft.existing))));setEditor(resumeReview.editor);if(resumeReview.presentation){setMergeMode(resumeReview.presentation.importMode==='updates'?'updates':'add');setMergeChoices(resumeReview.presentation.selectedUpdateIds);setAmbiguousChoices(resumeReview.presentation.ambiguousWorkChoices);if(resumeReview.presentation.openSectionId)setOpenSections({[resumeReview.presentation.openSectionId]:true})}setPendingDraft(null);setReviewingImport(true);setImportConfirmed(false)}}>Continue unsaved review</Button></section> : null}
+        {resumeReview ? <section className="mt-5 rounded-lg border border-line bg-white p-4"><h2 className="type-section">Resume unsaved review</h2><p className="type-helper">Continue the corrections kept in this tab. You will confirm again before saving.</p><Button onClick={()=>{setMergeOrigin(pendingDraft);originalReviewRef.current=resumeReview.original;setSavedBaseline(JSON.stringify(buildPutBody(fromFull(pendingDraft.existing))));setEditor(resumeReview.editor);if(resumeReview.presentation){setMergeMode(resumeReview.presentation.importMode==='updates'?'updates':'add');setMergeChoices(resumeReview.presentation.selectedUpdateIds);setAmbiguousChoices(resumeReview.presentation.ambiguousWorkChoices);if(resumeReview.presentation.openSectionId)setOpenSections({[resumeReview.presentation.openSectionId]:true})}setPendingDraft(null);setReviewingImport(true);setAcknowledgedReview(null)}}>Continue unsaved review</Button></section> : null}
         <button
           type="button"
           disabled={submitting}
@@ -2428,7 +2432,7 @@ function ProfileScreen() {
     setEditor(savedSnapshotRef.current ?? emptyEditor())
     setPhotoChange(undefined)
     setReviewingImport(false)
-    setImportConfirmed(false)
+    setAcknowledgedReview(null)
     setShowImportIssues(false)
     setSaveError(null)
     setInvalidFields(new Set())
@@ -2443,7 +2447,7 @@ function ProfileScreen() {
       originalReviewRef.current = editor
       setReviewingImport(true)
       setReviewEditing(false)
-      setImportConfirmed(false)
+      setAcknowledgedReview(null)
       // The existing reviewingImport effect updates the URL in place so typed
       // facts stay in this canonical editor until explicit confirmation.
       window.scrollTo({ top: 0 })
@@ -2608,8 +2612,9 @@ function ProfileScreen() {
   // Keep same-tab review decisions alive while the canonical editor is open.
   // Browser storage is optional reload recovery, not a requirement for editing.
   // ---- The full profile (view === 'details') --------------------------------
+  const EditorContainer = reviewingImport ? 'div' : 'main'
   const editorContent = (
-    <><div data-ui-service="profile" data-career-builder={reviewingImport || !hasSavedProfile ? "true" : undefined} className={MAIN_CLASS}>
+    <><EditorContainer data-ui-service="profile" data-career-builder={reviewingImport || !hasSavedProfile ? "true" : undefined} className={MAIN_CLASS}>
       {!reviewingImport ? <ViewHeader eyebrow="Career Profile" title="Edit Career Profile" description="Update your information here, then save your changes." onBack={cancelEditing} backLabel="Career Profile" /> : null}
 
       {loadErrorBlock}
@@ -3314,7 +3319,7 @@ function ProfileScreen() {
       </fieldset>
       {!reviewingImport ? saveBar : null}
       <div className="pb-8" />
-    </div></>
+    </EditorContainer></>
   )
   if (!reviewingImport) return editorContent
   const dateErrors = invalidEditorDates(editor)

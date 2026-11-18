@@ -51,5 +51,5 @@ Consumes precision dates and existing canonical editor/save callbacks. Eight sec
 ### Task 5: Review and handoff
 - [x] Run typecheck/lint/npm test/build, protected actual-diff and selected unchanged fixture/template/PDF checks.
 - [x] Review whole branch independently; fix important findings with regression coverage.
-- [ ] Record exact head, commands, results, screenshots and remaining limits in #96 and docs.
-- [ ] Commit/push this approved branch, create implementation PR, obtain available non-production preview; stop before merge/release.
+- [x] Record exact head, commands, results, screenshots and remaining limits in #96 and docs.
+- [x] Commit/push this approved branch, create implementation PR, obtain available non-production preview; stop before merge/release.
