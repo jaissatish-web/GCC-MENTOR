@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import { createSupabaseLikeDb, applyMigrations, bootstrapOrder, createAuthUser, asService, asUser } from './db/supabaseStub.mjs'
 
-const dir = new URL('../supabase/migrations/', import.meta.url).pathname
+const dir = fileURLToPath(new URL('../supabase/migrations/', import.meta.url))
 const migration = readFileSync(dir + '068_preserve_mock_interview_history.sql', 'utf8')
 const db = await createSupabaseLikeDb()
 try {
