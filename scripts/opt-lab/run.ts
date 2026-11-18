@@ -211,7 +211,7 @@ async function report() {
   let leakCount = 0
   const leakEx: string[] = []
   const agg = { field: 0, fieldN: 0, judge: { yes: 0, likely: 0, unlikely: 0 }, caught: 0, fellBack: 0, dropped: 0, newPts: 0, times: [] as number[] }
-  const byExpect: Record<string, { ours: number[][]; ats: number[][] }> = {}
+  const byExpect: Record<string, { ours: Array<Array<number | null>>; ats: number[][] }> = {}
   md.push('| Scenario | Field (expected → found) | Our score: before → Easy / Moderate / High | Independent ATS: before → Easy / Moderate / High | New points (Mod / High) | Time: analysis + Moderate |', '|---|---|---|---|---|---|')
   for (const s of SCENARIOS) {
     const f = path.join(OUT, 'v3', `${s.id}.json`)
@@ -260,15 +260,15 @@ async function report() {
     const total = r.analysis.ms + (r.levels.moderate?.ms ?? 0)
     agg.times.push(total)
     const np = (l: string) => r.levels[l]?.jobs?.reduce((n, j) => n + j.bullets.filter((x) => x.isNew).length, 0) ?? 0
-    const fmt = (a: number[]) => `${a[0]} → ${a.slice(1).map((x) => (Number.isNaN(x) ? '—' : x)).join(' / ')}`
+    const fmt = (a: Array<number | null>) => `${a[0] === null ? 'pending' : a[0]} → ${a.slice(1).map((x) => x === null ? 'pending' : Number.isNaN(x) ? '—' : x).join(' / ')}`
     md.push(`| ${s.id}${s.jd ? '' : ' (title only)'} | ${s.expect} → ${r.analysis.fieldMatch}${r.analysis.fieldMatch === s.expect ? ' ✓' : ' ✗'} | ${fmt(oursRow)} | ${s.jd ? fmt(atsRow) : 'n/a (no advert)'} | ${np('moderate')} / ${np('high')} | ${(r.analysis.ms / 1000).toFixed(0)}s + ${((r.levels.moderate?.ms ?? 0) / 1000).toFixed(0)}s |`)
     rows.push(`${s.id.padEnd(18)} ${s.expect.padEnd(9)}→${r.analysis.fieldMatch.padEnd(9)} ours ${fmt(oursRow).padEnd(22)} ats ${s.jd ? fmt(atsRow) : 'n/a'}`)
   }
   const avg = (xs: number[]) => (xs.length ? Math.round(xs.reduce((a, b) => a + b, 0) / xs.length) : NaN)
   md.push('', '## Averages by field match', '', '| Group | Our score: before → Easy / Moderate / High | Independent ATS: before → Easy / Moderate / High |', '|---|---|---|')
   for (const [g, v] of Object.entries(byExpect)) {
-    const col = (m: number[][], i: number) => avg(m.map((r) => r[i]).filter((x) => !Number.isNaN(x)))
-    const line = (m: number[][]) => (m.length ? `${col(m, 0)} → ${[1, 2, 3].map((i) => col(m, i)).join(' / ')}` : 'n/a')
+    const col = (m: Array<Array<number | null>>, i: number) => m.some(r => r[i] === null) ? 'pending' : avg(m.map(r => r[i]).filter((x): x is number => x !== null && !Number.isNaN(x)))
+    const line = (m: Array<Array<number | null>>) => (m.length ? `${col(m, 0)} → ${[1, 2, 3].map((i) => col(m, i)).join(' / ')}` : 'n/a')
     md.push(`| ${g} (${v.ours.length}) | ${line(v.ours)} | ${line(v.ats)} |`)
   }
   const t = agg.times.sort((a, b) => a - b)

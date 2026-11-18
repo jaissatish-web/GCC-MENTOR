@@ -1,3 +1,4 @@
+import { projectPersistedDateRow, readPrecisionDate, type DatePrecision } from '@/lib/profileDatePrecision'
 import type { createClient } from '@/lib/supabase/server'
 import type {
   CareerProfile,
@@ -69,9 +70,9 @@ export async function loadCareerProfileFull(
 
   return {
     ...(profileRow as CareerProfile),
-    work_experience: work_experience as ProfileWorkExperience[],
+    work_experience: (work_experience as ProfileWorkExperience[]).map(row => {const projected=projectPersistedDateRow(row, ['start_date', 'end_date']); return {...projected,start_date:readPrecisionDate(projected.start_date,projected.start_date_precision as DatePrecision|null),end_date:readPrecisionDate(projected.end_date,projected.end_date_precision as DatePrecision|null)} }),
     skills: skills as ProfileSkill[],
-    certifications: certifications as ProfileCertification[],
+    certifications: (certifications as ProfileCertification[]).map(row => {const projected=projectPersistedDateRow(row, ['issue_date', 'expiry_date']); return {...projected,issue_date:readPrecisionDate(projected.issue_date,projected.issue_date_precision as DatePrecision|null),expiry_date:readPrecisionDate(projected.expiry_date,projected.expiry_date_precision as DatePrecision|null)} }),
     education: education as ProfileEducation[],
     additional_information: additional_information as ProfileAdditionalInformation[],
   }

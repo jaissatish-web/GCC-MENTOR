@@ -1,3 +1,4 @@
+import { dateBounds, type DatePrecision } from '@/lib/profileDatePrecision'
 import type { StructuredJobProfile, JobMatchCategoryResult, JobMatchCategoryKey } from '@/types/jobMatch'
 import { DETERMINISTIC_CATEGORIES, JOB_MATCH_SCORING_VERSION } from '@/types/jobMatch'
 import type { TargetCountry } from '@/types/careerProfile'
@@ -30,6 +31,8 @@ export interface JobMatchWorkExperienceInput {
   startDate: string | null
   endDate: string | null // null = current/ongoing unless explicitly unconfirmed
   endDateUnconfirmed?: boolean
+  startDatePrecision?: DatePrecision | null
+  endDatePrecision?: DatePrecision | null
   description: string | null
   highlights: string[]
   gccCountry: TargetCountry | null
@@ -85,26 +88,29 @@ function yearsBetween(start: string, end: string): number {
  * rarer and lower-stakes edge case here than the false-gap risk that made
  * merging necessary there.
  */
-function computeExperienceYears(
-  work: JobMatchWorkExperienceInput[],
-  relevantTo: string[], // job's required_skills + responsibilities, for the "relevant" subset
-): { totalYears: number; relevantYears: number } {
+/** Preserve the existing per-entry formula; only year/legacy/absent boundaries require ranges. */
+function computeExperienceYears(work: JobMatchWorkExperienceInput[], relevantTo: string[]): {
+  totalYears: number | null; relevantYears: number | null; minimum: number; maximum: number; uncertain: boolean
+} {
   const nowIso = new Date().toISOString()
-  let totalYears = 0
-  let relevantYears = 0
-
+  let totalMin = 0, totalMax = 0, relevantMin = 0, relevantMax = 0, uncertain = false
   for (const w of work) {
-    if (!w.startDate || w.endDateUnconfirmed && !w.endDate) continue
-    const end = w.endDate ?? nowIso
-    const duration = yearsBetween(w.startDate, end)
-    totalYears += duration
-
+    const start = dateBounds(w.startDate, w.startDatePrecision)
+    const end = w.endDateUnconfirmed && !w.endDate ? null : dateBounds(w.endDate ?? nowIso.slice(0, 10), w.endDate ? w.endDatePrecision : 'day')
+    const bounded = !start || !end || start.precision === 'year' || start.precision === null || end.precision === 'year' || end.precision === null
+    uncertain ||= bounded
+    // Month precision retains the established month-based calculation. Bounds are never midpoints.
+    const endMin = w.endDate ? end?.min : nowIso, endMax = w.endDate ? end?.max : nowIso
+    const lower = !start || !end ? 0 : bounded ? yearsBetween(start.max, endMin!) : yearsBetween(start.min, endMin!)
+    const upper = !start || !end ? Infinity : bounded ? yearsBetween(start.min, endMax!) : lower
+    totalMin += lower; totalMax += upper
     const text = [w.role, w.description ?? '', ...w.highlights].join(' ')
-    const isRelevant = relevantTo.length === 0 || relevantTo.some((r) => fuzzyMatch(text, r))
-    if (isRelevant) relevantYears += duration
+    if (relevantTo.length === 0 || relevantTo.some(r => fuzzyMatch(text, r))) { relevantMin += lower; relevantMax += upper }
   }
-
-  return { totalYears: Math.round(totalYears * 10) / 10, relevantYears: Math.round(relevantYears * 10) / 10 }
+  const rounded = (v: number) => Math.round(v * 10) / 10
+  const minimum = rounded(relevantMin), maximum = rounded(relevantMax)
+  return {totalYears: rounded(totalMin) === rounded(totalMax) ? rounded(totalMin) : null,
+    relevantYears: minimum === maximum ? minimum : null, minimum, maximum, uncertain}
 }
 
 function requiredSkillsCategory(profile: JobMatchProfileInput, job: StructuredJobProfile): JobMatchCategoryResult {
@@ -132,22 +138,28 @@ function requiredSkillsCategory(profile: JobMatchProfileInput, job: StructuredJo
   return { score, applicable: true, evidence, explanation: '' }
 }
 
-function experienceLevelCategory(profile: JobMatchProfileInput, job: StructuredJobProfile): JobMatchCategoryResult {
+export function experienceLevelCategory(profile: JobMatchProfileInput, job: StructuredJobProfile): JobMatchCategoryResult {
   if (job.required_experience_years === null) {
     return { score: 0, applicable: false, evidence: [], explanation: '' }
   }
   const relevantTo = [...job.required_skills, ...job.responsibilities]
-  const { totalYears, relevantYears } = computeExperienceYears(profile.workExperience, relevantTo)
+  const { totalYears, relevantYears, minimum, maximum, uncertain } = computeExperienceYears(profile.workExperience, relevantTo)
   const required = job.required_experience_years
 
-  const score = required > 0 ? Math.min(100, Math.round((relevantYears / required) * 100)) : 100
+  const formula = (years: number) => required > 0 ? Math.min(100, Math.round((years / required) * 100)) : 100
+  const lowScore = formula(minimum), highScore = formula(maximum)
+  const score = lowScore === highScore ? lowScore : null
+  if (score === null) return {score: null, applicable: true, assessment_status: 'insufficient_precision',
+    evidence: ['Insufficient date precision', `Job asks for ${required} years`, 'Experience remains unconfirmed; this is not zero experience or a failed match.'], explanation: 'Insufficient date precision'}
   return {
     score,
     applicable: true,
+    assessment_status: 'assessed',
     evidence: [
+      ...(uncertain ? ['Conservative duration bounds establish this experience score; no exact duration is claimed.'] : []),
       profile.workExperience.some(role => role.endDateUnconfirmed && !role.endDate)
-        ? `Unconfirmed employment duration; ${totalYears} years from confirmed dates, ${relevantYears} confirmed years in roles matching this job's skills/responsibilities`
-        : `${totalYears} total years of experience, ${relevantYears} years in roles matching this job's skills/responsibilities`,
+        ? 'Unconfirmed employment duration; conservative bounds establish the result without asserting an exact duration'
+        : totalYears === null || relevantYears === null ? 'Estimated or bounded experience; exact duration is not established' : `${totalYears} total years of experience, ${relevantYears} years in roles matching this job's skills/responsibilities`,
       `Job asks for ${required} years`,
     ],
     explanation: '',
@@ -275,10 +287,11 @@ export function computeDeterministicCategories(
  * negative (the entire point of marking driving_license/education/etc.
  * inapplicable when the JD never raised them).
  */
-export function combineJobMatchScore(categories: Record<JobMatchCategoryKey, JobMatchCategoryResult>): number {
+export function combineJobMatchScore(categories: Record<JobMatchCategoryKey, JobMatchCategoryResult>): number | null {
+  if (Object.values(categories).some(c => c.applicable && c.score === null)) return null
   const applicableScores = Object.values(categories)
     .filter((c) => c.applicable)
-    .map((c) => c.score)
+    .map((c) => c.score as number)
   if (applicableScores.length === 0) return 0
   return Math.round(applicableScores.reduce((sum, s) => sum + s, 0) / applicableScores.length)
 }

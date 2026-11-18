@@ -1,3 +1,4 @@
+import { dateBounds } from '@/lib/profileDatePrecision'
 import { hasUnknownEmploymentEnd } from '@/lib/employmentStatus'
 import { categoryFact } from '@/lib/profileCategories'
 import type { CareerProfileFull } from '@/types/careerProfile'
@@ -59,9 +60,20 @@ export function derivedExperienceYears(profile: CareerProfileFull, now: Date = n
     out.add(String(Math.round(y)))
   }
   const jobs = profile.work_experience ?? []
-  for (const j of jobs) if (!hasUnknownEmploymentEnd(j)) add(yearsBetween(j.start_date, j.end_date, now))
+  for (const j of jobs) {
+    if (hasUnknownEmploymentEnd(j)) continue
+    const start = dateBounds(j.start_date, j.start_date_precision)
+    const end = j.end_date ? dateBounds(j.end_date, j.end_date_precision) : dateBounds(now.toISOString().slice(0, 10), 'day')
+    if (!start || !end) continue
+    const bounded = start.precision === null || start.precision === 'year' || end.precision === null || end.precision === 'year'
+    if (!bounded) { add(yearsBetween(j.start_date, j.end_date, now)); continue }
+    const minimum = yearsBetween(start.max, end.min, now), maximum = yearsBetween(start.min, end.max, now)
+    if (minimum === null || maximum === null) continue
+    if (Math.floor(minimum) === Math.floor(maximum)) out.add(String(Math.floor(minimum)))
+    if (Math.round(minimum) === Math.round(maximum)) out.add(String(Math.round(minimum)))
+  }
   const starts = jobs.map((j) => j.start_date).filter(Boolean).sort()
-  if (starts.length > 0 && !jobs.some(hasUnknownEmploymentEnd)) add(yearsBetween(starts[0], null, now))
+  if (starts.length > 0 && !jobs.some(j => hasUnknownEmploymentEnd(j) || (j.end_date && (!dateBounds(j.end_date, j.end_date_precision) || ['year',null].includes(dateBounds(j.end_date, j.end_date_precision)!.precision))) || !dateBounds(j.start_date, j.start_date_precision) || ['year', null].includes(dateBounds(j.start_date, j.start_date_precision)!.precision))) add(yearsBetween(starts[0], null, now))
   return Array.from(out)
 }
 

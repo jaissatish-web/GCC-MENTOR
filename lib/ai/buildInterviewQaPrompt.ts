@@ -268,7 +268,7 @@ export function gulfFactLine(profile: CareerProfileFull, now: Date = new Date())
   const gcc = gccExperience(profile.work_experience ?? [], (l) => gccCountryFromLocation(l)?.country ?? null, now)
   if (gcc.roles === 0) return 'Gulf (GCC) experience: none on the CV. Do not claim any.'
   const where = gcc.countries.map(countryName).join(', ')
-  if (gcc.durationUnconfirmed) return `Gulf (GCC) roles recorded in ${where}; some employment dates/current status are unconfirmed. Do not state a number of Gulf years.`
+  if (gcc.durationUnconfirmed || gcc.years === null) return `Gulf (GCC) roles recorded in ${where}; some employment dates/current status are unconfirmed. Do not state a number of Gulf years.`
   return gcc.years > 0
     ? `Gulf (GCC) experience: ${gcc.years}+ years, in ${where}. Every other year was outside the Gulf.`
     : `Gulf (GCC) experience: under one year, in ${where}. Do not state a number of Gulf years.`

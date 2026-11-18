@@ -67,7 +67,7 @@ export function TargetJobCard({
               before {before}, after {after}
             </span>
           </div>
-        ) : null}
+        ) : before === null || after === null ? <p role="status" className="type-helper text-ink-soft">{NAMES.atsScore}: Pending clarification</p> : null}
       </div>
 
       {full ? (

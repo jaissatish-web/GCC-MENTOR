@@ -19,9 +19,11 @@ import type {
 } from '@/types/careerProfile'
 import { calculateReadiness } from '@/lib/readiness'
 import type { ReadinessInput } from '@/lib/readiness'
-import { detectEmploymentGaps } from '@/lib/employmentGaps'
+import { assessEmploymentGaps } from '@/lib/employmentGaps'
 import { signedPhotoUrl } from '@/lib/storage/profilePhoto'
 import { normalizeProfileDate } from '@/lib/partialDates'
+import { encodePrecisionDate, projectPersistedDateRow } from '@/lib/profileDatePrecision'
+import type { DatePrecision } from '@/lib/profileDatePrecision'
 
 /**
  * Profile CRUD API — TASK-012.
@@ -197,13 +199,17 @@ function validateProfile(p: Record<string, unknown>): string | null {
   return null
 }
 
-/** Missing start dates are supported by REVIEW-DEFER-001. A supplied date
- * must still normalize to a real calendar date before the atomic save. */
-function requireStorableDate(value: unknown): boolean {
-  const normalized = normalizeProfileDate(value)
-  if (!normalized) return true
-  const date = new Date(normalized + 'T00:00:00Z')
-  return Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== normalized
+/** Validate a date together with its explicit supplied precision. Legacy NULL
+ * remains available only for a full raw date; the RPC verifies unchanged facts
+ * under the row lock instead of trusting a racy application-side read.
+ */
+function invalidDatePair(item: Record<string, unknown>, field: string): boolean {
+  const precision = item[field + '_precision']
+  if (precision != null && !['year', 'month', 'day'].includes(precision as string)) return true
+  try {
+    encodePrecisionDate(item[field], precision as DatePrecision | null | undefined)
+    return false
+  } catch { return true }
 }
 
 function validateWorkExperience(list: unknown): string | null {
@@ -214,7 +220,8 @@ function validateWorkExperience(list: unknown): string | null {
     if (typeof item.role !== 'string') return 'work_experience.role'
     // Unknown dates remain null; supplied malformed dates still fail.
     if (item.start_date != null && typeof item.start_date !== 'string') return 'work_experience.start_date'
-    if (typeof item.start_date === 'string' && item.start_date.trim() && requireStorableDate(item.start_date)) return 'work_experience.start_date'
+    if (invalidDatePair(item, 'start_date')) return 'work_experience.start_date'
+    if (invalidDatePair(item, 'end_date')) return 'work_experience.end_date'
     if (optional(item.end_date, 'end_date', (x) => typeof x === 'string')) return 'work_experience.end_date'
     if (optional(item.end_date_unconfirmed, 'end_date_unconfirmed', x => typeof x === 'boolean')) return 'work_experience.end_date_unconfirmed'
     if (typeof item.sort_order !== 'number') return 'work_experience.sort_order'
@@ -245,6 +252,8 @@ function validateCertification(list: unknown): string | null {
     if (optional(item.issuer, 'issuer', (x) => typeof x === 'string')) return 'certifications.issuer'
     if (optional(item.issue_date, 'issue_date', (x) => typeof x === 'string')) return 'certifications.issue_date'
     if (optional(item.expiry_date, 'expiry_date', (x) => typeof x === 'string')) return 'certifications.expiry_date'
+    if (invalidDatePair(item, 'issue_date')) return 'certifications.issue_date'
+    if (invalidDatePair(item, 'expiry_date')) return 'certifications.expiry_date'
     if (typeof item.sort_order !== 'number') return 'certifications.sort_order'
   }
   return null
@@ -319,7 +328,9 @@ export async function GET(): Promise<NextResponse> {
   // Fetch all five child tables scoped to this profile.
   const fetchChildren = async (table: (typeof CHILD_TABLES)[number]): Promise<unknown[]> => {
     const { data } = await supabase.from(table).select('*').eq('profile_id', profileId)
-    return (data as unknown[] | null) ?? []
+    const rows = (data as Array<Record<string, unknown>> | null) ?? []
+    const fields = CHILD_DATE_FIELDS[table]
+    return fields ? rows.map(row => projectPersistedDateRow(row, fields)) : rows
   }
   const [work_experience, skills, certifications, education, additional_information] = await Promise.all([
     fetchChildren('profile_work_experience'),
@@ -333,7 +344,8 @@ export async function GET(): Promise<NextResponse> {
   // for why this is informational only (not folded into readiness_score
   // yet). Not part of CareerProfileFull's DB-mirrored shape; an additive
   // extra key on the response only.
-  const employment_gaps = detectEmploymentGaps(work_experience as ProfileWorkExperience[])
+  const gapAssessment = assessEmploymentGaps(work_experience as ProfileWorkExperience[])
+  const employment_gaps = gapAssessment.gaps
 
   // photo_url stores an OBJECT PATH (migration 032). The client can only
   // render a URL, so sign it here; a missing or removed object yields null and
@@ -349,7 +361,8 @@ export async function GET(): Promise<NextResponse> {
     education: education as ProfileEducation[],
     additional_information: additional_information as ProfileAdditionalInformation[],
     employment_gaps,
-  } satisfies CareerProfileFull & { employment_gaps: ReturnType<typeof detectEmploymentGaps> })
+    employment_gaps_status: gapAssessment.status,
+  } satisfies CareerProfileFull & { employment_gaps: ReturnType<typeof assessEmploymentGaps>['gaps']; employment_gaps_status: ReturnType<typeof assessEmploymentGaps>['status'] })
 }
 
 export async function PUT(request: NextRequest): Promise<NextResponse> {
@@ -466,10 +479,15 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       const row: Record<string, unknown> = table === 'profile_additional_information'
         ? Object.fromEntries(Object.entries(rest).filter(([k]) => ['id','label','value','sort_order','category_id','category_name','category_order','category_position','level','show_on_resume'].includes(k)))
         : { ...rest }
-      // Month-precision dates ("2021-03") and bare years ("2019") are what
-      // resumes actually contain; Postgres `date` rejects both.
+      // Keep precision and its storage anchor in the same atomic payload.
+      // Do not infer a missing metadata key here: unchanged older clients are
+      // preserved by the locked RPC; adding/changing dates requires refresh.
       for (const f of dateFields) {
-        if (f in row) row[f] = normalizeProfileDate(row[f])
+        if (f in row) {
+          const encoded = encodePrecisionDate(row[f], row[f + '_precision'] as DatePrecision | null | undefined)
+          row[f] = encoded.value
+          if (f + '_precision' in row || encoded.value === null) row[f + '_precision'] = encoded.precision
+        }
       }
       if (typeof row.id !== 'string' || !UUID_RE.test(row.id.trim())) delete row.id
       return row
@@ -490,6 +508,12 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
   })
 
   if (saveError) {
+    if (saveError.code === 'P9601') {
+      return NextResponse.json({
+        error: 'Date precision is required for a new or changed date. Refresh the profile editor, confirm the date precision and try again. Your changes were not saved.',
+        code: 'DATE_PRECISION_REQUIRED',
+      }, { status: 409 })
+    }
     console.error(
       'profile PUT save error: user=' + user.id + ' fields=career_profiles,' + CHILD_TABLES.join(','),
       saveError.code ?? '',

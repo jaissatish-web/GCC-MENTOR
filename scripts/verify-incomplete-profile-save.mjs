@@ -41,7 +41,7 @@ try {
   const before=rpcCalls
   for(const body of [{...partial,email:'invalid'},{...partial,phone:123},{...partial,work_experience:[{...partial.work_experience[0],start_date:'unknown'}]},{...partial,work_experience:[{...partial.work_experience[0],start_date:'2024-02-31'}]}])assert.equal((await put(body)).status,400)
   assert.equal(rpcCalls,before,'invalid supplied values never reach storage')
-  const complete={...partial,full_name:'Example Person',email:'person@example.test',phone:'+919876543210',expected_updated_at:created.updated_at,work_experience:[{...partial.work_experience[0],id:role.id,company:'Known employer',start_date:'2020-01',end_date_unconfirmed:false}]}
+  const complete={...partial,full_name:'Example Person',email:'person@example.test',phone:'+919876543210',expected_updated_at:created.updated_at,work_experience:[{...partial.work_experience[0],id:role.id,company:'Known employer',start_date:'2020-01',start_date_precision:'month',end_date_unconfirmed:false}]}
   assert.equal((await put(complete)).status,200)
   const updated=(await asUser(db,owner,()=>db.query('select * from public.profile_work_experience'))).rows[0]
   assert.equal(updated.id,role.id);assert.equal(updated.end_date_unconfirmed,false);assert.equal(updated.start_date.toISOString().slice(0,10),'2020-01-01')

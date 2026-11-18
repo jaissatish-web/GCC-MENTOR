@@ -27,7 +27,7 @@ import { experienceRequirementMet } from '../experienceMet'
 import type { JobTargetProfile, KeywordKind } from '../types'
 import { ANALYSIS_SYSTEM, analysisUser, currentTitle, jobKeys, maxNewPoints, writerSystem, writerUser, type WriterLists } from './prompts'
 
-export type Group = 'A' | 'B' | 'C'
+export type Group = 'A' | 'B' | 'C' | 'U'
 export type FieldMatch = 'same' | 'related' | 'different'
 
 export interface Requirement {
@@ -126,8 +126,9 @@ export async function analyzeV3(profile: CareerProfileFull, targetTitle: string,
     if (kind === 'experience_years') {
       // Years are arithmetic on the job dates, never the model's reading.
       const met = experienceRequirementMet(profile, term)
-      if ((met.ok ? 'A' : 'C') !== group) regrouped = `${group}->${met.ok ? 'A' : 'C'} (${met.years} years of ${met.core || 'experience'} in the profile)`
-      group = met.ok ? 'A' : 'C'
+      const assessedGroup: Group = met.status === 'unknown' ? 'U' : met.ok ? 'A' : 'C'
+      if (assessedGroup !== group) regrouped = met.status === 'unknown' ? 'Insufficient date precision' : `${group}->${assessedGroup} (${met.years === null ? 'conservative experience evidence; exact duration not asserted' : `${met.years} years of ${met.core || 'experience'} in the profile`})`
+      group = assessedGroup
       location = 'summary'
     } else if (literal.length) {
       if (group !== 'A') regrouped = `${group}->A (written in the profile)`
@@ -556,7 +557,7 @@ export function targetFromAnalysis(a: AnalysisV3, targetTitle: string, mode: 'jo
     mode,
     scoring_version: 'match-v2',
     screening_as_of: new Date().toISOString(),
-    screening_requirements: a.requirements.filter(r => FIXED_KINDS.has(r.kind)).map(r => ({term:r.term, importance:r.importance, kind:r.kind, status:r.group === 'A' ? 'met' as const : 'unknown' as const})),
+    screening_requirements: a.requirements.filter(r => FIXED_KINDS.has(r.kind)).map(r => ({term:r.term, importance:r.importance, kind:r.kind, status:r.group === 'A' ? 'met' as const : 'unknown' as const, ...(r.kind === 'experience_years' && r.group === 'U' ? {uncertainty_reason: 'insufficient_date_precision' as const} : {})})),
     job_title: targetTitle,
     title_variants: [],
     seniority: null,

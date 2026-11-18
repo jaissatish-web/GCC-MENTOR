@@ -1,3 +1,4 @@
+import { assessedMaximum } from './scoreAvailability'
 /**
  * The optimization pipeline (2026-09-17). SERVER ONLY. docs/17_OPTIMIZER_ENGINE.md §3.
  *
@@ -686,13 +687,13 @@ export async function runOptimizationPipeline(input: PipelineInput): Promise<Pip
 
     // SCORE GUARD. A build must never make the resume a worse match. If it did,
     // revert the block whose reversal helps most, until it no longer does.
-    while (after.total < before.total) {
+    while (after.total !== null && before.total !== null && after.total < before.total) {
       let best: { owner: Owner; total: number } | null = null
       for (const owner of final.keys()) {
         if (reverted.has(owner)) continue
         const trial = new Set(reverted).add(owner)
         const total = scoreResume(scoreDocumentFromResume(docFor(buildContent(trial))), targetProfile, qualifications).total
-        if (!best || total > best.total) best = { owner, total }
+        if (total !== null && (!best || total > best.total)) best = { owner, total }
       }
       if (!best) break
       reverted.add(best.owner)
@@ -724,8 +725,8 @@ export async function runOptimizationPipeline(input: PipelineInput): Promise<Pip
 
     report = {
       suggestions,
-      projected_with_suggestions: Math.max(projected, after.total),
-      target_band: reachableTargetBand(level, Math.max(projected, after.total)),
+      projected_with_suggestions: assessedMaximum(projected, after.total),
+      target_band: projected === null || after.total === null ? undefined : reachableTargetBand(level, Math.max(projected, after.total)),
       report_version: 1,
       mode: targetProfile.mode,
       analysis_id: input.analysisId,

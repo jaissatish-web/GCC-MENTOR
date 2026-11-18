@@ -74,7 +74,7 @@ export function PreparationJourney({
                 <span aria-hidden="true">→</span>
                 <span className="font-mono text-teal">{after}</span>
               </span>
-            ) : null}
+            ) : before === null || after === null ? <span role="status" className="type-helper text-ink-soft">ATS: Pending clarification</span> : null}
           </p>
         </div>
         {here !== 'resume' ? (

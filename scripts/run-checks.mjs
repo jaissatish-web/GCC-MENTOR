@@ -23,6 +23,13 @@ const require = createRequire(import.meta.url)
 const sucrase = require.resolve('sucrase/bin/sucrase-node')
 
 const TS_CHECKS = [
+  'verify-date-precision.ts',
+  'verify-pending-date-scores.ts',
+  'verify-pending-score-ui.ts',
+  'verify-v4-editor-dates.ts',
+  'verify-v4-profile-merge.ts',
+  'verify-v4-recovery.ts',
+  'verify-v4-workspace.tsx',
   'verify-free-tools-foundation.ts',
   'verify-free-tools-resume.ts',
   'verify-free-tools-general.ts',
@@ -105,6 +112,7 @@ function run(label, args) {
 }
 
 for (const script of TS_CHECKS) run(script, [sucrase, join('scripts', script)])
+for (const script of ['verify-profile-date-persistence.mjs','verify-profile-date-api.mjs','verify-profile-review-source.mjs']) run(script, [join(root,'scripts',script)])
 run('verify-career-profile-services.mjs', [join(root, 'scripts', 'verify-career-profile-services.mjs')])
 run('verify-mobile-weight.mjs', [join(root, 'scripts', 'verify-mobile-weight.mjs')])
 run('verify-resume-export-api.mjs', [join(root, 'scripts', 'verify-resume-export-api.mjs')])

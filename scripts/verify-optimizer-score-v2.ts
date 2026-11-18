@@ -1,4 +1,5 @@
 import './resolve-paths'
+import { assertKnownScore } from './fixtures/assertKnownScore'
 import assert from 'node:assert/strict'
 import { scoreResume, scoreDocumentFromResume, type ScoreDocument } from '../lib/optimizer/score'
 import { scoreDocumentSignature, uniqueScoredRequirements } from '../lib/optimizer/scoreV2'
@@ -18,7 +19,7 @@ const target: JobTargetProfile = {version:1,mode:'job_description',job_title:'In
   screening_requirements:[{term:'Bachelor of Technology',kind:'education',importance:'must',status:'met'},{term:'PMP',kind:'certification',importance:'must',status:'met'}],
 }
 const base = scoreResume(doc,target,100)
-assert.equal(base.scoring_version,'match-v2')
+assert.equal(base.scoring_version,'match-v2-date-precision','new results identify the precision-aware score contract')
 assert.equal(base.v2?.breakdown.quality.max,25)
 assert.equal(base.v2?.breakdown.skills.weight,30)
 assert.equal(base.v2?.breakdown.responsibilities.weight,20)
@@ -54,7 +55,7 @@ const missingDoc={...doc,skills:[],summary:'Instrument Engineer with project exp
 const missing=scoreResume(missingDoc,target,100)
 assert.equal(missing.v2?.breakdown.skills.points,0)
 assert.equal(missing.v2?.breakdown.responsibilities.points,0)
-assert.ok(base.total>missing.total)
+assert.ok(assertKnownScore(base.total)>assertKnownScore(missing.total))
 const skillOnly={...missingDoc,skills:['DCS','Loop checking']}
 assert.equal(scoreResume(skillOnly,target,100).v2?.breakdown.skills.points,30,'confirmed skills-only selections need not invent a company responsibility')
 const listedDuty={...missingDoc,skills:['handover documentation']}
@@ -79,7 +80,7 @@ const nc=scoreResume(doc,noCategories,100)
 assert.equal(nc.v2?.applicableMaximum,35)
 assert.equal(nc.v2?.breakdown.skills.applicable,false)
 assert.equal(nc.v2?.breakdown.skills.points,0)
-assert.equal(nc.total,Math.round((nc.v2!.rawPoints/35)*100),'absent categories redistribute transparently instead of gifting nominal points')
+assert.equal(nc.total,Math.round((assertKnownScore(nc.v2!.rawPoints)/35)*100),'absent categories redistribute transparently instead of gifting nominal points')
 const negativeTarget={...target,keywords:[keyword('SAP PM','tool'),keyword('handover documentation','responsibility')],screening_requirements:[]}
 const denied={...doc,summary:'No SAP PM experience. I did not perform handover documentation.',skills:['No SAP PM experience'],additional:['Never performed handover documentation.'],experience:[{entryId:'e1',role:'Not an Instrument Engineer',bullets:['Did not perform handover documentation.','No SAP PM experience.']}]}
 const deniedScore=scoreResume(denied,negativeTarget,100)

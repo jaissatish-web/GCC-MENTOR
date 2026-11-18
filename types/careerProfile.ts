@@ -1,3 +1,4 @@
+import type { DatePrecision } from '@/lib/profileDatePrecision'
 import type { CategoryMetadata } from '@/lib/profileCategories'
 /**
  * Career Profile schema types (TASK-011).
@@ -150,6 +151,8 @@ export interface ProfileWorkExperience {
   role: string
   start_date: string | null // date; null = not provided
   end_date: string | null // date; null = current only when end_date_unconfirmed is false
+  start_date_precision?: DatePrecision | null // null = legacy precision unknown
+  end_date_precision?: DatePrecision | null
   end_date_unconfirmed?: boolean // true = user deferred current/end-date confirmation
   location: string | null
   description: string | null
@@ -179,8 +182,10 @@ export interface ProfileCertification {
   profile_id: string
   name: string
   issuer: string | null
-  issue_date: string | null // date
-  expiry_date: string | null // date
+  issue_date: string | null // canonical partial date in the domain
+  expiry_date: string | null
+  issue_date_precision?: DatePrecision | null
+  expiry_date_precision?: DatePrecision | null
   sort_order: number // user's canonical order; never mutated by AI
   created_at: string
 }

@@ -12,6 +12,7 @@
  */
 
 import './resolve-paths'
+import { assertKnownScore } from './fixtures/assertKnownScore'
 import type { CareerProfileFull } from '../types/careerProfile'
 import { containsTermInSentence, containsTermRaw, deriveAcronym, stem, containsQuote } from '../lib/optimizer/text'
 import { bridgeIsPlausible, buildEvidenceMap, sameSentenceBridges, verifyBridges } from '../lib/optimizer/evidence'
@@ -234,19 +235,19 @@ const baseDoc = scoreDocumentFromResume(baselineDocument(profile, target.job_tit
 const s1 = scoreResume(baseDoc, target, 80)
 const s2 = scoreResume(baseDoc, target, 80)
 check('same input, same score', JSON.stringify(s1) === JSON.stringify(s2))
-check('score is 0–100', s1.total >= 0 && s1.total <= 100)
+check('score is 0–100', assertKnownScore(s1.total) >= 0 && assertKnownScore(s1.total) <= 100)
 const improvedDoc = {
   ...baseDoc,
   experience: baseDoc.experience.map((e) =>
     e.entryId === 'e1' ? { ...e, bullets: [...e.bullets, 'Tracked 300 monthly work orders in the CMMS'] } : e,
   ),
 }
-check('placing a supported term raises the score', scoreResume(improvedDoc, target, 80).total > s1.total)
+check('placing a supported term raises the score', assertKnownScore(scoreResume(improvedDoc, target, 80).total) > assertKnownScore(s1.total))
 const stuffedDoc = { ...baseDoc, summary: baseDoc.summary + ' SAP PM SAP PM NEBOSH' }
 check('keyword credit is capped at 1 per term (no stuffing gain beyond presence)',
   scoreResume(stuffedDoc, target, 80).keywords.find((k) => k.term === 'SAP PM')!.credit === 1)
 const max = maxAchievableScore(baseDoc, target, ev.keywords, 80, { summary: true, experienceIds: ['e1', 'e2', 'e3'] })
-check('honest max >= before', max >= s1.total)
+check('honest max >= before', assertKnownScore(max) >= assertKnownScore(s1.total))
 const maxNoSel = maxAchievableScore(baseDoc, target, ev.keywords, 80, { summary: false, experienceIds: [] })
 check('selecting nothing gives no keyword gain', maxNoSel === s1.total)
 const fullMax = maxAchievableBreakdown(baseDoc, target, ev.keywords, 80, { summary: true, experienceIds: ['e1', 'e2', 'e3'] })
@@ -465,7 +466,7 @@ async function pipelineSuite() {
       check('fewer calls: a clean build makes exactly one model call (no review by default)', result.stats.modelCalls === 1)
       check('every block optimized', result.optimizedContent.experience_blocks.every((b) => b.was_optimized))
       check('summary is the generated one', result.optimizedContent.summary.generated === GOOD_SUMMARY)
-      check('report after >= before', !!result.report?.after && result.report.after.total >= result.report.before.total)
+      check('report after >= before', !!result.report?.after && assertKnownScore(result.report.after.total) >= assertKnownScore(result.report.before.total))
       check('report lists gaps, never as matched', !!result.report?.gaps?.some((g) => g.term === 'SAP PM'))
       check('why_fits cites real placements', !!result.report?.why_fits?.some((w) => w.term === 'CMMS' && w.where.includes('e1')))
       check('the separate review call is off by default', !result.stats.reviewRan)
@@ -543,7 +544,7 @@ async function pipelineSuite() {
       summary: () => 'Engineer with 8+ years of work in buildings across hospitals and malls, known for careful and reliable delivery on every assignment given.',
       role: (id) => (id === 'e1' ? ['Handled equipment upkeep tasks for the site', 'Logged monthly jobs for the site team', 'Supported shutdown works with the operations team'] : GOOD[id]),
     })
-    check('score guard: the match score never goes down', result.ok && !!result.report?.after && result.report.after.total >= result.report.before.total)
+    check('score guard: the match score never goes down', result.ok && !!result.report?.after && assertKnownScore(result.report.after.total) >= assertKnownScore(result.report.before.total))
   }
   {
     const { result, calls } = await run({

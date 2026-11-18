@@ -10,6 +10,8 @@ import { interviewProgress } from '@/lib/interviewProgress'
 import { FileText, PenLine, TrendingUp, type LucideIcon } from 'lucide-react'
 import { useState } from 'react'
 import { buttonVariants } from '@/components/ui/Button'
+import { PartBars } from '@/components/optimizer/MatchScore'
+import { JobScoreDetails } from '@/components/optimizer/JobScoreDetails'
 import { readMatchReport } from '@/components/optimizer/MatchResult'
 import { cn } from '@/lib/utils'
 import { CTA, NAMES } from '@/lib/serviceLabels'
@@ -85,18 +87,19 @@ export function ResultsOverview({
         <TargetJobOverview pkg={pkg} />
 
         {/* ATS SCORE — green */}
-        <article className="flex flex-col gap-2 rounded-card border border-ok/40 bg-ok-soft p-4">
-          <CardLabel tone="text-ok" icon={TrendingUp}>
+        <article className={cn('flex flex-col gap-2 rounded-card border p-4', report?.after?.total === null ? 'border-line bg-canvas' : 'border-ok/40 bg-ok-soft')}>
+          <CardLabel tone={report?.after?.total === null ? 'text-ink-soft' : 'text-ok'} icon={TrendingUp}>
             {NAMES.atsScore}
             {report?.mode === 'target_title_only' ? ' · estimate' : ''}
           </CardLabel>
           {report?.after ? (
             <>
+              {report.after.total === null ? <div role="status" className="type-helper text-ink-soft"><p className="font-semibold text-ink">Pending clarification</p><p>Insufficient date precision. Other assessable results remain available.</p><PartBars score={report.after} compare={report.before} /><JobScoreDetails score={report.after} before={report.before} /></div> : <>
               <div className="flex items-end gap-4">
                 <ScoreNumber label="Before" value={report.before.total} muted />
                 <span aria-hidden="true" className="pb-6 text-[22px] text-ink-muted">→</span>
                 <ScoreNumber label="After" value={report.after.total} />
-                {report.after.total - report.before.total > 0 ? (
+                {typeof report.before.total === 'number' && report.after.total - report.before.total > 0 ? (
                   <span className="mb-6 rounded-full bg-ok px-2.5 py-1 font-mono text-[13px] font-bold text-white">
                     +{report.after.total - report.before.total}
                   </span>
@@ -104,12 +107,13 @@ export function ResultsOverview({
               </div>
               <ScoreBar before={report.before.total} after={report.after.total} />
               <p className="type-helper text-ink-soft">
-                {pending > 0
+                {typeof report.max_total !== 'number' || report.projected_with_suggestions === null ? 'Pending clarification' : pending > 0
                   ? `Up to ${report.projected_with_suggestions ?? report.after.total} if you confirm the ${pending} suggested line${pending === 1 ? '' : 's'} below.`
                   : `Estimated match potential with your current profile: ${Math.max(report.max_total, report.after.total)}.`}
               </p>
+              </>}
               {/* Optimizer v3: say plainly when the job is outside the user's field. */}
-              {report.field_match && report.field_match.match !== 'same' ? (
+              {report.after.total !== null && report.field_match && report.field_match.match !== 'same' ? (
                 <p className="type-helper leading-snug text-ink-soft">
                   {report.field_match.match === 'different'
                     ? `This job (${report.field_match.job_field}) is outside your field (${report.field_match.candidate_field}), so the score stays low. Jobs in your field score much higher.`
@@ -214,7 +218,8 @@ function CardLabel({ children, tone, icon: Icon }: { children: React.ReactNode; 
   )
 }
 
-function ScoreNumber({ label, value, muted = false }: { label: string; value: number; muted?: boolean }) {
+function ScoreNumber({ label, value, muted = false }: { label: string; value: number | null; muted?: boolean }) {
+  if (value === null) return <p className="type-helper text-ink-soft">{label}: Pending clarification</p>
   return (
     <div className="flex flex-col gap-1">
       <span className={cn('font-mono font-bold leading-none', muted ? 'text-[30px] text-ink-muted' : 'text-[44px] text-ok')}>{value}</span>
@@ -223,7 +228,8 @@ function ScoreNumber({ label, value, muted = false }: { label: string; value: nu
   )
 }
 
-function ScoreBar({ before, after }: { before: number; after: number }) {
+function ScoreBar({ before, after }: { before: number | null; after: number | null }) {
+  if (before === null || after === null) return null
   const b = Math.max(0, Math.min(100, before))
   const a = Math.max(0, Math.min(100, after))
   return (

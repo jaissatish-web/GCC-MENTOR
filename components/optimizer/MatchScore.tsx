@@ -24,11 +24,12 @@ export function ScoreRing({
   label,
   muted = false,
 }: {
-  value: number
+  value: number | null
   size?: number
   label?: string
   muted?: boolean
 }) {
+  if (value === null) return <div role="status" className="flex min-w-0 flex-col gap-1 rounded-ctl border border-line bg-canvas p-3 type-helper text-ink-soft">{label ? <span className="font-semibold">{label}</span> : null}<span>Pending clarification</span></div>
   const r = (size - 12) / 2
   const c = 2 * Math.PI * r
   const clamped = Math.max(0, Math.min(100, value))
@@ -58,7 +59,8 @@ export function ScoreRing({
   )
 }
 
-export function BandPill({ value }: { value: number }) {
+export function BandPill({ value }: { value: number | null }) {
+  if (value === null) return <span role="status" className="rounded-ctl border border-line bg-canvas px-2.5 py-1 type-helper text-ink-soft">Pending clarification</span>
   const band = scoreBand(value)
   return (
     <span className={cn('rounded-full px-2.5 py-0.5 text-[12px] font-semibold', TONE[band.tone].soft, TONE[band.tone].text)}>
@@ -74,7 +76,8 @@ export function PartBars({ score, compare }: { score: MatchScore; compare?: Matc
       const part = score.v2!.breakdown[key]
       if (!part.applicable) return null
       const previous = compare?.v2?.breakdown[key]?.points
-      const delta = previous === undefined ? 0 : part.points - previous
+      if (part.points === null || part.score === null) return <div key={key} className="flex flex-col gap-1 type-helper"><span className="font-semibold text-ink-soft">{labels[key]}</span><span>Insufficient date precision</span></div>
+      const delta = typeof previous === 'number' ? part.points - previous : 0
       return <div key={key} className="flex flex-col gap-1"><div className="flex flex-wrap justify-between gap-2 type-helper"><span className="font-semibold text-ink-soft">{labels[key]}</span><span className="font-mono text-ink">{Number(part.points.toFixed(1))}/{part.max}{delta > 0 ? <span className="ml-2 text-teal">+{Number(delta.toFixed(1))}</span> : null}</span></div><div className="h-1.5 overflow-hidden rounded-full bg-line"><div className="h-full rounded-full bg-teal" style={{ width: `${part.score}%` }} /></div></div>
     })}</div>
   }
@@ -88,7 +91,8 @@ export function PartBars({ score, compare }: { score: MatchScore; compare?: Matc
       {keys.map((k) => {
         const part = score.parts[k]!
         const prev = compare?.parts[k]?.score
-        const delta = prev === undefined ? 0 : part.score - prev
+        if (part.score === null) return <div key={k} className="flex flex-col gap-1 type-helper"><span className="font-semibold text-ink-soft">{PART_LABELS[k]}</span><span>Insufficient date precision</span></div>
+        const delta = typeof prev === 'number' ? part.score - prev : 0
         return (
           <div key={k} className="flex flex-col gap-1">
             <div className="flex items-center justify-between text-[12.5px]">
@@ -99,7 +103,7 @@ export function PartBars({ score, compare }: { score: MatchScore; compare?: Matc
               </span>
             </div>
             <div className="h-1.5 overflow-hidden rounded-full bg-line">
-              {prev !== undefined && delta > 0 ? (
+              {typeof prev === 'number' && delta > 0 ? (
                 <div className="relative h-full">
                   <div className="absolute inset-y-0 left-0 rounded-full bg-teal/35" style={{ width: `${part.score}%` }} />
                   <div className="absolute inset-y-0 left-0 rounded-full bg-teal" style={{ width: `${prev}%` }} />

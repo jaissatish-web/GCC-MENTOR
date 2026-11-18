@@ -19,9 +19,9 @@ type Score = {
   quick_wins?: Signal[]
 }
 
-type JobMatchCategory = { score: number; applicable: boolean; explanation: string }
+type JobMatchCategory = { score: number | null; applicable: boolean; explanation: string }
 type JobMatch = {
-  overall_score: number
+  overall_score: number | null
   categories: Record<string, JobMatchCategory>
   diagnosis: string
 }
@@ -254,7 +254,7 @@ export default function GulfReadinessPage() {
       )}
 
       {/* Job Match section — only shown when a JD was provided */}
-      {jobMatch ? <section className="mx-auto mt-8 max-w-4xl rounded-card border border-teal/50 bg-white p-6 sm:p-8"><div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between sm:text-left"><div><p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal type-caption">Job match</p><h2 className="mt-2 type-section">How you fit this role</h2></div><div className="flex size-28 shrink-0 flex-col items-center justify-center rounded-full border-6 border-teal/40 bg-canvas shadow-sm"><span className="font-mono text-4xl font-bold">{jobMatch.overall_score}</span><span className="text-xs text-ink-500">/100</span></div></div><p className="mt-5 border-l-4 border-teal bg-canvas p-4 text-sm leading-relaxed text-ink-soft type-helper">{jobMatch.diagnosis}</p><div className="mt-6 grid gap-3 sm:grid-cols-2">{Object.entries(jobMatch.categories).filter(([, c]) => c.applicable).map(([key, c]) => <div key={key} className="rounded-ctl border border-line bg-canvas p-4"><div className="flex items-center justify-between gap-3"><p className="text-xs font-bold uppercase tracking-[0.12em] text-ink-500 type-caption">{CATEGORY_LABELS[key] ?? key}</p><span className="font-mono text-lg font-bold text-teal">{c.score}<span className="text-xs text-ink-muted">/100</span></span></div><p className="mt-2 text-[13px] leading-relaxed text-ink-soft type-helper">{c.explanation}</p></div>)}</div></section> : null}
+      {jobMatch ? <section className="mx-auto mt-8 max-w-4xl rounded-card border border-teal/50 bg-white p-6 sm:p-8"><div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between sm:text-left"><div><p className="text-[12px] font-bold uppercase tracking-[0.2em] text-teal type-caption">Job match</p><h2 className="mt-2 type-section">How you fit this role</h2></div><div className={jobMatch.overall_score === null ? 'max-w-full rounded-ctl border border-line bg-canvas p-3' : 'flex size-28 shrink-0 flex-col items-center justify-center rounded-full border-6 border-teal/40 bg-canvas shadow-sm'}><span className={jobMatch.overall_score === null ? 'type-helper text-center font-semibold' : 'font-mono text-4xl font-bold'}>{jobMatch.overall_score === null ? 'Pending clarification' : jobMatch.overall_score}</span>{jobMatch.overall_score !== null ? <span className="text-xs text-ink-500">/100</span> : null}</div></div><p className="mt-5 border-l-4 border-teal bg-canvas p-4 text-sm leading-relaxed text-ink-soft type-helper">{jobMatch.diagnosis}</p><div className="mt-6 grid gap-3 sm:grid-cols-2">{Object.entries(jobMatch.categories).filter(([, c]) => c.applicable).map(([key, c]) => <div key={key} className="rounded-ctl border border-line bg-canvas p-4"><div className="flex items-center justify-between gap-3"><p className="text-xs font-bold uppercase tracking-[0.12em] text-ink-500 type-caption">{CATEGORY_LABELS[key] ?? key}</p><span className="font-mono text-lg font-bold text-teal">{c.score === null ? 'Insufficient date precision' : <>{c.score}<span className="text-xs text-ink-muted">/100</span></>}</span></div><p className="mt-2 text-[13px] leading-relaxed text-ink-soft type-helper">{c.explanation}</p></div>)}</div></section> : null}
 
       <NextStep score={score} />
     </div></main>

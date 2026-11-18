@@ -79,7 +79,8 @@ export const SEMANTIC_CATEGORIES: readonly JobMatchCategoryKey[] = [
 ]
 
 export interface JobMatchCategoryResult {
-  score: number // 0-100
+  score: number | null // 0-100; null = insufficient date precision
+  assessment_status?: 'assessed' | 'insufficient_precision'
   /** false = excluded from overall_score entirely — e.g. driving_license when the JD never mentions one (spec: absence must not become a negative). */
   applicable: boolean
   /** Concrete facts the score is based on, e.g. "3 of 5 required skills found: X, Y, Z". Always present, even before the LLM explanation layer runs — this is what makes the deterministic half auditable on its own. */
@@ -89,7 +90,8 @@ export interface JobMatchCategoryResult {
 }
 
 export interface JobMatchResult {
-  overall_score: number
+  overall_score: number | null
+  assessment_status?: 'assessed' | 'needs_date_clarification'
   categories: Record<JobMatchCategoryKey, JobMatchCategoryResult>
   /** The "Ohhh moment" — the single most important thing to know, per §13. Filled by the LLM layer. */
   diagnosis: string
@@ -97,4 +99,4 @@ export interface JobMatchResult {
   scoring_version: string
 }
 
-export const JOB_MATCH_SCORING_VERSION = 'v1-interim-equal-weight'
+export const JOB_MATCH_SCORING_VERSION = 'v2-date-precision-pending'

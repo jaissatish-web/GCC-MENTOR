@@ -1,43 +1,24 @@
 import { hasUnknownEmploymentEnd } from '@/lib/employmentStatus'
+import { dateBounds, type DatePrecision } from '@/lib/profileDatePrecision'
 import type { CareerProfileFull } from '@/types/careerProfile'
 
-/**
- * Whole years of experience across the dated roles, overlaps counted once
- * (2026-09-18). Computed in code so no model does date arithmetic: a cover
- * letter once said "nearly 13 years" for a career that runs Aug 2011 – present.
- * Shared by the prose claim checks, the summary validator and the quality gate.
- */
-export function totalExperienceYears(profile: Pick<CareerProfileFull, 'work_experience'>, now: Date = new Date()): number | null {
-  const nowIndex = now.getFullYear() * 12 + now.getMonth()
-  const monthIndex = (d: string | null | undefined): number | null => {
-    if (!d || /present|current|now/i.test(d)) return nowIndex
-    const m = /^(\d{4})(?:-(\d{1,2}))?/.exec(d.trim())
-    return m ? Number(m[1]) * 12 + (m[2] ? Number(m[2]) - 1 : 0) : null
-  }
-  const spans: Array<[number, number]> = []
-  for (const e of profile.work_experience ?? []) {
-    if (!e.start_date || hasUnknownEmploymentEnd(e)) continue
-    const s = monthIndex(e.start_date)
-    const end = monthIndex(e.end_date)
-    if (s === null || end === null || end < s) continue
-    spans.push([s, end])
-  }
-  if (spans.length === 0) return null
-  spans.sort((a, b) => a[0] - b[0])
-  let months = 0
-  let [cs, ce] = spans[0]
-  for (const [s, e] of spans.slice(1)) {
-    if (s <= ce + 1) ce = Math.max(ce, e)
-    else {
-      months += ce - cs + 1
-      ;[cs, ce] = [s, e]
-    }
-  }
-  months += ce - cs + 1
-  return Math.floor(months / 12)
+export interface WorkForDuration {
+  start_date?: string | null
+  end_date?: string | null
+  start_date_precision?: DatePrecision | null
+  end_date_precision?: DatePrecision | null
+  end_date_unconfirmed?: boolean
 }
 
-/** Merged whole-month count of a set of [startMonth, endMonth] spans, overlaps counted once. */
+export interface DurationAssessment {
+  status: 'known' | 'bounded' | 'unknown'
+  minimumYears: number | null
+  maximumYears: number | null
+  /** A definitive whole-year count only when both conservative bounds agree. */
+  years: number | null
+}
+
+/** Existing inclusive whole-month arithmetic, with overlaps counted once. */
 function mergedMonths(spans: Array<[number, number]>): number {
   if (spans.length === 0) return 0
   const sorted = [...spans].sort((a, b) => a[0] - b[0])
@@ -45,59 +26,65 @@ function mergedMonths(spans: Array<[number, number]>): number {
   let [cs, ce] = sorted[0]
   for (const [s, e] of sorted.slice(1)) {
     if (s <= ce + 1) ce = Math.max(ce, e)
-    else {
-      months += ce - cs + 1
-      ;[cs, ce] = [s, e]
-    }
+    else { months += ce - cs + 1; [cs, ce] = [s, e] }
   }
   return months + (ce - cs + 1)
 }
 
-export interface GccExperience {
-  /** A recorded GCC role has an unanswered end-date/current-status question. */
-  durationUnconfirmed?: boolean
-  /** Whole years in GCC-based roles, overlaps counted once. 0 when none. */
-  years: number
-  /** Countries, in the order they first appear in the work history. */
-  countries: string[]
-  /** How many roles were GCC-based. */
-  roles: number
-}
+const monthIndex = (date: string) => Number(date.slice(0, 4)) * 12 + Number(date.slice(5, 7)) - 1
 
 /**
- * Years and countries of the roles that were based in the GCC (2026-09-23).
- *
- * A role counts when its own `gcc_country` is set, or when its written location
- * names a GCC country or city (lib/jobMatch/gccLocation.ts — the same reader Job
- * Match uses). Nothing is inferred from an employer's name. `countryLabel` turns
- * the stored value into what the user reads.
+ * Union guaranteed covered months for a lower bound and possibly covered months for an upper bound.
+ * Bounds are evaluated with the same inclusive-month formula used for confirmed dates; no midpoint is used.
+ * A missing boundary leaves the total unknown, even if some other roles have confirmed dates.
  */
+export function workDurationAssessment(work: ReadonlyArray<WorkForDuration>, now: Date = new Date()): DurationAssessment {
+  const today = `${String(now.getFullYear()).padStart(4, '0')}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+  const lower: Array<[number, number]> = [], upper: Array<[number, number]> = []
+  let bounded = false, unknown = false
+  for (const role of work) {
+    const start = dateBounds(role.start_date, role.start_date_precision)
+    const end = hasUnknownEmploymentEnd(role) || !role.end_date && role.end_date_precision != null ? null : role.end_date ? dateBounds(role.end_date, role.end_date_precision) : dateBounds(today, 'day')
+    if (!start || !end || start.min > end.max) { unknown = true; continue }
+    bounded ||= start.precision === null || start.precision === 'year' || end.precision === null || end.precision === 'year'
+    const minStart = monthIndex(start.min), maxStart = monthIndex(start.max), minEnd = monthIndex(end.min), maxEnd = monthIndex(end.max)
+    upper.push([minStart, maxEnd])
+    if (maxStart <= minEnd) lower.push([maxStart, minEnd])
+  }
+  const minimumYears = Math.floor(mergedMonths(lower) / 12)
+  if (unknown) return { status: 'unknown', minimumYears, maximumYears: null, years: null }
+  const maximumYears = Math.floor(mergedMonths(upper) / 12)
+  return { status: bounded ? 'bounded' : 'known', minimumYears, maximumYears, years: minimumYears === maximumYears ? minimumYears : null }
+}
+
+/** Whole years are stated only when the conservative bounds establish that count. */
+export function totalExperienceYears(profile: Pick<CareerProfileFull, 'work_experience'>, now: Date = new Date()): number | null {
+  return profile.work_experience?.length ? workDurationAssessment(profile.work_experience, now).years : null
+}
+
+export interface GccExperience {
+  durationUnconfirmed?: boolean
+  /** Null means the duration is not established, never zero years. */
+  years: number | null
+  countries: string[]
+  roles: number
+  duration: DurationAssessment
+}
+
+/** GCC identity comes only from an explicit country or the role's stated location. */
 export function gccExperience(
-  work: ReadonlyArray<{ start_date?: string | null; end_date?: string | null; end_date_unconfirmed?: boolean; location?: string | null; gcc_country?: string | null }>,
+  work: ReadonlyArray<WorkForDuration & { location?: string | null; gcc_country?: string | null }>,
   resolve: (location: string | null | undefined) => string | null,
   now: Date = new Date(),
 ): GccExperience {
-  const nowIndex = now.getFullYear() * 12 + now.getMonth()
-  const monthIndex = (d: string | null | undefined): number | null => {
-    if (!d || /present|current|now/i.test(d)) return nowIndex
-    const m = /^(\d{4})(?:-(\d{1,2}))?/.exec(d.trim())
-    return m ? Number(m[1]) * 12 + (m[2] ? Number(m[2]) - 1 : 0) : null
-  }
-  const spans: Array<[number, number]> = []
   const countries: string[] = []
-  let roles = 0
-  let durationUnconfirmed = false
-  for (const w of work) {
-    const country = (w.gcc_country && w.gcc_country.trim()) || resolve(w.location ?? null)
-    if (!country) continue
-    roles++
-    if (!w.start_date || hasUnknownEmploymentEnd(w)) durationUnconfirmed = true
+  const gccWork = work.filter(w => {
+    const country = w.gcc_country?.trim() || resolve(w.location ?? null)
+    if (!country) return false
     if (!countries.includes(country)) countries.push(country)
-    if (!w.start_date || hasUnknownEmploymentEnd(w)) continue
-    const s = monthIndex(w.start_date)
-    const e = monthIndex(w.end_date)
-    if (s === null || e === null || e < s) continue
-    spans.push([s, e])
-  }
-  return { years: Math.floor(mergedMonths(spans) / 12), countries, roles, ...(durationUnconfirmed ? { durationUnconfirmed: true } : {}) }
+    return true
+  })
+  const duration = workDurationAssessment(gccWork, now)
+  const durationUnconfirmed = duration.status !== 'known'
+  return { years: duration.years, countries, roles: gccWork.length, duration, ...(durationUnconfirmed ? { durationUnconfirmed: true } : {}) }
 }

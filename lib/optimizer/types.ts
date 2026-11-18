@@ -47,6 +47,7 @@ export interface ScreeningRequirement {
   importance: KeywordImportance
   kind: string
   status: 'met' | 'unmet' | 'unknown'
+  uncertainty_reason?: 'insufficient_date_precision'
 }
 
 export interface QualityReviewEvidence {
@@ -119,7 +120,7 @@ export interface KeywordEvidence {
 }
 
 export interface ScorePart {
-  score: number
+  score: number | null
   weight: number
 }
 
@@ -136,7 +137,7 @@ export interface KeywordCredit {
 export type ScoreV2Bucket = 'quality' | 'presentation' | 'screening' | 'skills' | 'responsibilities' | 'supporting'
 export interface ScoreV2Part extends ScorePart {
   /** Earned raw points before absent-category redistribution. */
-  points: number
+  points: number | null
   /** Nominal maximum (25/10/10/30/20/5). weight is zero when not applicable. */
   max: number
   applicable: boolean
@@ -160,14 +161,15 @@ export interface MatchScoreV2 {
   quality_signature: string
   /** Raw points divided by applicableMaximum, multiplied by 100. */
   applicableMaximum: number
-  rawPoints: number
+  rawPoints: number | null
   mandatoryGaps: number
   mandatoryUnknown: number
 }
 
 export interface MatchScore {
   scoring_version: string
-  total: number
+  total: number | null
+  assessment_status?: 'assessed' | 'needs_date_clarification'
   parts: {
     keywords: ScorePart
     summary: ScorePart
@@ -192,7 +194,7 @@ export interface MatchReport {
   qualifications: number | null
   before: MatchScore
   /** Best achievable with the real profile and every block selected. */
-  max_total: number
+  max_total: number | null
   level?: OptimizationLevel
   after?: MatchScore
   /** Set when the user has edited generated text since the build; `after` is recomputed. */
@@ -204,7 +206,7 @@ export interface MatchReport {
   /** Moderate/High: drafted lines for missing requirements, awaiting the candidate. */
   suggestions?: Array<{ id: string; block: string; requirement: string; text: string; status: 'pending' | 'confirmed' | 'dismissed' }>
   /** Score if every pending suggestion were confirmed. */
-  projected_with_suggestions?: number
+  projected_with_suggestions?: number | null
   /** The level's target band, e.g. [75, 85]. */
   target_band?: [number, number]
   /** Which engine built it. Absent = the 2026-09-17 engine. */
@@ -218,7 +220,7 @@ export interface MatchReport {
    * show. NEVER written into the CV — offered to the user to add to their
    * Career Profile if they really hold them, with the points each would add.
    */
-  ask_certifications?: Array<{ term: string; importance: KeywordImportance; gain: number }>
+  ask_certifications?: Array<{ term: string; importance: KeywordImportance; gain: number | null }>
   /** v3: job terms (list B) added inside the candidate's own rewritten lines — yellow on the first review. */
   added_terms?: string[]
   /** v3: no advert was pasted — matched against the typical Gulf advert for the title (typical_job_adverts). */

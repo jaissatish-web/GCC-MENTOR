@@ -1,3 +1,4 @@
+import { readPrecisionDate, type DatePrecision } from '@/lib/profileDatePrecision'
 import { employmentEndLabel } from '@/lib/employmentStatus'
 import { stripIdNumbers } from '@/lib/idNumbers'
 import { isHeadlineEntry, resolveProfileHeadline } from '@/lib/resumeHeadline'
@@ -67,11 +68,15 @@ export function formatMonthYear(d: string | null | undefined): string {
   return `${MONTHS[Number(m[2]) - 1] ?? ''} ${m[1]}`.trim()
 }
 
-function dateRange(start: string | null | undefined, end: string | null | undefined, endUnconfirmed = false): string {
-  const s = formatMonthYear(start)
+function dateRange(start: string | null | undefined, end: string | null | undefined, endUnconfirmed = false, startPrecision?: DatePrecision | null, endPrecision?: DatePrecision | null): string {
+  const label = (value: string, precision?: DatePrecision | null) => {
+    const canonical = readPrecisionDate(value, precision)
+    return canonical ? formatMonthYear(canonical) + (precision === null ? ' (date precision unverified)' : '') : ''
+  }
+  const s = start ? label(start, startPrecision) : ''
   if (!s) return ''
   // A null end_date means "current" (docs/CAREER_PROFILE.md §3).
-  return `${s} — ${employmentEndLabel({ end_date: end, end_date_unconfirmed: endUnconfirmed }, formatMonthYear)}`
+  return `${s} — ${employmentEndLabel({ end_date: end, end_date_unconfirmed: endUnconfirmed }, value => label(value, endPrecision))}`
 }
 
 export interface ResumeExperienceItem {
@@ -307,7 +312,7 @@ export function buildResumeDocument({
       return {
         entry: descriptionInBullets ? { ...entry, description: null } : entry,
         bullets: bullets.filter((b) => b && b.trim() !== ''),
-        range: dateRange(entry.start_date, entry.end_date, entry.end_date_unconfirmed),
+        range: dateRange(entry.start_date, entry.end_date, entry.end_date_unconfirmed, entry.start_date_precision, entry.end_date_precision),
         companyLine: joinParts([entry.company, entry.location]),
       }
     })

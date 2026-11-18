@@ -1,4 +1,5 @@
 import './resolve-paths'
+import { assertKnownScore } from './fixtures/assertKnownScore'
 import assert from 'node:assert/strict'
 import { sanitizeEditedDocument } from '../lib/resumeEdits'
 import { dutySuggestions, requirementId, selectedAnalysis, recommendedLevel, resumeSkillSuggestions, confirmedResumeSkills } from '../lib/optimizer/v3/preselection'
@@ -62,7 +63,7 @@ async function verifyBuild() {
   assert.equal(approved.report.auto_applied,true)
   assert.ok(approved.report.why_fits?.some(q=>q.term==='handover documentation'),'confirmed generated duty appears in measured fit')
   assert.ok(!approved.report.gaps?.some(q=>q.term==='handover documentation'))
-  assert.ok(approved.report.max_total >= (approved.report.after?.total ?? 0))
+  assert.ok(assertKnownScore(approved.report.max_total) >= assertKnownScore(approved.report.after?.total))
   assert.ok(approved.documentSnapshot.experience.find(e=>e.entry.id===owner)?.bullets.some(b=>b.includes('handover documentation')))
   assert.ok(approved.optimizedContent.experience_blocks.find(b=>b.profile_experience_id===owner)?.generated_bullets?.some(b=>b.includes('handover documentation')),'confirmed points mirrored to durable content')
   assert.equal(approved.documentSnapshot.summary,profile.professional_summary)
@@ -114,7 +115,7 @@ async function verifyBuild() {
   assert.ok(dropped.report.gaps?.some(q=>q.term===undelivered.term),'selected but ungenerated duty remains a measured gap')
   assert.ok(!dropped.report.why_fits?.some(q=>q.term===undelivered.term),'selection alone never establishes fit')
   assert.ok(dropped.report.gaps?.some(q=>q.term===missingFixed.term),'unknown mandatory screening stays visible')
-  assert.ok(dropped.report.max_total >= (dropped.report.after?.total ?? 0))
+  assert.ok(assertKnownScore(dropped.report.max_total) >= assertKnownScore(dropped.report.after?.total))
   console.log('PASS mocked build: preapproved content/owner/sections/skills, actual scoring, empty/forged/legacy choices')
 }
 verifyBuild().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>{engine.writeV3=originalWriter;quality.reviewScoreQuality=originalQualityReview})

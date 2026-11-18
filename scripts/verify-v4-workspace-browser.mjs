@@ -1,0 +1,52 @@
+/** Isolated component browser checks. No account, production API, database or AI calls. */
+import assert from 'node:assert/strict'
+import {createRequire} from 'node:module'
+import {mkdtempSync,writeFileSync,readFileSync,rmSync,mkdirSync} from 'node:fs'
+import {tmpdir} from 'node:os'
+import {join} from 'node:path'
+import {createServer} from 'node:http'
+import puppeteer from 'puppeteer'
+const root=process.cwd(),require=createRequire(import.meta.url),dir=mkdtempSync(join(tmpdir(),'v4-workspace-'))
+const output=join(root,'artifacts/v4-workspace');mkdirSync(output,{recursive:true})
+let server,browser
+try {
+ writeFileSync(dir+'/entry.jsx',`import React,{useState}from'react';import{createRoot}from'react-dom/client';import{ProfileReviewWorkspace}from${JSON.stringify(root+'/components/profile/review/ProfileReviewWorkspace.tsx')};import{PrecisionDateField}from${JSON.stringify(root+'/components/profile/review/PrecisionDateField.tsx')};import{ResumeImport}from${JSON.stringify(root+'/components/profile/ResumeImport.tsx')};
+ window.events=[];window.saved=0;function Harness(){const[section,changeSection]=useState('identity'),[confirmed,confirm]=useState(false),[date,setDate]=useState({value:'2021-06-17',precision:null});return <><ProfileReviewWorkspace candidateName="Nina Sample" sections={[{id:'identity',title:'Personal information',summary:'Check contact details'},{id:'experience',title:'Work experience',status:'attention'},{id:'education',title:'Education'},{id:'skills',title:'Skills'},{id:'training',title:'Certifications & training'},{id:'languages',title:'Languages & other facts'},{id:'summary',title:'Professional summary'},{id:'preferences',title:'Gulf preferences'}]} activeSectionId={section} onSectionChange={changeSection} unresolvedCount={1} onUnresolved={()=>changeSection('experience')} confirmed={confirmed} onConfirm={confirm} onSave={()=>{window.saved++}} source={<pre>Originally extracted synthetic detail: 2021 only.</pre>} sourceNotice="Extracted details are not original bytes." onSourceReattach={()=>window.events.push('reattach')}><section><h2 tabIndex={-1}>{section}</h2><PrecisionDateField id="date" label="Employment start" value={date.value} precision={date.precision} onChange={(value,precision)=>{setDate({value,precision});confirm(false)}}/><p>Candidate supplied facts remain editable.</p><input aria-label="Name" defaultValue="Nina Sample"/></section></ProfileReviewWorkspace><details><summary>Test import</summary><ResumeImport initialMode="paste" onSourceReady={source=>window.events.push(['source',source])} onDraft={()=>window.events.push(['draft'])} onFillManually={()=>{}}/></details></>};createRoot(document.getElementById('root')).render(<Harness/>);`)
+ writeFileSync(dir+'/loader.cjs',`module.exports=s=>require(${JSON.stringify(require.resolve('sucrase'))}).transform(s,{transforms:['typescript','jsx'],jsxRuntime:'automatic',production:true}).code`)
+ writeFileSync(dir+'/css.cjs',`module.exports=s=>'module.exports='+JSON.stringify(Object.fromEntries([...s.matchAll(/\\.([a-zA-Z_][\\w-]*)/g)].map(m=>[m[1],m[1]])))`)
+ const webpack=require('next/dist/compiled/webpack/webpack');webpack.init()
+ await new Promise((yes,no)=>webpack.webpack({mode:'development',devtool:false,entry:dir+'/entry.jsx',output:{path:dir,filename:'fixture.js'},resolve:{extensions:['.tsx','.ts','.js','.jsx'],alias:{'@':root},modules:[root+'/node_modules','node_modules']},module:{rules:[{test:/\.[jt]sx?$/,exclude:/node_modules/,use:dir+'/loader.cjs'},{test:/\.css$/,use:dir+'/css.cjs'}]}},(e,s)=>e||s.hasErrors()?no(e||Error(s.toString({errors:true}))):yes()))
+ const css=readFileSync(root+'/components/profile/review/ProfileReviewWorkspace.module.css','utf8')
+ server=createServer((req,res)=>{if(req.url==='/fixture.js'){res.setHeader('Content-Type','application/javascript');return res.end(readFileSync(dir+'/fixture.js'))}res.setHeader('Content-Type','text/html');res.end('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;font-family:Arial,sans-serif}input,button,textarea{box-sizing:border-box}.field{max-width:100%;width:100%;min-height:44px;border:1px solid #cbd5e1;border-radius:8px;padding:10px}.field-hint{display:block;font-size:13px;color:#526277}button{min-height:44px}.flex{display:flex}.flex-col{flex-direction:column}.gap-1\\.5{gap:6px}'+css+'</style><div id="root"></div><script src="/fixture.js"></script>')})
+ await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const base='http://127.0.0.1:'+server.address().port
+ browser=await puppeteer.launch({executablePath:process.env.CHROMIUM_PATH||await (await import('@sparticuz/chromium')).default.executablePath(),headless:true,pipe:true,args:['--no-sandbox','--disable-dev-shm-usage','--no-zygote','--single-process']});const page=await browser.newPage(),errors=[]
+ page.on('pageerror',error=>errors.push(error.message))
+ await page.setRequestInterception(true);page.on('request',request=>{if(request.url().includes('/api/parse/text'))return request.respond({status:200,contentType:'application/json',body:JSON.stringify({draft:{full_name:'Nina Sample',work_experience:[],skills:[],education:[],certifications:[],additional_information:[]},report:{warnings:[]}})});if(!request.url().startsWith(base))return request.abort();return request.continue()})
+ for(const width of [320,390,768,1440]){
+  await page.setViewport({width,height:900});await page.goto(base);await page.waitForSelector('[data-profile-review-v4]')
+  const overflow=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth,items:[...document.querySelectorAll('*')].filter(e=>e.getBoundingClientRect().right>innerWidth+1).map(e=>({tag:e.tagName,cls:e.className,width:e.getBoundingClientRect().width,right:e.getBoundingClientRect().right,text:e.textContent.slice(0,50)})).slice(0,15)}));if(overflow.scroll>width)console.log(overflow);assert.ok(overflow.scroll<=width,'No horizontal overflow at '+width)
+  await page.screenshot({path:output+'/workspace-'+width+'.png',fullPage:true})
+ }
+ const clickText=async text=>{for(const button of await page.$$('button'))if(await button.evaluate((b,t)=>b.textContent===t,text)){await button.click();return}throw Error('Missing button '+text)}
+ await page.setViewport({width:390,height:844});await page.goto(base);await page.waitForSelector('#date')
+ await clickText('Save Career Profile')
+ assert.equal(await page.evaluate(()=>window.saved),0);assert.equal(await page.evaluate(()=>document.activeElement.id),'v4-profile-confirm','save before acknowledgement focuses checkbox')
+ await page.click('#v4-profile-confirm');await clickText('Save Career Profile');assert.equal(await page.evaluate(()=>window.saved),1)
+ await clickText('Use year only');assert.equal(await page.$eval('#date',input=>input.value),'2021');assert.equal(await page.$eval('#v4-profile-confirm',input=>input.checked),false)
+ await clickText('Compare with source');await page.waitForSelector('[role="dialog"]');await page.waitForFunction(()=>document.activeElement.id==='v4-source-panel')
+ await page.keyboard.down('Shift');await page.keyboard.press('Tab');await page.keyboard.up('Shift');assert.equal(await page.evaluate(()=>document.activeElement.textContent),'Reattach original file to compare','modal focus wraps backward')
+ await page.keyboard.press('Tab');assert.equal(await page.evaluate(()=>document.activeElement.getAttribute('aria-label')),'Close source comparison')
+ await page.keyboard.press('Escape');await page.waitForFunction(()=>!document.querySelector('#v4-source-panel'));assert.equal(await page.evaluate(()=>document.activeElement.textContent),'Compare with source')
+ await page.click('details.sectionJump>summary');await page.click('nav[aria-label="Review sections"] button:nth-child(2)');assert.equal(await page.$eval('[data-canonical-review-editor] h2',h=>h.textContent),'experience');assert.equal(await page.evaluate(()=>window.saved),1,'navigation cannot write')
+ await page.focus('#date');await page.waitForFunction(()=>document.querySelector('#date').getBoundingClientRect().bottom < document.querySelector('.saveBar').getBoundingClientRect().top,'Focused date must remain above sticky save');
+ await page.setViewport({width:1440,height:900});await clickText('Compare with source');await page.waitForSelector('#v4-source-panel[role="complementary"]');await page.setViewport({width:390,height:844});await page.waitForSelector('#v4-source-panel[role="dialog"]');assert.equal(await page.evaluate(()=>document.body.style.overflow),'hidden','resizing source to modal locks background');await page.setViewport({width:1440,height:900});await page.waitForSelector('#v4-source-panel[role="complementary"]');assert.equal(await page.evaluate(()=>document.body.style.overflow),'','resizing source to docked panel restores background');await page.keyboard.press('Escape');
+ await page.evaluate(()=>[...document.querySelectorAll('details>summary')].find(summary=>summary.textContent==='Test import').click());await page.waitForSelector('[data-resume-import] textarea')
+ const originalText='  Nina Sample synthetic resume with more than fifty characters and a year-only employment period 2021 to 2022.  '
+ await page.type('[data-resume-import] textarea',originalText)
+ const labels=await page.$$eval('[data-resume-import] button',buttons=>buttons.map(b=>b.textContent));
+ const readButton=await page.$$(' [data-resume-import] button');let clicked=false;for(const button of readButton){const text=await button.evaluate(b=>b.textContent);if(/read|create|extract|review/i.test(text)&&!text.includes('Back')){await button.click();clicked=true;break}}
+ assert.ok(clicked,'import extraction action exists');await page.waitForFunction(()=>window.events.some(event=>Array.isArray(event)&&event[0]==='draft'))
+ const events=await page.evaluate(()=>window.events);assert.equal(events[0][0],'source');assert.equal(events[0][1],originalText);assert.equal(events[1][0],'draft','exact immutable pasted source handed off before draft')
+ assert.deepEqual(errors,[])
+ console.log('PASS V4 browser: 320/390/768/1440 widths, acknowledgement gating, legacy precision clarification, mobile source focus trap/Escape/return, navigation no writes, exact source before single draft handoff')
+} finally {if(browser)await browser.close();if(server)await new Promise(resolve=>server.close(resolve));rmSync(dir,{recursive:true,force:true})}

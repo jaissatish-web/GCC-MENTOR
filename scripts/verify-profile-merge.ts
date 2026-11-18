@@ -89,7 +89,8 @@ check('an empty field is filled from the CV', m.profile.current_location === 'Ab
 
 console.log('\nWhat a Replace would remove is counted on the same keys')
 const replaceSame = describeReplaceLosses(existing, draft)
-check('a CV containing every existing entry loses none of them', Object.values(replaceSame.entries).every((n) => n === 0))
+check('a partial-month start without an end cannot prove the existing tenure survives replacement', replaceSame.entries.work_experience === 1 && Object.entries(replaceSame.entries).filter(([table])=>table!=='work_experience').every(([,count])=>count===0))
+check('the uncertain same-employer tenure remains visible for an explicit choice', m.ambiguousWork.length===1 && m.ambiguousWork[0].incoming.start_date==='2008-03')
 const draftWithoutAcme = {
   ...draft,
   work_experience: (draft.work_experience as unknown as AnyRow[]).slice(0, 2),
