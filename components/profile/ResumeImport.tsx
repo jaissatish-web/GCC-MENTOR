@@ -44,6 +44,7 @@ export function ResumeImport({
   onDraft,
   onFillManually,
   onProcessingChange,
+  onSourceReady,
 }: {
   /** Deep-link intent, e.g. ?import=upload opens the file panel. */
   initialMode?: Mode
@@ -54,6 +55,8 @@ export function ResumeImport({
   onFillManually: () => void
   /** Lets the canonical editor pause conflicting actions while the reader runs. */
   onProcessingChange?: (processing: boolean) => void
+  /** Read-only current-tab source capture, independent from extracted/editor facts. */
+  onSourceReady?: (source: File | string) => void | Promise<void>
 }) {
   const fileInput = useRef<HTMLInputElement>(null)
   const importBusy = useRef(false)
@@ -108,7 +111,7 @@ export function ResumeImport({
     setSelectedFile(null)
   }
 
-  const run = async (call: () => Promise<Response>) => {
+  const run = async (call: () => Promise<Response>, source: File | string) => {
     // React state updates are asynchronous; this also blocks a second drop/click.
     if (importBusy.current) return
     importBusy.current = true
@@ -124,6 +127,8 @@ export function ResumeImport({
         setCheckSaved(result.checkSaved)
         return
       }
+      // Source comparison must never trigger another extraction or prevent a valid draft handoff.
+      try { await onSourceReady?.(source) } catch { /* The parent labels unavailable source identity honestly. */ }
       try {
         await onDraft(result.draft, result.warnings, result.review)
         setMode('idle')
@@ -143,7 +148,7 @@ export function ResumeImport({
   const chooseFile = (file: File | null) => {
     if (file) {
       setSelectedFile(file)
-      void run(() => uploadResumeFile(file))
+      void run(() => uploadResumeFile(file), file)
     }
   }
 
@@ -163,6 +168,7 @@ export function ResumeImport({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: trimmed }),
       }),
+      text,
     )
   }
 

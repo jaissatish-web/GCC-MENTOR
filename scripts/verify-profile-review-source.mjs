@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict'
+import { digestSource, identifyReattachedSource, sourceDisplay } from '../lib/profileReviewSource.ts'
+const original = new TextEncoder().encode('Synthetic original resume\n2021–2022')
+const same = await digestSource(original)
+const changed = await digestSource(new TextEncoder().encode('Synthetic original resume\n2021–2023'))
+assert.match(same, /^[a-f0-9]{64}$/)
+assert.equal(same, await digestSource(original))
+assert.equal(identifyReattachedSource({digest:same,size:original.byteLength}, {digest:same,size:original.byteLength}), 'original')
+assert.equal(identifyReattachedSource({digest:same,size:original.byteLength}, {digest:changed,size:original.byteLength}), 'reference')
+assert.equal(identifyReattachedSource(null, {digest:same,size:original.byteLength}), 'reference')
+assert.equal(identifyReattachedSource({digest:same,size:original.byteLength+1}, {digest:same,size:original.byteLength}), 'reference')
+assert.equal(sourceDisplay('extracted').label, 'Originally extracted details')
+assert.equal(sourceDisplay('reference').label, 'Reference file')
+assert.ok(sourceDisplay('reference').notice.includes('not confirmed'))
+console.log('PASS source SHA-256 identity, mismatch, missing identity, size mismatch and honest source labels')

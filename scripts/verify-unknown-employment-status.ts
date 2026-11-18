@@ -54,7 +54,10 @@ assert.ok(buildInterviewQaParts(unknown,doc,target)[0].input.includes('End date 
 assert.ok(candidateFacts(unknown,{...DEFAULT_SETUP,experienceIds:[role.id]}).experience[0].employmentStatus.startsWith('unconfirmed'))
 assert.ok(!profileToScoringText(scoringInputFromProfile(unknown)).includes('Present'))
 const job:StructuredJobProfile={job_title:'Controls Engineer',required_skills:['control systems'],preferred_skills:[],responsibilities:['maintenance'],required_experience_years:3,industry:null,gcc_experience_required:false,gcc_experience_preferred:false,target_countries:[],education_requirements:[],certification_requirements:[],driving_license_required:false}
-assert.ok(computeDeterministicCategories(buildJobMatchProfileInputFromFullProfile(unknown),job).experience_level?.evidence[0].startsWith('Unconfirmed employment duration;'))
+const uncertainExperience = computeDeterministicCategories(buildJobMatchProfileInputFromFullProfile(unknown),job).experience_level!
+assert.equal(uncertainExperience.score, null)
+assert.equal(uncertainExperience.assessment_status, 'insufficient_precision')
+assert.ok(uncertainExperience.evidence.includes('Insufficient date precision'))
 const editable={key:'unconfirmed',role:role.role,company:role.company,start_date:'2020-01',end_date:'',end_date_unconfirmed:true}
 const html=renderToStaticMarkup(React.createElement(WorkExperienceItem,{role:editable,number:1,open:false,onToggle:()=>{},children:'Details'}))
 assert.ok(html.includes('End date not provided'));assert.ok(!html.includes('Current role'));assert.ok(!html.includes('Present'))

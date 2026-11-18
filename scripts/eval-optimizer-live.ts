@@ -38,12 +38,12 @@ interface Outcome {
   name: string
   ok: boolean
   seconds: number
-  before?: number
-  after?: number
-  max?: number
+  before?: number | null
+  after?: number | null
+  max?: number | null
   calls?: number
   fellBack?: number
-  projected?: number
+  projected?: number | null
   problems: string[]
 }
 
@@ -118,17 +118,17 @@ async function runCase(c: EvalCase, level: OptimizationLevel): Promise<Outcome> 
   for (const k of evidence.keywords.filter((x) => x.status === 'gap')) {
     if (containsTermRaw(finalText, k.term, k.aliases)) problems.push(`gap term written: ${k.term}`)
   }
-  if (report.after && report.after.total < report.before.total) problems.push('score went down')
+  if (report.after && report.after.total !== null && report.before.total !== null && report.after.total < report.before.total) problems.push('score went down')
 
   // ---- Human-readable record.
   const lines: string[] = []
   lines.push(`# ${c.name} — ${level}`, '')
   lines.push(`Mode: ${target.mode} · Target: ${c.targetJobTitle} · ${seconds}s · calls ${result.stats.modelCalls} · repaired ${result.stats.repaired} · kept original ${result.stats.fellBack} · review ${result.stats.reviewRan}`)
-  lines.push(`Score: before **${report.before.total}** → after **${report.after?.total}** (honest max ${report.max_total})`)
+  lines.push(`Score: before **${report.before.total ?? 'Pending clarification'}** → after **${report.after?.total ?? 'Pending clarification'}** (honest max ${report.max_total ?? 'Pending clarification'})`)
   lines.push(`Codes seen: ${[...new Set(result.stats.codes)].join(', ') || 'none'}`, '')
   lines.push('## Suggestions (shown to the user to confirm)', '')
   for (const s of report.suggestions ?? []) lines.push(`- [${s.requirement}] -> ${s.block === 'summary' ? 'summary' : s.block}: ${s.text}`)
-  lines.push(`\nScore if all confirmed: ${report.projected_with_suggestions} · level aim ${JSON.stringify(report.target_band)}`, '')
+  lines.push(`\nScore if all confirmed: ${report.projected_with_suggestions ?? 'Pending clarification'} · level aim ${JSON.stringify(report.target_band)}`, '')
   lines.push('## Requirements', '')
   for (const k of evidence.keywords) lines.push(`- [${k.status}] ${k.term} (${k.importance}, ${k.kind})${k.bridges.length ? ` ← "${k.bridges[0].quote}"` : ''}`)
   lines.push('', '## Summary', '', `**Before:** ${c.profile.professional_summary ?? '(none)'}`, '', `**After:** ${oc.summary.generated || '(kept original)'}`, '')

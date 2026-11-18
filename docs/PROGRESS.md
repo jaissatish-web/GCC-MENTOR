@@ -1,3 +1,15 @@
+## ONBOARDING-V4 / DATE-096 — 17 November 2026
+
+Status: implemented on the isolated branch; local verification and founder-review handoff are recorded in [ONBOARDING_V4_VERIFICATION.md](ONBOARDING_V4_VERIFICATION.md). Production release remains prohibited. Founder approved #95 V4 design, #96 four nullable date-precision columns and atomic compatibility guard, precision-aware domain handling, limited duration/gaps, affected ATS/optimizer/interview grounding consumers and pending-score policy. This supersedes historical pending-approval wording for these exact items.
+
+Preserve YYYY / YYYY-MM / YYYY-MM-DD, legacy NULL precision without backfill, record identity, optimistic atomic saves and same-tab recovery. Unknown duration is never zero or a definitive match. Evaluate conservative bounds first; retain original arithmetic/weights for assessable cases; otherwise experience score and affected overall score are pending (null), with independent categories visible. No fallback/weight redistribution or candidate rejection. Clarified dates recalculate. Preserve historical snapshots and segregate new assessment/cache semantics.
+
+Scope: date helpers/types; migration 073 and existing save RPC compatibility; profile API/editor/shared loaders; date-domain document projection (not rendering); informational duration/gaps; necessary experience/ATS/optimizer/grounding adapters/results/UI; scoped unified V4 review/recovery/source/merge components. Acceptance: synthetic year/month/day/legacy/invalid/current/unknown, old-client preservation/rejection, atomic rollback, conservative bounds, 30-to-100 regression, pending consumer safety, same canonical inline editor, one acknowledgement/save, no write on navigation, truthful refetch/failure/recovery/source identity, additions preserve saved facts, responsive and protected-file checks.
+
+Protected: production database/data/migration application, AI prompt text, weights/unrelated scoring formulas, templates/styles/fonts/PDF/preview renderer, auth/RLS, credits and interview evaluation criteria. No merge or production deployment. User explicitly authorizes branch feat/career-profile-onboarding-v4 and implementation PR/available preview for founder review. No paid model calls needed. Rollback: leave unmerged; retain precision compatibility after any future precision-aware writes; never drop metadata or backfill.
+
+Evidence and actual completion/limits will be appended after checks. Spec: Issues #95/#96; plan: docs/superpowers/plans/2026-11-17-profile-onboarding-v4.md.
+
 ## 17 November 2026 — Signed-in journey and resume flow verified against production
 
 **Verified with a real account, a real browser and the founder's own CV**

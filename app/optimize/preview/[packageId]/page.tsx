@@ -439,12 +439,12 @@ function PreviewInner({ packageId }: { packageId: string }) {
               <span className="text-[12px] font-bold uppercase tracking-[0.12em] text-ok">{NAMES.atsScore}</span>
               {before !== null ? <span className="font-mono text-[18px] text-ink-muted">{before}</span> : null}
               {before !== null && liveScore !== null ? <span aria-hidden="true" className="text-ink-muted">→</span> : null}
-              {liveScore !== null ? <span className="font-mono text-[28px] font-bold leading-none text-ok">{liveScore}</span> : <span className="text-[13px] text-ink-muted">not available</span>}
+              {liveScore !== null ? <span className="font-mono text-[28px] font-bold leading-none text-ok">{liveScore}</span> : <span role="status" className="type-helper text-ink-muted">{liveMatchScore?.assessment_status === 'needs_date_clarification' ? 'Pending clarification · Insufficient date precision' : 'not available'}</span>}
               {band && liveScore !== null ? (
                 <span className={cn('rounded-full px-2 py-0.5 text-[12px] font-semibold', liveScore >= band[0] ? 'bg-ok-soft text-ok' : 'bg-gold-soft text-gold-ink')}>
                   {liveScore >= band[0] ? `Target ${band[0]}–${band[1]} reached` : `Target ${band[0]}–${band[1]}`}
                 </span>
-              ) : report?.engine === 'v3' && liveScore !== null ? (
+              ) : report?.engine === 'v3' && liveScore !== null && report.max_total !== null ? (
                 <span className="rounded-full bg-canvas px-2 py-0.5 text-[12px] font-semibold text-ink-muted">
                   Estimated match potential: {Math.max(report.max_total, liveScore)}
                 </span>

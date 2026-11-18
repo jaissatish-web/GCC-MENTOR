@@ -59,7 +59,7 @@ export function analysisInputHash(targetJobTitle: string, targetIndustry: string
   const mode = resolveMode(jobDescription)
   return sha256(
     [
-      'analysis-v3',
+      'analysis-v4-date-precision',
       mode,
       targetJobTitle.trim().toLowerCase(),
       mode === 'target_title_only' ? (targetIndustry ?? '').trim().toLowerCase() : '',
@@ -69,7 +69,12 @@ export function analysisInputHash(targetJobTitle: string, targetIndustry: string
 }
 
 export function profileFingerprint(profile: CareerProfileFull): string {
-  return sha256(profileEvidenceKey(profile))
+  const dates = (profile.work_experience ?? []).slice().sort((a, b) => a.id.localeCompare(b.id)).map(e => [
+    e.id, e.start_date, e.end_date, e.end_date_unconfirmed ?? false,
+    e.start_date_precision === undefined ? 'fresh' : e.start_date_precision,
+    e.end_date_precision === undefined ? 'fresh' : e.end_date_precision,
+  ])
+  return sha256(JSON.stringify(['profile-date-precision-v1', profileEvidenceKey(profile), dates]))
 }
 
 /**
@@ -224,7 +229,8 @@ export function qualificationScore(profile: CareerProfileFull, target: JobTarget
     .filter(([key, c]) => key !== 'required_skills' && c?.applicable)
     .map(([, c]) => c!.score)
   if (applicable.length === 0) return null
-  return Math.round(applicable.reduce((a, b) => a + b, 0) / applicable.length)
+  if (applicable.some(score => score === null)) return null
+  return Math.round((applicable as number[]).reduce((a, b) => a + b, 0) / applicable.length)
 }
 
 const EMPTY_CONTENT: OptimizedContent = {

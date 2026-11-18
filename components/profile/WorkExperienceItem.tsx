@@ -1,10 +1,11 @@
+import type { DatePrecision } from '@/lib/profileDatePrecision'
 import { hasUnknownEmploymentEnd } from '@/lib/employmentStatus'
 import { ChevronDownIcon } from '@heroicons/react/24/outline'
 import { workDateLabel } from '@/lib/profileWorkNavigation'
 import { cn } from '@/lib/utils'
 
 export function WorkExperienceItem({ role, number, open, onToggle, children }: {
-  role: { key: string; role: string; company: string; start_date: string; end_date: string; end_date_unconfirmed?: boolean }
+  role: { key: string; role: string; company: string; start_date: string; end_date: string; end_date_unconfirmed?: boolean; start_date_precision?:DatePrecision|null; end_date_precision?:DatePrecision|null }
   number: number; open: boolean; onToggle: () => void; children: React.ReactNode
 }) {
   const current = Boolean(role.start_date.trim() && !role.end_date.trim() && !hasUnknownEmploymentEnd(role))
@@ -15,7 +16,7 @@ export function WorkExperienceItem({ role, number, open, onToggle, children }: {
       <span className="min-w-0 flex-1">
         <span className="block break-words type-card font-semibold text-ink">{role.role.trim() || 'New role'}</span>
         <span className="mt-1 block break-words type-helper text-ink-soft">{role.company.trim() || 'Add company name'}</span>
-        <span className="mt-1 flex flex-wrap items-center gap-2 type-helper text-ink-soft"><span>{workDateLabel(role.start_date)}{role.start_date || role.end_date ? ` – ${role.end_date ? workDateLabel(role.end_date) : current ? 'Present' : hasUnknownEmploymentEnd(role) ? 'End date not provided' : 'End date not added'}` : ''}</span>{current ? <span className="rounded-full bg-teal-soft px-2 py-0.5 type-caption font-medium text-teal">Current role</span> : null}</span>
+        <span className="mt-1 flex flex-wrap items-center gap-2 type-helper text-ink-soft"><span>{workDateLabel(role.start_date,role.start_date_precision)}{role.start_date || role.end_date ? ` – ${role.end_date ? workDateLabel(role.end_date,role.end_date_precision) : current ? 'Present' : hasUnknownEmploymentEnd(role) ? 'End date not provided' : 'End date not added'}` : ''}</span>{current ? <span className="rounded-full bg-teal-soft px-2 py-0.5 type-caption font-medium text-teal">Current role</span> : null}</span>
       </span>
       <span className="flex shrink-0 flex-col items-end gap-2 type-helper font-semibold text-teal"><ChevronDownIcon aria-hidden="true" className={cn('size-5 transition-transform', open && 'rotate-180')} /><span>{open ? 'Close' : 'Edit role'}</span></span>
     </button></h3>

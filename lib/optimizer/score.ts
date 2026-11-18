@@ -22,6 +22,8 @@ import type { OptimizationLevel } from '@/types/package'
 import { containsTerm, containsTermInSentence, prepare, stems, wordCount, type PreparedText } from './text'
 import type { EvidenceLocation, JobTargetProfile, KeywordCredit, KeywordEvidence, MatchScore, ScorePart } from './types'
 import { keywordWeight } from './evidence'
+import { assessedMaximum } from './scoreAvailability'
+import { experienceLevelCategory } from '@/lib/jobMatch/requirementMapping'
 import { scoreResumeV2 } from './scoreV2'
 
 export const SCORING_VERSION = 'match-v1'
@@ -203,26 +205,31 @@ function formatScore(doc: ScoreDocument, fixable?: { summary: boolean; entryIds:
   return Math.min(100, score)
 }
 
-function combine(parts: MatchScore['parts']): number {
+function combine(parts: MatchScore['parts']): number | null {
   const list: ScorePart[] = [parts.keywords, parts.summary, parts.title, parts.format]
   if (parts.qualifications) list.push(parts.qualifications)
+  if (list.some(p => p.score === null)) return null
   const den = list.reduce((s, p) => s + p.weight, 0)
   if (den === 0) return 0
-  return Math.round(list.reduce((s, p) => s + p.score * p.weight, 0) / den)
+  return Math.round(list.reduce((s, p) => s + (p.score as number) * p.weight, 0) / den)
 }
 
 export function scoreResume(doc: ScoreDocument, target: JobTargetProfile, qualifications: number | null): MatchScore {
   if (target.scoring_version === 'match-v2') return scoreResumeV2(doc, target)
   const p = prepareDoc(doc)
+  const sourceRows = doc.experience.filter(e => e.source).map(e => e.source!)
+  const pendingDuration = target.structured && target.structured.required_experience_years !== null && sourceRows.length > 0
+    ? experienceLevelCategory({professionalSummary: null, skillNames: [], certificationNames: [], educationEntries: [], hasDrivingLicense: null,
+      workExperience: sourceRows.map(w => ({role:w.role,startDate:w.start_date,endDate:w.end_date,startDatePrecision:w.start_date_precision,endDatePrecision:w.end_date_precision,endDateUnconfirmed:w.end_date_unconfirmed,description:w.description,highlights:w.highlights ?? [],gccCountry:null,gccCountrySource:null}))}, target.structured).score === null : false
   const credits = keywordCredits(p, target)
   const parts: MatchScore['parts'] = {
     keywords: { score: Math.round(weightedPct(credits)), weight: credits.length > 0 ? WEIGHTS.keywords : 0 },
     summary: { score: Math.round(summaryScore(p, doc, target)), weight: WEIGHTS.summary },
     title: { score: Math.round(titleScore(doc, target)), weight: WEIGHTS.title },
     format: { score: Math.round(formatScore(doc)), weight: WEIGHTS.format },
-    qualifications: qualifications === null ? null : { score: Math.round(qualifications), weight: WEIGHTS.qualifications },
+    qualifications: pendingDuration ? {score: null, weight: WEIGHTS.qualifications} : qualifications === null ? null : { score: Math.round(qualifications), weight: WEIGHTS.qualifications },
   }
-  return { scoring_version: SCORING_VERSION, total: combine(parts), parts, keywords: credits }
+  return { scoring_version: pendingDuration ? 'match-v1-date-precision' : SCORING_VERSION, total: combine(parts), assessment_status: pendingDuration ? 'needs_date_clarification' : 'assessed', parts, keywords: credits }
 }
 
 export interface Selection {
@@ -241,7 +248,7 @@ export function maxAchievableScore(
   evidence: readonly KeywordEvidence[],
   qualifications: number | null,
   selection: Selection,
-): number {
+): number | null {
   return maxAchievableBreakdown(doc, target, evidence, qualifications, selection).total
 }
 
@@ -281,7 +288,7 @@ export function maxAchievableBreakdown(
     },
     qualifications: before.parts.qualifications,
   }
-  const total = Math.max(before.total, combine(parts))
+  const total = assessedMaximum(before.total, combine(parts))
   return { scoring_version: SCORING_VERSION, total, parts, keywords: credits }
 }
 

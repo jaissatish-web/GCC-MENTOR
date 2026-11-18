@@ -98,19 +98,19 @@ const LEVELS: ReadonlyArray<{
 interface JobCheck {
   beforeScore?: MatchScore
   resumeSkills?: Array<{ id: string; term: string; importance: 'must' | 'nice'; kind: string }>
-  recommendedLevel?: OptimizationLevel
+  recommendedLevel?: OptimizationLevel | null
   dutySuggestions?: Array<{ id: string; term: string; block: string; quote: string | null; importance: 'must' | 'nice'; levels: OptimizationLevel[] }>
   mode: 'job_description' | 'target_title_only'
   fieldMatch: 'same' | 'related' | 'different'
   jobField: string
   candidateField: string
-  before: number
-  expected: Record<OptimizationLevel, number>
-  askCertifications: Array<{ term: string; importance: 'must' | 'nice'; gain: number }>
+  before: number | null
+  expected: Record<OptimizationLevel, number | null>
+  askCertifications: Array<{ term: string; importance: 'must' | 'nice'; gain: number | null }>
   /** Tools, standards and skills to review in the single Career Profile editor. */
-  askSkills?: Array<{ term: string; importance: 'must' | 'nice'; gain: number }>
+  askSkills?: Array<{ term: string; importance: 'must' | 'nice'; gain: number | null }>
   /** High's best score if the user has every skill and certificate the job asks for. */
-  highIfConfirmed?: number
+  highIfConfirmed?: number | null
   /** No advert pasted: matched against the typical Gulf advert for the title. */
   typical?: boolean
   typicalAdvert?: string
@@ -447,14 +447,14 @@ function SetupScreen() {
                       <span className="rounded-full bg-white px-2 py-0.5 type-caption font-semibold text-ink-soft">{check?.recommendedLevel === l.value ? 'Recommended' : l.tag}</span>
                     </span>
                     <span className="type-helper font-semibold text-teal">
-                      {check ? `Estimated ${check.expected[l.value]}% from supported wording` : checkState === 'loading' ? 'Working out your score…' : l.aim}
+                      {check ? check.expected[l.value] === null ? 'Pending clarification · Insufficient date precision' : `Estimated ${check.expected[l.value]}% from supported wording` : checkState === 'loading' ? 'Working out your score…' : l.aim}
                     </span>
-                    {l.value === 'high' && check?.highIfConfirmed && check.highIfConfirmed > check.expected.high ? (
+                    {l.value === 'high' && typeof check?.highIfConfirmed === 'number' && typeof check.expected.high === 'number' && check.highIfConfirmed > check.expected.high ? (
                       <span className="-mt-1 type-caption font-semibold text-gold-ink">
                         potential {check.highIfConfirmed}% if you can confirm the listed skills for this resume
                       </span>
                     ) : null}
-                    <p className="type-helper font-semibold text-ink">{l.aim}</p>
+                    <p className="type-helper font-semibold text-ink">{check?.expected[l.value] === null ? 'Tailor supported wording while the duration-based score awaits clarification.' : l.aim}</p>
                     <ul className="flex flex-col gap-1.5">
                       {l.changes.map((c) => (
                         <li key={c} className="flex gap-1.5 type-helper leading-snug text-ink-soft">
@@ -591,7 +591,9 @@ function JobCheckCard({ state, check, title, onPasteAdvert }: { state: 'idle' | 
     )
   }
   const tone =
-    check.fieldMatch === 'same'
+    check.before === null
+      ? { box: 'border-line bg-canvas', title: 'text-ink-soft', label: 'ATS score pending clarification' }
+      : check.fieldMatch === 'same'
       ? { box: 'border-teal/40 bg-teal-soft/50', title: 'text-teal', label: 'Strong match — this job is in your field' }
       : check.fieldMatch === 'related'
         ? { box: 'border-gold-line bg-gold-bg', title: 'text-gold-text', label: 'Partly your field' }
@@ -601,11 +603,11 @@ function JobCheckCard({ state, check, title, onPasteAdvert }: { state: 'idle' | 
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <p className={cn('type-label font-semibold', tone.title)}>{tone.label}</p>
         <p className="type-helper text-ink-muted">
-          Your resume today: <strong className="font-mono text-ink">{check.before}</strong>
+          Your resume today: <strong className="font-mono text-ink">{check.before === null ? 'Pending clarification' : check.before}</strong>
         </p>
       </div>
       <p className="type-helper leading-relaxed text-ink-soft">
-        {check.fieldMatch === 'same'
+        {check.before === null ? `Insufficient date precision. Your ${check.candidateField} experience and this ${check.jobField} role can still be reviewed; other assessable results remain available.` : check.fieldMatch === 'same'
           ? `Your experience (${check.candidateField}) matches this ${check.jobField} role.`
           : check.fieldMatch === 'related'
             ? `Your experience (${check.candidateField}) shares part of the work of this ${check.jobField} role. Requirements outside your field stay unmet, so the score has a ceiling.`

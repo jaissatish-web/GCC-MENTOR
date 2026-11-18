@@ -1,5 +1,5 @@
 import type { CareerProfileFull } from '@/types/careerProfile'
-import { totalExperienceYears } from '@/lib/experienceYears'
+import { workDurationAssessment } from '@/lib/experienceYears'
 import { gccCountryFromLocation } from '@/lib/jobMatch/gccLocation'
 import { entrySourceText } from './evidence'
 import { containsTermRaw, coversContentStems } from './text'
@@ -24,7 +24,7 @@ export function experienceRequirementMet(
   profile: Pick<CareerProfileFull, 'work_experience'>,
   term: string,
   now: Date = new Date(),
-): { ok: boolean; years: number; need: number | null; core: string } {
+): { ok: boolean | null; status: 'met' | 'unmet' | 'unknown'; years: number | null; need: number | null; core: string; minimumYears: number | null; maximumYears: number | null } {
   const n = Number(term.match(/\d+/)?.[0] ?? NaN)
   const need = Number.isFinite(n) ? n : null
   const core = term.replace(EXPERIENCE_FILLER, ' ').replace(/[^\p{L}\p{N}&/ -]/gu, ' ').replace(/\s+/g, ' ').trim()
@@ -44,6 +44,9 @@ export function experienceRequirementMet(
       })
     }
   }
-  const years = matching.length ? (totalExperienceYears({ work_experience: matching }, now) ?? 0) : 0
-  return { ok: matching.length > 0 && (need === null || years >= need), years, need, core }
+  const duration = workDurationAssessment(matching, now)
+  const status = matching.length === 0 ? 'unmet' : need === null ? 'met'
+    : duration.minimumYears !== null && duration.minimumYears >= need ? 'met'
+    : duration.maximumYears !== null && duration.maximumYears < need ? 'unmet' : 'unknown'
+  return { ok: status === 'unknown' ? null : status === 'met', status, years: matching.length ? duration.years : 0, need, core, minimumYears: duration.minimumYears, maximumYears: duration.maximumYears }
 }

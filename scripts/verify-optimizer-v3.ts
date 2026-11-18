@@ -137,16 +137,16 @@ console.log('\nexperience requirements (2026-10-03 live audit: ICU nurse in Bahr
   const now = new Date('2026-10-01')
   const job = (role: string, location: string, start: string, end: string | null, company = 'Hospital') => ({ role, company, location, start_date: start, end_date: end, highlights: [], description: null, gcc_country: null })
   const nurse = { work_experience: [job('Charge Nurse', 'Manama, Bahrain', '2023-05-01', null), job('Charge Nurse', 'Doha, Qatar', '2019-01-01', '2023-04-01'), job('ICU Nurse', 'Beirut, Lebanon', '2016-01-01', '2018-12-01')] } as never
-  check('"ICU experience" is met by an ICU Nurse role', experienceRequirementMet(nurse, 'ICU experience', now).ok)
-  check('"Gulf experience" is met by Bahrain and Qatar roles', experienceRequirementMet(nurse, 'Gulf experience', now).ok)
-  check('"GCC experience" too', experienceRequirementMet(nurse, 'GCC experience', now).ok)
-  check('"UAE experience" is not met by Bahrain and Qatar', !experienceRequirementMet(nurse, 'UAE experience', now).ok)
-  check('"Qatar experience" is met by the Doha role', experienceRequirementMet(nurse, 'Qatar experience', now).ok)
-  check('"5+ years ICU experience" counts only ICU years (3)', !experienceRequirementMet(nurse, '5+ years ICU experience', now).ok && experienceRequirementMet(nurse, '5+ years ICU experience', now).years === 3)
-  check('"5+ years experience" counts the whole career', experienceRequirementMet(nurse, '5+ years experience', now).ok)
-  check('"5 years Gulf experience" counts Gulf years only', experienceRequirementMet(nurse, '5 years Gulf experience', now).ok && experienceRequirementMet(nurse, '12 years Gulf experience', now).ok === false)
-  check('"oil and gas experience" is not met by nursing', !experienceRequirementMet(nurse, 'oil and gas experience', now).ok)
-  check('no roles -> not met', !experienceRequirementMet({ work_experience: [] } as never, 'ICU experience', now).ok)
+  check('"ICU experience" is met by an ICU Nurse role', experienceRequirementMet(nurse, 'ICU experience', now).ok === true)
+  check('"Gulf experience" is met by Bahrain and Qatar roles', experienceRequirementMet(nurse, 'Gulf experience', now).ok === true)
+  check('"GCC experience" too', experienceRequirementMet(nurse, 'GCC experience', now).ok === true)
+  check('"UAE experience" is not met by Bahrain and Qatar', experienceRequirementMet(nurse, 'UAE experience', now).ok === false)
+  check('"Qatar experience" is met by the Doha role', experienceRequirementMet(nurse, 'Qatar experience', now).ok === true)
+  check('"5+ years ICU experience" counts only ICU years (3)', experienceRequirementMet(nurse, '5+ years ICU experience', now).ok === false && experienceRequirementMet(nurse, '5+ years ICU experience', now).years === 3)
+  check('"5+ years experience" counts the whole career', experienceRequirementMet(nurse, '5+ years experience', now).ok === true)
+  check('"5 years Gulf experience" counts Gulf years only', experienceRequirementMet(nurse, '5 years Gulf experience', now).ok === true && experienceRequirementMet(nurse, '12 years Gulf experience', now).ok === false)
+  check('"oil and gas experience" is not met by nursing', experienceRequirementMet(nurse, 'oil and gas experience', now).ok === false)
+  check('no roles -> not met', experienceRequirementMet({ work_experience: [] } as never, 'ICU experience', now).ok === false)
 }
 
 if (failures) {

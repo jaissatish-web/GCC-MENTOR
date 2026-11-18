@@ -39,7 +39,7 @@ function ats(title: string, d: ScoreDocument): number | null {
 }
 
 const rows: string[] = ['| Scenario | Time: today → v3 | Our score: before → today / v3 | Independent ATS: before → today / v3 | Invented claims: today / v3 |', '|---|---|---|---|---|']
-const sum = { tToday: [] as number[], tV3: [] as number[], oT: [] as number[], oV: [] as number[], aT: [] as number[], aV: [] as number[], aB: [] as number[], oB: [] as number[], invT: 0, invV: 0 }
+const sum = { tToday: [] as number[], tV3: [] as number[], oT: [] as Array<number | null>, oV: [] as Array<number | null>, aT: [] as number[], aV: [] as number[], aB: [] as number[], oB: [] as Array<number | null>, invT: 0, invV: 0 }
 for (const s of SCENARIOS) {
   const bf = path.join(OUT, 'baseline', `${s.id}.json`)
   const vf = path.join(OUT, 'v3', `${s.id}.json`)
@@ -73,9 +73,9 @@ for (const s of SCENARIOS) {
   sum.oB.push(ob); sum.oT.push(ot); sum.oV.push(ov)
   const [ab, at, av] = [ats(s.title, before), ats(s.title, today), ats(s.title, next)]
   if (ab !== null) { sum.aB.push(ab); sum.aT.push(at!); sum.aV.push(av!) }
-  rows.push(`| ${s.id} | ${tT}s → ${tV}s | ${ob} → ${ot} / **${ov}** | ${ab ?? 'n/a'} → ${at ?? 'n/a'} / **${av ?? 'n/a'}** | ${invT.length}${invT.length ? ' (' + invT.slice(0, 3).join(', ') + ')' : ''} / ${invV.length} |`)
+  rows.push(`| ${s.id} | ${tT}s → ${tV}s | ${ob ?? 'pending'} → ${ot ?? 'pending'} / **${ov ?? 'pending'}** | ${ab ?? 'n/a'} → ${at ?? 'n/a'} / **${av ?? 'n/a'}** | ${invT.length}${invT.length ? ' (' + invT.slice(0, 3).join(', ') + ')' : ''} / ${invV.length} |`)
 }
-const avg = (xs: number[]) => (xs.length ? Math.round(xs.reduce((x, y) => x + y, 0) / xs.length) : NaN)
+const avg = (xs: Array<number | null>): number | 'pending' => xs.some(x => x === null) ? 'pending' : xs.length ? Math.round((xs as number[]).reduce((x, y) => x + y, 0) / xs.length) : NaN
 rows.push(`| **Average** | **${avg(sum.tToday)}s → ${avg(sum.tV3)}s** | ${avg(sum.oB)} → ${avg(sum.oT)} / **${avg(sum.oV)}** | ${avg(sum.aB)} → ${avg(sum.aT)} / **${avg(sum.aV)}** | ${sum.invT} / ${sum.invV} |`)
 const out = ['# Today\'s optimizer vs v3 (Moderate)', '', ...rows].join('\n')
 fs.writeFileSync(path.join(OUT, 'compare.md'), out)

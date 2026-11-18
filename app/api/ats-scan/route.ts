@@ -307,7 +307,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           const categories = {} as Record<JobMatchCategoryKey, JobMatchCategoryResult>
           for (const key of DETERMINISTIC_CATEGORIES) {
             const c = deterministic[key]
-            if (c) categories[key] = { ...c, explanation: explanation.deterministicExplanations[key] ?? '' }
+            if (c) categories[key] = { ...c, explanation: c.score === null ? 'Insufficient date precision' : explanation.deterministicExplanations[key] ?? '' }
           }
           for (const key of SEMANTIC_CATEGORIES) {
             const s = explanation.semanticScores[key]
@@ -315,8 +315,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           }
           jobMatch = {
             overall_score: combineJobMatchScore(categories),
+            assessment_status: combineJobMatchScore(categories) === null ? 'needs_date_clarification' : 'assessed',
             categories,
-            diagnosis: explanation.diagnosis,
+            diagnosis: combineJobMatchScore(categories) === null ? 'Pending clarification: experience duration has insufficient date precision. Other assessable results remain available.' : explanation.diagnosis,
             scoring_version: JOB_MATCH_SCORING_VERSION,
           }
         }

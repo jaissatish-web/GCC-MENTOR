@@ -182,8 +182,8 @@ const save = (uid, profile, children, expected = null) =>
 const baseProfile = { full_name: 'Test A', phone: '+971500000000', email: 'a@example.test', currently_in_gulf: false, visa_transferable: null }
 const s1 = await save(A, baseProfile, {
   work_experience: [
-    { company: 'Acme', role: 'Engineer', start_date: '2019-01-01', end_date: null, sort_order: 0, highlights: ['Led 4 engineers'] },
-    { company: 'Beta', role: 'Designer', start_date: '2016-01-01', end_date: '2018-12-01', sort_order: 1 },
+    { company: 'Acme', role: 'Engineer', start_date: '2019-01-01', start_date_precision: 'day', end_date: null, sort_order: 0, highlights: ['Led 4 engineers'] },
+    { company: 'Beta', role: 'Designer', start_date: '2016-01-01', start_date_precision: 'day', end_date: '2018-12-01', end_date_precision: 'day', sort_order: 1 },
   ],
   skills: [{ name: 'AutoCAD', sort_order: 0 }],
   certifications: [],
@@ -212,7 +212,7 @@ const beforeFail = (await db.query('select full_name, updated_at::text u from pu
 const failed = await throws(() =>
   save(A, { ...baseProfile, full_name: 'Half written' }, {
     skills: [{ name: 'New skill', sort_order: 0 }],
-    work_experience: [{ company: null, role: 'Broken', start_date: '2020-01-01', sort_order: 0 }],
+    work_experience: [{ company: null, role: 'Broken', start_date: '2020-01-01', start_date_precision: 'day', sort_order: 0 }],
   }),
 )
 const afterFail = (await db.query('select full_name, updated_at::text u from public.career_profiles where id = $1', [profileId])).rows[0]

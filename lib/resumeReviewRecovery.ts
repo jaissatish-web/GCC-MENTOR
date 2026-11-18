@@ -7,6 +7,17 @@ export function reviewSource(value: unknown): string {
 export function reviewStorage(): Storage | null {
   try { return window.sessionStorage } catch { return null }
 }
+export interface ReviewPresentation {
+  importMode: 'add'|'updates'|'replace'
+  selectedUpdateIds: string[]
+  openSectionId: string | null
+  ambiguousWorkChoices: Record<string, 'keep'|'add'>
+}
+function validPresentation(value: unknown): value is ReviewPresentation {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false
+  const p=value as Record<string,unknown>
+  return ['add','updates','replace'].includes(String(p.importMode)) && Array.isArray(p.selectedUpdateIds) && p.selectedUpdateIds.every(id=>typeof id==='string') && (p.openSectionId===null || typeof p.openSectionId==='string') && Boolean(p.ambiguousWorkChoices && typeof p.ambiguousWorkChoices==='object' && !Array.isArray(p.ambiguousWorkChoices) && Object.entries(p.ambiguousWorkChoices).every(([key,choice])=>/^\d+$/.test(key) && ['keep','add'].includes(String(choice))))
+}
 export interface ReviewRecovery<T> {
   importId: string
   savedVersion: string | null
@@ -14,16 +25,17 @@ export interface ReviewRecovery<T> {
   original: T
   editor: T
   scan: unknown
+  presentation?: ReviewPresentation
 }
 export function readReviewRecovery<T>(storage: Pick<Storage, 'getItem'> | null, importId: string, savedVersion: string | null, source: string, valid: (value: unknown) => value is T): ReviewRecovery<T> | null {
   try {
     const value = JSON.parse(storage?.getItem(REVIEW_RECOVERY_KEY) ?? 'null')
-    return value?.importId === importId && value.savedVersion === savedVersion && value.source === source && valid(value.editor) && valid(value.original) ? value : null
+    return value?.importId === importId && value.savedVersion === savedVersion && value.source === source && valid(value.editor) && valid(value.original) && (value.presentation === undefined || validPresentation(value.presentation)) ? value : null
   } catch { return null }
 }
 export function writeReviewRecovery<T>(storage: Pick<Storage, 'setItem'> | null, value: ReviewRecovery<T>): boolean {
   try { if (!storage) return false; storage.setItem(REVIEW_RECOVERY_KEY, JSON.stringify(value)); return true } catch { return false }
 }
 export function clearReviewRecovery(storage: Pick<Storage, 'removeItem'> | null): void {
-  try { storage?.removeItem(REVIEW_RECOVERY_KEY); storage?.removeItem(REVIEW_RECOVERY_KEY + ':markers'); storage?.removeItem(REVIEW_RECOVERY_KEY + ':fields') } catch { /* Review stays usable without browser storage. */ }
+  try { storage?.removeItem(REVIEW_RECOVERY_KEY); storage?.removeItem(REVIEW_RECOVERY_KEY + ':markers'); storage?.removeItem(REVIEW_RECOVERY_KEY + ':fields'); storage?.removeItem(REVIEW_RECOVERY_KEY + ':source') } catch { /* Review stays usable without browser storage. */ }
 }

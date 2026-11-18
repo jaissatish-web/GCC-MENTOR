@@ -1,4 +1,5 @@
 import { hasUnknownEmploymentEnd } from '@/lib/employmentStatus'
+import { dateBounds, type DatePrecision } from '@/lib/profileDatePrecision'
 /**
  * Employment gap detection (docs/GCC_READINESS_JOB_MATCH.md §5 "Career" /
  * §7 "employment gaps" among things checkable even without a JD).
@@ -33,6 +34,8 @@ export interface WorkExperienceForGapCheck {
   start_date: string | null
   end_date: string | null
   end_date_unconfirmed?: boolean
+  start_date_precision?: DatePrecision | null
+  end_date_precision?: DatePrecision | null
   company: string
 }
 
@@ -59,7 +62,7 @@ function toIsoDate(d: Date): string {
  * whole history is processed together rather than checked pair-by-pair in
  * whatever order the profile happens to store entries.
  */
-export function detectEmploymentGaps(
+function calculateEmploymentGaps(
   workExperience: WorkExperienceForGapCheck[],
   minGapMonths: number = DEFAULT_MIN_GAP_MONTHS,
 ): EmploymentGap[] {
@@ -115,4 +118,24 @@ export function detectEmploymentGaps(
     })
   }
   return gaps
+}
+
+export interface EmploymentGapAssessment {
+  status: 'known' | 'insufficient_precision'
+  gaps: EmploymentGap[]
+}
+
+/** Day-level gap boundaries require actual day precision. An empty unresolved result is not a zero-gap claim. */
+export function assessEmploymentGaps(workExperience: WorkExperienceForGapCheck[], minGapMonths: number = DEFAULT_MIN_GAP_MONTHS): EmploymentGapAssessment {
+  const incomplete = workExperience.some(role => {
+    const start = dateBounds(role.start_date, role.start_date_precision)
+    const end = role.end_date ? dateBounds(role.end_date, role.end_date_precision) : null
+    return !start || start.precision !== 'day' || hasUnknownEmploymentEnd(role) || !role.end_date && role.end_date_precision != null || Boolean(role.end_date && (!end || end.precision !== 'day')) || Boolean(end && start.min > end.max)
+  })
+  return incomplete ? { status: 'insufficient_precision', gaps: [] } : { status: 'known', gaps: calculateEmploymentGaps(workExperience, minGapMonths) }
+}
+
+/** Compatibility list; API/display callers should also expose assessEmploymentGaps().status. */
+export function detectEmploymentGaps(workExperience: WorkExperienceForGapCheck[], minGapMonths: number = DEFAULT_MIN_GAP_MONTHS): EmploymentGap[] {
+  return assessEmploymentGaps(workExperience, minGapMonths).gaps
 }

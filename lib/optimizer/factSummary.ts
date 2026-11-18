@@ -1,3 +1,4 @@
+import { dateBounds } from '@/lib/profileDatePrecision'
 import { hasUnknownEmploymentEnd } from '@/lib/employmentStatus'
 import type { CareerProfileFull } from '@/types/careerProfile'
 
@@ -39,7 +40,7 @@ export function factSummary(
   const latest = roles[0]
   if (latest) {
     const years = experienceYears(roles)
-    const lead = `${capitalise(latest.role.trim())}${years >= 2 ? ` with ${years}+ years of experience` : ''}`
+    const lead = `${capitalise(latest.role.trim())}${years !== null && years >= 2 ? ` with ${years}+ years of experience` : ''}`
     const company = (latest.company ?? '').trim()
     sentences.push(
       company ? `${lead}${hasUnknownEmploymentEnd(latest) ? ', with a recorded role at' : latest.end_date ? ', most recently at' : ', currently at'} ${company}.` : `${lead}.`,
@@ -59,16 +60,22 @@ export function factSummary(
   return sentences.join(' ')
 }
 
-function experienceYears(roles: CareerProfileFull['work_experience']): number {
-  if (roles.some(hasUnknownEmploymentEnd)) return 0
+function experienceYears(roles: CareerProfileFull['work_experience']): number | null {
+  if (roles.some(role => hasUnknownEmploymentEnd(role) || role.end_date && (!dateBounds(role.end_date,role.end_date_precision) || ['year',null].includes(dateBounds(role.end_date,role.end_date_precision)!.precision)))) return null
   const now = Date.now()
-  let earliest = Infinity
-  for (const r of roles) {
-    const t = Date.parse(r.start_date ?? '')
-    if (Number.isFinite(t) && t < earliest) earliest = t
+  let earliestMin = Infinity, earliestMax = Infinity
+  for (const role of roles) {
+    const bounds = dateBounds(role.start_date, role.start_date_precision)
+    if (!bounds) return null
+    // Keep the pre-existing span arithmetic for sufficiently precise facts.
+    const min = Date.parse(bounds.min)
+    const max = bounds.precision === 'day' || bounds.precision === 'month' ? min : Date.parse(bounds.max)
+    earliestMin = Math.min(earliestMin, min); earliestMax = Math.min(earliestMax, max)
   }
-  if (!Number.isFinite(earliest) || earliest > now) return 0
-  return Math.floor((now - earliest) / (365.25 * 24 * 3600 * 1000))
+  if (!Number.isFinite(earliestMin) || earliestMin > now) return null
+  const minimum = Math.max(0, Math.floor((now - earliestMax) / (365.25 * 24 * 3600 * 1000)))
+  const maximum = Math.floor((now - earliestMin) / (365.25 * 24 * 3600 * 1000))
+  return minimum === maximum ? minimum : null
 }
 
 function capitalise(s: string): string {

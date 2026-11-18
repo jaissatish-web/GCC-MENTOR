@@ -27,8 +27,8 @@ export function SuggestionsPanel({
   const [busy, setBusy] = useState<string | null>(null)
   if (pending.length === 0) return null
 
-  const after = report.after?.total ?? report.before.total
-  const projected = report.projected_with_suggestions ?? after
+  const after = report.after ? report.after.total : report.before.total
+  const projected = report.projected_with_suggestions === undefined ? after : report.projected_with_suggestions
   const band = report.target_band
   const run = async (key: string, actions: Action[]) => {
     setBusy(key)
@@ -44,14 +44,14 @@ export function SuggestionsPanel({
     <section className="flex flex-col gap-3 rounded-card border border-gold/50 bg-gold-soft/40 p-4 sm:p-5">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div>
-          <p className="type-helper font-bold uppercase tracking-[0.12em] text-gold-ink">Boost your ATS score</p>
+          <p className="type-helper font-bold uppercase tracking-[0.12em] text-gold-ink">{after === null ? 'Review suggested wording' : 'Boost your ATS score'}</p>
           <h2 className="font-display text-[18px] leading-tight text-ink">
             {pending.length} suggested line{pending.length === 1 ? '' : 's'} for what this job asks
           </h2>
         </div>
         <p className="type-helper text-ink">
-          ATS score now <strong>{after}</strong> → up to <strong className="text-teal">{projected}</strong>
-          {band ? <span className="text-ink-muted"> · level aim {band[0]}–{band[1]}</span> : null}
+          {after === null || projected === null ? <span role="status">Pending clarification · Insufficient date precision</span> : <>ATS score now <strong>{after}</strong> → up to <strong className="text-teal">{projected}</strong>
+          {band ? <span className="text-ink-muted"> · level aim {band[0]}–{band[1]}</span> : null}</>}
         </p>
       </div>
       <p className="type-helper leading-relaxed text-ink-soft">

@@ -1,3 +1,4 @@
+import { dateBounds } from '@/lib/profileDatePrecision'
 /** Job-specific application score. Pure, client/server identical; historical targets retain match-v1. */
 import type { ScoreDocument } from './score'
 import type { JobTargetProfile, KeywordCredit, MatchScore, QualityCheck, ScoreV2Bucket, ScoreV2Part, ScreeningRequirement, TargetKeyword } from './types'
@@ -5,7 +6,7 @@ import { containsTerm, containsTermInSentence, prepare, wordCount } from './text
 import { positiveStatements } from './v3/claimChecks'
 import { experienceRequirementMet } from './experienceMet'
 
-export const SCORE_V2_VERSION = 'match-v2'
+export const SCORE_V2_VERSION = 'match-v2-date-precision'
 export const SCORE_V2_WEIGHTS = { quality: 25, presentation: 10, screening: 10, skills: 30, responsibilities: 20, supporting: 5 } as const
 
 /** Bound checks invalidate on any text, section, ordering or contact change. Not an authentication token. */
@@ -116,7 +117,7 @@ function presentation(doc: ScoreDocument, target: JobTargetProfile): number {
 function screening(doc: ScoreDocument, target: JobTargetProfile, keywords: TargetKeyword[]): ScreeningRequirement[] {
   const input = target.screening_requirements ?? keywords.filter(fixed).map(k => ({ term: k.term, importance: k.importance, kind: k.kind, status: 'unknown' as const }))
   const rows = new Map<string, ScreeningRequirement>()
-  for (const r of input) {
+  for (let r of input) {
     if (!r.term?.trim()) continue
     const key = identity(r.term)
     const prior = rows.get(key)
@@ -147,8 +148,10 @@ function screening(doc: ScoreDocument, target: JobTargetProfile, keywords: Targe
         // The shared year helper reads local calendar fields; construct those
         // from the frozen UTC date so month boundaries agree in every timezone.
         const arithmeticDate = new Date(asOf.getUTCFullYear(), asOf.getUTCMonth(), asOf.getUTCDate(), 12)
-        const assessed = experienceRequirementMet({ work_experience: dated }, r.term, arithmeticDate)
-        status = assessed.ok ? 'met' : incomplete ? 'unknown' : 'unmet'
+        const eligible = sourced.filter(role => { const start = dateBounds(role.start_date, role.start_date_precision); return !start || Date.parse(start.min) <= asOf.getTime() })
+        const assessed = experienceRequirementMet({ work_experience: eligible }, r.term, arithmeticDate)
+        status = assessed.status === 'unknown' ? 'unknown' : assessed.ok ? 'met' : incomplete ? 'unknown' : 'unmet'
+        r = { ...r, uncertainty_reason: assessed.status === 'unknown' ? 'insufficient_date_precision' : undefined }
       }
     }
     if (r.kind === 'education' || r.kind === 'certification' || r.kind === 'licence') {
@@ -170,25 +173,26 @@ export function scoreResumeV2(doc: ScoreDocument, target: JobTargetProfile): Mat
   const credits = requirements.map(k => creditFor(doc, k))
   const q = quality(doc, target)
   const screen = screening(doc, target, unique)
+  const durationPending = screen.some(r => r.uncertainty_reason === 'insufficient_date_precision')
   const screenDen = screen.reduce((n, r) => n + weight(r), 0)
   const breakdown: Record<ScoreV2Bucket, ScoreV2Part> = {
     quality: part(25, q.points / 25 * 100),
     presentation: part(10, presentation(doc, target) * 10),
-    screening: part(10, screenDen ? 100 * screen.filter(r => r.status === 'met').reduce((n, r) => n + weight(r), 0) / screenDen : 0, screenDen > 0),
+    screening: durationPending ? {max: 10, weight: 10, score: null, points: null, applicable: true} : part(10, screenDen ? 100 * screen.filter(r => r.status === 'met').reduce((n, r) => n + weight(r), 0) / screenDen : 0, screenDen > 0),
     skills: coveragePart(30, credits.filter(c => c.kind === 'skill' || c.kind === 'tool')),
     responsibilities: coveragePart(20, credits.filter(c => c.kind === 'responsibility')),
     supporting: coveragePart(5, credits.filter(c => c.kind === 'domain' || c.kind === 'soft_skill')),
   }
   const applicableMaximum = Object.values(breakdown).reduce((n, p) => n + p.weight, 0)
-  const rawPoints = Object.values(breakdown).reduce((n, p) => n + p.points, 0)
-  const total = Math.round(applicableMaximum ? 100 * rawPoints / applicableMaximum : 0)
-  const keywordPoints = breakdown.skills.points + breakdown.responsibilities.points + breakdown.supporting.points
+  const rawPoints = durationPending ? null : Object.values(breakdown).reduce((n, p) => n + (p.points as number), 0)
+  const total = rawPoints === null ? null : Math.round(applicableMaximum ? 100 * rawPoints / applicableMaximum : 0)
+  const keywordPoints = (breakdown.skills.points as number) + (breakdown.responsibilities.points as number) + (breakdown.supporting.points as number)
   const keywordMax = breakdown.skills.weight + breakdown.responsibilities.weight + breakdown.supporting.weight
   return {
-    scoring_version: SCORE_V2_VERSION, total,
+    scoring_version: SCORE_V2_VERSION, total, assessment_status: durationPending ? 'needs_date_clarification' : 'assessed',
     // Compatibility shape: v2-aware consumers render the detailed breakdown instead.
     parts: { keywords: { score: keywordMax ? keywordPoints / keywordMax * 100 : 0, weight: keywordMax }, summary: breakdown.presentation, title: { score: 0, weight: 0 }, format: breakdown.quality, qualifications: breakdown.screening.applicable ? breakdown.screening : null },
     keywords: credits,
-    v2: { breakdown, screening: screen, quality_checks: q.checks, quality_signature: scoreDocumentSignature(doc), applicableMaximum, rawPoints: rounded(rawPoints), mandatoryGaps: screen.filter(r => r.importance === 'must' && r.status === 'unmet').length, mandatoryUnknown: screen.filter(r => r.importance === 'must' && r.status === 'unknown').length },
+    v2: { breakdown, screening: screen, quality_checks: q.checks, quality_signature: scoreDocumentSignature(doc), applicableMaximum, rawPoints: rawPoints === null ? null : rounded(rawPoints), mandatoryGaps: screen.filter(r => r.importance === 'must' && r.status === 'unmet').length, mandatoryUnknown: screen.filter(r => r.importance === 'must' && r.status === 'unknown').length },
   }
 }

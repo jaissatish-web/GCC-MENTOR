@@ -60,7 +60,7 @@ export function reportForSavedDocument(opts: {
     kept_original: [],
     suggestions: [],
     projected_with_suggestions: after.total,
-    target_band: reachableTargetBand(opts.level, after.total),
+    target_band: after.total === null ? undefined : reachableTargetBand(opts.level, after.total),
     generated_at: new Date().toISOString(),
   }
 }

@@ -6,8 +6,12 @@ import { REVIEW_RECOVERY_KEY, reviewSource, reviewStorage, readReviewRecovery, w
 import { validProfileEmail, validProfilePhone, validProfileLinkedIn } from '@/lib/profileFieldValidity'
 import { rebaseImportField } from '@/lib/resumeParse/reviewPlan'
 import { INTAKE_KEY, contextFromProfile } from '@/lib/careerIntake/shared'
-import { ResumeAcceptanceReview } from '@/components/profile/ResumeAcceptanceReview'
-import { CareerDiagnostic } from '@/components/profile/CareerDiagnostic'
+import { ProfileReviewWorkspace, ReviewSavedSuccess } from '@/components/profile/review/ProfileReviewWorkspace'
+import { PrecisionDateField } from '@/components/profile/review/PrecisionDateField'
+import { RowActions } from '@/components/profile/review/RowActions'
+import { editorDateFact, editorDatePayload, editorDateInvalid } from '@/lib/profileEditorDates'
+import { type DatePrecision } from '@/lib/profileDatePrecision'
+import { digestSource, identifyReattachedSource, type ReviewSourceIdentity } from '@/lib/profileReviewSource'
 import { ProfilePhotoDraft } from '@/components/profile/ProfilePhotoDraft'
 import { ProfilePhotoPicker } from '@/components/profile/ProfilePhotoPicker'
 import { resumeReviewChecks } from '@/lib/resumeParse/reviewChecks'
@@ -56,12 +60,13 @@ import { gccCountryFromLocation } from '@/lib/jobMatch/gccLocation'
 import { cn } from '@/lib/utils'
 import { GULF_COUNTRIES } from '@/lib/utils'
 import { CAREER_PROFILE_DRAFT_KEY, CAREER_PROFILE_PARSE_NOTES_KEY, CLAIMED_SCAN_RESULT_KEY } from '@/lib/onboardingDraft'
+import { buildProposedProfileUpdates, type ProposedProfileUpdate } from '@/lib/profileProposedUpdates'
 import { mergeDraftIntoProfile, describeReplaceLosses } from '@/lib/profileMerge'
 import { DEFAULT_FIELD_VISIBILITY } from '@/lib/fieldVisibility'
 import { isHeadlineEntry, profileHeadline, setProfileHeadline } from '@/lib/resumeHeadline'
 import { calculateReadiness, fieldPointsFor, type ReadinessResult } from '@/lib/readiness'
 import { scoreCareerPreparation as scoreProfileReadiness, answersFromReadinessCategory } from '@/lib/gulfReadiness/fromProfile'
-import { toDateInputValue, toMonthInputValue } from '@/lib/partialDates'
+import { toDateInputValue } from '@/lib/partialDates'
 import { splitPhone, joinPhone } from '@/lib/phone'
 import { TextField, TextAreaField, SelectField, DateField, PhoneField } from '@/components/ui/FormField'
 import { FieldLabel } from '@/components/ui/FieldLabel'
@@ -136,6 +141,8 @@ interface EditableWork {
   start_date: string
   end_date: string
   end_date_unconfirmed?: boolean
+  start_date_precision?: DatePrecision | null
+  end_date_precision?: DatePrecision | null
   location: string
   description: string
   highlights: string
@@ -156,6 +163,8 @@ interface EditableCert {
   issuer: string
   issue_date: string
   expiry_date: string
+  issue_date_precision?: DatePrecision | null
+  expiry_date_precision?: DatePrecision | null
 }
 
 interface EditableEdu {
@@ -239,6 +248,7 @@ function isReviewEditor(value: unknown): value is EditorData {
   return Object.entries(rows).every(([key, fields]) => (candidate[key] as Record<string, unknown>[]).every(row => {
     if (!fields.every(field => typeof row[field] === 'string')) return false
     if (row.id !== undefined && typeof row.id !== 'string') return false
+    for (const field of ['start_date_precision','end_date_precision','issue_date_precision','expiry_date_precision']) if (row[field] != null && !['year','month','day'].includes(String(row[field]))) return false
     if (key === 'work_experience' && row.end_date_unconfirmed !== undefined && typeof row.end_date_unconfirmed !== 'boolean') return false
     if (key !== 'additional_information') return true
     for (const field of ['category_id','category_name','level']) if (row[field] != null && typeof row[field] !== 'string') return false
@@ -309,10 +319,11 @@ function ws(o: unknown): EditableWork {
     id: typeof w.id === 'string' ? w.id : undefined,
     company: str(w.company),
     role: str(w.role),
-    // Month precision — see lib/partialDates.ts. A <input type="date"> silently
-    // blanked anything without a day, which is most of what resumes contain.
-    start_date: toMonthInputValue(w.start_date),
-    end_date: toMonthInputValue(w.end_date),
+    // Keep canonical supplied precision; legacy values retain their raw date for unchanged saves.
+    start_date: editorDateFact(w.start_date, w.start_date_precision as DatePrecision | null | undefined).value,
+    end_date: editorDateFact(w.end_date, w.end_date_precision as DatePrecision | null | undefined).value,
+    start_date_precision: editorDateFact(w.start_date, w.start_date_precision as DatePrecision | null | undefined).precision,
+    end_date_precision: editorDateFact(w.end_date, w.end_date_precision as DatePrecision | null | undefined).precision,
     end_date_unconfirmed: w.end_date_unconfirmed === true,
     location: str(w.location),
     description: str(w.description),
@@ -336,8 +347,10 @@ function ce(o: unknown): EditableCert {
     id: typeof c.id === 'string' ? c.id : undefined,
     name: str(c.name),
     issuer: str(c.issuer),
-    issue_date: toMonthInputValue(c.issue_date),
-    expiry_date: toMonthInputValue(c.expiry_date),
+    issue_date: editorDateFact(c.issue_date, c.issue_date_precision as DatePrecision | null | undefined).value,
+    expiry_date: editorDateFact(c.expiry_date, c.expiry_date_precision as DatePrecision | null | undefined).value,
+    issue_date_precision: editorDateFact(c.issue_date, c.issue_date_precision as DatePrecision | null | undefined).precision,
+    expiry_date_precision: editorDateFact(c.expiry_date, c.expiry_date_precision as DatePrecision | null | undefined).precision,
   }
 }
 
@@ -457,6 +470,32 @@ function optNull(v: string): string | null {
   return v.trim() === '' ? null : v
 }
 
+function applyProposedEditorUpdate(editor: EditorData, update: ProposedProfileUpdate, accept: boolean): EditorData {
+  const values = accept ? update.after : update.before
+  if (!update.table) return {...editor, ...values} as EditorData
+  const table = update.table
+  const rows = editor[table].map(row => {
+    if (row.id !== update.rowId) return row
+    const patch: Record<string, unknown> = {}
+    for (const [field, value] of Object.entries(values)) {
+      patch[field] = field.endsWith('_precision') ? value : field === 'end_date_unconfirmed' ? value : field === 'highlights' ? (Array.isArray(value) ? value.join('\n') : str(value)) : value == null ? '' : typeof value === 'number' ? String(value) : value
+    }
+    for (const field of ['start_date','end_date','issue_date','expiry_date']) if (field in values) {
+      const fact = editorDateFact(values[field], values[`${field}_precision`] as DatePrecision | null | undefined)
+      patch[field] = fact.value; patch[`${field}_precision`] = fact.precision
+    }
+    return {...row,...patch}
+  })
+  return {...editor,[table]:rows} as EditorData
+}
+
+function invalidEditorDates(e: EditorData): Array<{field: string; sectionId: string}> {
+  return [
+    ...e.work_experience.flatMap(row => (['start_date','end_date'] as const).filter(field => editorDateInvalid(row[field], row[`${field}_precision`])).map(field => ({field: `work_${field === 'start_date' ? 'start' : 'end'}_${row.key}`, sectionId: 'sec_work_experience'}))),
+    ...e.certifications.flatMap(row => (['issue_date','expiry_date'] as const).filter(field => editorDateInvalid(row[field], row[`${field}_precision`])).map(field => ({field: `cert_${field === 'issue_date' ? 'issue' : 'expiry'}_${row.key}`, sectionId: 'sec_certifications'}))),
+  ]
+}
+
 function buildPutBody(e: EditorData): Record<string, unknown> {
   const parent: Record<string, unknown> = {
     currently_in_gulf: e.currently_in_gulf,
@@ -501,8 +540,8 @@ function buildPutBody(e: EditorData): Record<string, unknown> {
     const row: Record<string, unknown> = {
       company: w.company,
       role: w.role,
-      start_date: w.start_date,
-      end_date: optNull(w.end_date),
+      ...editorDatePayload('start_date', w.start_date, w.start_date_precision),
+      ...editorDatePayload('end_date', w.end_date, w.end_date_precision),
       end_date_unconfirmed: !w.end_date && w.end_date_unconfirmed === true,
       location: optNull(w.location),
       description: optNull(w.description),
@@ -530,8 +569,8 @@ function buildPutBody(e: EditorData): Record<string, unknown> {
     const row: Record<string, unknown> = {
       name: c.name,
       issuer: optNull(c.issuer),
-      issue_date: optNull(c.issue_date),
-      expiry_date: optNull(c.expiry_date),
+      ...editorDatePayload('issue_date', c.issue_date, c.issue_date_precision),
+      ...editorDatePayload('expiry_date', c.expiry_date, c.expiry_date_precision),
       sort_order: i,
     }
     if (typeof c.id === 'string' && c.id !== '') row.id = c.id
@@ -719,6 +758,7 @@ function CardSection({
   status,
   validationState,
   validationMessage,
+  sourceState,
   children,
 }: {
   id?: string
@@ -733,6 +773,7 @@ function CardSection({
   status?: SectionStatus
   validationState?: 'attention' | 'resolved'
   validationMessage?: string
+  sourceState?: string
   open: boolean
   onToggle: () => void
   /** This block's identity colour. See SECTION_ACCENT. */
@@ -791,6 +832,7 @@ function CardSection({
               >
                 {title}
               </span>
+              {sourceState ? <span className="rounded-full border border-line bg-white px-2 py-1 type-caption font-normal text-ink-soft">{sourceState}</span> : null}
               {badge ? (
                 <span className="rounded-[5px] bg-canvas px-1.5 py-0.5 type-caption font-semibold uppercase tracking-wider text-ink-soft">
                   {badge}
@@ -994,6 +1036,35 @@ function ProfileScreen() {
   )
 
   const [editor, setEditor] = useState<EditorData | null>(null)
+  const [reviewSaved, setReviewSaved] = useState(false)
+  const [activeReviewSection, setActiveReviewSection] = useState('sec_identity')
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({})
+  const [reviewSourceFile, setReviewSourceFile] = useState<File | string | null>(null)
+  const [reviewSourceIdentity, setReviewSourceIdentity] = useState<ReviewSourceIdentity | null>(null)
+  const [reviewSourceKind, setReviewSourceKind] = useState<'original' | 'reference' | 'extracted'>('extracted')
+  const [reviewSourceUrl, setReviewSourceUrl] = useState<string | null>(null)
+  const [mergeOrigin, setMergeOrigin] = useState<{existing: CareerProfileFull; draft: CareerProfileDraft} | null>(null)
+  const [mergeMode, setMergeMode] = useState<'add' | 'updates'>('add')
+  const [mergeChoices, setMergeChoices] = useState<string[]>([])
+  const [ambiguousChoices, setAmbiguousChoices] = useState<Record<number, 'keep' | 'add'>>({})
+  const [rowNotice, setRowNotice] = useState('')
+  const removedRowRef = useRef<{table:'work_experience'|'education'|'skills'|'certifications';row:EditableWork|EditableEdu|EditableSkill|EditableCert;index:number}|null>(null)
+  const reattachSourceRef = useRef<HTMLInputElement>(null)
+  const retainReviewSource = useCallback(async (source: File | string) => {
+    setReviewSourceFile(source)
+    setReviewSourceKind('original')
+    try {
+      const bytes = typeof source === 'string' ? new TextEncoder().encode(source) : new Uint8Array(await source.arrayBuffer())
+      setReviewSourceIdentity({digest: await digestSource(bytes), size: bytes.byteLength})
+    } catch { setReviewSourceIdentity(null) }
+  }, [])
+  useEffect(() => {
+    if (!(reviewSourceFile instanceof File)) { setReviewSourceUrl(null); return }
+    const url = URL.createObjectURL(reviewSourceFile)
+    setReviewSourceUrl(url)
+    return () => URL.revokeObjectURL(url)
+  }, [reviewSourceFile])
+
   // Jobs that just received ticked typical duties keep the card for its "press Save" note.
   const [dutiesAdded, setDutiesAdded] = useState<ReadonlySet<string>>(() => new Set())
   const [loaded, setLoaded] = useState(false)
@@ -1003,7 +1074,7 @@ function ProfileScreen() {
   // Intake is a presentation of the same editing session, not a switch to
   // the read-only summary. Keep unsaved facts and staged photos in memory.
   const view = reviewingImport || isImportRoute || importProcessing || Boolean(importParam) ? 'details' : requestedView
-  const [importConfirmed, setImportConfirmed] = useState(false)
+  const [acknowledgedReview, setAcknowledgedReview] = useState<string | null>(null)
   const [showImportIssues, setShowImportIssues] = useState(false)
   const importIssueRef = useRef<HTMLElement>(null)
   const [photoChange, setPhotoChange] = useState<File | null | undefined>(undefined)
@@ -1020,6 +1091,7 @@ function ProfileScreen() {
   // Computed employment gaps from GET /api/profile (TASK-067). Read-only,
   // display-only, never scored — see lib/employmentGaps.ts's header.
   const [employmentGaps, setEmploymentGaps] = useState<EmploymentGap[]>([])
+  const [employmentGapsStatus, setEmploymentGapsStatus] = useState<'known'|'insufficient_precision'>('known')
   // Claimed anonymous scan result (TASK-070) — one-time "welcome back" banner.
   // null = never claimed / already dismissed.
   const [claimedScan, setClaimedScan] = useState<AtsScoreResult | null>(null)
@@ -1058,18 +1130,43 @@ function ProfileScreen() {
       originalReviewRef.current = restored?.original ?? originalReviewRef.current ?? editor
       recoverySourceRef.current = source
       recoveryImportRef.current = importId
-      setRecoveryNotice('Your review edits are retained in this tab until you save or discard them. Photo file selections must be chosen again after refresh.')
+      setRecoveryNotice('Changes kept in this tab. Reselect photos after refresh.')
       if (restored) {
         setEditor(restored.editor)
+        if (restored.presentation) {
+          setMergeMode(restored.presentation.importMode === 'updates' ? 'updates' : 'add')
+          setMergeChoices(restored.presentation.selectedUpdateIds)
+          setAmbiguousChoices(restored.presentation.ambiguousWorkChoices)
+          if (restored.presentation.openSectionId) {setOpenSections({[restored.presentation.openSectionId]:true});setActiveReviewSection(restored.presentation.openSectionId)}
+        }
         if (restored.scan && typeof restored.scan === 'object' && 'overall_score' in restored.scan) setClaimedScan(restored.scan as AtsScoreResult)
-        setImportConfirmed(false)
+        setAcknowledgedReview(null)
         setRecoveryNotice('Your unsaved review was restored in this tab. Check the details and confirm again before saving.')
         return
       }
     }
-    const saved = writeReviewRecovery(reviewStorage(), { importId, savedVersion: savedVersionRef.current, source: recoverySourceRef.current!, original: originalReviewRef.current!, editor, scan: claimedScan })
+    const saved = writeReviewRecovery(reviewStorage(), { importId, savedVersion: savedVersionRef.current, source: recoverySourceRef.current!, original: originalReviewRef.current!, editor, scan: claimedScan, presentation: {importMode: mergeOrigin ? mergeMode : 'add', selectedUpdateIds: mergeChoices, openSectionId:activeReviewSection, ambiguousWorkChoices: ambiguousChoices} })
     if (!saved) setRecoveryNotice('Review recovery is unavailable in this browser. Keep this tab open until you save.')
-  }, [reviewingImport, editor, loaded, loadError, importReview?.id, claimedScan])
+  }, [reviewingImport, editor, loaded, loadError, importReview?.id, claimedScan, mergeOrigin, mergeMode, mergeChoices, openSections, activeReviewSection, ambiguousChoices])
+
+  useEffect(() => {
+    if (!reviewingImport) return
+    setOpenSections(previous => ({...previous, sec_identity: true}))
+    setReviewEditing(true)
+  }, [reviewingImport])
+  useEffect(() => {
+    const importId = importReview?.id
+    if (!reviewingImport || !importId) return
+    try {
+      const key = REVIEW_RECOVERY_KEY + ':source'
+      if (reviewSourceIdentity && reviewSourceKind === 'original') {
+        sessionStorage.setItem(key, JSON.stringify({importId, identity: reviewSourceIdentity}))
+      } else if (!reviewSourceIdentity && !reviewSourceFile) {
+        const stored = JSON.parse(sessionStorage.getItem(key) ?? 'null')
+        if (stored?.importId === importId && typeof stored.identity?.digest === 'string' && Number.isSafeInteger(stored.identity?.size)) setReviewSourceIdentity(stored.identity)
+      }
+    } catch { /* Source identity unavailable: reattachments are reference files. */ }
+  }, [reviewingImport, importReview?.id, reviewSourceIdentity, reviewSourceKind, reviewSourceFile])
   const reviewRequest = useRef(0)
   const refreshImportReview = useCallback(() => {
     const request = ++reviewRequest.current
@@ -1103,7 +1200,7 @@ function ProfileScreen() {
     // banner can show even if the companion profile-draft half of the handoff
     // is somehow absent. Same one-time contract as CAREER_PROFILE_DRAFT_KEY:
     // the key is always cleared once read, never left to re-show on reload.
-    const claimedRaw = window.sessionStorage.getItem(CLAIMED_SCAN_RESULT_KEY)
+    const claimedRaw = reviewStorage()?.getItem(CLAIMED_SCAN_RESULT_KEY)
     if (claimedRaw) {
       try {
         const parsed = JSON.parse(claimedRaw) as { atsScore?: unknown }
@@ -1114,10 +1211,10 @@ function ProfileScreen() {
       } catch {
         /* corrupt payload — just show nothing, key is still cleared below */
       }
-      window.sessionStorage.removeItem(CLAIMED_SCAN_RESULT_KEY)
+      reviewStorage()?.removeItem(CLAIMED_SCAN_RESULT_KEY)
     }
 
-    const raw = window.sessionStorage.getItem(CAREER_PROFILE_DRAFT_KEY)
+    const raw = reviewStorage()?.getItem(CAREER_PROFILE_DRAFT_KEY)
     if (raw) {
       let draft: CareerProfileDraft | null = null
       try {
@@ -1128,14 +1225,14 @@ function ProfileScreen() {
 
       if (draft) {
         // TASK-024 contract: read AND clear the handoff key on success.
-        window.sessionStorage.removeItem(CAREER_PROFILE_DRAFT_KEY)
+        reviewStorage()?.removeItem(CAREER_PROFILE_DRAFT_KEY)
         try {
-          const notes = JSON.parse(window.sessionStorage.getItem(CAREER_PROFILE_PARSE_NOTES_KEY) ?? '[]')
+          const notes = JSON.parse(reviewStorage()?.getItem(CAREER_PROFILE_PARSE_NOTES_KEY) ?? '[]')
           if (Array.isArray(notes)) setParseNotes(notes as ParseWarning[])
         } catch {
           /* no notes — nothing to show */
         }
-        window.sessionStorage.removeItem(CAREER_PROFILE_PARSE_NOTES_KEY)
+        reviewStorage()?.removeItem(CAREER_PROFILE_PARSE_NOTES_KEY)
 
         // ASK BEFORE WRITING (TASK-133). This used to load the draft alone and
         // return — so a returning user who uploaded a newer CV had their saved
@@ -1155,8 +1252,8 @@ function ProfileScreen() {
               // Reuse explicit guest choices only for a new profile. Never overwrite
               // an existing profile or change historical job titles.
               try {
-                const intake=JSON.parse(window.sessionStorage.getItem(INTAKE_KEY)??'null')
-                const choices = intake?.context ?? JSON.parse(window.sessionStorage.getItem('gulf_readiness_answers') ?? 'null')
+                const intake=JSON.parse(reviewStorage()?.getItem(INTAKE_KEY)??'null')
+                const choices = intake?.context ?? JSON.parse(reviewStorage()?.getItem('gulf_readiness_answers') ?? 'null')
                 if (choices && typeof choices === 'object') {
                   const countries: Record<string, string> = { 'Saudi Arabia': 'saudi_arabia', 'United Arab Emirates': 'uae', Qatar: 'qatar', Kuwait: 'kuwait', Oman: 'oman', Bahrain: 'bahrain' }
                   if (typeof choices.targetCountry === 'string') initial.target_country = countries[choices.targetCountry] ?? choices.targetCountry
@@ -1238,6 +1335,7 @@ function ProfileScreen() {
         // Read-only employment gaps (TASK-067); absent on the draft/empty paths.
         const gaps = (data as { employment_gaps?: unknown } | null)?.employment_gaps
         setEmploymentGaps(Array.isArray(gaps) ? (gaps as EmploymentGap[]) : [])
+        setEmploymentGapsStatus((data as {employment_gaps_status?:string}|null)?.employment_gaps_status === 'insufficient_precision' ? 'insufficient_precision' : 'known')
         setLoaded(true)
       })
       .catch(() => {
@@ -1399,7 +1497,6 @@ function ProfileScreen() {
   // shown as an error before they have had a chance to fill it.
   const [invalidFields, setInvalidFields] = useState<Set<string>>(new Set())
   const [expandedWorkKey, setExpandedWorkKey] = useState<string | null>(null)
-  const [openSections, setOpenSections] = useState<Record<string, boolean>>({})
   const didAutoOpen = useRef(false)
 
   // On first load, open the first step that still has points available — the
@@ -1419,8 +1516,8 @@ function ProfileScreen() {
       const p = sectionPoints[s.id]
       return p && p.total > 0 && p.earned < p.total
     })
-    setOpenSections({ [(firstIncomplete ?? FORM_SECTIONS[0]).id]: true })
-  }, [editor, sectionPoints])
+    setOpenSections(previous => Object.keys(previous).length ? previous : { [reviewingImport ? 'sec_identity' : (firstIncomplete ?? FORM_SECTIONS[0]).id]: true })
+  }, [editor, sectionPoints, reviewingImport])
 
   const toggleSection = useCallback((sectionId: string) => {
     setOpenSections((prev) => ({ ...prev, [sectionId]: !prev[sectionId] }))
@@ -1553,6 +1650,7 @@ function ProfileScreen() {
       const roleIndex = target.field?.match(/^work_experience\.(\d+)/)?.[1]
       if (roleIndex !== undefined && editor?.work_experience[Number(roleIndex)]) setExpandedWorkKey(editor.work_experience[Number(roleIndex)].key)
       if (sectionId) {
+        setActiveReviewSection(sectionId)
         setOpenSections((prev) => ({ ...prev, [sectionId]: true }))
         if (target.field) setGuidedSections(previous => [...new Set([...previous, sectionId])])
       }
@@ -1696,7 +1794,11 @@ function ProfileScreen() {
   }, [savedBaseline, loaded, hasSavedProfile, pendingDraft, reviewingImport, currentBody, editor])
   const isDirty = photoChange !== undefined || reviewingImport || (currentBody !== null && currentBody !== savedBaseline)
 
-  useEffect(() => { setImportConfirmed(false) }, [currentBody])
+  // Bind acknowledgement to the facts/decisions actually visible when checked.
+  // A later passive render cannot erase a newer confirmation or certify changed facts.
+  const reviewSignature = JSON.stringify([currentBody, mergeMode, mergeChoices, ambiguousChoices])
+  const importConfirmed = acknowledgedReview === reviewSignature
+  const setImportConfirmed = useCallback((confirmed: boolean) => setAcknowledgedReview(confirmed ? reviewSignature : null), [reviewSignature])
   const activeReview: ImportReview = importReview ?? { version: 1, id: 'pending-import', createdAt: '', sourceText: '', imported: { roles: 0, skills: 0, qualifications: 0, certificates: 0 }, wordingStatus: 'not_needed', changes: parseNotes.map((note, i) => ({ id: `note-${i}`, field: note.field, label: 'Please verify', kind: 'check', before: '', after: '', reason: note.message })) }
   const rawReviewChecks = editor ? resumeReviewChecks({ ...activeReview, currentRoles: [...(activeReview.currentRoles ?? []), ...editor.work_experience.filter(job => !job.end_date && !job.end_date_unconfirmed).map(currentRoleFingerprint)] }, editor, change => currentImportValue(editor, change)) : []
   const [fieldConfirmations, setFieldConfirmations] = useState<Record<string, string>>({})
@@ -1735,7 +1837,7 @@ function ProfileScreen() {
     }
     const value = JSON.stringify([check.value, check.reason])
     setFieldConfirmations(previous => ({ ...previous, [id]: value }))
-    setImportConfirmed(false)
+    setAcknowledgedReview(null)
     if (importReview?.id) {
       try {
         const digest = await confirmationDigest(confirmationScope, id, value)
@@ -1802,14 +1904,15 @@ function ProfileScreen() {
       return {
         id: sectionId,
         step: idx + 1,
-        ...pointsFor(sectionId),
+        ...(reviewingImport ? {} : pointsFor(sectionId)),
         open: Boolean(openSections[sectionId]),
         onToggle: () => toggleSection(sectionId),
         accent: SECTION_ACCENT[sectionId],
-        status: statusOf(sectionId),
+        status: reviewingImport ? undefined : statusOf(sectionId),
+        sourceState: reviewingImport ? (()=>{ const fields=SECTION_FIELDS[sectionId as keyof typeof SECTION_FIELDS] ?? []; const original=originalReviewRef.current; return original && editor && fields.some(field=>JSON.stringify(editor[field as keyof EditorData])!==JSON.stringify(original[field as keyof EditorData])) ? 'Edited by you' : importReview ? 'From resume' : 'Your draft' })() : undefined,
       }
     },
-    [pointsFor, openSections, toggleSection, statusOf]
+    [pointsFor, openSections, toggleSection, statusOf, reviewingImport, editor, importReview]
   )
 
   // "N of M key sections done" — ONE count for every screen that shows it (the
@@ -1969,6 +2072,8 @@ function ProfileScreen() {
       if (reviewedEditor) setEditor(reviewedEditor)
       setSaveError(null)
 
+      const badDate = invalidEditorDates(saveEditor)[0]
+      if (badDate) { setSaveError('Correct the invalid date before saving. Use only the date information you know.'); goToProfilePart({sectionId: badDate.sectionId, field: badDate.field}); return }
       const missing = requiredMissing(saveEditor)
       if (missing.length > 0) {
         // Mark the fields, open the sections holding them, and scroll to the
@@ -2079,7 +2184,8 @@ function ProfileScreen() {
         // delete fails the reading is simply offered once more — never lost.
         if (resolvesPendingRef.current) {
           resolvesPendingRef.current = false
-          await fetch('/api/profile/pending-draft', { method: 'DELETE' }).catch(() => {})
+          const cleanup = await fetch('/api/profile/pending-draft', { method: 'DELETE' }).catch(() => null)
+          if (!cleanup?.ok) { resolvesPendingRef.current = true; setSaveError('Career Profile saved. The old resume reading could not be cleared; it may appear again.'); setSubmitting(false); return }
         }
         if (destination === 'review') {
           clearReviewRecovery(reviewStorage())
@@ -2087,8 +2193,7 @@ function ProfileScreen() {
           setReviewingImport(false)
           setParseNotes([])
           setSubmitting(false)
-          if (isReviewRoute) router.replace('/dashboard')
-          else showView('summary')
+          setReviewSaved(true)
           window.scrollTo({ top: 0 })
           return
         }
@@ -2105,7 +2210,7 @@ function ProfileScreen() {
         setSubmitting(false)
       }
     },
-    [editor, showView, submitting, importProcessing, reviewingImport, sectionOfField, photoChange, loadError, isReviewRoute, router, goToProfilePart]
+    [editor, showView, submitting, importProcessing, reviewingImport, sectionOfField, photoChange, loadError, isReviewRoute, goToProfilePart]
   )
 
   useEffect(() => {
@@ -2158,7 +2263,7 @@ function ProfileScreen() {
       setPendingDraft(null)
       resolvesPendingRef.current = false
       setReviewingImport(false)
-      setImportConfirmed(false)
+      setAcknowledgedReview(null)
       router.replace('/profile')
     } catch {
       setSaveError('We could not discard this resume reading. Your saved profile is unchanged. Please try again.')
@@ -2174,6 +2279,9 @@ function ProfileScreen() {
   // saved — accidentally or otherwise — until the user has chosen.
   if (pendingDraft) {
     const merged = mergeDraftIntoProfile(pendingDraft.existing, pendingDraft.draft)
+    const mergedEditor = {...fromFull(merged.profile), work_experience: fromFull(merged.profile).work_experience.map(job => job.id ? job : {...job,end_date_unconfirmed:!job.end_date && !activeReview.currentRoles?.includes(currentRoleFingerprint(job))})}
+    const resumeReview = importReview?.id ? readReviewRecovery(reviewStorage(),importReview.id,versionOf(pendingDraft.existing),reviewSource(buildPutBody(mergedEditor)),isReviewEditor) : null
+
     const losses = describeReplaceLosses(pendingDraft.existing, pendingDraft.draft)
     const addedTotal = Object.values(merged.added).reduce((n, c) => n + c, 0)
     const lostEntries = Object.values(losses.entries).reduce((n, c) => n + c, 0)
@@ -2192,6 +2300,7 @@ function ProfileScreen() {
           We read your resume. What would you like to do with it?
         </p>
 
+        {resumeReview ? <section className="mt-5 rounded-lg border border-line bg-white p-4"><h2 className="type-section">Resume unsaved review</h2><p className="type-helper">Continue the corrections kept in this tab. You will confirm again before saving.</p><Button onClick={()=>{setMergeOrigin(pendingDraft);originalReviewRef.current=resumeReview.original;setSavedBaseline(JSON.stringify(buildPutBody(fromFull(pendingDraft.existing))));setEditor(resumeReview.editor);if(resumeReview.presentation){setMergeMode(resumeReview.presentation.importMode==='updates'?'updates':'add');setMergeChoices(resumeReview.presentation.selectedUpdateIds);setAmbiguousChoices(resumeReview.presentation.ambiguousWorkChoices);if(resumeReview.presentation.openSectionId)setOpenSections({[resumeReview.presentation.openSectionId]:true})}setPendingDraft(null);setReviewingImport(true);setAcknowledgedReview(null)}}>Continue unsaved review</Button></section> : null}
         <button
           type="button"
           disabled={submitting}
@@ -2201,6 +2310,7 @@ function ProfileScreen() {
               setImportReview({ ...importReview, changes: importReview.changes.map(change => ({ ...change, field: rebaseImportField(change.field, pendingDraft.draft, merged.profile) })) })
             }
             setParseNotes(notes => notes.map(note => ({ ...note, field: rebaseImportField(note.field, pendingDraft.draft, merged.profile) })))
+            setMergeOrigin(pendingDraft); setMergeMode('add'); setMergeChoices([]); setAmbiguousChoices({})
             setSavedBaseline(JSON.stringify(buildPutBody(fromFull(pendingDraft.existing))))
             setEditor({ ...fromFull(merged.profile), work_experience: fromFull(merged.profile).work_experience.map(job => job.id ? job : { ...job, end_date_unconfirmed: !job.end_date && !activeReview.currentRoles?.includes(currentRoleFingerprint(job)) }) })
             setPendingDraft(null)
@@ -2227,10 +2337,12 @@ function ProfileScreen() {
           </span>
         </button>
 
+        <details className="mt-4"><summary className="min-h-11 cursor-pointer type-helper">Advanced — replace entire profile</summary>
         <button
           type="button"
           disabled={submitting}
           onClick={() => {
+            setMergeOrigin(null); setMergeChoices([]); setAmbiguousChoices({})
             setSavedBaseline(JSON.stringify(buildPutBody(fromFull(pendingDraft.existing))))
             setEditor(fromDraft(pendingDraft.draft))
             setPendingDraft(null)
@@ -2262,6 +2374,7 @@ function ProfileScreen() {
             </span>
           ) : null}
         </button>
+        </details>
 
         {/* The way out that costs nothing: without it, a reading the user does
             not want would be offered on every visit forever. */}
@@ -2319,7 +2432,7 @@ function ProfileScreen() {
     setEditor(savedSnapshotRef.current ?? emptyEditor())
     setPhotoChange(undefined)
     setReviewingImport(false)
-    setImportConfirmed(false)
+    setAcknowledgedReview(null)
     setShowImportIssues(false)
     setSaveError(null)
     setInvalidFields(new Set())
@@ -2334,7 +2447,7 @@ function ProfileScreen() {
       originalReviewRef.current = editor
       setReviewingImport(true)
       setReviewEditing(false)
-      setImportConfirmed(false)
+      setAcknowledgedReview(null)
       // The existing reviewingImport effect updates the URL in place so typed
       // facts stay in this canonical editor until explicit confirmation.
       window.scrollTo({ top: 0 })
@@ -2342,12 +2455,13 @@ function ProfileScreen() {
     }
     if (reviewingImport) {
       if (!importConfirmed || loadError) return
+      if (invalidEditorDates(editor).length) { setSaveError('Correct invalid dates before saving.'); return }
       if (reviewPlan.outstanding.some(check => check.blocking !== false) && !defer) { setShowImportIssues(true); guideToFirstIssue(); return }
       if (reviewPlan.invalid.length) { setShowImportIssues(true); guideToFirstIssue(); return }
       void onSubmit('review')
     } else void onSubmit('stay')
   }
-  const saveBar = importProcessing ? null : isReviewRoute && reviewEditing ? <div data-profile-save-bar className="profile-save-bar page-gutter sticky bottom-[76px] z-20 flex flex-wrap items-center justify-between gap-3 border-t border-line bg-white/95 py-3 backdrop-blur md:bottom-0"><span data-review-editor-error={saveError ? "true" : undefined} role={saveError ? "alert" : "status"} className="type-helper text-ink-muted">{saveError ?? "Changes kept for review"}</span><Button disabled={submitting} onClick={() => { setReviewEditing(false); window.scrollTo({ top: 0 }) }}>Back to Resume Review</Button></div> : <div data-profile-save-bar className="profile-save-bar page-gutter sticky bottom-[76px] z-20 flex flex-wrap items-center justify-between gap-3 border-t border-line bg-white/95 py-3 backdrop-blur md:bottom-0">
+  const saveBar = importProcessing ? null : <div data-profile-save-bar className="profile-save-bar page-gutter sticky bottom-[76px] z-20 flex flex-wrap items-center justify-between gap-3 border-t border-line bg-white/95 py-3 backdrop-blur md:bottom-0">
     <p role="status" aria-live="polite" className={cn('type-helper', saveError ? 'text-alert' : 'text-ink-muted')}>{saveError ?? (submitting ? 'Saving…' : isDirty ? 'You have unsaved changes' : !hasSavedProfile ? 'Not saved yet' : 'All changes saved')}</p>
     <div className="flex gap-2"><Button variant="secondary" size="sm" disabled={submitting} onClick={cancelEditing}>Cancel</Button><Button size="sm" busy={submitting} busyLabel="Saving…" disabled={!!loadError || (reviewingImport && !importConfirmed)} onClick={() => saveChanges()}>Save changes</Button></div>
   </div>
@@ -2376,69 +2490,18 @@ function ProfileScreen() {
         <h1 className="mt-1 type-title text-ink">{importProcessing ? 'Preparing your review' : hasSavedProfile ? 'Update from your resume' : 'Start with your experience'}</h1>
         <p className="mt-2 type-body text-ink-soft">{importProcessing ? 'Your saved profile changes only after you review and confirm.' : 'Choose how to add your details. You’ll review them before saving.'}</p>
       </header>
-      <ol aria-label="Career Profile stages" className="mb-5 grid grid-cols-3 gap-2">
-        {['Resume input', 'AI processing', 'Your review'].map((label, index) => <li key={label} aria-current={index === (importProcessing ? 1 : 0) ? 'step' : undefined} className={cn('flex min-w-0 flex-col gap-1 border-t-2 pt-2 type-caption', index < (importProcessing ? 1 : 0) ? 'border-ok text-ok' : index === (importProcessing ? 1 : 0) ? 'border-teal font-semibold text-teal' : 'border-line text-ink-muted')}><span aria-hidden="true">{index < (importProcessing ? 1 : 0) ? '✓' : index + 1}</span>{label}</li>)}
+      <ol aria-label="Career Profile stages" className="mb-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {['Add information', 'AI extraction', 'Review and edit', 'Confirm and save'].map((label, index) => <li key={label} aria-current={index === (importProcessing ? 1 : 0) ? 'step' : undefined} className={cn('flex min-w-0 flex-col gap-1 border-t-2 pt-2 type-caption', index < (importProcessing ? 1 : 0) ? 'border-ok text-ok' : index === (importProcessing ? 1 : 0) ? 'border-teal font-semibold text-teal' : 'border-line text-ink-muted')}><span aria-hidden="true">{index < (importProcessing ? 1 : 0) ? '✓' : index + 1}</span>{label}</li>)}
       </ol>
       {loadErrorBlock}
-      <ResumeImport initialMode={initialImportMode} collapsible={false} onDraft={ingestDraft} onFillManually={enterManual} onProcessingChange={observeImportProcessing} />
+      <ResumeImport initialMode={initialImportMode} collapsible={false} onDraft={ingestDraft} onSourceReady={retainReviewSource} onFillManually={enterManual} onProcessingChange={observeImportProcessing} />
       {hasSavedProfile && !importProcessing ? <Button className="mt-4" variant="secondary" onClick={enterManual}>Cancel import</Button> : null}
     </main>
   }
 
+  if (reviewSaved) return <ReviewSavedSuccess preview={<CareerProfileResumeButton label="Preview my resume" showHint={false} />} onEdit={() => {setReviewSaved(false); router.replace('/profile?view=details')}} />
+
   if (isReviewRoute && !reviewingImport) return <main className={MAIN_CLASS}><div className="page-gutter py-8"><h1 className="type-title text-ink">Resume Review</h1><p className="mt-3 type-body text-ink-soft">No resume reading is waiting for confirmation. Your saved profile is unchanged.</p><Link className={buttonVariants({ variant: 'secondary' })+' mt-4'} href="/profile">Open Career Profile</Link></div></main>
-
-  let reviewSurface: React.ReactNode = null
-  if (isReviewRoute && reviewingImport) {
-    const text = (values: Array<string | null | undefined>) => values.filter(value => value?.trim()).join(' · ')
-    const reviewSections = (data: EditorData) => {
-      const additionalRows = (kind: string) => data.additional_information.filter(row => profileBlockForCategory(row.category_name ?? row.label) === kind)
-      const additional = (kind: string) => additionalRows(kind).map(row => text([row.label, row.level, row.value])).join('\n')
-      const displayFields = (values: Array<[string, string | null | undefined]>) => values.filter((entry): entry is [string, string] => Boolean(entry[1]?.trim())).map(([label, value]) => ({ label, value }))
-      const displayEntries = (rows: EditableAdditional[]) => rows.map(row => {
-        const fields = displayFields([['Level', row.level], ['Details', row.value]])
-        return { title: row.label || row.category_name || undefined, fields: fields.length ? fields : displayFields([['Name', row.label]]) }
-      })
-      const customRows = data.additional_information.filter(row => !profileBlockForCategory(row.category_name ?? row.label) && !['preparation details (private)', 'profile headline'].includes((row.category_name ?? row.label).trim().toLowerCase()))
-      const displayGroups: Record<string, import('@/components/profile/ReviewSectionContent').ReviewDisplayGroup[]> = {
-        sec_identity: [{ fields: displayFields([['Name', data.full_name], ['Email', data.email], ['Phone', data.phone], ['WhatsApp', data.whatsapp], ['Location', data.current_location], ['Nationality', data.nationality], ['Date of birth', data.date_of_birth], ['LinkedIn', data.linkedin_url], ['Passport type', data.passport_type], ['Passport validity', data.passport_validity_date]]) }],
-        sec_work_experience: data.work_experience.map(job => ({ title: job.role || job.company || undefined, fields: displayFields([['Employer', job.company], ['Role', job.role], ['Started', job.start_date], ['Ended / current', job.end_date || (job.end_date_unconfirmed ? 'End/current status unconfirmed' : 'No end date recorded')], ['Location', job.location], ['Responsibilities', job.description], ['Highlights', job.highlights]]) })),
-        sec_skills: [{ title: 'Skills', kind: 'tags', fields: data.skills.filter(row => row.name.trim()).map(row => ({ label: 'Skill', value: row.name })) }, ...displayEntries(additionalRows('skills'))],
-        sec_certifications: data.certifications.map(row => ({ title: row.name || undefined, fields: displayFields([['Certificate', row.name], ['Issuer', row.issuer], ['Issued', row.issue_date], ['Expires', row.expiry_date]]) })),
-        sec_education: [...data.education.map(row => ({ title: row.degree || undefined, fields: displayFields([['Qualification', row.degree], ['Institution', row.institution], ['Field of study', row.field_of_study], ['Started', row.start_year], ['End year', row.end_year]]) })), ...displayEntries(additionalRows('education'))],
-        ...Object.fromEntries(['projects', 'training', 'languages', 'achievements', 'activities', 'research', 'links'].map(kind => [kind, displayEntries(additionalRows(kind))])),
-        licences: [...displayEntries(additionalRows('licences')), { title: 'Licence details', fields: displayFields([['Driving licence', data.has_driving_license === true ? 'Driving licence recorded' : data.has_driving_license === false ? 'No driving licence declared' : ''], ['Country', data.driving_license_country], ['Category', data.driving_license_category], ['Valid until', data.driving_license_validity_date], ['Professional licence', data.professional_licence]]) }],
-        sec_status: [{ fields: displayFields([['Target role', data.target_job_title], ['Target country', data.target_country], ['Industry', data.target_industry], ['Target company', data.target_company], ['Current employer', data.current_employer], ['Current project', data.current_project], ['Notice period', data.notice_period], ['Visa status', data.visa_status], ['Visa transfer', data.visa_transferable === true ? 'Visa transferable' : data.visa_transferable === false ? 'Visa not transferable' : ''], ['Degree attestation', data.degree_attestation], ['Saudi verification', data.saudi_verification], ['Arabic level', data.arabic_level]]) }, ...displayEntries(additionalRows('gulf'))],
-        sec_additional: displayEntries(customRows),
-      }
-      const sections = [
-        { id:'sec_identity', title:'Personal Information', content:[['Name',data.full_name],['Email',data.email],['Phone',data.phone],['WhatsApp',data.whatsapp],['Location',data.current_location],['Nationality',data.nationality],['Date of birth',data.date_of_birth],['LinkedIn',data.linkedin_url],['Passport type',data.passport_type],['Passport validity',data.passport_validity_date]].filter(([,value])=>value).map(([label,value])=>`${label}: ${value}`).join('\n'), field:'identity' },
-        { id:'sec_summary', title:'Professional Summary', content:data.professional_summary, field:'professional_summary' },
-        { id:'sec_work_experience', title:'Experience', content:data.work_experience.map(job => [text([job.role,job.company,job.start_date,job.end_date || (job.end_date_unconfirmed ? 'End/current status unconfirmed' : 'No end date recorded'),job.location]),job.description,job.highlights].filter(Boolean).join('\n')).join('\n\n'), field:'work_experience' },
-        { id:'sec_skills', title:'Skills', content:text([data.skills.map(row=>row.name).join(' · '),additional('skills')]), field:'skills' },
-        { id:'sec_certifications', title:'Certifications', content:data.certifications.map(row=>text([row.name,row.issuer,row.issue_date,row.expiry_date])).join('\n'), field:'certifications' },
-        { id:'sec_education', title:'Education', content:text([data.education.map(row=>text([row.degree,row.institution,row.field_of_study,row.start_year,row.end_year])).join('\n'),additional('education')]), field:'education' },
-        ...['projects','training','languages','licences','achievements','activities','research','links'].map(id => ({ id, title: id === 'training' ? 'Training' : PROFILE_BLOCKS.find(block=>block.id===id)!.title, content: id==='licences' ? text([additional(id),data.has_driving_license===true?'Driving licence recorded':data.has_driving_license===false?'No driving licence declared':'',data.driving_license_country,data.driving_license_category,data.driving_license_validity_date,data.professional_licence]) : additional(id), field:'additional_information' })),
-        { id:'sec_status', title:'Gulf Preferences & Availability', content:text([data.target_job_title,data.target_country,data.target_industry,data.target_company,data.current_employer,data.current_project,data.notice_period,data.visa_status,data.visa_transferable===true?'Visa transferable':data.visa_transferable===false?'Visa not transferable':'',data.degree_attestation,data.saudi_verification,data.arabic_level,additional('gulf')]),field:'status' },
-        { id:'sec_additional',title:'Additional Information',content:data.additional_information.filter(row=>!profileBlockForCategory(row.category_name??row.label) && !['Preparation details (private)','Profile headline'].includes(row.category_name??row.label)).map(row=>text([row.label,row.value])).join('\n'),field:'additional_information' },
-      ]
-      return sections.map(section => ({ ...section, displayGroups: displayGroups[section.id], status: reviewChecks.some(check => check.status === 'attention' && (section.field === 'identity' ? (SECTION_FIELDS.sec_identity as readonly string[]).includes(check.field) : section.field !== 'additional_information' && section.field !== 'status' && (check.field === section.field || check.field.startsWith(section.field + '.')))) ? 'attention' as const : section.content.trim() ? 'complete' as const : 'optional' as const,
-        hint: section.field === 'status' ? 'Optional destination preferences are separate from general career facts.' : 'Review only details that apply to your career. Missing optional information can be added later.',
-        changes: activeReview.changes.filter(change => section.field === 'identity' ? (SECTION_FIELDS.sec_identity as readonly string[]).includes(change.field) : section.field === 'status' ? (SECTION_FIELDS.sec_status as readonly string[]).includes(change.field) : change.field === section.field || change.field.startsWith(section.field+'.')).filter(change => section.field !== 'additional_information' || (section.id === 'sec_additional' ? !profileBlockForCategory(change.label) : profileBlockForCategory(change.label) === section.id)) }))
-    }
-    const sections = reviewSections(editor)
-    const originalContents = Object.fromEntries(reviewSections(originalReviewRef.current ?? editor).map(section=>[section.id,section.content]))
-    const baseline = originalReviewRef.current ?? editor
-    const baselineChecks = resumeReviewChecks({ ...activeReview, currentRoles: [...(activeReview.currentRoles ?? []), ...baseline.work_experience.filter(job => !job.end_date && !job.end_date_unconfirmed).map(currentRoleFingerprint)] }, baseline, change => currentImportValue(baseline, change))
-    const diagnosticProfile = { ...editor, professional_headline: profileHeadline(editor.additional_information)?.value }
-    const diagnosticOriginal = { ...baseline, professional_headline: profileHeadline(baseline.additional_information)?.value }
-    const diagnosticEdit = (id: string) => {
-      const mapped: Record<string, string> = { contact: 'sec_identity', summary: 'sec_summary', experience: 'sec_work_experience', education: 'sec_education', skills: 'sec_skills', training: 'sec_certifications' }
-      goToProfilePart(mapped[id] ? { sectionId: mapped[id] } : { sectionId: 'sec_additional', categoryBlock: id })
-    }
-    reviewSurface = <ResumeAcceptanceReview fieldIssues={reviewChecks.filter(check => check.status === 'attention')} onFixField={goToReviewField} onVerifyField={id => { void verifyReviewField(id) }} diagnostic={<CareerDiagnostic profile={diagnosticProfile} originalProfile={diagnosticOriginal} review={activeReview} checks={reviewChecks} verifiedFieldCount={rawReviewChecks.filter(check => check.confirmable && fieldConfirmations[check.id] === JSON.stringify([check.value, check.reason])).length} onEdit={diagnosticEdit} onFix={goToReviewField} busy={submitting} />} suppliedFieldCount={baselineChecks.filter(check => !check.value.trim() && rawReviewChecks.some(current => current.id === check.id && current.status === 'passed' && current.value.trim())).length} verifiedFieldCount={rawReviewChecks.filter(check => check.confirmable && fieldConfirmations[check.id] === JSON.stringify([check.value, check.reason])).length} originalIssueIds={baselineChecks.filter(check => check.status === 'attention').map(check => check.id)} currentIssueIds={reviewChecks.filter(check => check.status === 'attention').map(check => check.id)} candidateName={editor.full_name} recoveryKey={importReview?.id ? REVIEW_RECOVERY_KEY : undefined} originalContents={originalContents} sections={sections} review={activeReview} score={claimedScan?.overall_score} strengths={claimedScan?.strengths} improvements={claimedScan?.improvements} profileExists={hasSavedProfile} currentValue={change=>currentImportValue(editor,change)} onChoose={(change,value)=>setEditor(applyImportChange(editor,change,value,uid))} onEdit={id=>goToProfilePart({sectionId:id.startsWith('sec_')?id:'sec_additional',categoryBlock:id.startsWith('sec_')?undefined:id})} confirmed={importConfirmed} onConfirm={setImportConfirmed} busy={submitting} error={saveError ?? loadError} saveDisabled={Boolean(loadError)} onSave={()=>saveChanges()} issues={<>{recoveryNotice ? <p role="status" className="mt-3 type-helper text-ink-soft">{recoveryNotice}</p> : null}{showImportIssues ? <section ref={importIssueRef} tabIndex={-1} className="rounded-card border border-alert bg-alert-soft p-4"><h2 className="type-section text-alert">Some details still need attention</h2><p className="mt-2 type-helper text-ink-soft">Fix invalid values, or save missing details for later.</p><div className="mt-3 flex flex-wrap gap-2"><Button variant="secondary" size="sm" onClick={()=>goToProfilePart({field:reviewPlan.outstanding[0]?.field ?? 'full_name'})}>Update now</Button><Button size="sm" disabled={submitting || reviewPlan.invalid.length>0} onClick={()=>saveChanges(true)}>Skip and save</Button></div></section> : null}</>} />
-  }
-
-  if (reviewSurface && !reviewEditing) return <><div>{reviewSurface}</div></>
 
   // ---- Completeness ---------------------------------------------------------
   if (view === 'completeness') {
@@ -2518,27 +2581,57 @@ function ProfileScreen() {
     </main>
   }
 
+  const proposedUpdates = mergeOrigin ? buildProposedProfileUpdates(mergeOrigin.existing, mergeOrigin.draft) : null
+  const chooseUpdate = (update: ProposedProfileUpdate, accept: boolean) => {
+    if (mergeMode !== 'updates') return
+    setEditor(previous => previous && applyProposedEditorUpdate(previous, update, accept))
+    setMergeChoices(previous => accept ? [...new Set([...previous,update.id])] : previous.filter(id=>id!==update.id))
+  }
+  const changeMergeMode = (mode: 'add'|'updates') => {
+    if (mode === 'add' && mergeChoices.length) {
+      setEditor(previous => previous && (proposedUpdates?.updates ?? []).filter(update=>mergeChoices.includes(update.id)).reduce((next,update)=>applyProposedEditorUpdate(next,update,false),previous))
+      setMergeChoices([])
+    }
+    setMergeMode(mode)
+  }
+  const unresolvedAmbiguities = proposedUpdates?.additions.ambiguousWork.filter(row => !ambiguousChoices[row.incomingIndex]) ?? []
+  const mergePanel = proposedUpdates ? <section id="v4-proposed-updates" tabIndex={-1} className="mb-5 rounded-xl border border-line bg-white p-4" aria-labelledby="v4-merge-title">
+    <h2 id="v4-merge-title" className="type-section text-ink">Your saved profile stays in control</h2>
+    <fieldset className="mt-3 flex flex-wrap gap-3"><legend className="sr-only">Import mode</legend><label className="min-h-11 flex items-center gap-2"><input type="radio" name="v4-import-mode" checked={mergeMode==='add'} onChange={()=>changeMergeMode('add')} />Add new information</label><label className="min-h-11 flex items-center gap-2"><input type="radio" name="v4-import-mode" checked={mergeMode==='updates'} onChange={()=>changeMergeMode('updates')} />Review proposed updates</label></fieldset>
+    <p className="type-helper text-ink-soft">Add keeps saved values and adds new entries. Returning to Add clears selected overwrites; other inline edits remain.</p>
+    {proposedUpdates.updates.length ? <details className="mt-3"><summary className="min-h-11 cursor-pointer type-label">{proposedUpdates.updates.length} proposed updates — keep saved by default</summary>{proposedUpdates.updates.map(update=><div key={update.id} className="mt-3 border-t border-line pt-3"><h3 className="type-label">{update.label}</h3><p className="type-helper">Saved: {Object.entries(update.before).filter(([key])=>!key.endsWith('_precision')).map(([,value])=>Array.isArray(value)?value.join(' · '):String(value??'Not supplied')).join(' · ')}</p><p className="type-helper">From resume: {Object.entries(update.after).filter(([key])=>!key.endsWith('_precision')).map(([,value])=>Array.isArray(value)?value.join(' · '):String(value??'Not supplied')).join(' · ')}</p><label className="min-h-11 flex items-center gap-2"><input type="checkbox" checked={mergeChoices.includes(update.id)} disabled={mergeMode!=='updates'} onChange={event=>chooseUpdate(update,event.target.checked)} />Use resume value for {update.label}</label></div>)}</details> : null}
+    {proposedUpdates.additions.ambiguousWork.map(row=><div key={row.incomingIndex} className="mt-3 rounded-lg border border-line p-3"><h3 className="type-label">Possible repeated role: {String(row.incoming.role??'Role')} — {String(row.incoming.company??'Employer')}</h3><p className="type-helper">The dates do not establish whether this is a separate tenure. Your saved role has been kept. Choose what to do with this incoming entry.</p><pre className="mt-2 whitespace-pre-wrap break-words type-helper">{JSON.stringify(row.incoming,null,2)}</pre><div className="flex flex-wrap gap-2"><Button variant="secondary" size="sm" disabled={ambiguousChoices[row.incomingIndex]==='add'} onClick={()=>{setAmbiguousChoices(previous=>({...previous,[row.incomingIndex]:'keep'}))}}>Keep saved role</Button><Button variant="secondary" size="sm" disabled={Boolean(ambiguousChoices[row.incomingIndex])} onClick={()=>{setEditor(previous=>previous&&({...previous,work_experience:[...previous.work_experience,ws({...row.incoming,id:undefined})]}));setAmbiguousChoices(previous=>({...previous,[row.incomingIndex]:'add'}))}}>Add as separate role</Button></div>{ambiguousChoices[row.incomingIndex] ? <p role="status" className="type-helper">{ambiguousChoices[row.incomingIndex]==='add'?'Added as a separate unsaved role.':'Saved role kept; incoming entry not added.'}</p>:null}</div>)}
+  </section> : null
+
+  const rowActions = (table: 'work_experience' | 'education' | 'skills' | 'certifications', key: string, name: string, index: number) => <RowActions name={name} index={index} count={editor[table].length} onMove={direction => {
+    setEditor(previous => { if (!previous) return previous; const rows=[...previous[table]]; const from=rows.findIndex(row => row.key===key); const to=from+direction; if(from<0||to<0||to>=rows.length)return previous; [rows[from],rows[to]]=[rows[to],rows[from]]; return {...previous,[table]:rows} })
+    setRowNotice(`${name} moved ${direction === -1 ? 'up' : 'down'}.`)
+    requestAnimationFrame(() => {document.querySelector<HTMLButtonElement>(`[aria-label="Move ${CSS.escape(name)} ${direction===-1?'up':'down'}"]`)?.focus()})
+  }} onRemove={() => {removedRowRef.current={table,row:editor[table].find(row=>row.key===key)!,index}; setEditor(previous => previous && ({...previous,[table]:previous[table].filter(row=>row.key!==key)})); setRowNotice(`${name} removed. You can undo this removal before saving.`)}} onUndo={() => { const baseline=originalReviewRef.current?.[table].find(row=>row.key===key || ('id' in row && row.id && editor[table].find(current=>current.key===key)?.id===row.id)); if(baseline)setEditor(previous=>previous && ({...previous,[table]:previous[table].map(row=>row.key===key?{...baseline,key}:row)})); setRowNotice(`Changes to ${name} undone.`) }} />
+
   // Keep same-tab review decisions alive while the canonical editor is open.
   // Browser storage is optional reload recovery, not a requirement for editing.
   // ---- The full profile (view === 'details') --------------------------------
-  return (
-    <><div hidden={Boolean(reviewSurface)} style={reviewSurface ? { display: 'none' } : undefined}>{reviewSurface}</div><main data-ui-service="profile" data-career-builder={reviewingImport || !hasSavedProfile ? "true" : undefined} className={MAIN_CLASS}>
-      <ViewHeader eyebrow={isReviewRoute ? "Resume Review" : "Career Profile"} title="Edit Career Profile" description="Update your information here, then save your changes." onBack={cancelEditing} backLabel="Career Profile" />
-      {isReviewRoute ? <div className="page-gutter py-3"><Button variant="secondary" disabled={importProcessing} onClick={()=>{setReviewEditing(false);window.scrollTo({top:0})}}>Back to Resume Review</Button></div> : null}
+  const EditorContainer = reviewingImport ? 'div' : 'main'
+  const editorContent = (
+    <><EditorContainer data-ui-service="profile" data-career-builder={reviewingImport || !hasSavedProfile ? "true" : undefined} className={MAIN_CLASS}>
+      {!reviewingImport ? <ViewHeader eyebrow="Career Profile" title="Edit Career Profile" description="Update your information here, then save your changes." onBack={cancelEditing} backLabel="Career Profile" /> : null}
+
       {loadErrorBlock}
 
-      {showImportIssues && reviewingImport && !importProcessing ? <section ref={importIssueRef} tabIndex={-1} aria-labelledby="review-issues-title" className="mx-3 my-4 rounded-card border border-alert bg-alert-soft p-4 text-alert sm:mx-5">
+      {false && showImportIssues && reviewingImport && !importProcessing ? <section ref={importIssueRef} tabIndex={-1} aria-labelledby="review-issues-title" className="mx-3 my-4 rounded-card border border-alert bg-alert-soft p-4 text-alert sm:mx-5">
         <h2 id="review-issues-title" className="type-section">Some details still need attention</h2><p className="mt-2 type-helper">Fix invalid values, or save missing details for later.</p>
         <div className="mt-3 flex flex-wrap gap-2"><Button variant="secondary" size="sm" onClick={guideToFirstIssue}>Next issue</Button><Button size="sm" disabled={submitting || reviewPlan.invalid.length > 0} onClick={() => saveChanges(true)}>Skip and save</Button></div>
       </section> : null}
       <fieldset disabled={submitting || importProcessing} className="min-w-0">
       {!reviewingImport ? <div className="page-gutter py-4"><Button variant="secondary" size="sm" onClick={() => { window.history.pushState(null, '', '/profile/import'); window.scrollTo({ top: 0 }) }}>Update from resume</Button></div> : null}
-      {!importProcessing ? parseNotesBlock : null}
+      {!reviewingImport && !importProcessing ? parseNotesBlock : null}
 
       {/* Editor body */}
       <div id="profile-editor" className="page-gutter flex scroll-mt-4 flex-col gap-2.5 py-4">
         {/* One plain sentence naming the whole job before the first step, so
             the user knows how long this is and where they are inside it. */}
+        {!reviewingImport ? <>
         <p className="studio-full-editor-intro px-1 pb-1 type-helper leading-relaxed text-ink-muted">
           {doneCount === keyCount ? (
             <>All {keyCount} key sections are complete — review anything below.</>
@@ -2562,93 +2655,15 @@ function ProfileScreen() {
           </div>
         </nav></details>
 
-        <section aria-label="Profile photo" className="rounded-card border border-line bg-white p-4"><ProfilePhotoDraft photoUrl={photoChange === null ? null : photoPreview ?? (editor.photo_url || null)} busy={submitting} onSelect={setPhotoChange} /></section>
-
-        {/* STATUS & TARGET */}
-        <CardSection
-          {...sectionProps('sec_status')} validationState={guidedState('sec_status')} validationMessage={guidedMessage('sec_status')}
-          title="Gulf Preferences & Availability"
-          helper="Your target roles, countries and current situation. Availability, passport and visa details are recorded in Personal & Contact Details below."
-        >
-          <button type="button" className={buttonVariants({ variant: 'ghost', size: 'sm' })} onClick={() => goToProfilePart({ sectionId: 'sec_additional', categoryBlock: 'gulf' })}>Add or review availability and preference details</button>
-          <ConfirmToggle
-            id="f_currently_in_gulf"
-            label="I live and work in the Gulf now"
-            hint="Turn on if you are in a GCC country today. It changes what your score rewards."
-            checked={editor.currently_in_gulf}
-            onChange={(v) => setField({ currently_in_gulf: v })}
-          />
-          <div className="grid gap-4">
-            <Input tone="light"
-              id="f_target_job_title"
-              label="Job Title You’re Applying For"
-              placeholder="e.g. Senior Piping Engineer"
-              hint="The role you want next. Every resume you build is aimed at it."
-              value={editor.target_job_title}
-              onChange={(e) => setField({ target_job_title: e.target.value })}
-              error={invalidFields.has('target_job_title') && requiredMissing(editor).some(item => item.key === 'target_job_title') ? 'Job Title You’re Applying For is required.' : undefined}
-            />
-            <Input tone="light"
-              id="f_target_industry"
-              label="Target industry"
-              placeholder="e.g. Oil & Gas, Power, Construction"
-              value={editor.target_industry}
-              onChange={(e) => setField({ target_industry: e.target.value })}
-              error={invalidFields.has('target_industry') && requiredMissing(editor).some(item => item.key === 'target_industry') ? 'Target industry is required.' : undefined}
-            />
-            <div className="flex flex-col gap-1.5">
-              <FieldLabel htmlFor="f_target_country" optional>
-                Target country
-              </FieldLabel>
-              <select
-                id="f_target_country"
-                className={selectClass}
-                value={editor.target_country}
-                onChange={(e) => setField({ target_country: e.target.value })}
-              >
-                <option value="" disabled>
-                  Choose a country
-                </option>
-                {GULF_COUNTRIES.map((c) => (
-                  <option key={c.value} value={c.value}>
-                    {c.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <Input tone="light"
-              id="f_target_company"
-              label="Target company"
-              optional
-              placeholder="e.g. Saudi Aramco"
-              value={editor.target_company}
-              onChange={(e) => setField({ target_company: e.target.value })}
-            />
-            <Input tone="light"
-              id="f_current_employer"
-              label="Current employer"
-              optional
-              placeholder="e.g. Larsen & Toubro"
-              value={editor.current_employer}
-              onChange={(e) => setField({ current_employer: e.target.value })}
-            />
-            <Input tone="light"
-              id="f_current_project"
-              label="Current project"
-              optional
-              placeholder="e.g. Jafurah Gas Plant, Phase 2"
-              value={editor.current_project}
-              onChange={(e) => setField({ current_project: e.target.value })}
-            />
-          </div>
-        </CardSection>
+        </> : null}
+        {!reviewingImport ? <details open={!reviewingImport || undefined} className="rounded-card border border-line bg-white p-3"><summary className="min-h-11 cursor-pointer type-label">Profile photo — optional</summary><ProfilePhotoDraft photoUrl={photoChange === null ? null : photoPreview ?? (editor.photo_url || null)} busy={submitting} onSelect={setPhotoChange} /></details> : null}
 
         {/* IDENTITY & CONTACT — the card header opens Profile settings, the
             per-field "what appears on your CV" screen (was /profile/visibility). */}
         <CardSection
           {...sectionProps('sec_identity')} validationState={guidedState('sec_identity')} validationMessage={guidedMessage('sec_identity')}
           title="Personal & Contact Details"
-          helper="Passport, visa and contact details are private to your account, and our team’s access is logged. You choose what appears on your resume."
+          helper={reviewingImport ? "Name, contact details and personal facts. Edit only what you know." : "Passport, visa and contact details are private to your account, and our team’s access is logged. You choose what appears on your resume."}
           action={
             <button
               type="button"
@@ -3012,34 +3027,19 @@ function ProfileScreen() {
             }
         >
           <div className="flex flex-col gap-4">
-            {sortedWorkRoles(editor.work_experience).map((w, i) => (
+            {(reviewingImport ? editor.work_experience : sortedWorkRoles(editor.work_experience)).map((w, i) => (
               <WorkExperienceItem key={w.key} role={w} number={i + 1} open={expandedWorkKey === w.key} onToggle={() => setExpandedWorkKey(key => key === w.key ? null : w.key)}>
                 <div className="flex items-center justify-between">
                   <span className="type-helper font-semibold text-sec-experience">
                     {w.role.trim() || `Role ${i + 1}`}
                   </span>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setEditor((e) =>
-                        e
-                          ? {
-                              ...e,
-                              work_experience: e.work_experience.filter((x) => x.key !== w.key),
-                            }
-                          : e
-                      )
-                    }
-                    className={buttonVariants({ variant: 'ghost', size: 'sm' }) + ' text-alert hover:bg-alert-soft'}
-                  >
-                    Remove
-                  </button>
+                  {rowActions('work_experience', w.key, w.role || w.company || `Role ${i + 1}`, i)}
                 </div>
                 <Input id={`f_work_role_${w.key}`} tone="light" label="Role" placeholder="e.g. Senior Instrument Engineer" value={w.role} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { role: e.target.value }) }))} />
                 <Input id={`f_work_experience_${w.key}_company`} tone="light" label="Employer / your business" placeholder="e.g. Bechtel · use Self-employed if applicable" value={w.company} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { company: e.target.value }) }))} />
                 <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-                  <DateField id={`f_work_start_${w.key}`} label="Start" value={w.start_date} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { start_date: e.target.value }) }))} />
-                  <DateField id={`f_work_end_${w.key}`} label="End" helper="Leave blank if this is your current role." value={w.end_date} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { end_date: e.target.value, end_date_unconfirmed: e.target.value ? false : w.end_date_unconfirmed }) }))} />
+                  <PrecisionDateField id={`f_work_start_${w.key}`} label="Start" value={w.start_date} precision={w.start_date_precision} onChange={(value, precision) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { start_date: value, start_date_precision: precision }) }))} />
+                  <PrecisionDateField id={`f_work_end_${w.key}`} label="End" helper="If the end date is unknown, keep it blank. Confirm a current role separately." value={w.end_date} precision={w.end_date_precision} onChange={(value, precision) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { end_date: value, end_date_precision: precision, end_date_unconfirmed: !value }) }))} />
                 </div>
                 {w.end_date_unconfirmed && !w.end_date && <div className="rounded-ctl border border-alert bg-alert-soft p-3 text-alert"><p className="type-helper">Current or ended status needs an update. Add the end date above, or confirm this is your current role.</p><button type="button" className={buttonVariants({variant:'secondary',size:'sm'})} onClick={() => setEditor(s => s && ({...s,work_experience:updateList(s.work_experience,w.key,{end_date_unconfirmed:false})}))}>This is my current role</button></div>}
                 <Input tone="light" label="Location" placeholder="e.g. Abu Dhabi, UAE" value={w.location} onChange={(e) => setEditor((s) => s && ({ ...s, work_experience: updateList(s.work_experience, w.key, { location: e.target.value }) }))} />
@@ -3104,6 +3104,7 @@ function ProfileScreen() {
             penalty, no red/green indicator; see lib/employmentGaps.ts's header.
             An empty array renders nothing (silence is correct here, not a
             manufactured "no gaps!"). */}
+        {employmentGapsStatus === 'insufficient_precision' ? <p className="rounded-lg border border-line bg-white p-3 type-helper text-ink-soft">Employment-gap dates cannot be established from the available date precision. This does not mean there are no gaps, and it is not scored.</p> : null}
         {employmentGaps.length > 0 ? (
           <div className="flex flex-col gap-2 rounded-ctl border border-line/70 bg-white px-3.5 py-3">
             <span className="type-caption font-semibold text-ink-soft">
@@ -3141,15 +3142,7 @@ function ProfileScreen() {
                   <span className="type-helper font-semibold text-sec-education">
                     {x.degree.trim() || `Qualification ${i + 1}`}
                   </span>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setEditor((e) => (e ? { ...e, education: e.education.filter((y) => y.key !== x.key) } : e))
-                    }
-                    className={buttonVariants({ variant: 'ghost', size: 'sm' }) + ' text-alert hover:bg-alert-soft'}
-                  >
-                    Remove
-                  </button>
+                  {rowActions('education', x.key, x.degree || `Qualification ${i + 1}`, i)}
                 </div>
                 <Input id={`f_education_${x.key}_degree`} tone="light" label="Degree" placeholder="e.g. B.Tech" value={x.degree} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { degree: e.target.value }) }))} />
                 <Input id={`f_education_${x.key}_institution`} tone="light" label="Institution" placeholder="e.g. UPTU" value={x.institution} onChange={(e) => setEditor((s) => s && ({ ...s, education: updateList(s.education, x.key, { institution: e.target.value }) }))} />
@@ -3183,7 +3176,7 @@ function ProfileScreen() {
         >
           <div className="flex flex-col gap-2">
             {editor.skills.map((s, i) => (
-              <div key={s.key} className="flex items-center gap-2">
+              <div key={s.key} className="flex flex-wrap items-center gap-2">
                 <span className="w-5 shrink-0 text-right type-caption font-semibold text-sec-skills">{i + 1}</span>
                 <Input tone="light" id={`f_skills_${s.key}_name`}
                   value={s.name}
@@ -3191,16 +3184,7 @@ function ProfileScreen() {
                   aria-label={`Skill ${i + 1}`}
                   onChange={(e) => setEditor((st) => st && ({ ...st, skills: updateList(st.skills, s.key, { name: e.target.value }) }))}
                 />
-                <button
-                  type="button"
-                  onClick={() =>
-                    setEditor((e) => (e ? { ...e, skills: e.skills.filter((x) => x.key !== s.key) } : e))
-                  }
-                  aria-label={`Remove skill ${i + 1}`}
-                  className={buttonVariants({ variant: 'ghost', size: 'sm' }) + ' text-alert hover:bg-alert-soft'}
-                >
-                  ✕
-                </button>
+                {rowActions('skills', s.key, s.name || `Skill ${i + 1}`, i)}
               </div>
             ))}
             <AddRowButton label="Add another skill" onClick={addSkill} />
@@ -3231,21 +3215,13 @@ function ProfileScreen() {
                   <span className="type-helper font-semibold text-sec-certifications">
                     {c.name.trim() || `Certification ${i + 1}`}
                   </span>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setEditor((e) => (e ? { ...e, certifications: e.certifications.filter((x) => x.key !== c.key) } : e))
-                    }
-                    className={buttonVariants({ variant: 'ghost', size: 'sm' }) + ' text-alert hover:bg-alert-soft'}
-                  >
-                    Remove
-                  </button>
+                  {rowActions('certifications', c.key, c.name || `Certificate ${i + 1}`, i)}
                 </div>
                 <Input id={`f_certifications_${c.key}_name`} tone="light" label="Name" placeholder="e.g. Functional Safety (IEC 61511)" value={c.name} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { name: e.target.value }) }))} />
                 <Input tone="light" label="Issuer" placeholder="e.g. TÜV Rheinland" value={c.issuer} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { issuer: e.target.value }) }))} />
                 <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-                  <DateField id={`f_cert_issue_${c.key}`} label="Issued" value={c.issue_date} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { issue_date: e.target.value }) }))} />
-                  <DateField id={`f_cert_expiry_${c.key}`} label="Expires" helper="Blank if it does not expire." value={c.expiry_date} onChange={(e) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { expiry_date: e.target.value }) }))} />
+                  <PrecisionDateField id={`f_cert_issue_${c.key}`} label="Issued" value={c.issue_date} precision={c.issue_date_precision} onChange={(value, precision) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { issue_date: value, issue_date_precision: precision }) }))} />
+                  <PrecisionDateField id={`f_cert_expiry_${c.key}`} label="Expires" value={c.expiry_date} precision={c.expiry_date_precision} onChange={(value, precision) => setEditor((s) => s && ({ ...s, certifications: updateList(s.certifications, c.key, { expiry_date: value, expiry_date_precision: precision }) }))} />
                 </div>
               </div>
             ))}
@@ -3254,17 +3230,115 @@ function ProfileScreen() {
           <button type="button" className={buttonVariants({ variant: 'ghost', size: 'sm' })} onClick={() => goToProfilePart({ sectionId: 'sec_additional', categoryBlock: 'training' })}>Add or review additional training details</button>
         </CardSection>
 
+        {/* STATUS & TARGET */}
+        <CardSection
+          {...sectionProps('sec_status')} validationState={guidedState('sec_status')} validationMessage={guidedMessage('sec_status')}
+          title="Gulf Preferences & Availability"
+          helper="Your target roles, countries and current situation. Availability, passport and visa details are recorded in Personal & Contact Details below."
+        >
+          <button type="button" className={buttonVariants({ variant: 'ghost', size: 'sm' })} onClick={() => goToProfilePart({ sectionId: 'sec_additional', categoryBlock: 'gulf' })}>Add or review availability and preference details</button>
+          <ConfirmToggle
+            id="f_currently_in_gulf"
+            label="I live and work in the Gulf now"
+            hint="Turn on if you are in a GCC country today. It changes what your score rewards."
+            checked={editor.currently_in_gulf}
+            onChange={(v) => setField({ currently_in_gulf: v })}
+          />
+          <div className="grid gap-4">
+            <Input tone="light"
+              id="f_target_job_title"
+              label="Job Title You’re Applying For"
+              placeholder="e.g. Senior Piping Engineer"
+              hint="The role you want next. Every resume you build is aimed at it."
+              value={editor.target_job_title}
+              onChange={(e) => setField({ target_job_title: e.target.value })}
+              error={invalidFields.has('target_job_title') && requiredMissing(editor).some(item => item.key === 'target_job_title') ? 'Job Title You’re Applying For is required.' : undefined}
+            />
+            <Input tone="light"
+              id="f_target_industry"
+              label="Target industry"
+              placeholder="e.g. Oil & Gas, Power, Construction"
+              value={editor.target_industry}
+              onChange={(e) => setField({ target_industry: e.target.value })}
+              error={invalidFields.has('target_industry') && requiredMissing(editor).some(item => item.key === 'target_industry') ? 'Target industry is required.' : undefined}
+            />
+            <div className="flex flex-col gap-1.5">
+              <FieldLabel htmlFor="f_target_country" optional>
+                Target country
+              </FieldLabel>
+              <select
+                id="f_target_country"
+                className={selectClass}
+                value={editor.target_country}
+                onChange={(e) => setField({ target_country: e.target.value })}
+              >
+                <option value="" disabled>
+                  Choose a country
+                </option>
+                {GULF_COUNTRIES.map((c) => (
+                  <option key={c.value} value={c.value}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <Input tone="light"
+              id="f_target_company"
+              label="Target company"
+              optional
+              placeholder="e.g. Saudi Aramco"
+              value={editor.target_company}
+              onChange={(e) => setField({ target_company: e.target.value })}
+            />
+            <Input tone="light"
+              id="f_current_employer"
+              label="Current employer"
+              optional
+              placeholder="e.g. Larsen & Toubro"
+              value={editor.current_employer}
+              onChange={(e) => setField({ current_employer: e.target.value })}
+            />
+            <Input tone="light"
+              id="f_current_project"
+              label="Current project"
+              optional
+              placeholder="e.g. Jafurah Gas Plant, Phase 2"
+              value={editor.current_project}
+              onChange={(e) => setField({ current_project: e.target.value })}
+            />
+          </div>
+        </CardSection>
+
         <CardSection {...sectionProps('sec_additional')} validationState={guidedState('sec_additional')} validationMessage={guidedMessage('sec_additional')} title="Specialist blocks & custom sections" helper="Projects, languages, awards, activities, research and professional links. Your original headings stay intact.">
           <ProfileBlockCategories reservedEntries={editor.additional_information.filter(row => isHeadlineEntry(row) || row.category_name === 'Preparation details (private)')} value={editor.additional_information.filter(row => !isHeadlineEntry(row) && row.category_name !== 'Preparation details (private)')} onChange={(rows) => setEditor(e => e && ({ ...e, additional_information: [...rows, ...e.additional_information.filter(row => isHeadlineEntry(row) || row.category_name === 'Preparation details (private)')] }))} />
         </CardSection>
       </div>
 
+      {reviewingImport ? <details open={!reviewingImport || undefined} className="rounded-card border border-line bg-white p-3"><summary className="min-h-11 cursor-pointer type-label">Profile photo — optional</summary><ProfilePhotoDraft photoUrl={photoChange === null ? null : photoPreview ?? (editor.photo_url || null)} busy={submitting} onSelect={setPhotoChange} /></details> : null}
       <details id="profile-visibility" className="mx-3 my-4 rounded-card border border-line bg-white sm:mx-5" open={searchParams.get('view') === 'settings'}><summary className="min-h-11 cursor-pointer p-4 type-label font-semibold text-ink">Resume visibility</summary>{visibilityFilled ? <CvVisibilitySettings value={editor.field_visibility} filled={visibilityFilled} onChange={setVisibility} /> : null}</details>
       </fieldset>
-      {saveBar}
+      {!reviewingImport ? saveBar : null}
       <div className="pb-8" />
-    </main></>
+    </EditorContainer></>
   )
+  if (!reviewingImport) return editorContent
+  const dateErrors = invalidEditorDates(editor)
+  const invalidCount = reviewPlan.invalid.length + dateErrors.length
+  const unresolved = reviewChecks.filter(check => check.status === 'attention').length + editor.work_experience.filter(row => row.start_date && row.start_date_precision === null || row.end_date && row.end_date_precision === null).length
+  const source = typeof reviewSourceFile === 'string' ? <pre>{reviewSourceFile}</pre> : reviewSourceFile && reviewSourceUrl ? <div><p>{reviewSourceFile.name}</p><a href={reviewSourceUrl} target="_blank" rel="noreferrer">Open attached source</a>{reviewSourceFile.type === 'application/pdf' ? <iframe title="Attached resume source" src={reviewSourceUrl} className="mt-3 h-[65vh] w-full" /> : null}</div> : <pre>{JSON.stringify(mergeOrigin ? buildPutBody(fromDraft(mergeOrigin.draft)) : originalReviewRef.current ? buildPutBody(originalReviewRef.current) : {}, null, 2)}</pre>
+  const focusInvalid = () => {
+    const date = dateErrors[0]
+    if (date) goToProfilePart({sectionId: date.sectionId, field: date.field})
+    else if (reviewPlan.invalid[0]) goToReviewField(reviewPlan.invalid[0].field)
+    else guideToFirstIssue()
+  }
+  const reviewOrder = ['sec_identity','sec_summary','sec_work_experience','sec_education','sec_certifications','sec_skills','sec_additional','sec_status']
+  const reviewSections = reviewOrder.map(id=>FORM_SECTIONS.find(section=>section.id===id)!).map(section => ({id: section.id, title: section.label, summary: section.id === 'sec_work_experience' ? `${editor.work_experience.length} roles` : section.id === 'sec_certifications' ? `${editor.certifications.length} certificates` : undefined, status: statusOf(section.id) === 'attention' || statusOf(section.id) === 'missing' ? 'attention' as const : statusOf(section.id) === 'optional' ? 'optional' as const : 'complete' as const}))
+  return <ProfileReviewWorkspace candidateName={editor.full_name} sections={reviewSections} activeSectionId={activeReviewSection} manualEntry={manualEntry && !importReview} onSectionChange={id => goToProfilePart({sectionId: id})} unresolvedCount={unresolved} onUnresolved={focusInvalid} confirmed={importConfirmed} onConfirm={setImportConfirmed} busy={submitting} error={saveError ?? loadError} saveDisabled={Boolean(loadError) || invalidCount > 0 || unresolvedAmbiguities.length > 0} onSave={() => saveChanges(true)} onCancel={cancelEditing} recoveryNotice={recoveryNotice} changesSummary={<>{unresolvedAmbiguities.length ? <button type="button" className="min-h-11 underline" onClick={()=>document.getElementById('v4-proposed-updates')?.focus()}>Resolve {unresolvedAmbiguities.length} possible repeated roles</button> : null}<p>Only the details shown in this workspace will be saved. Missing and uncertain facts stay unconfirmed.</p>{invalidCount ? <button type="button" className="min-h-11 underline" onClick={focusInvalid}>Correct {invalidCount} invalid {invalidCount === 1 ? 'value' : 'values'}</button> : null}{rowNotice ? <p role="status">{rowNotice}</p> : null}{removedRowRef.current ? <button type="button" className="min-h-11 underline" onClick={() => {const removed=removedRowRef.current; if(removed)setEditor(previous=>{if(!previous)return previous;const rows=[...previous[removed.table]];if(!rows.some(row=>row.key===removed.row.key))rows.splice(Math.min(removed.index,rows.length),0,removed.row);return {...previous,[removed.table]:rows}}); removedRowRef.current=null; setRowNotice('Removal undone.')}}>Undo last removal</button> : null}<button type="button" className="min-h-11 underline" onClick={() => {if (originalReviewRef.current && window.confirm('Undo your review edits and restore the original extracted draft?')) setEditor(originalReviewRef.current)}}>Undo review edits</button></>} source={source} sourceLabel={reviewSourceFile ? reviewSourceKind === 'reference' ? 'Reference file' : 'Original resume' : manualEntry && !importReview ? 'Your starting draft' : 'Originally extracted details'} sourceNotice={reviewSourceKind === 'reference' ? 'This file could not be matched to the original source. Use it as a reference only.' : !reviewSourceFile && manualEntry && !importReview ? 'This is your starting manual draft. No resume file was used.' : !reviewSourceFile ? 'These are the originally extracted fields, not the original PDF. Reattach the original file to compare.' : 'This source is separate from your edits. It does not automatically confirm any fact.'} onSourceReattach={() => reattachSourceRef.current?.click()}>
+    <input hidden ref={reattachSourceRef} type="file" accept=".pdf,.docx,.txt" onChange={async event => {const file=event.target.files?.[0]; if(!file)return; setReviewSourceFile(file); try {const bytes=new Uint8Array(await file.arrayBuffer()); const identity={digest:await digestSource(bytes),size:bytes.byteLength}; setReviewSourceKind(identifyReattachedSource(reviewSourceIdentity,identity))} catch {setReviewSourceKind('reference')} event.target.value=''}} />
+    {mergePanel}
+    {editorContent}
+  </ProfileReviewWorkspace>
 }
 
 // No useSearchParams here, but keep a Suspense boundary out of habit so future

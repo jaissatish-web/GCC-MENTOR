@@ -1,3 +1,4 @@
+import { readPrecisionDate, type DatePrecision } from '@/lib/profileDatePrecision'
 import { hasUnknownEmploymentEnd } from '@/lib/employmentStatus'
 /** Presentation order only: never reorder the editor or saved career history. */
 export function sortedWorkRoles<T extends { start_date: string; end_date: string; end_date_unconfirmed?: boolean }>(roles: readonly T[]): T[] {
@@ -6,7 +7,10 @@ export function sortedWorkRoles<T extends { start_date: string; end_date: string
     return Number(current(b.role)) - Number(current(a.role)) || b.role.end_date.localeCompare(a.role.end_date) || b.role.start_date.localeCompare(a.role.start_date) || a.index - b.index
   }).map(item => item.role)
 }
-export function workDateLabel(value: string): string {
+export function workDateLabel(value: string, precision?: DatePrecision | null): string {
+  if (precision !== undefined && value) {
+    try { const canonical=readPrecisionDate(value,precision) ?? ''; if(precision===null)return `${canonical} (date precision unverified)`; value=canonical } catch { return value }
+  }
   const match = value.match(/^(\d{4})-(\d{2})(?:-\d{2})?$/)
   if (!match) return value || 'Date not added'
   const month = Number(match[2])

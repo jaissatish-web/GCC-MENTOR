@@ -108,3 +108,7 @@ Record new work in the relevant domain document and
 [`15_DECISION_LOG.md`](15_DECISION_LOG.md). Do **not** add a new dated campaign
 report, and do **not** create a second design direction. One current statement per
 subject.
+
+## Current feature review —18 November2026
+
+[Career Profile Onboarding V4 verification](ONBOARDING_V4_VERIFICATION.md) records the approved date contract, affected consumers, local evidence and unreleased status for Issues#95/#96.

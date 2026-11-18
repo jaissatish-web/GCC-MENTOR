@@ -12,7 +12,7 @@ export interface AnalysisView {
   target: JobTargetProfile
   before: MatchScore
   /** Honest maximum with every block selected. */
-  maxTotal: number
+  maxTotal: number | null
   qualifications: number | null
   keywords: KeywordEvidence[]
   /** The resume as it stands today, so the screen can project per selection. */

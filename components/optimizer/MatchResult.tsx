@@ -15,7 +15,7 @@ import { CTA, NAMES } from '@/lib/serviceLabels'
 export function readMatchReport(raw: unknown): MatchReport | null {
   if (typeof raw !== 'object' || raw === null) return null
   const r = raw as Partial<MatchReport>
-  if (r.report_version !== 1 || !r.before || typeof r.before.total !== 'number') return null
+  if (r.report_version !== 1 || !r.before || (typeof r.before.total !== 'number' && !(r.before.total === null && r.before.assessment_status === 'needs_date_clarification'))) return null
   return r as MatchReport
 }
 
@@ -33,7 +33,7 @@ export function MatchResult({
 }) {
   const after = report.after
   if (!after) return null
-  const gain = after.total - report.before.total
+  const gain = typeof after.total === 'number' && typeof report.before.total === 'number' ? after.total - report.before.total : null
   const estimate = report.mode === 'target_title_only'
   const place = (w: string) => (w === 'summary' ? 'your summary' : w === 'skills' ? 'this resume’s skills section' : roleNames[w] ? roleNames[w] : 'your experience')
   const kept = (report.kept_original ?? []).filter((k, i, all) => all.findIndex((x) => x.block === k.block) === i)
@@ -46,7 +46,7 @@ export function MatchResult({
             {estimate ? `${NAMES.atsScore} · estimate (no job description)` : `${NAMES.atsScore} for this job`}
           </p>
           <h2 className="font-display text-[18px] leading-tight text-ink">
-            {gain > 0 ? `Your ATS score went from ${report.before.total} to ${after.total}` : 'Your resume, sharpened for this job'}
+            {after.total === null ? 'Pending clarification' : gain !== null && gain > 0 ? `Your ATS score went from ${report.before.total} to ${after.total}` : 'Your resume, sharpened for this job'}
           </h2>
         </div>
         {report.after_edited ? (
@@ -63,10 +63,10 @@ export function MatchResult({
           <ScoreRing value={after.total} size={112} label="After" />
           <div className="ml-1 flex flex-col items-start gap-1.5">
             {after.v2 && (after.v2.mandatoryGaps > 0 || after.v2.mandatoryUnknown > 0) ? <span className="rounded-full bg-gold-soft px-2.5 py-1 type-caption font-semibold text-gold-ink">Screening requires review</span> : <BandPill value={after.total} />}
-            {gain > 0 ? <span className="font-mono text-[13px] font-semibold text-teal">+{gain} points</span> : null}
-            <span className="text-[12px] leading-snug text-ink-muted">
+            {gain !== null && gain > 0 ? <span className="font-mono text-[13px] font-semibold text-teal">+{gain} points</span> : null}
+            {typeof report.max_total === 'number' && typeof after.total === 'number' ? <span className="text-[12px] leading-snug text-ink-muted">
               Estimated match potential: <strong className="text-ink">{Math.max(report.max_total, after.total)}</strong>
-            </span>
+            </span> : <span className="type-helper text-ink-soft">Insufficient date precision. Other assessable results remain available.</span>}
           </div>
         </div>
         <div className="min-w-0 flex-1">

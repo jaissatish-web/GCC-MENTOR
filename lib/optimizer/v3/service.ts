@@ -25,6 +25,7 @@ import { applySuggestionsToDocument, type Suggestion } from '../suggestions'
 import { containsTermRaw } from '../text'
 import type { KeywordKind, MatchReport, MatchScore } from '../types'
 import { addableAt, analyzeV3, targetFromAnalysis, writeV3, type AnalysisV3 } from './engine'
+import { assessedMaximum, assessedGain } from '../scoreAvailability'
 import { experienceRequirementMet } from '../experienceMet'
 import { reviewScoreQuality } from '../qualityReview'
 import { dutySuggestions, recommendedLevel, selectedAnalysis, resumeSkillSuggestions, confirmedResumeSkills, type DutySuggestion, type ResumeSkillSuggestion } from './preselection'
@@ -35,7 +36,7 @@ const ASKABLE = new Set(['certification', 'licence'])
 const ASK_SKILL = new Set(['tool', 'standard', 'skill', 'equipment'])
 
 // job_analyses.input_hash must be exactly 64 characters, so the v3 key is hashed again.
-export const v3Hash = (title: string, industry: string | null, jd: string | null) => sha256('v3-confirmed-claims:' + analysisInputHash(title, industry, jd))
+export const v3Hash = (title: string, industry: string | null, jd: string | null) => sha256('v4-date-precision:' + analysisInputHash(title, industry, jd))
 const modeOf = (jd: string | null) => (jd && jd.trim() ? 'job_description' : 'target_title_only') as 'job_description' | 'target_title_only'
 
 /** The profile's version without its certificates: a certificate added on the level screen keeps the analysis. */
@@ -68,7 +69,8 @@ export function regroupCertifications(a: AnalysisV3, profile: CareerProfileFull)
       // analyses stored before 2026-10-03 ("ICU experience" missing for an ICU
       // nurse) are corrected too (lib/optimizer/experienceMet.ts).
       if (r.kind === 'experience_years') {
-        const group = experienceRequirementMet(profile, r.term).ok ? ('A' as const) : ('C' as const)
+        const assessed = experienceRequirementMet(profile, r.term)
+        const group = assessed.status === 'unknown' ? ('U' as const) : assessed.ok ? ('A' as const) : ('C' as const)
         return group === r.group ? r : { ...r, group, location: 'summary' }
       }
       return r.group === 'C' && ((ASKABLE.has(r.kind) && profileHolds(profile, r.term)) || (ASK_SKILL.has(r.kind) && profileListsSkill(profile, r.term)))
@@ -144,7 +146,7 @@ export async function isAnalysisCachedV3(userId: string, profile: CareerProfileF
 /** The share of the job's fixed requirements (degree, years, certificates, licences) the profile meets. */
 export function qualificationsOf(a: AnalysisV3): number | null {
   const fixed = a.requirements.filter((q) => FIXED.has(q.kind))
-  if (!fixed.length) return null
+  if (!fixed.length || fixed.some(q => q.group === 'U')) return null
   const w = (q: { importance: string }) => (q.importance === 'must' ? 3 : 1)
   return Math.round((100 * fixed.filter((q) => q.group === 'A').reduce((n, q) => n + w(q), 0)) / fixed.reduce((n, q) => n + w(q), 0))
 }
@@ -162,7 +164,7 @@ function ceilingAt(base: ScoreDocument, a: AnalysisV3, level: OptimizationLevel,
 }
 
 export interface CheckReport {
-  recommendedLevel: OptimizationLevel
+  recommendedLevel: OptimizationLevel | null
   resumeSkills: ResumeSkillSuggestion[]
   beforeScore: MatchScore
   dutySuggestions: DutySuggestion[]
@@ -170,14 +172,14 @@ export interface CheckReport {
   fieldMatch: AnalysisV3['fieldMatch']
   jobField: string
   candidateField: string
-  before: number
+  before: number | null
   /** "Up to" per level — the honest ceiling. */
-  expected: Record<OptimizationLevel, number>
-  askCertifications: Array<{ term: string; importance: 'must' | 'nice'; gain: number }>
+  expected: Record<OptimizationLevel, number | null>
+  askCertifications: Array<{ term: string; importance: 'must' | 'nice'; gain: number | null }>
   /** High's tick-list: tools, standards, skills, equipment the job lists that the profile does not show. */
-  askSkills: Array<{ term: string; importance: 'must' | 'nice'; gain: number }>
+  askSkills: Array<{ term: string; importance: 'must' | 'nice'; gain: number | null }>
   /** High's best score if the user really has every skill and certificate the job asks for. */
-  highIfConfirmed: number
+  highIfConfirmed: number | null
 }
 
 export function checkReport(profile: CareerProfileFull, analysis: AnalysisV3, title: string, jd: string | null, fv?: Partial<FieldVisibility> | null): CheckReport {
@@ -192,19 +194,19 @@ export function checkReport(profile: CareerProfileFull, analysis: AnalysisV3, ti
   const beforeScore = scoreResume(base, target, quals)
   const before = beforeScore.total
   const expected = {
-    easy: Math.max(before, ceilingAt(base, a, 'easy', target, quals)),
-    moderate: Math.max(before, ceilingAt(base, a, 'moderate', target, quals)),
-    high: Math.max(before, ceilingAt(base, a, 'high', target, quals)),
+    easy: assessedMaximum(before, ceilingAt(base, a, 'easy', target, quals)),
+    moderate: assessedMaximum(before, ceilingAt(base, a, 'moderate', target, quals)),
+    high: assessedMaximum(before, ceilingAt(base, a, 'high', target, quals)),
   }
   // What a certificate the user really holds would add, at the default level.
   const askCertifications = a.requirements
     .filter((q) => q.group === 'C' && ASKABLE.has(q.kind))
     .map((q) => {
       const withCert = { ...a, requirements: a.requirements.map((r) => (r === q ? { ...r, group: 'A' as const } : r)) }
-      const gain = ceilingAt(base, withCert, 'moderate', target, qualificationsOf(withCert), [q.term]) - expected.moderate
-      return { term: q.term, importance: q.importance, gain: Math.max(0, gain) }
+      const gain = assessedGain(ceilingAt(base, withCert, 'moderate', target, qualificationsOf(withCert), [q.term]), expected.moderate)
+      return { term: q.term, importance: q.importance, gain }
     })
-    .sort((x, y) => y.gain - x.gain)
+    .sort((x, y) => x.gain === null || y.gain === null ? 0 : y.gain - x.gain)
     .slice(0, 6)
   // High's tick-list (founder, 2026-10-02): what each one would add at High
   // if the user really has it, and the best High can reach with all of them.
@@ -215,15 +217,15 @@ export function checkReport(profile: CareerProfileFull, analysis: AnalysisV3, ti
   const askSkills = skillQs
     .map((q) => {
       const withIt = promote([q])
-      return { term: q.term, importance: q.importance, gain: Math.max(0, ceilingAt(base, withIt, 'high', target, qualificationsOf(withIt), [], [q.term]) - expected.high) }
+      return { term: q.term, importance: q.importance, gain: assessedGain(ceilingAt(base, withIt, 'high', target, qualificationsOf(withIt), [], [q.term]), expected.high) }
     })
-    .sort((x, y) => (x.importance === y.importance ? y.gain - x.gain : x.importance === 'must' ? -1 : 1))
+    .sort((x, y) => (x.importance === y.importance ? x.gain === null || y.gain === null ? 0 : y.gain - x.gain : x.importance === 'must' ? -1 : 1))
     .slice(0, 15)
   // Only actual selectable resume skills contribute to this possibility; missing
   // licences/certificates remain screening gaps, never assumed to close.
   const all = promote(skillQs)
-  const highIfConfirmed = Math.max(expected.high, ceilingAt(base, all, 'high', target, qualificationsOf(all), [], skillQs.map((q) => q.term)))
-  return { beforeScore, resumeSkills: resumeSkillSuggestions(analysis), mode: modeOf(jd), fieldMatch: a.fieldMatch, jobField: a.jobField, candidateField: a.candidateField, before, expected, askCertifications, askSkills, highIfConfirmed, recommendedLevel: recommendedLevel(before, expected), dutySuggestions: dutySuggestions(a, profile.work_experience.map(e => e.id)) }
+  const highIfConfirmed = assessedMaximum(expected.high, ceilingAt(base, all, 'high', target, qualificationsOf(all), [], skillQs.map((q) => q.term)))
+  return { beforeScore, resumeSkills: resumeSkillSuggestions(analysis), mode: modeOf(jd), fieldMatch: a.fieldMatch, jobField: a.jobField, candidateField: a.candidateField, before, expected, askCertifications, askSkills, highIfConfirmed, recommendedLevel: before === null || Object.values(expected).some(value => value === null) ? null : recommendedLevel(before, expected as Record<OptimizationLevel, number>), dutySuggestions: dutySuggestions(a, profile.work_experience.map(e => e.id)) }
 }
 
 export type BuildV3Result =
@@ -353,7 +355,7 @@ export async function buildV3(opts: {
     profile_fingerprint: profileFingerprint(profile),
     qualifications: quals,
     before,
-    max_total: Math.max(check.expected.high, after.total),
+    max_total: assessedMaximum(check.expected.high, after.total),
     level,
     after,
     // A selection is not a successful rewrite: explain only the terms actually
@@ -361,7 +363,7 @@ export async function buildV3(opts: {
     why_fits: after.keywords.filter(q => q.credit > 0).map(q => ({term:q.term, where:q.where})),
     gaps: [...new Map([
       ...after.keywords.filter(q => q.credit === 0).map(q => ({term:q.term, importance:q.importance, kind:q.kind})),
-      ...(after.v2?.screening ?? []).filter(q => q.status !== 'met').map(q => ({term:q.term, importance:q.importance, kind:kindOf(q.kind)})),
+      ...(after.v2?.screening ?? []).filter(q => q.status !== 'met' && q.uncertainty_reason !== 'insufficient_date_precision').map(q => ({term:q.term, importance:q.importance, kind:kindOf(q.kind)})),
     ].map(q => [`${q.kind}:${q.term.toLowerCase()}`, q])).values()],
     kept_original: kept,
     generated_at: new Date().toISOString(),
@@ -370,9 +372,9 @@ export async function buildV3(opts: {
     auto_applied: preselected && suggestions.some(s => s.status === 'confirmed'),
     projected_with_suggestions: pending.length ? score(applySuggestionsToDocument(documentSnapshot, pending)).total : after.total,
     // Product goals never impose a floor on the measured score. Only show a reachable goal.
-    target_band: level === 'high'
-      ? (check.expected.high >= 75 ? [75, 95] : undefined)
-      : (check.expected[level] >= Math.min(100, before.total + (level === 'easy' ? 10 : 25))
+    target_band: before.total === null || check.expected[level] === null ? undefined : level === 'high'
+      ? ((check.expected.high as number) >= 75 ? [75, 95] : undefined)
+      : ((check.expected[level] as number) >= Math.min(100, before.total + (level === 'easy' ? 10 : 25))
         ? [Math.min(100, before.total + (level === 'easy' ? 10 : 25)), Math.min(100, before.total + (level === 'easy' ? 10 : 25))]
         : undefined),
     field_match: { match: a.fieldMatch, job_field: a.jobField, candidate_field: a.candidateField },
