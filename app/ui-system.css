@@ -1,19 +1,19 @@
-/* Slate & Teal — 17 Nov 2026. One shared light palette for public and
+/* Ink & Champagne — 18 Nov 2026 (founder-approved). One shared light palette for public and
    authenticated pages. Edit these semantic tokens for future theme changes.
    Typography, document colors and service behavior remain independently owned.
 
-   Brand corrected from Azure blue to the documented brand teal on 17 Nov 2026.
-   The palette was previously "Azure & Slate" (5 Nov) with
-   --ui-brand-rgb: 37 99 235, while lib/design-system/theme.ts has always
-   documented brand as #007F78 "Primary teal" and the public landing rendered
-   teal through --uds-brand. Two brand colours resolved at once and the
-   signed-in product showed the wrong one.
+   Palette: ink #12211D on warm ivory #F6F3EC, one primary action colour #0A4A3F,
+   one restrained premium accent #C8A45C (#8A6B2E for accent text). Cards 14px, controls
+   10px, no raised shadow on shared content surfaces. See docs/12_DESIGN_SYSTEM.md
+   ("Current founder visual authority - 18 November 2026") for the rules.
 
-   The Tailwind compatibility utilities in this file are named after the teal
-   brand (.bg-teal 224 uses, .text-teal 349, .border-teal 124, .accent-teal 23).
-   Before this correction every one of them rendered blue. Keep the class names
-   and this token in agreement: if the brand ever changes again, either rename
-   the utilities or change this token, never only one of the two. */
+   History kept short: this file was "Azure & Slate" (blue #2563EB) until 17 Nov 2026,
+   when the brand was corrected to the documented teal #007F78. On 18 Nov 2026 the
+   founder approved replacing it with this palette. The Tailwind compatibility utility
+   names are historical - .bg-teal, .text-teal, .border-teal and .accent-teal now resolve
+   to the emerald primary action colour above. Keep the class names and this token in
+   agreement: if the brand changes again, either rename the utilities or change this
+   token, never only one of the two. */
 :root {
   color-scheme: light;
   --ui-inverse-rgb: 255 255 255;
@@ -23,32 +23,33 @@
   --ui-error: rgb(var(--ui-error-rgb));
   --ui-page-gutter: 16px;
   --ui-card-padding: 16px;
-  --ui-card-radius: 16px;
-  --ui-card-shadow: 0 1px 2px rgb(var(--ui-ink-rgb) / .05), 0 10px 28px rgb(var(--ui-ink-rgb) / .07);
-  --ui-keyword-rgb: 14 116 144;
-  --ui-keyword-soft-rgb: 236 254 255;
-  --ui-info-rgb: 29 78 216;
-  --ui-info-soft-rgb: 234 241 255;
+  --ui-card-radius: 14px;
+  --ui-card-shadow: none;
+  --ui-keyword-rgb: 15 107 93;
+  --ui-keyword-soft-rgb: 234 241 238;
+  --ui-info-rgb: 15 107 93;
+  --ui-info-soft-rgb: 234 241 238;
   /* Shared RGB roles support opacity utilities without local palette overrides. */
-  --ui-canvas-rgb: 245 248 252;
+  --ui-canvas-rgb: 246 243 236;
   --ui-surface-rgb: 255 255 255;
-  --ui-ink-rgb: 23 43 69;
-  --ui-ink-soft-rgb: 82 100 122;
-  --ui-ink-muted-rgb: 82 100 122;
-  --ui-brand-rgb: 0 127 120;
-  --ui-brand-hover-rgb: 0 107 100;
-  --ui-brand-soft-rgb: 231 245 241;
-  --ui-line-rgb: 223 231 241;
-  --ui-line-strong-rgb: 125 141 162;
-  --ui-accent-rgb: 8 145 178;
-  --ui-accent-ink-rgb: 14 116 144;
-  --ui-accent-soft-rgb: 236 254 255;
-  --ui-success-rgb: 21 112 65;
-  --ui-success-soft-rgb: 234 248 240;
-  --ui-error-rgb: 180 35 50;
-  --ui-error-soft-rgb: 255 241 242;
-  --ui-warning-rgb: 138 81 0;
-  --ui-warning-soft-rgb: 255 247 230;
+  --ui-ink-rgb: 18 34 29;
+  --ui-ink-soft-rgb: 95 110 105;
+  --ui-ink-muted-rgb: 95 110 105;
+  --ui-brand-rgb: 10 74 63;
+  --ui-brand-hover-rgb: 14 93 79;
+  --ui-brand-soft-rgb: 231 238 234;
+  --ui-line-rgb: 228 223 212;
+  --ui-line-strong-rgb: 160 152 136;
+  --ui-accent-rgb: 200 164 92;
+  --ui-accent-hover-rgb: 184 147 76;
+  --ui-accent-ink-rgb: 138 107 46;
+  --ui-accent-soft-rgb: 251 244 230;
+  --ui-success-rgb: 26 107 72;
+  --ui-success-soft-rgb: 232 242 236;
+  --ui-error-rgb: 164 51 45;
+  --ui-error-soft-rgb: 250 236 233;
+  --ui-warning-rgb: 138 107 46;
+  --ui-warning-soft-rgb: 251 244 230;
   --ui-canvas: rgb(var(--ui-canvas-rgb));
   --ui-surface: rgb(var(--ui-surface-rgb));
   --ui-ink: rgb(var(--ui-ink-rgb));
@@ -65,7 +66,7 @@
   --ui-hero-gradient: linear-gradient(135deg, var(--ui-surface) 0%, var(--ui-brand-soft) 100%);
   --ui-hero-label: var(--ui-brand);
   --ui-hero-copy: var(--ui-ink-soft);
-  --ui-control-radius: 12px;
+  --ui-control-radius: 10px;
   --ui-hero-radius: 16px;
   --ui-control-height: 44px;
   --ui-control-padding-y: 9px;
@@ -84,7 +85,7 @@
   --ui-marketing-width: 1240px;
   --ui-header-gap: 8px;
   --ui-list-gap: 12px;
-  --ui-card-hover-shadow: 0 2px 4px rgb(var(--ui-ink-rgb) / .06), 0 18px 44px rgb(var(--ui-ink-rgb) / .13);
+  --ui-card-hover-shadow: none;
   --ui-nav-profile-bg: var(--ui-brand-soft); --ui-nav-profile-ink: var(--ui-brand);
   --ui-nav-library-bg: var(--ui-brand-soft); --ui-nav-library-ink: var(--ui-brand);
   --ui-nav-templates-bg: var(--ui-brand-soft); --ui-nav-templates-ink: var(--ui-brand);
@@ -106,7 +107,7 @@
     --ui-page-top: 28px;
     --ui-section-padding: 64px;
     --ui-marketing-gutter: 32px;
-    --ui-card-padding: 20px;
+    --ui-card-padding: 24px;
   }
 }
 
@@ -823,10 +824,10 @@ body .rounded-ctl:not(:where([data-document-preview], [data-document-preview] *,
   gap:var(--ui-control-gap);
   box-shadow:none;
 }
-.app-type.internal-ui .ui-button.bg-gold { background:var(--ui-brand); color:var(--ui-inverse); }
-.app-type.internal-ui .ui-button.bg-gold:hover { background:var(--ui-brand-hover); color:var(--ui-inverse); transform:none; }
+.app-type.internal-ui .ui-button.bg-gold { background:var(--ui-accent); color:rgb(var(--ui-accent-ink-rgb)); }
+.app-type.internal-ui .ui-button.bg-gold:hover { background:rgb(var(--ui-accent-hover-rgb)); color:rgb(var(--ui-accent-ink-rgb)); transform:none; }
 .app-type.internal-ui .ui-button.bg-white { background:var(--ui-surface); }
-.app-type.internal-ui .ui-button:is(.text-navy-deep,.text-gold-ink) { color:var(--ui-brand-hover); }
+.app-type.internal-ui .ui-button:is(.text-navy-deep,.text-gold-ink) { color:var(--ui-accent-ink); }
 .app-type.internal-ui :is(input,select,textarea).field:not(:where([data-document-preview],[data-document-preview] *,#resume-render,#resume-render *,[data-typography="document"],[data-typography="document"] *,.actual-template-orbit-face,.actual-template-orbit-face *)):not(:where([data-website-ui] :not(:has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography="document"])))) {
   min-height:var(--ui-control-height);
   padding:var(--ui-control-padding-y) var(--ui-space-3);
@@ -1023,12 +1024,12 @@ body .bg-field:not(:where([data-document-preview], [data-document-preview] *, #r
   --ui-font:var(--uds-font);
   --ui-brand:var(--uds-brand); --ui-brand-hover:var(--uds-brand-hover); --ui-brand-soft:var(--uds-brand-soft);
   --ui-ink:var(--uds-ink); --ui-muted:var(--uds-muted); --ui-surface:var(--uds-surface);
-  --ui-line:var(--uds-border); --ui-line-strong:var(--uds-border);
+  --ui-line:var(--uds-border);
   --ui-brand-rgb:var(--uds-brand-rgb); --ui-ink-rgb:var(--uds-ink-rgb);
-  --ui-accent:var(--uds-brand); --ui-accent-ink:var(--uds-brand-hover); --ui-accent-soft:var(--uds-brand-soft);
-  --ui-accent-rgb:var(--uds-brand-rgb); --ui-accent-ink-rgb:var(--uds-brand-hover-rgb); --ui-accent-soft-rgb:var(--uds-brand-soft-rgb);
-  --ui-success-rgb:var(--uds-success-rgb); --ui-success-soft-rgb:var(--uds-brand-soft-rgb);
-  --ui-error-rgb:var(--uds-error-rgb); --ui-error-soft-rgb:var(--uds-canvas-rgb);
+  /* accent roles are intentionally NOT remapped onto the brand (18 Nov 2026). */
+  /* accent rgb roles are intentionally NOT remapped onto the brand (18 Nov 2026). */
+  --ui-success-rgb:var(--uds-success-rgb);
+  --ui-error-rgb:var(--uds-error-rgb);
   --ui-caption-size:var(--uds-helper-size); --ui-helper-size:var(--uds-helper-size); --ui-body-size:var(--uds-body-size);
   --ui-marketing-size:var(--uds-marketing-size); --ui-card-title-size:var(--uds-card-size); --ui-section-size:var(--uds-section-size); --ui-nav-size:var(--uds-nav-size);
   --ui-body-line:var(--uds-body-line); --ui-label-line:var(--uds-body-line); --ui-heading-line:var(--uds-heading-line);
