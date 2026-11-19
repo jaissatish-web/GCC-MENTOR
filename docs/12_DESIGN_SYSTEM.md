@@ -26,7 +26,7 @@ meaning: one ink frame, one action colour, one restrained accent.
 | `--ui-accent-soft-rgb` | `251 244 230` (#FBF4E6) | premium/preparation tint | page ground |
 | `--ui-keyword-rgb` | `21 127 110` (#157F6E) | small links and keyword highlights | large fills |
 | `--ui-line-rgb` | `228 223 212` (#E4DFD4) | hairlines and card borders | text |
-| `--ui-line-strong-rgb` | `160 152 136` (#A09888) | input and control borders | text |
+| `--ui-line-strong-rgb` | `146 138 122` (#928A7A) | input and control borders | text |
 | `--ui-success-rgb` / `-soft` | `26 107 72` / `232 242 236` | success, done, verified | decoration |
 | `--ui-warning-rgb` / `-soft` | `138 107 46` / `251 244 230` | needs-attention | success |
 | `--ui-error-rgb` / `-soft` | `164 51 45` / `250 236 233` | failure, destructive | decoration |
