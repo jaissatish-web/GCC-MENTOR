@@ -1,4 +1,63 @@
-# Current founder visual authority — 15 November 2026
+# Current founder visual authority — 18 November 2026 (Ink & Champagne)
+
+**Approved by the founder on 18 November 2026** from a rendered concept of the signed-in
+dashboard and the AI working / voice-interview screens. This section is the single current
+authority and supersedes every earlier palette notice below, including the 15 November
+Executive Slate & Teal notice.
+
+The founder's brief: the product must read premium and trustworthy to Gulf job-seekers. The
+previous palette carried three competing brand-ish colours in one viewport (teal, cyan and a
+success green) plus a blue left over from the pre-correction token. Colour must instead carry
+meaning: one ink frame, one action colour, one restrained accent.
+
+## The palette
+
+| Token | Value | Role — use it for | Never |
+|---|---|---|---|
+| `--ui-ink-rgb` | `18 34 29` (#12211D) | all reading text, headings | — |
+| `--ui-ink-soft-rgb` / `--ui-ink-muted-rgb` | `95 110 105` (#5F6E69) | secondary and helper text (5.35:1 on white) | body copy |
+| `--ui-canvas-rgb` | `246 243 236` (#F6F3EC) | page ground — warm ivory, not blue-grey | cards |
+| `--ui-surface-rgb` | `255 255 255` | cards and panels | page ground |
+| `--ui-brand-rgb` | `10 74 63` (#0A4A3F) | the one primary action per screen; dark panels | small text on tint |
+| `--ui-brand-hover-rgb` | `14 93 79` (#0E5D4F) | hover, and brand-coloured text | fills |
+| `--ui-brand-soft-rgb` | `231 238 234` (#E7EEEA) | active nav pill, quiet tint | wide surfaces |
+| `--ui-accent-rgb` | `200 164 92` (#C8A45C) | the premium accent — purchase action, premium markers. **Once or twice per screen** | text on white |
+| `--ui-accent-ink-rgb` | `138 107 46` (#8A6B2E) | accent as text, and text on accent fills | fills |
+| `--ui-accent-soft-rgb` | `251 244 230` (#FBF4E6) | premium/preparation tint | page ground |
+| `--ui-keyword-rgb` | `21 127 110` (#157F6E) | small links and keyword highlights | large fills |
+| `--ui-line-rgb` | `228 223 212` (#E4DFD4) | hairlines and card borders | text |
+| `--ui-line-strong-rgb` | `146 138 122` (#928A7A) | input and control borders | text |
+| `--ui-success-rgb` / `-soft` | `26 107 72` / `232 242 236` | success, done, verified | decoration |
+| `--ui-warning-rgb` / `-soft` | `138 107 46` / `251 244 230` | needs-attention | success |
+| `--ui-error-rgb` / `-soft` | `164 51 45` / `250 236 233` | failure, destructive | decoration |
+| `--ui-info-rgb` / `-soft` | `21 127 110` / `234 241 238` | neutral information | alerts |
+
+Geometry: cards 14px corners, controls 10px corners, 44px control height, card padding 16px
+phone / 24px larger screens, **no raised shadow on shared content surfaces** (depth comes from
+spacing, hairlines and type weight). Page widths and gutters are unchanged.
+
+## Rules
+
+1. **One primary action per screen.** Teal fills only for that action.
+2. **Accent discipline.** Champagne marks the premium/commercial thing, at most twice per
+   screen. If two things are champagne, one of them is wrong.
+3. **Status colours keep their meanings.** Success, warning and error are never remapped onto
+   the brand colour, in any scope — the widget adapter previously did this and the fix is
+   recorded in this file.
+4. **Colour is never the only signal.** Recording, progress and completion states carry text.
+5. **The document boundary is untouchable.** Resume templates, `#resume-render`,
+   `[data-document-preview]` and PDF output keep their own authored colours and fonts; the app
+   palette must never leak into a candidate's CV.
+
+## Verification required for any change to this section
+
+Production build, typecheck, lint and the repository checks; before/after screenshots of the
+affected surfaces; contrast recomputed for every text role; one reviewable PR. Merge and
+deployment remain separate founder decisions.
+
+---
+
+# Superseded — 15 November 2026 authority (Executive Slate & Teal), kept for history
 
 For future proposals, respect Executive Slate & Teal and the founder-approved Gulf landing references. Preserve the deployed approved composition until a specific visual batch is approved. Batch 1A changes documentation only; it does not recolor, redesign or migrate CSS.
 

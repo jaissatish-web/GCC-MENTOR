@@ -37,7 +37,7 @@ export interface ProfileReviewWorkspaceProps {
 /** Presentation only: all values and writes belong to the existing canonical profile editor. */
 export function ProfileReviewWorkspace({ children, manualEntry = false, sections, activeSectionId, onSectionChange, unresolvedCount, onUnresolved, confirmed, onConfirm, busy = false, error, saveDisabled = false, onSave, onCancel, recoveryNotice, changesSummary, source, sourceLabel = 'Originally extracted details', sourceNotice, onSourceReattach }: ProfileReviewWorkspaceProps) {
   const [sourceOpen, setSourceOpen] = useState(false)
-  const [modal, setModal] = useState(false)
+  const [modal, setModal] = useState(() => typeof window !== 'undefined' && window.matchMedia('(max-width: 1099px)').matches)
   const sourceRef = useRef<HTMLElement>(null)
   const sourceTrigger = useRef<HTMLButtonElement>(null)
   const confirmation = useRef<HTMLInputElement>(null)

@@ -59,7 +59,7 @@ try {
   assert.equal(before.internal.field.size,'16px')
   assert.equal(before.internalPortal.size,width>=768?'24px':'21px')
   assert.equal(before.publicPortal.size,width>=768?'24px':'21px')
-  assert.equal(before.internal.palette,'0 127 120','Internal screens consume the shared teal brand (Executive Slate & Teal, founder authority 2026-11-15; brand #007F78 per lib/design-system/theme.ts)')
+  assert.equal(before.internal.palette,'10 74 63','Internal screens consume the shared emerald brand (Ink & Champagne, founder authority 2026-11-18)')
   assert.equal(before.internal.field.background,'rgb(255, 255, 255)','Editable fields use the shared white surface')
   assert.equal(before.internal.card.background,'rgb(255, 255, 255)','Content surfaces use the shared white surface')
   assert.equal(before.internal.page.padding.split(' ')[1],width>=768?'32px':'16px')
