@@ -31,7 +31,7 @@ export function InterviewDemo({ compact = false }: { compact?: boolean }) {
   }, [moving, index])
   return <div ref={ref} className={`${s.demo} ${compact ? s.compact : ''}`} data-motion={moving?'playing':'static'}>
     <div className={s.learning}>
-      <div className={s.head}><span>Illustrative demonstration</span><button type="button" aria-pressed={paused} onClick={()=>setPaused(!paused)}>{paused?<Play size={15} aria-hidden="true"/>:<Pause size={15} aria-hidden="true"/>}{paused?'Resume demo':'Pause demo'}</button></div>
+      <div className={s.head}><span>Illustrative demonstration</span><button type="button" className="whitespace-nowrap" aria-pressed={paused} onClick={()=>setPaused(!paused)}>{paused?<Play size={15} aria-hidden="true"/>:<Pause size={15} aria-hidden="true"/>}{paused?'Resume demo':'Pause demo'}</button></div>
       <details className={s.settings}><summary>Adjust demo</summary><div className={s.options}>
         <label>Interviewer<select value={hostId} onChange={e=>setHostId(e.target.value)}>{INTERVIEWERS.map(person=><option key={person.id} value={person.id}>{person.name}, {person.label}</option>)}</select></label>
         <label>Session<select value={length} onChange={e=>setLength(Number(e.target.value))}><option value={5}>Quick, 5 questions</option><option value={10}>Standard, 10 questions</option><option value={15}>Deep, 15 questions</option></select></label>
@@ -61,7 +61,7 @@ export function InterviewDemo({ compact = false }: { compact?: boolean }) {
       <figcaption><h3 id="progress-title">See the pattern across attempts.</h3><span className={s.badge}>Illustrative data, not customer results</span></figcaption>
       <p className={s.axis}>Answer-structure score / 100</p>
       <svg className={s.chart} viewBox="0 0 420 230" role="img" aria-labelledby="attempt-chart-title attempt-chart-desc"><title id="attempt-chart-title">Illustrative three-attempt progress</title><desc id="attempt-chart-desc">Attempt 1: 46. Attempt 2: 61. Attempt 3: 74. Synthetic answer-structure examples, not real results.</desc>
-        {[0,25,50,75,100].map(v=><g key={v}><line x1="38" x2="402" y1={192-v*1.65} y2={192-v*1.65} stroke="#CBD5E1"/><text x="28" y={196-v*1.65} textAnchor="end">{v}</text></g>)}
+        {[0,25,50,75,100].map(v=><g key={v}><line x1="38" x2="402" y1={192-v*1.65} y2={192-v*1.65} stroke="var(--lp-line, #E2E8F0)"/><text x="28" y={196-v*1.65} textAnchor="end">{v}</text></g>)}
         <polyline points="60,116.1 220,91.35 380,69.9" fill="none" stroke="currentColor" strokeWidth="3"/>
         {attempts.map((value,i)=><g key={value}><circle cx={60+i*160} cy={192-value*1.65} r="5" fill="currentColor"/><text x={60+i*160} y={178-value*1.65} textAnchor="middle" className={s.value}>{value}</text><text x={60+i*160} y="220" textAnchor="middle">Attempt {i+1}</text></g>)}
       </svg>

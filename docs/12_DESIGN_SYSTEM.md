@@ -57,6 +57,111 @@ deployment remain separate founder decisions.
 
 ---
 
+# Landing presentation authority — 20 November 2026 (LANDING ROUTE ONLY)
+
+**Founder spec, 20 November 2026.** This section is the authority for the public landing page
+(`/`) **only**. It does not supersede the Ink & Champagne section above: the signed-in app keeps
+its `--ui-*` / `--uds-*` palette, its Inter face and its own type scale, and no app-wide default
+in `app/ui-system.css`, `app/typography.css`, `lib/design-system/theme.ts` (`COLOR_FIELDS`,
+`NUMBER_FIELDS`, `FONT_OPTIONS`, `DEFAULT_THEME`) or `tailwind.config.ts` was changed for it.
+
+## Why the landing needs its own layer
+
+The universal theme schema cannot express this design. `FONT_OPTIONS` has four entries
+(inter / system / arial / georgia) — the landing needs **Plus Jakarta Sans**, **DM Sans** and
+**JetBrains Mono** — and `NUMBER_FIELDS.headingWeight.max` is **700** while the landing h1 is
+weight **800**. Extending the schema would change the stored settings contract for every page,
+so the landing carries a pinned, landing-only token layer instead.
+
+**Carrier:** `.system, :global(#main-content)` in `components/landing-v3/landing.module.css`. The
+`:global()` is load-bearing: css-loader localises a bare `#main-content` selector inside a CSS
+module, which is how the previous pin (`#main-content { … }`) compiled to
+`#landing_main-content__<hash>` and never matched the DOM element at all. The landing now reads
+**no** `--uds-*` value, so a visitor's saved theme — including a `?designPreview=1` draft — cannot
+change the marketed page. Do not "simplify" the selector back to a bare id.
+
+**Fonts:** `components/landing-v3/landingFonts.ts` declares the three `next/font/google` faces as
+`--font-jakarta`, `--font-dm-sans` and `--font-jetbrains` and they are applied as classes on the
+landing wrapper in `app/page.tsx`. They are deliberately **not** added to `<body>` in
+`app/layout.tsx`: a dozen guards harvest that body class for their own fixtures, and the landing
+must not restyle the workspace. The stylesheet consumes them only through
+`--lp-font-display`, `--lp-font-body` and `--lp-font-mono`.
+
+## Palette (`--lp-*`, landing scope)
+
+| Token | Value | Role |
+|---|---|---|
+| `--lp-canvas` | `#F8F7F4` | page ground |
+| `--lp-surface` | `#FFFFFF` | working sections, cards |
+| `--lp-surface-muted` | `#F1EFEA` | recessed surface and tint |
+| `--lp-line` | `#E2E8F0` | 1px hairline between bands |
+| `--lp-ink` | `#0B1628` | headings (the Gulf navy) |
+| `--lp-body-text` | `#475569` | body copy |
+| `--lp-muted` | `#64748B` | metadata and helper text |
+| `--lp-accent` / `-hover` | `#B47B2B` / `#9E6A22` | the gold action colour and the focus ring |
+| `--lp-navy` / `-hover` | `#0B1628` / `#162742` | dark band ground / hover |
+| `--lp-navy-card` | `#122038` | dark inner cards |
+| `--lp-navy-active` | `#1E3252` | active/selected fill on navy |
+| `--lp-navy-line` | `rgba(255,255,255,.15)` | hairline on navy |
+| `--lp-on-navy` / `-body` | `#FFFFFF` / `#CBD5E1` | headings / body on navy |
+| `--lp-gold` / `-strong` | `#E5B869` / `#D99B43` | gold highlights on navy (secondary CTA fill, accents) |
+| `--lp-focus` | `var(--lp-accent)` | focus-visible ring, `3px solid` |
+
+**Dark surfaces are one remap, not five palettes:** `.response` (the `#solutions` panel),
+`.interviewSection` (Mock Interview Studio), `.finalBand` (closing CTA band) and `.footer` all
+re-declare the semantic names above against the navy set; the hero joins them from 960px. That is
+how the footer became a dark surface on 2026-11-20 while the same inner-card, hairline and gold
+rules inside it kept working.
+
+## Type roles (`--lp-*`, landing scope)
+
+| Role | Token | Phone / tablet / desktop |
+|---|---|---|
+| h1 | `--lp-h1-size` `--lp-h1-weight` `--lp-h1-line` | `clamp(2.35rem, 4.1vw, 3.75rem)` · 800 · 1.06 |
+| h2 | `--lp-h2-size` `--lp-h2-weight` | 1.5rem / 1.75rem / 2.25rem (24 / 28 / 36px) · 700 · 1.15 |
+| h3 | `--lp-h3-size` `--lp-h3-weight` | 1.125rem / 1.25rem / 1.5rem (18 / 20 / 24px) · 700 · 1.25 |
+| body | `--lp-body-size` `--lp-body-line` | 0.875rem / 0.875rem / 1rem (14 / 14 / 16px) · 400 · 1.6 |
+| metadata | `--lp-meta-size` `--lp-meta-line` | 0.75rem (12px) · 400 · 1.5 |
+| headings | `--lp-heading-tracking` | `-0.025em` |
+| emphasis | `--lp-strong-weight` | 600 |
+
+Headings paint `--lp-font-display` (Plus Jakarta Sans), body copy `--lp-font-body` (DM Sans) and
+numerals `--lp-font-mono` (JetBrains Mono, always `font-variant-numeric: tabular-nums`).
+The h1 is a `clamp()`, so its computed size depends on the viewport **and** the root font size:
+37.6px below 917px, 42.0px at 1024, 52.5px at 1280, 56.0px at 1366 and 59.0px at 1440 at a 16px
+root; at a 32px root the rem minimum wins and it is 75.2px at every tested width. Guards assert
+the resolved value at the tested viewport, never a copied pixel number.
+
+## Geometry, rhythm and separators
+
+* Container `--lp-content-max: 1360px`, gutters `--lp-gutter: 24px` → `40px` from 1024px.
+* Sticky nav `--lp-nav-height: 64px`; controls `--lp-radius: 6px` and at least `44px`
+  (`--lp-control-min`); cards `--lp-radius-card: 12px`; small chrome `--lp-radius-sm: 4px`.
+* Section rhythm `--lp-section-pad: 64px` → `96px` from 1024px, alternating canvas/white bands
+  separated by **1px `--lp-line`** hairlines. No raised shadow on shared content surfaces.
+* **Metadata is unboxed and its `·` separator is CSS-generated**
+  (`.badge::before`, `.metaRow > * + *::before`, `.visualLabel > *:not(:last-child)::after`,
+  `.footerBottom > span:not(:last-child)::after`). **No literal `·` may appear in landing JSX**;
+  the copy-invariance check in `labs/copy/` treats a literal interpunct as a copy change.
+* One deliberate trade-off, recorded rather than hidden: `app/typography.css` carries an
+  app-wide `body a[class*="_navCta__"] { white-space: normal; max-inline-size: 18rem }` override,
+  so the nav CTA still wraps at 200% text. The 64px single-row nav is a 100% guarantee; at 200%
+  text the no-overflow guarantee wins. Do not weaken `verify-mobile-layout.mjs`'s overflow
+  assertion to force `nowrap`.
+
+## Verification for this section
+
+`node scripts/verify-typography-source.mjs` (central typography still used — every landing
+font-size/family/weight/line-height/letter-spacing is a `var()` reference), then the browser
+guards that assert this section: `CHROME_PATH=… npm run test:mobile`
+(`scripts/verify-mobile-layout.mjs`, landing block) and
+`CHROME_PATH=… node scripts/verify-premium-landing-v2.mjs`
+(`scripts/verify-landing-v3-presentation.mjs`, which also compares the served copy against the
+pre-restyle baseline). Copy is frozen: see `labs/copy/copy-invariance-source.mjs` (landing
+sources) and `copy-invariance-html.mjs` (built HTML).
+
+---
+
 # Superseded — 15 November 2026 authority (Executive Slate & Teal), kept for history
 
 For future proposals, respect Executive Slate & Teal and the founder-approved Gulf landing references. Preserve the deployed approved composition until a specific visual batch is approved. Batch 1A changes documentation only; it does not recolor, redesign or migrate CSS.
@@ -86,13 +191,15 @@ configuration is a **protected file**; it supplies compatibility utilities.
 
 ## 2026-10-11 · Landing campaign presentation
 
-The founder-supplied mobile reference guides the public landing campaign: ice
-backgrounds, blue/cyan actions, navy interview panels, helmeted candidate imagery
-and responsive product demonstrations. This marketing presentation is scoped to
-`components/landing-v3/launch.module.css`; the signed-in design tokens and authored
-resume templates are unchanged. Template preview descendants are excluded from
-marketing heading, paragraph and span rules. Application and interview demos have
-manual controls, pausing and reduced-motion support.
+**Superseded for `/` by the 20 November 2026 landing authority above.** The founder-supplied
+mobile reference guided the public landing campaign: ice backgrounds, blue/cyan actions, navy
+interview panels, helmeted candidate imagery and responsive product demonstrations. That
+campaign presentation was scoped to the landing stylesheet — the file is
+`components/landing-v3/landing.module.css` (the earlier name `launch.module.css` no longer
+exists; five landing modules were merged into this one). The signed-in design tokens and authored
+resume templates are unchanged. Template preview descendants are excluded from marketing heading,
+paragraph and span rules. Application and interview demos have manual controls, pausing and
+reduced-motion support.
 
 ## 00. MERIDIAN — the current identity, and one product system (2026-09-23)
 
@@ -408,6 +515,9 @@ by weight, so a sand band warms a screen without carving it into more boxes.
   strongest visual asset the product owns. Converting it is a separate decision. When the
   global serif default was removed from `globals.css`, three landing headings that
   relied on it were pinned explicitly so the page renders exactly as before.
+  **Update 2026-11-20:** that separate decision was taken, for the landing route only. `/` now
+  runs the landing-only palette, type scale and token layer recorded in the 20 November 2026
+  section above; the signed-in app keeps Blueprint and Ink & Champagne unchanged.
 
 ---
 

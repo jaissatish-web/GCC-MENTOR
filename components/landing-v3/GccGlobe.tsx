@@ -180,23 +180,26 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
       cosL = Math.cos(lam)
       sinL = Math.sin(lam)
 
-      // Atmosphere glow + ocean disc.
+      // Atmosphere glow + ocean disc. Canvas cannot read CSS, so these literals
+      // mirror the landing tokens: --lp-canvas #F8F7F4, --lp-surface-muted #F1EFEA,
+      // --lp-line #E2E8F0, --lp-accent #B47B2B, --lp-ink #0B1628,
+      // --lp-body-text #475569, --lp-gold #E5B869, --lp-gold-strong #D99B43.
       const glow = ctx.createRadialGradient(c, cy, R * 0.95, c, cy, R * 1.1)
-      glow.addColorStop(0, 'rgba(21,128,83,0.08)')
-      glow.addColorStop(1, 'rgba(21,128,83,0)')
+      glow.addColorStop(0, 'rgba(180,123,43,0.10)')
+      glow.addColorStop(1, 'rgba(180,123,43,0)')
       ctx.fillStyle = glow
       ctx.beginPath()
       ctx.arc(c, cy, R * 1.1, 0, Math.PI * 2)
       ctx.fill()
       const ocean = ctx.createRadialGradient(c - R * 0.3, cy - R * 0.45, R * 0.1, c, cy, R)
-      ocean.addColorStop(0, '#f5f8f5')
-      ocean.addColorStop(0.6, '#edf4ee')
-      ocean.addColorStop(1, '#e0ece2')
+      ocean.addColorStop(0, '#F8F7F4')
+      ocean.addColorStop(0.6, '#F1EFEA')
+      ocean.addColorStop(1, '#E2E8F0')
       ctx.fillStyle = ocean
       ctx.beginPath()
       ctx.arc(c, cy, R, 0, Math.PI * 2)
       ctx.fill()
-      ctx.strokeStyle = 'rgba(21,128,83,0.18)'
+      ctx.strokeStyle = 'rgba(11,22,40,0.18)'
       ctx.lineWidth = 1 * dpr
       ctx.stroke()
 
@@ -213,9 +216,9 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
         const b = Math.min(4, Math.floor(z2 * 5))
         buckets[b].rect(c + R * x1 - ds / 2, cy - R * y2 - ds / 2, ds, ds)
       }
-      const alphas = [0.28, 0.45, 0.62, 0.8, 0.95]
+      const alphas = [0.35, 0.5, 0.65, 0.8, 0.95]
       for (let b = 0; b < 5; b++) {
-        ctx.fillStyle = `rgba(21,108,67,${alphas[b]})`
+        ctx.fillStyle = `rgba(11,22,40,${alphas[b]})`
         ctx.fill(buckets[b])
       }
 
@@ -228,7 +231,7 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
         const cycle = Math.floor((t + period - start) / period)
         const p = reduced ? 1 : (((t + period - start) % period) / FLIGHT_MS)
         const dim = f && f !== fl.to ? 0.18 : 1
-        const color = fl.move ? '21,128,83' : '155,105,29'
+        const color = fl.move ? '11,22,40' : '180,123,43'
         const head = Math.min(1, p)
         const nHead = Math.floor(head * ARC_STEPS)
         const fade = p > 1 ? Math.max(0, 1 - (p - 1) * (FLIGHT_MS / 1600)) : 1
@@ -270,7 +273,7 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
           const [sx, sy, , front] = project(x, y, z, R, c, cy)
           if (front) {
             const g = ctx.createRadialGradient(sx, sy, 0, sx, sy, 11 * dpr)
-            g.addColorStop(0, `rgba(255,240,210,${dim})`)
+            g.addColorStop(0, `rgba(255,246,230,${dim})`)
             g.addColorStop(0.35, `rgba(${color},${0.7 * dim})`)
             g.addColorStop(1, `rgba(${color},0)`)
             ctx.fillStyle = g
@@ -299,19 +302,19 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
       })
 
       // Origin cities.
-      ctx.font = `600 ${10 * dpr}px Inter, system-ui, sans-serif`
+      ctx.font = `600 ${10 * dpr}px "Plus Jakarta Sans", Inter, system-ui, sans-serif`
       ctx.textBaseline = 'middle'
       for (const key of Object.keys(ORIGINS)) {
         const o = ORIGINS[key]
         const v = toV(o.lat, o.lng)
         const [sx, sy, z, front] = project(v[0], v[1], v[2], R, c, cy)
         if (!front || z < 0.05) continue
-        ctx.fillStyle = `rgba(40,112,72,${0.5 + 0.5 * z})`
+        ctx.fillStyle = `rgba(71,85,105,${0.5 + 0.5 * z})`
         ctx.beginPath()
         ctx.arc(sx, sy, 2.2 * dpr, 0, Math.PI * 2)
         ctx.fill()
         if (LABELLED_ORIGINS.has(key) && z > 0.25) {
-          ctx.fillStyle = `rgba(40,112,72,${0.35 + 0.5 * z})`
+          ctx.fillStyle = `rgba(71,85,105,${0.35 + 0.5 * z})`
           ctx.fillText(o.name, sx + 5 * dpr, sy)
         }
       }
@@ -324,21 +327,21 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
         if (!front || z < 0.05) continue
         const on = f === g.code
         const dim = f && !on ? 0.45 : 1
-        ctx.fillStyle = `rgba(232,177,92,${0.25 * (1 - pulse) * dim})`
+        ctx.fillStyle = `rgba(217,155,67,${0.25 * (1 - pulse) * dim})`
         ctx.beginPath()
         ctx.arc(sx, sy, (5 + pulse * (on ? 12 : 7)) * dpr, 0, Math.PI * 2)
         ctx.fill()
-        ctx.fillStyle = `rgba(255,214,140,${dim})`
+        ctx.fillStyle = `rgba(229,184,105,${dim})`
         ctx.beginPath()
         ctx.arc(sx, sy, (on ? 4.2 : 3.2) * dpr, 0, Math.PI * 2)
         ctx.fill()
         // Label pill at an offset, joined by a hairline.
         const lx = sx + g.dx * dpr * (compact ? 0.7 : 1)
         const ly = sy + g.dy * dpr * (compact ? 0.7 : 1)
-        ctx.strokeStyle = `rgba(255,214,140,${0.55 * dim})`
+        ctx.strokeStyle = `rgba(217,155,67,${0.55 * dim})`
         ctx.lineWidth = 1 * dpr
         ctx.beginPath()
-        ctx.font = `700 ${(on ? 13 : 12) * dpr}px Inter, system-ui, sans-serif`
+        ctx.font = `700 ${(on ? 13 : 12) * dpr}px "Plus Jakarta Sans", Inter, system-ui, sans-serif`
         const label = g.country
         const w = ctx.measureText(label).width + 14 * dpr
         const h = 20 * dpr
@@ -348,13 +351,13 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
         ctx.moveTo(sx, sy)
         ctx.lineTo(px, py)
         ctx.stroke()
-        ctx.fillStyle = on ? 'rgba(232,177,92,0.98)' : `rgba(243,248,243,${0.85 * dim + 0.1})`
-        ctx.strokeStyle = `rgba(255,214,140,${0.7 * dim})`
+        ctx.fillStyle = on ? 'rgba(229,184,105,0.98)' : `rgba(255,255,255,${0.85 * dim + 0.1})`
+        ctx.strokeStyle = `rgba(217,155,67,${0.7 * dim})`
         ctx.beginPath()
-        ctx.roundRect(px - w / 2, py - h / 2, w, h, h / 2)
+        ctx.roundRect(px - w / 2, py - h / 2, w, h, 3 * dpr)
         ctx.fill()
         ctx.stroke()
-        ctx.fillStyle = on ? '#14181C' : `rgba(75,82,74,${dim})`
+        ctx.fillStyle = on ? '#0B1628' : `rgba(11,22,40,${dim})`
         ctx.textAlign = 'center'
         ctx.fillText(label, px, py + 0.5 * dpr)
         ctx.textAlign = 'start'
@@ -421,15 +424,15 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
   const arrivalTo = arrival ? GCC.find((g) => g.code === arrival.to) : null
 
   return (
-    <div data-uds="globe-card" className="relative overflow-hidden rounded-[var(--uds-card-radius,var(--ui-card-radius))] border-[length:var(--uds-border-width,1px)] border-[var(--uds-border,var(--ui-line))] bg-[var(--uds-surface,var(--ui-surface))] p-[var(--uds-card-padding,var(--ui-card-padding))]">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_70%_at_78%_50%,rgba(21,128,83,0.04),transparent_70%)]" aria-hidden="true" />
+    <div data-uds="globe-card" className="relative overflow-hidden border bg-[var(--lp-surface,#FFFFFF)] p-[var(--uds-card-padding,var(--ui-card-padding))]" style={{ borderRadius: 'var(--lp-radius-lg, 10px)', borderColor: 'var(--lp-line, #E2E8F0)' }}>
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_70%_at_78%_50%,rgba(180,123,43,0.05),transparent_70%)]" aria-hidden="true" />
       <div className="relative grid grid-cols-[minmax(0,1fr)] items-center gap-3 lg:grid-cols-[0.8fr_1.2fr] lg:gap-8">
         <div className="order-2 lg:order-1">
-          <span className="font-[number:var(--uds-heading-weight,var(--ui-weight-heading))] text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))] tracking-[var(--uds-tracking,var(--ui-tracking))] text-[var(--uds-brand,var(--ui-brand))]">Six Gulf markets</span>
-          <h2 data-uds="globe-title" id="markets-title" className="mt-2 text-[length:var(--uds-marketing-size,var(--ui-marketing-size))] leading-[var(--uds-heading-line,var(--ui-heading-line))] font-[number:var(--uds-heading-weight,var(--ui-weight-heading))] text-[var(--uds-ink,var(--ui-ink))]">
-            Six Gulf destinations.<br /><em className="not-italic text-[var(--uds-brand,var(--ui-brand))]">Your next chapter.</em>
+          <span className="text-[length:var(--lp-label,13px)] leading-[var(--lp-body-line,1.5)]" style={{ color: 'var(--lp-accent, #B47B2B)', fontWeight: 'var(--lp-heading-weight, 600)' }}>Six Gulf markets</span>
+          <h2 data-uds="globe-title" id="markets-title" className="mt-2 text-[length:var(--lp-section,20px)] leading-[var(--lp-body-line,1.5)] text-[var(--lp-ink,#0B1628)]" style={{ fontFamily: 'var(--lp-font-display, var(--font-jakarta, "Plus Jakarta Sans", sans-serif))', fontWeight: 'var(--lp-heading-weight, 600)', letterSpacing: 'var(--lp-h2-tracking, -0.025em)', textWrap: 'balance' }}>
+            Six Gulf destinations.<br /><em className="not-italic" style={{ color: 'var(--lp-accent, #B47B2B)' }}>Your next chapter.</em>
           </h2>
-          <p className="mt-2.5 max-w-[440px] text-[length:var(--uds-body-size,var(--ui-body-size))] leading-[var(--uds-body-line,var(--ui-body-line))] text-[var(--uds-muted,var(--ui-muted))]">
+          <p className="mt-2.5 max-w-[440px] text-[length:var(--lp-body,15px)] leading-[var(--lp-body-line,1.5)] text-[var(--lp-body-text,#475569)]">
             Select a destination. Explore what to prepare.
           </p>
 
@@ -446,38 +449,44 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
 
                   onClick={() => setFocus(g.code)}
                   className={cn(
-                    'grid min-h-14 w-full grid-cols-[24px_minmax(0,1fr)] items-center gap-1.5 rounded-[var(--uds-button-radius,var(--ui-control-radius))] px-2 text-left text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))] font-[number:var(--uds-heading-weight,var(--ui-weight-heading))] ring-1 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--uds-brand,var(--ui-brand))] sm:gap-2 sm:px-3 ',
-                    focus === g.code ? 'bg-[var(--uds-brand,var(--ui-brand))] text-[var(--uds-primary-text,rgb(var(--ui-inverse-rgb)))] ring-[var(--uds-brand,var(--ui-brand))]' : 'bg-[var(--uds-canvas,var(--ui-canvas))] text-[var(--uds-ink,var(--ui-ink))] ring-[var(--uds-border,var(--ui-line))] hover:ring-[var(--uds-brand,var(--ui-brand))]',
+                    'grid min-h-14 w-full grid-cols-[24px_minmax(0,1fr)] items-center gap-1.5 px-2 text-left text-[length:var(--lp-label,13px)] leading-[var(--lp-body-line,1.5)] transition-colors duration-150 motion-reduce:transition-none sm:gap-2 sm:px-3 ',
                   )}
+                  style={{
+                    borderRadius: 'var(--lp-radius-control, 6px)',
+                    backgroundColor: focus === g.code ? 'var(--lp-ink, #0B1628)' : 'var(--lp-surface, #FFFFFF)',
+                    color: focus === g.code ? 'var(--lp-on-navy, #FFFFFF)' : 'var(--lp-ink, #0B1628)',
+                    border: '1px solid',
+                    borderColor: 'var(--lp-line, #E2E8F0)',
+                    fontWeight: 'var(--lp-heading-weight, 600)',
+                  }}
                 >
                   <Image src={gccDestinations.find((destination) => destination.country === (g.code === 'AE' ? 'United Arab Emirates' : g.country))!.src} alt="" aria-hidden="true" width={24} height={18} unoptimized className="h-[18px] w-6 shrink-0 rounded-sm object-cover" />
-                  <span className="min-w-0 text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))]">{g.country}</span>
+                  <span className="min-w-0 text-[length:var(--lp-label,13px)] leading-[var(--lp-body-line,1.5)]">{g.country}</span>
                 </button>
               </li>
             ))}
           </ul>
 
           {/* Live card: the focused country, or the latest "landing". */}
-          <div className="mt-3 min-h-[76px] rounded-[var(--uds-card-radius,var(--ui-card-radius))] bg-[var(--uds-canvas,var(--ui-canvas))] p-[var(--uds-card-padding,var(--ui-card-padding))] ring-1 ring-[var(--uds-border,var(--ui-line))] lg:mt-4" aria-live={focus ? 'polite' : 'off'}>
+          <div className="mt-3 min-h-[76px] border bg-[var(--lp-surface-muted,#F1EFEA)] p-[var(--uds-card-padding,var(--ui-card-padding))] lg:mt-4" style={{ borderRadius: 'var(--lp-radius-lg, 10px)', borderColor: 'var(--lp-line, #E2E8F0)' }} aria-live={focus ? 'polite' : 'off'}>
             {focused ? (
               <>
-                <div className="font-[number:var(--uds-heading-weight,var(--ui-weight-heading))] text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))] tracking-[var(--uds-tracking,var(--ui-tracking))] text-[var(--uds-brand-hover,var(--ui-brand-hover))]">{focused.country}, preparation guidance</div>
-                <div className="mt-1 text-[length:var(--uds-body-size,var(--ui-body-size))] leading-[var(--uds-body-line,var(--ui-body-line))] font-[number:var(--uds-heading-weight,var(--ui-weight-heading))] text-[var(--uds-ink,var(--ui-ink))]">{focused.role}</div><p className="mt-2 text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))] text-[var(--uds-muted,var(--ui-muted))]">Review job requirements. Prepare your resume, qualification records and availability details. Confirm documentation requests with the employer.</p>
-                <div className="text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))] text-[var(--uds-muted,var(--ui-muted))]">Resume, cover letter and interview prep made for {focused.country} jobs.</div>
+                <div className="text-[length:var(--lp-label,13px)] leading-[var(--lp-body-line,1.5)]" style={{ color: 'var(--lp-accent, #B47B2B)', fontWeight: 'var(--lp-heading-weight, 600)' }}>{focused.country}, preparation guidance</div>
+                <div className="mt-1 text-[length:var(--lp-body,15px)] leading-[var(--lp-body-line,1.5)] text-[var(--lp-ink,#0B1628)]" style={{ fontWeight: 'var(--lp-heading-weight, 600)' }}>{focused.role}</div><p className="mt-2 text-[length:var(--lp-label,13px)] leading-[var(--lp-body-line,1.5)] text-[var(--lp-body-text,#475569)]">Review job requirements. Prepare your resume, qualification records and availability details. Confirm documentation requests with the employer.</p>
+                <div className="text-[length:var(--lp-label,13px)] leading-[var(--lp-body-line,1.5)] text-[var(--lp-muted,#64748B)]">Resume, cover letter and interview prep made for {focused.country} jobs.</div>
               </>
             ) : arrival && arrivalTo ? (
               <>
-                <div className="font-[number:var(--uds-heading-weight,var(--ui-weight-heading))] flex items-center gap-2 text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))] tracking-[var(--uds-tracking,var(--ui-tracking))] text-[var(--uds-brand,var(--ui-brand))]">
-                  <span className="size-1.5 animate-glow-pulse rounded-full bg-[var(--uds-brand,var(--ui-brand))]" aria-hidden="true" />
+                <div className="flex items-center gap-2 text-[length:var(--lp-label,13px)] leading-[var(--lp-body-line,1.5)]" style={{ color: 'var(--lp-accent, #B47B2B)', fontWeight: 'var(--lp-heading-weight, 600)' }}>
                   Gulf career paths
                 </div>
-                <div className="mt-1 text-[length:var(--uds-body-size,var(--ui-body-size))] leading-[var(--uds-body-line,var(--ui-body-line))] font-[number:var(--uds-heading-weight,var(--ui-weight-heading))] text-[var(--uds-ink,var(--ui-ink))]">
+                <div className="mt-1 text-[length:var(--lp-body,15px)] leading-[var(--lp-body-line,1.5)] text-[var(--lp-ink,#0B1628)]" style={{ fontWeight: 'var(--lp-heading-weight, 600)' }}>
                   {cityOf(arrival.from).name} → {arrivalTo.name}, {arrivalTo.country}
                 </div>
-                <div className="text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))] text-[var(--uds-muted,var(--ui-muted))]">Prepare for your next Gulf opportunity.</div>
+                <div className="text-[length:var(--lp-label,13px)] leading-[var(--lp-body-line,1.5)] text-[var(--lp-muted,#64748B)]">Prepare for your next Gulf opportunity.</div>
               </>
             ) : (
-              <div className="text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))] text-[var(--uds-muted,var(--ui-muted))]">Watch the routes, or pick a country.</div>
+              <div className="text-[length:var(--lp-label,13px)] leading-[var(--lp-body-line,1.5)] text-[var(--lp-body-text,#475569)]">Watch the routes, or pick a country.</div>
             )}
           </div>
         </div>
@@ -495,7 +504,7 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
           />
         </div>
       </div>
-<p className="relative mt-3 text-center text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))] text-[var(--uds-muted,var(--ui-muted))] lg:text-right">Drag the globe to explore Gulf markets.</p>
+<p className="relative mt-3 text-center text-[length:var(--lp-label,13px)] leading-[var(--lp-body-line,1.5)] text-[var(--lp-muted,#64748B)] lg:text-right">Drag the globe to explore Gulf markets.</p>
     </div>
   )
 }
