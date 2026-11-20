@@ -21,7 +21,7 @@
    minimum for 13px text. --ui-ink-soft (#52647A) on the same mint measures
    5.39:1. Selected state is exactly when the reason is read, so it must pass. */
 .choice[aria-pressed=true] .reason,.choice:hover .reason { color:var(--ui-ink-soft); }
-.service { color:var(--uds-brand-hover); font-size:var(--uds-helper-size); font-weight:var(--uds-button-weight); line-height:var(--uds-body-line); }
+.service { color:var(--uds-muted); font-size:var(--uds-helper-size); font-weight:var(--uds-body-weight); line-height:var(--uds-body-line); }
 .concernIcon { flex-shrink:0; color:var(--uds-brand); width:24px; }
 .chevron { flex-shrink:0; color:var(--uds-brand-hover); }
 .solution { padding-top:20px; border-top:var(--uds-border-width) solid var(--uds-border); }

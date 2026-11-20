@@ -143,11 +143,11 @@ Protected Tailwind config is unchanged.
 | Paragraph/input/button | 16px | 16px |
 | Label/helper | 14px | 14px |
 | Caption | 12px | 12px |
-| Hero | 30px | 38px tablet; 46–52px desktop |
-| Marketing section | 24px | 30px tablet; 32px desktop |
+| Hero | 28px | 34px tablet; 42px desktop |
+| Marketing section | 20px | 24px tablet; 28px desktop |
 
 Inter remains the reading face. Paragraphs are 400, labels 500, section/card
-headings 600 and titles 700. Main actions use deep Gulf teal with white text,
+headings and titles 600. Main actions use deep Gulf teal with white text,
 white surfaces sit on a neutral canvas, and service icon accents are centralized.
 Status colors retain their distinct meanings. Small illustrative-diagram labels
 have an explicit 11px token; ordinary labels/copy use the reading roles.
