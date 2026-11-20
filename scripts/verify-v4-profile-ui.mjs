@@ -117,13 +117,27 @@ function serve(){
  const state=async name=>{await page.evaluate(()=>sessionStorage.clear()).catch(()=>{});await fetch(origin+'/__scenario?state='+name)}
  const go=async(path='/profile/review')=>{console.log('CHECK '+scenario+' '+path);await page.goto(origin+path,{waitUntil:'domcontentloaded'});await page.waitForSelector('[data-profile-review-v4]')}
  const visibleButton=async text=>{await page.waitForFunction(text=>[...document.querySelectorAll('button')].some(button=>button.textContent.trim()===text&&button.getClientRects().length),{},text);return page.evaluateHandle(text=>[...document.querySelectorAll('button')].find(button=>button.textContent.trim()===text&&button.getClientRects().length),text)}
- const click=async text=>{const button=await visibleButton(text);await button.asElement().click();await button.dispose()}
+ // A click lands wherever the point is when the mouse event is dispatched, and
+ // html{scroll-behavior:smooth} (app/globals.css) makes even Puppeteer's own
+ // scrollIntoViewIfNeeded an animation. That is what broke this guard: Puppeteer
+ // resolved the acknowledgement checkbox's centre, the page was still scrolling,
+ // and the click landed on whatever had moved under that point - a changesSummary
+ // button, or the Save button itself. The checkbox stayed unchecked, so the
+ // following waitForFunction(checked) could never recover: all six failing main
+ // runs on 2026-11-20 (#116, #117, #120, #121, #123, #124) stopped here, at both
+ // the old 12s and the current 45s default timeout.
+ // Settle the target with one instant scroll, wait for an animation frame in which
+ // its box has stopped moving and still owns the point, then move the real mouse.
+ const settle=async handle=>{await handle.evaluate(element=>element.scrollIntoView({block:'center',behavior:'instant'}));await handle.evaluate(element=>new Promise((yes,no)=>{const started=performance.now();let previous=null;const check=()=>{const box=element.getBoundingClientRect(),x=box.left+box.width/2,y=box.top+box.height/2;if(previous&&Math.abs(previous.x-box.left)<.5&&Math.abs(previous.y-box.top)<.5&&box.top>=4&&box.bottom<=innerHeight-4&&document.elementFromPoint(x,y)===element)return yes();previous={x:box.left,y:box.top};if(performance.now()-started>30000)return no(Error('The click target never settled'));requestAnimationFrame(check)};check()}))}
+ const clickHandle=async handle=>{await settle(handle);const point=await handle.evaluate(element=>{const box=element.getBoundingClientRect();return {x:box.left+box.width/2,y:box.top+box.height/2}});await page.mouse.click(point.x,point.y)}
+ const clickSelector=async selector=>{const handle=await page.$(selector);assert.ok(handle,'Missing click target '+selector);await clickHandle(handle);await handle.dispose()}
+ const click=async text=>{const button=await visibleButton(text);await clickHandle(button.asElement());await button.dispose()}
  const allWrites=async()=>await(await fetch(origin+'/__writes')).json()
  const section=async text=>{await page.evaluate(text=>{const button=[...document.querySelectorAll('nav[aria-label="Review sections"] button')].find(button=>button.textContent.toLowerCase().includes(text.toLowerCase()));if(!button)throw Error('Missing section '+text);button.click()},text)}
  const set=async(selector,value)=>{await page.waitForSelector(selector);await page.$eval(selector,(element,value)=>{let details=element.closest('details');while(details){details.open=true;details=details.parentElement?.closest('details')}const prototype=element instanceof HTMLTextAreaElement?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;Object.getOwnPropertyDescriptor(prototype,'value').set.call(element,value);element.dispatchEvent(new Event('input',{bubbles:true}))},value)}
  const expandWork=async()=>{await section('Work');await page.waitForSelector('#sec_work_experience');await page.evaluate(()=>{const button=document.querySelector('#sec_work_experience h3 button');if(button?.getAttribute('aria-expanded')==='false')button.click()});await page.waitForSelector('input[id^="f_work_start_"]',{visible:true})}
  const firstStart='input[id^="f_work_start_"]'
- const save=async()=>{await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));if(!await page.$eval('#v4-profile-confirm',input=>input.checked))await page.click('#v4-profile-confirm');await page.waitForFunction(()=>document.querySelector('#v4-profile-confirm')?.checked);await click('Save Career Profile')}
+ const save=async()=>{await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));if(!await page.$eval('#v4-profile-confirm',input=>input.checked))await clickSelector('#v4-profile-confirm');await page.waitForFunction(()=>document.querySelector('#v4-profile-confirm')?.checked);await click('Save Career Profile')}
  const snap=async name=>{const path=output+'/'+name+'.png';await page.screenshot({path,fullPage:false});checks.push({check:'screenshot',name,width:await page.evaluate(()=>innerWidth),path})}
  for(const width of [320,390,768,1440]){
   await page.setViewport({width,height:900,deviceScaleFactor:1});await state('new-import');await go();await page.waitForSelector('#f_full_name')
@@ -144,13 +158,13 @@ function serve(){
   checks.push({check:'exact-width canonical review/source/save reflow',width})
  }
  await page.setViewport({width:390,height:844,deviceScaleFactor:1});await state('new-import');await go();await expandWork()
- await set('input[id^="f_work_role_"]','Operations Coordinator revised');await page.click('button[aria-label="Undo changes to Operations Coordinator revised"]');await page.waitForFunction(()=>document.querySelector('input[id^="f_work_role_"]')?.value==='Operations Coordinator')
- await page.click('button[aria-label="Move Operations Coordinator down"]');await page.waitForFunction(()=>document.querySelector('#sec_work_experience h3 button')?.textContent.includes('Reception Coordinator'));await page.click('button[aria-label="Move Operations Coordinator up"]');await page.waitForFunction(()=>document.querySelector('#sec_work_experience h3 button')?.textContent.includes('Operations Coordinator'))
- await page.click('button[aria-label="Remove Operations Coordinator"]');await page.waitForFunction(()=>document.querySelectorAll('#sec_work_experience h3 button').length===1);await click('Undo last removal');await page.waitForFunction(()=>document.querySelectorAll('#sec_work_experience h3 button').length===2)
+ await set('input[id^="f_work_role_"]','Operations Coordinator revised');await clickSelector('button[aria-label="Undo changes to Operations Coordinator revised"]');await page.waitForFunction(()=>document.querySelector('input[id^="f_work_role_"]')?.value==='Operations Coordinator')
+ await clickSelector('button[aria-label="Move Operations Coordinator down"]');await page.waitForFunction(()=>document.querySelector('#sec_work_experience h3 button')?.textContent.includes('Reception Coordinator'));await clickSelector('button[aria-label="Move Operations Coordinator up"]');await page.waitForFunction(()=>document.querySelector('#sec_work_experience h3 button')?.textContent.includes('Operations Coordinator'))
+ await clickSelector('button[aria-label="Remove Operations Coordinator"]');await page.waitForFunction(()=>document.querySelectorAll('#sec_work_experience h3 button').length===1);await click('Undo last removal');await page.waitForFunction(()=>document.querySelectorAll('#sec_work_experience h3 button').length===2)
  assert.equal((await allWrites()).length,0,'row undo/move/remove/restore never write before Save');checks.push({check:'repeatable row edit undo, keyboard-targetable move, remove/restore, stable local record state'})
  await expandWork()
  await click('Save Career Profile');assert.equal((await allWrites()).filter(write=>write.path==='/api/profile').length,0,'unacknowledged save cannot write');assert.equal(await page.evaluate(()=>document.activeElement?.id),'v4-profile-confirm')
- await page.click('#v4-profile-confirm');await set(firstStart,'2021-07-17');await page.waitForFunction(()=>!document.querySelector('#v4-profile-confirm').checked)
+ await clickSelector('#v4-profile-confirm');await set(firstStart,'2021-07-17');await page.waitForFunction(()=>!document.querySelector('#v4-profile-confirm').checked)
  assert.equal(await page.$eval(firstStart,input=>input.value),'2021-07-17','full day remains editable')
  await save();await page.waitForSelector('[data-profile-review-saved]');await snap('saved-390')
  const body=(await allWrites()).find(write=>write.path==='/api/profile').body
@@ -158,7 +172,7 @@ function serve(){
  assert.equal((await allWrites()).filter(write=>write.path==='/api/profile').length,1,'one atomic profile request')
  await click('Edit Career Profile');await page.waitForSelector('#profile-editor');await page.evaluate(()=>{const button=[...document.querySelectorAll('nav button')].find(button=>button.textContent.includes('Work Experience')||button.textContent.includes('Work experience'));button?.click()});await page.evaluate(()=>document.querySelector('#sec_work_experience h3 button[aria-expanded="false"]')?.click());await page.waitForSelector(firstStart,{visible:true});assert.equal(await page.$eval(firstStart,input=>input.value),'2021-07-17','saved/refetched precision reloads unchanged')
  checks.push({check:'canonical edit acknowledgement reset, explicit save/refetch, year/month/day roundtrip'})
- await state('new-import');await go();await set('#f_full_name','Nina Locally Corrected');await page.click('#v4-profile-confirm');await page.reload({waitUntil:'domcontentloaded'});await page.waitForSelector('[data-profile-review-v4]');await page.waitForFunction(()=>document.querySelector('#f_full_name')?.value==='Nina Locally Corrected')
+ await state('new-import');await go();await set('#f_full_name','Nina Locally Corrected');await clickSelector('#v4-profile-confirm');await page.reload({waitUntil:'domcontentloaded'});await page.waitForSelector('[data-profile-review-v4]');await page.waitForFunction(()=>document.querySelector('#f_full_name')?.value==='Nina Locally Corrected')
  assert.equal(await page.$eval('#v4-profile-confirm',input=>input.checked),false,'restoration resets acknowledgement');assert.equal((await allWrites()).length,0,'same-tab recovery never reruns extraction or writes')
  checks.push({check:'same-tab corrected draft recovery and acknowledgement reset'})
  await state('invalid-import');await go();await page.waitForSelector('#f_email');await page.waitForFunction(()=>[...document.querySelectorAll('button')].find(button=>button.textContent.trim()==='Save Career Profile')?.disabled)
