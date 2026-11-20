@@ -27,8 +27,8 @@ export const DEVICES: Device[] = ['mobile', 'tablet', 'desktop']
 
 // A fixed schema, not a CSS editor. Every value has a known unit and bounds.
 export const NUMBER_FIELDS = [
-  { key: 'heroSize', label: 'Landing hero', min: 24, max: 72, step: 1, unit: 'px', section: 'Typography', defaults: [30,40,46] },
-  { key: 'marketingSize', label: 'Landing section heading', min: 20, max: 48, step: 1, unit: 'px', section: 'Typography', defaults: [24,28,32] },
+  { key: 'heroSize', label: 'Landing hero', min: 24, max: 72, step: 1, unit: 'px', section: 'Typography', defaults: [30,38,46] },
+  { key: 'marketingSize', label: 'Landing section heading', min: 20, max: 48, step: 1, unit: 'px', section: 'Typography', defaults: [24,30,32] },
   { key: 'pageSize', label: 'Application page heading', min: 20, max: 40, step: 1, unit: 'px', section: 'Typography', defaults: [24,26,28] },
   { key: 'sectionSize', label: 'Section heading', min: 16, max: 32, step: 1, unit: 'px', section: 'Typography', defaults: [22,23,24] },
   { key: 'cardSize', label: 'Card heading', min: 14, max: 24, step: 1, unit: 'px', section: 'Typography', defaults: [16,16,16] },
@@ -36,7 +36,7 @@ export const NUMBER_FIELDS = [
   { key: 'navSize', label: 'Navigation', min: 13, max: 20, step: 1, unit: 'px', section: 'Typography', defaults: [14,14,14] },
   { key: 'helperSize', label: 'Helper text', min: 12, max: 18, step: 1, unit: 'px', section: 'Typography', defaults: [15,13,13] },
   { key: 'scoreSize', label: 'Important scores', min: 24, max: 48, step: 1, unit: 'px', section: 'Typography', defaults: [30,32,34] },
-  { key: 'headingWeight', label: 'Heading weight', min: 400, max: 700, step: 100, unit: '', section: 'Typography', defaults: [600,600,600] },
+  { key: 'headingWeight', label: 'Heading weight', min: 400, max: 700, step: 100, unit: '', section: 'Typography', defaults: [700,700,700] },
   { key: 'bodyWeight', label: 'Body weight', min: 400, max: 600, step: 100, unit: '', section: 'Typography', defaults: [400,400,400] },
   { key: 'bodyLine', label: 'Body line height', min: 1.4, max: 2, step: 0.05, unit: '', section: 'Typography', defaults: [1.6,1.6,1.6] },
   { key: 'reportLine', label: 'Long report line height', min: 1.4, max: 2, step: 0.05, unit: '', section: 'Typography', defaults: [1.6,1.6,1.6] },

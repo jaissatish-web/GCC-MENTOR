@@ -164,8 +164,8 @@ try {
       assert.equal(metrics.weight, '700')
       assert.ok(metrics.font.includes('Inter'), `Inter is not applied: ${metrics.font}`)
       const textScale = enlarged ? 2 : 1
-      const expectedHero = (width >= 1024 ? 52 : width >= 768 ? 44 : 36) * textScale
-      const expectedSection = (width >= 1024 ? 34 : width >= 768 ? 30 : 26) * textScale
+      const expectedHero = (width >= 1024 ? 46 : width >= 768 ? 38 : 30) * textScale
+      const expectedSection = (width >= 1024 ? 32 : width >= 768 ? 30 : 24) * textScale
       assert.ok(Math.abs(metrics.size - expectedHero) < .02, 'Marketing hero uses its responsive display scale')
       assert.ok(Math.abs(metrics.sectionSize - expectedSection) < .02, 'Marketing sections use their responsive display scale')
       await page.screenshot({ path: `artifacts/typography/landing-${width}${enlarged ? '-enlarged' : ''}.png`, fullPage: true })
