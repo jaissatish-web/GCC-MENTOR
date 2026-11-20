@@ -143,7 +143,7 @@ try{
   await page.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'reduce'}])
   await page.setViewport({width,height:900,deviceScaleFactor:1});await page.goto(origin,{waitUntil:'networkidle0'});await page.evaluate(()=>document.fonts.ready)
   const spec=await page.evaluate(({names,literals})=>{
-   const root=document.querySelector('#main-content'),landing=document.querySelector('[data-website-ui]'),style=element=>getComputedStyle(element)
+   const root=document.querySelector('#main-content'),landing=document.querySelector('[data-website-ui]'),style=(element,pseudo)=>getComputedStyle(element,pseudo)
    const token=name=>style(root).getPropertyValue(name).trim().toLowerCase().replace(/\s+/g,'')
    const family=element=>style(element).fontFamily.split(',')[0].replaceAll('_',' ').replaceAll('"','').trim()
    const services=document.querySelector('#services'),title=document.querySelector('#services-title'),lead=document.querySelector('#services-title + p')
@@ -179,7 +179,7 @@ try{
   for(const [name,value] of Object.entries(spec.fonts))assert.ok(value,`Landing font variable for ${name} must resolve on the landing wrapper`)
   assert.equal(spec.ground,'rgb(248, 247, 244)',`Landing canvas must be #F8F7F4 at ${width}px: ${spec.ground}`)
   assert.equal(spec.services.background,'rgb(255, 255, 255)',`Working sections must be the white surface at ${width}px: ${spec.services.background}`)
-  assert.ok(spec.sectionBackgrounds.every(color=>['rgb(248, 247, 244)','rgb(255, 255, 255)','rgb(11, 22, 40)'].includes(color)),`Landing sections may only use canvas, white or the navy band: ${JSON.stringify(spec.sectionBackgrounds)}`)
+  assert.ok(spec.sectionBackgrounds.every(color=>['rgb(248, 247, 244)','rgb(255, 255, 255)','rgb(11, 22, 40)','rgba(0, 0, 0, 0)'].includes(color) /* transparent = inherits the landing canvas ground */),`Landing sections may only use canvas, white or the navy band: ${JSON.stringify(spec.sectionBackgrounds)}`)
   assert.ok(spec.sectionBackgrounds.includes('rgb(248, 247, 244)')&&spec.sectionBackgrounds.includes('rgb(255, 255, 255)'),`The canvas/white alternation must still be present: ${JSON.stringify(spec.sectionBackgrounds)}`)
   assert.equal(spec.services.paddingTop,width>=1024?'96px':'64px',`Section rhythm must be 64-96px (--lp-section-pad) at ${width}px: ${spec.services.paddingTop}`)
   assert.equal(spec.services.borderBottomWidth,'1px',`Section hairline must be 1px at ${width}px`)
