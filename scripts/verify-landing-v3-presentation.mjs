@@ -42,7 +42,7 @@ try{
     assert.equal(await page.$eval(`[data-concern-choice="${key}"]`,e=>e.getAttribute('aria-pressed')),'true');
     assert.equal(await page.$$eval('[data-concern-choice][aria-pressed="true"]',es=>es.length),1);
     assert.equal(await page.$eval('#preparation-response-title',e=>e.textContent),heading);
-    assert.ok(await page.$eval('#preparation-response',e=>e.textContent.includes('Illustrative example — not a real assessment')));
+    assert.ok(await page.$eval('#preparation-response',e=>e.textContent.includes('Illustrative example, not a real assessment')));
     const focusState=await page.$eval(`[data-concern-choice="${key}"]`,(e,before)=>({focused:document.activeElement===e,before,after:e.getBoundingClientRect().top}),before);
     assert.ok(focusState.focused&&Math.abs(focusState.after-focusState.before)<2,`Selection retains focus and position: ${width}/${key} ${JSON.stringify(focusState)}`);
   }
