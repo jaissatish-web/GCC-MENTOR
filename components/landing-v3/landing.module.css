@@ -139,7 +139,7 @@
    "Saudi Arabia", which wrapped to two lines and left the row uneven (issue #115 asks
    for no awkward wrapping). Two columns fit every name on one line and keep the tiles
    the same height. Desktop restores the single six-across band below. */
-.countryCard { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 10px; min-height: 44px; padding: 8px 10px; border-radius: var(--uds-card-radius); background: var(--lp-ground, var(--uds-canvas)); color: var(--lp-ink, var(--uds-ink)); }
+.countryCard { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 10px; min-height: 44px; padding: 8px 10px; border: var(--uds-border-width) solid var(--lp-line, var(--uds-border)); border-radius: var(--uds-card-radius); background: var(--lp-ground, var(--uds-canvas)); color: var(--lp-ink, var(--uds-ink)); }
 .countryCard img { width: 24px; height: 18px; object-fit: contain; }
 .countryName { font-size: var(--lp-label, var(--uds-helper-size)); font-weight: var(--lp-body-weight, var(--uds-body-weight)); line-height: var(--uds-body-line); text-align: left; }
 .journeySection,.servicesSection,.interviewSection,.industriesSection,.marketsSection,.founderSection,.plansSection,.faqSection { padding-block: clamp(36px,5vw,60px); background: var(--lp-ground, var(--uds-canvas)); }
