@@ -168,7 +168,7 @@ try{
     nav:{position:style(document.querySelector('header')).position,height:navInner.getBoundingClientRect().height,minHeight:style(navInner).minHeight},
     numerals:{family:family(document.querySelector('#interview table')),variant:style(document.querySelector('#interview table')).fontVariantNumeric},
     separators,literalInterpunct,literals}
-  },{names:Object.keys(LANDING_TOKENS),literals:LANDING_TOKENS})
+  },{names:[...Object.keys(LANDING_TOKENS),'--lp-h2-size','--lp-h3-size','--lp-body-size','--lp-gutter','--lp-section-pad'],literals:LANDING_TOKENS})
   results.landingSpec??=[];results.landingSpec.push({width,...spec})
   for(const [name,expected] of Object.entries(spec.literals))assert.equal(spec.tokens[name],expected,`Landing token contract ${name} at ${width}px`)
   assert.equal(spec.tokens['--lp-h2-size'],width>=1024?'2.25rem':'1.5rem',`--lp-h2-size at ${width}px`)
