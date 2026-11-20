@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { ArrowRight, Award, BriefcaseBusiness, CheckCircle2, CircleAlert, GraduationCap, Target, UserRound, Wrench } from 'lucide-react'
-import s from './proof.module.css'
+import s from './landing.module.css'
 
 const fields = [['Work experience', BriefcaseBusiness], ['Skills', Wrench], ['Education', GraduationCap], ['Achievements', Award], ['Career goals', Target]] as const
 const requirements = [['Relevant experience', 'Evidence found', false], ['Required skills', 'Review your evidence', true], ['Qualifications', 'Areas to review', true]] as const
@@ -41,7 +41,7 @@ export function JobPackagePreview() {
   const preview = previews[selected]
   return <div className={s.package} data-job-package>
     <h2 id="templates-title">One job. A connected preparation package.</h2>
-    <div className={s.tabs} role="group" aria-label="Package previews">{previews.map(({ label }, i) => <button key={label} type="button" aria-pressed={selected === i} aria-controls="package-preview" onClick={() => setSelected(i)}>{label}</button>)}</div>
+    <div className={s.proofTabs} role="group" aria-label="Package previews">{previews.map(({ label }, i) => <button key={label} type="button" aria-pressed={selected === i} aria-controls="package-preview" onClick={() => setSelected(i)}>{label}</button>)}</div>
     <div id="package-preview" className={s.preview} role="region" aria-label={preview.label}>
       <p className={s.label}>Illustrative preparation preview</p>
       {'sections' in preview ? <div className={s.previewBody}><DocumentOutline sections={preview.sections} /><div><h3>{preview.title}</h3><p>{preview.description}</p><p className={s.context}>Your Career Profile + job requirements</p></div></div>
@@ -49,6 +49,6 @@ export function JobPackagePreview() {
       <p className={s.confirmed}><CheckCircle2 size={18} aria-hidden="true" />Your Career Profile stays unchanged.</p>
       <p className={s.note}>Review before you use. No unsupported experience is added.</p>
     </div>
-    <Link className={s.cta} href="/templates">Browse designs — sign-in required <ArrowRight size={17} aria-hidden="true" /></Link>
+    <Link className={s.proofCta} href="/templates">Browse designs — sign-in required <ArrowRight size={17} aria-hidden="true" /></Link>
   </div>
 }

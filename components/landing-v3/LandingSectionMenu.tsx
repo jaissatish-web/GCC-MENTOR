@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useRef } from 'react'
-import p from './premium.module.css'
+import p from './landing.module.css'
 
 /** Native disclosure with a small enhancement: selecting a section closes it. */
 export function LandingSectionMenu({ anchors }: { anchors: ReadonlyArray<readonly [string, string]> }) {

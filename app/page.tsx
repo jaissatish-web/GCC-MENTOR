@@ -12,7 +12,7 @@ import { CandidateConcerns } from '@/components/landing-v3/CandidateConcerns'
 import { EmployerMarquee } from '@/components/landing-v3/EmployerMarquee'
 import { services } from '@/components/landing-premium/data'
 import { UniversalTheme } from '@/components/design-system/UniversalTheme'
-import s from '@/components/landing-v3/premium.module.css'
+import s from '@/components/landing-v3/landing.module.css'
 
 const TITLE = 'Gulf Career Preparation & Interview Coaching | GCC MENTOR'
 const DESCRIPTION = 'One profile for job-specific resumes, cover letters and interview practice. Prepare for Gulf opportunities using your real experience.'

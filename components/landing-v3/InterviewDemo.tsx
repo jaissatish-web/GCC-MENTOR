@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import { ArrowRight, CheckCircle2, CircleAlert, Pause, Play, Sparkles } from 'lucide-react'
 import { INTERVIEWERS, getInterviewer } from '@/lib/voice/interviewers'
 import { useInView, useReducedMotion } from './hooks'
-import s from './interview.module.css'
+import s from './landing.module.css'
 
 const stages = ['Practice', 'Question feedback', 'Progress']
 const attempts = [46, 61, 74] as const
@@ -47,8 +47,8 @@ export function InterviewDemo({ compact = false }: { compact?: boolean }) {
           <article data-warning><CircleAlert size={20} aria-hidden="true"/><div><h4>Areas to improve</h4><p>Identify details that need a clearer explanation.</p></div></article>
           <article><Sparkles size={20} aria-hidden="true"/><div><h4>Suggested next practice</h4><p>Choose one focus from your question feedback.</p></div></article>
         </div>
-        <div className={s.tabs} role="group" aria-label="Interview stages">{stages.map((stage,i)=><button type="button" key={stage} aria-pressed={index===i} onClick={()=>setIndex(i)}>{stage}</button>)}</div>
-        <button type="button" className={s.action} onClick={()=>setIndex(index===0?1:index===1?2:0)}>{index===0?'Review this answer':index===1?'See repeat-session progress':'Return to practice'}<ArrowRight size={16} aria-hidden="true"/></button>
+        <div className={s.interviewTabs} role="group" aria-label="Interview stages">{stages.map((stage,i)=><button type="button" key={stage} aria-pressed={index===i} onClick={()=>setIndex(i)}>{stage}</button>)}</div>
+        <button type="button" className={s.interviewAction} onClick={()=>setIndex(index===0?1:index===1?2:0)}>{index===0?'Review this answer':index===1?'See repeat-session progress':'Return to practice'}<ArrowRight size={16} aria-hidden="true"/></button>
         {index===1&&<div className={s.review}>
           <h3>Review each question and answer</h3><p>Revisit the question, your response, strengths and areas to improve. Use the feedback to choose your next practice focus.</p>
           <h4>A useful structure for your next answer</h4><p>Your responsibility → Your actions → Your result. Use examples you can explain from your own work.</p><p>Use only work you performed. This illustration does not assess your ability or predict an interview outcome.</p>

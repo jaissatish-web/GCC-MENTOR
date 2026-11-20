@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight, BriefcaseBusiness, CheckCircle2, ChevronRight, CircleAlert, ClipboardCheck, FileCheck2, FileText, ListChecks, MessageCircle, Mic, Send, Target, UserRound } from 'lucide-react'
-import s from './concerns.module.css'
+import s from './landing.module.css'
 
 const concerns = [
   {
@@ -65,9 +65,9 @@ export function CandidateConcerns() {
   const [selected, setSelected] = useState('fit')
   const current = concerns.find(concern => concern.id === selected) ?? concerns[2]
 
-  return <section id="challenges" className={s.section} aria-labelledby="challenges-title">
-    <div className={s.inner}>
-      <div className={s.intro}>
+  return <section id="challenges" className={s.concernsSection} aria-labelledby="challenges-title">
+    <div className={s.concernsInner}>
+      <div className={s.concernsIntro}>
         <h2 id="challenges-title">You have the experience. So why aren&apos;t <span>Gulf recruiters calling?</span></h2>
         <p>You&apos;ve worked hard, built real skills and gained valuable experience. But when you apply for Gulf opportunities, your resume may not be showing employers what you can actually do.</p>
       </div>
@@ -100,7 +100,7 @@ export function CandidateConcerns() {
             <p className={s.responseNote}>{current.note}</p>
           </div>
           <p className={s.announcement} role="status" aria-live="polite" aria-atomic="true">Preparation focus: {current.service}</p>
-          <div className={s.action}><Link href="#how-it-works" className={s.cta}>See how it works <ArrowRight size={19} aria-hidden="true" /></Link><small>Preparation supports your application. Employers decide whom to shortlist and hire.</small></div>
+          <div className={s.concernsAction}><Link href="#how-it-works" className={s.concernsCta}>See how it works <ArrowRight size={19} aria-hidden="true" /></Link><small>Preparation supports your application. Employers decide whom to shortlist and hire.</small></div>
         </section>
       </div>
     </div>

@@ -3,7 +3,7 @@
 import { useState, type CSSProperties } from 'react'
 import Image from 'next/image'
 import { Pause, Play } from 'lucide-react'
-import s from './employer-marquee.module.css'
+import s from './landing.module.css'
 
 // Local, sourced artwork only; names are references, never partnership claims.
 const rows = [
