@@ -160,7 +160,7 @@ try{
     sectionBackgrounds:[...new Set([...document.querySelectorAll('main section')].map(section=>style(section).backgroundColor))],
     title:{color:style(title).color,weight:style(title).fontWeight,size:parseFloat(style(title).fontSize),line:parseFloat(style(title).lineHeight)/parseFloat(style(title).fontSize),family:family(title)},
     lead:{color:style(lead).color,size:parseFloat(style(lead).fontSize),line:parseFloat(style(lead).lineHeight)/parseFloat(style(lead).fontSize),family:family(lead)},
-    helper:{color:style(helper).color,size:parseFloat(style(helper).fontSize),background:style(helper).backgroundColor,borderWidth:style(helper).borderTopWidth},
+    helper:{color:style(helper).color,size:parseFloat(style(helper).fontSize),background:style(helper).backgroundColor,borderWidth:style(helper).borderTopWidth,surface:(()=>{const section=helper.closest('section');return section?style(section).backgroundColor:'rgba(0, 0, 0, 0)'})()},
     h3:[...services.querySelectorAll('h3')].map(element=>({size:parseFloat(style(element).fontSize),weight:style(element).fontWeight})),
     band:{background:style(band).backgroundColor},cta:{background:style(cta).backgroundColor,radius:style(cta).borderRadius},
     footer:{background:style(footer).backgroundColor,color:style(footer).color,borderTopColor:style(footer).borderTopColor,borderTopWidth:style(footer).borderTopWidth},
@@ -193,7 +193,7 @@ try{
   assert.equal(spec.lead.size,width>=1024?16:14,`Body copy must be 14-16px at ${width}px: ${spec.lead.size}`)
   assert.ok(Math.abs(spec.lead.line-1.6)<.02,`Body line height must be 1.6 at ${width}px: ${spec.lead.line}`)
   assert.ok(/DM Sans/.test(spec.lead.family),`Body copy must paint DM Sans first at ${width}px: ${spec.lead.family}`)
-  assert.equal(spec.helper.color,'rgb(100, 116, 139)',`Metadata must be #64748B at ${width}px: ${spec.helper.color}`)
+  assert.equal(spec.helper.color,spec.helper.surface==='rgb(11, 22, 40)'?'rgb(203, 213, 225)':'rgb(100, 116, 139)',`Metadata must be #64748B on a light surface and #CBD5E1 on the navy band at ${width}px (surface ${spec.helper.surface}): ${spec.helper.color}`)
   assert.equal(spec.helper.size,12,`Metadata must be 12px at ${width}px: ${spec.helper.size}`)
   assert.equal(spec.helper.background,'rgba(0, 0, 0, 0)',`Metadata must be unboxed at ${width}px`)
   assert.equal(spec.helper.borderWidth,'0px',`Metadata must be unboxed at ${width}px`)
