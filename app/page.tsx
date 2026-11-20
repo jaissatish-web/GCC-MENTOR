@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, ArrowUpRight, BookOpen, Check, ChevronRight, ClipboardCheck, FileText, FolderOpen, Headphones, Mail, Mic, ShieldCheck, Target, UserRound, Waves, Building2, Factory, HardHat, Droplets, BriefcaseBusiness, Rocket } from 'lucide-react'
+import { ArrowUpRight, BookOpen, Check, ChevronRight, ClipboardCheck, FileText, FolderOpen, Headphones, Mail, Mic, ShieldCheck, Target, UserRound, Waves, Building2, Factory, HardHat, Droplets, BriefcaseBusiness, Rocket } from 'lucide-react'
 import { AuthLinkCatcher } from '@/components/auth/AuthLinkCatcher'
 import { PremiumNav } from '@/components/landing-v3/PremiumNav'
 import { LandingFooter } from '@/components/landing-v3/LandingFooter'
@@ -12,7 +12,7 @@ import { CandidateConcerns } from '@/components/landing-v3/CandidateConcerns'
 import { EmployerMarquee } from '@/components/landing-v3/EmployerMarquee'
 import { services } from '@/components/landing-premium/data'
 import { UniversalTheme } from '@/components/design-system/UniversalTheme'
-import s from '@/components/landing-v3/premium.module.css'
+import s from '@/components/landing-v3/landing.module.css'
 
 const TITLE = 'Gulf Career Preparation & Interview Coaching | GCC MENTOR'
 const DESCRIPTION = 'One profile for job-specific resumes, cover letters and interview practice. Prepare for Gulf opportunities using your real experience.'
@@ -46,7 +46,7 @@ export default function Home() {
         <div className={s.heroInner} data-uds="inner"><div className={s.heroCopy}>
           <h1 id="hero-title" className={s.heroTitle} data-uds="hero-title">Prepare for the<br className={s.desktopHeadline} /> Gulf job you want.</h1>
           <p className={s.heroSub}>One Career Profile. Job-specific resumes, cover letters and interview practice — grounded in your real experience.</p>
-          <div className={s.heroCtas}><Link href="/gulf-readiness-score" className={s.goldCta} data-uds="button-primary">Check my readiness <ArrowRight size={19} aria-hidden="true" /></Link><Link href="#how-it-works" className={s.ghostCta} data-uds="button-secondary">See how it works <ArrowRight size={19} aria-hidden="true" /></Link></div>
+          <div className={s.heroCtas}><Link href="/gulf-readiness-score" className={s.goldCta} data-uds="button-primary">Check my readiness </Link><Link href="#how-it-works" className={s.ghostCta} data-uds="button-secondary">See how it works </Link></div>
           <p className={s.freeNote} data-uds="helper"><Check size={15} aria-hidden="true" />Start before signup.</p>
         </div></div>
       </section>
@@ -63,7 +63,7 @@ export default function Home() {
       </div></div></section>
       <section id="how-it-works" className={s.journeySection} data-uds="section" aria-labelledby="journey-title"><div className={s.inner}>
         <div className={s.sectionHeadCenter}><span className={s.kickerGold} data-uds="kicker">THE GCC MENTOR JOURNEY</span><h2 id="journey-title" className={s.journeyTitle}>From your profile to interview preparation</h2></div>
-        <ol className={s.journeyGrid}>{journey.map(({title,text,Icon,href},i)=><li key={title}><Link href={href} className={s.journeyCard}><span className={s.journeyIcon}><Icon size={28} aria-hidden="true" /></span><div><h3>{title}</h3><p>{text}</p></div><ChevronRight className={s.journeyArrow} size={20} aria-hidden="true" /></Link>{i<2&&<span className={s.journeyConnector} aria-hidden="true"><ArrowRight size={22}/></span>}</li>)}</ol>
+        <ol className={s.journeyGrid}>{journey.map(({title,text,Icon,href},i)=><li key={title}><Link href={href} className={s.journeyCard}><span className={s.journeyIcon}><Icon size={28} aria-hidden="true" /></span><div><h3>{title}</h3><p>{text}</p></div><ChevronRight className={s.journeyArrow} size={20} aria-hidden="true" /></Link>{i<2&&<span className={s.journeyConnector} aria-hidden="true"></span>}</li>)}</ol>
       </div></section>
       <section id="services" className={s.servicesSection} data-uds="soft-section" aria-labelledby="services-title"><div className={s.inner}>
         <h2 id="services-title" className={s.sectionTitle} data-uds="marketing-title">One Career Profile. Multiple Gulf Opportunities.</h2>
@@ -73,7 +73,7 @@ export default function Home() {
       </div></section>
       <section id="templates" className={s.resumeSection} data-uds="section" aria-labelledby="templates-title"><div className={s.resumeInner}>
         <div className={s.resumeCopy}><JobPackagePreview /></div>
-        <div className={s.heroVisual} data-uds="visual"><div className={s.visualLabel}><strong>Real resume designs</strong><span>Sample template content · not a customer resume</span></div><DocumentOrbit /><div className={s.visualFoot}><Link href="/templates">Browse designs — sign-in required <ArrowRight size={16} aria-hidden="true" /></Link></div></div>
+        <div className={s.heroVisual} data-uds="visual"><div className={s.visualLabel}><strong>Real resume designs</strong><span>Sample template content · not a customer resume</span></div><DocumentOrbit /><div className={s.visualFoot}><Link href="/templates">Browse designs — sign-in required </Link></div></div>
       </div></section>
       <section id="interview" className={s.interviewSection} data-uds="soft-section" aria-labelledby="interview-title"><div className={s.inner}>
         <div className={s.interviewHeading}><div><span className={s.kickerGold} data-uds="kicker">Sample demonstration</span><h2 id="interview-title" className={s.sectionTitle} data-uds="marketing-title">Right preparation. Clearer answers.</h2></div><p className={s.sectionLead}>A clear question, your answer and useful feedback. Practise your own experience, then choose what to improve.</p></div>
@@ -85,14 +85,14 @@ export default function Home() {
       </div>
       <div className={s.lowerGrid}>
       <section id="plans" className={s.plansSection} data-uds="section" aria-labelledby="plans-title"><div className={s.inner}><div className={s.sectionHeadCenter}><h2 id="plans-title" className={s.sectionTitle} data-uds="marketing-title">Start with clarity</h2><p className={s.sectionLead}>Understand access before you begin.</p></div><div className={s.accessCards}>
-        <article className={s.accessCard}><span className={s.accessIcon}><Rocket size={27}/></span><div><h3>Free readiness</h3><p>Start before signup.</p><Link href="/gulf-readiness-score" className={s.textLink}>Check my readiness <ArrowRight size={16}/></Link></div></article>
-        <article className={s.accessCard}><span className={s.accessIcon}><FileText size={27}/></span><div><h3>Your workspace</h3><p>Create a free account. Service access and limits apply.</p><Link href="/signup" className={s.textLink}>Create my account <ArrowRight size={16}/></Link></div></article>
-        <article className={s.accessCard}><span className={s.accessIcon}><ShieldCheck size={27}/></span><div><h3>More service access</h3><p>Sign in to check available credits or contact us.</p><Link href="/settings" className={s.textLink}>See my available services <ArrowRight size={16}/></Link></div></article>
+        <article className={s.accessCard}><span className={s.accessIcon}><Rocket size={27}/></span><div><h3>Free readiness</h3><p>Start before signup.</p><Link href="/gulf-readiness-score" className={s.textLink}>Check my readiness</Link></div></article>
+        <article className={s.accessCard}><span className={s.accessIcon}><FileText size={27}/></span><div><h3>Your workspace</h3><p>Create a free account. Service access and limits apply.</p><Link href="/signup" className={s.textLink}>Create my account</Link></div></article>
+        <article className={s.accessCard}><span className={s.accessIcon}><ShieldCheck size={27}/></span><div><h3>More service access</h3><p>Sign in to check available credits or contact us.</p><Link href="/settings" className={s.textLink}>See my available services</Link></div></article>
       </div><p className={s.accessNote}>Card checkout is not live. Any direct purchase is agreed before payment.</p></div></section>
       <section id="faq" className={s.faqSection} data-uds="section" aria-labelledby="faq-title"><div className={s.inner}><h2 id="faq-title" className={s.sectionTitle} data-uds="marketing-title">Your questions, answered.</h2><div className={s.faqList}>{faq.map(([question,answer],index)=><details key={question} className={s.faqItem} id={index===faq.length-2?'privacy':undefined}><summary>{question}<span className={s.faqPlus} aria-hidden="true">+</span></summary><p>{answer}</p></details>)}</div>
       </div></section>
       </div>
-      <section className={s.finalBand} data-uds="final" aria-labelledby="final-title"><Image src="/landing/v2/gulf-skyline.webp" alt="" fill sizes="100vw" /><div className={s.finalContent}><h2 id="final-title" className={s.finalTitle} data-uds="marketing-title">Your experience. Better prepared.</h2><Link href="/gulf-readiness-score" className={s.goldCta} data-uds="button-primary">Check my readiness <ArrowRight size={19} aria-hidden="true" /></Link><small className={s.finalSmall}>Right Gulf Job. Right Time. Right Preparation. Right Answers.<br />Employment is not guaranteed.</small></div></section>
+      <section className={s.finalBand} data-uds="final" aria-labelledby="final-title"><Image src="/landing/v2/gulf-skyline.webp" alt="" fill sizes="100vw" /><div className={s.finalContent}><h2 id="final-title" className={s.finalTitle} data-uds="marketing-title">Your experience. Better prepared.</h2><Link href="/gulf-readiness-score" className={s.goldCta} data-uds="button-primary">Check my readiness </Link><small className={s.finalSmall}>Right Gulf Job. Right Time. Right Preparation. Right Answers.<br />Employment is not guaranteed.</small></div></section>
     </main><LandingFooter />
   </div></UniversalTheme>
 }

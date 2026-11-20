@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { ArrowUpRight, Waves } from 'lucide-react'
 import { LandingSectionMenu } from './LandingSectionMenu'
-import p from './premium.module.css'
+import p from './landing.module.css'
 
 export function PremiumNav({ anchors }: { anchors: ReadonlyArray<readonly [string, string]> }) {
   return <header className={p.header}>
