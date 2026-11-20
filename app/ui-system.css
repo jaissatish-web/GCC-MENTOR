@@ -1039,3 +1039,9 @@ body .bg-field:not(:where([data-document-preview], [data-document-preview] *, #r
   --ui-control-height:var(--uds-button-height); --ui-control-padding-y:8px;
   min-width:0;
 }
+
+/* Tailwind's font-bold utility is the browser's 700. The design system says headings and
+   labels are 600, so 115 utility uses across the signed-in app were one weight too heavy -
+   the same defect the landing page had with <strong>. One rule, taken from the app token,
+   keeps every one of them consistent. */
+body .font-bold { font-weight: var(--ui-weight-heading); }
