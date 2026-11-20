@@ -41,6 +41,19 @@ export function ProfileReviewWorkspace({ children, manualEntry = false, sections
   const sourceRef = useRef<HTMLElement>(null)
   const sourceTrigger = useRef<HTMLButtonElement>(null)
   const confirmation = useRef<HTMLInputElement>(null)
+  // Track the modal breakpoint continuously rather than only when the panel opens. The role,
+  // aria-modal and the focus trap must match whatever viewport the panel is actually shown
+  // at - including after a resize, or after a navigation that preserves component state.
+  // Computing it only inside the sourceOpen effect left the role stale in exactly those
+  // cases, which is what made the review guard fail intermittently: it asserted the ARIA
+  // role of a panel whose breakpoint had last been read at a different width.
+  useEffect(() => {
+    const query = window.matchMedia('(max-width: 1099px)')
+    const sync = () => setModal(query.matches)
+    sync()
+    query.addEventListener('change', sync)
+    return () => query.removeEventListener('change', sync)
+  }, [])
   useEffect(() => {
     if (!sourceOpen) return
     const query = window.matchMedia('(max-width: 1099px)')
