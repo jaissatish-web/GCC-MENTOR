@@ -25,12 +25,12 @@
    ============================================================================ */
 
 /* ---- ROLE DEFINITIONS: the only place a size or weight is decided ---- */
-.rolePageHeadline { font-size: var(--uds-hero-size); font-weight: var(--uds-heading-weight); line-height: 1.15; }
-.roleSectionHeading { font-size: var(--uds-marketing-size); font-weight: var(--uds-heading-weight); line-height: 1.25; }
-.roleCardHeading { font-size: var(--uds-card-size); font-weight: var(--uds-heading-weight); line-height: 1.3; }
+.rolePageHeadline { font-size: var(--uds-hero-size); font-weight: var(--uds-heading-weight); line-height: var(--uds-heading-line); }
+.roleSectionHeading { font-size: var(--uds-marketing-size); font-weight: var(--uds-heading-weight); line-height: var(--uds-heading-line); }
+.roleCardHeading { font-size: var(--uds-card-size); font-weight: var(--uds-heading-weight); line-height: var(--uds-heading-line); }
 .roleBody { font-size: var(--uds-body-size); font-weight: var(--uds-body-weight); line-height: var(--uds-body-line); }
-.roleLabel { font-size: var(--uds-helper-size); font-weight: var(--uds-button-weight); line-height: 1.4; text-transform: uppercase; letter-spacing: .08em; }
-.roleMicro { font-size: var(--uds-helper-size); font-weight: var(--uds-body-weight); line-height: 1.5; }
+.roleLabel { font-size: var(--uds-helper-size); font-weight: var(--uds-button-weight); line-height: var(--uds-body-line); text-transform: uppercase; }
+.roleMicro { font-size: var(--uds-helper-size); font-weight: var(--uds-body-weight); line-height: var(--uds-body-line); }
 
 /* ---- SECTION: shared blocks, each namespaced so nothing overrides anything else ---- */
 
