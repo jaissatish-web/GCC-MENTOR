@@ -63,7 +63,7 @@
 .desktopHeadline { display: none; }
 .mobileHeadline { display: block; }
 .heroNavy { position: relative; background: var(--uds-surface); }
-.heroImage { position: relative; height: clamp(230px, 66vw, 340px); overflow: hidden; border-radius: 0 0 48% 8%; }
+.heroImage { position: relative; height: clamp(180px, 46vw, 300px); overflow: hidden; border-radius: 0 0 48% 8%; }
 .heroImage img { object-fit: cover; object-position: 76% 42%; }
 /* Brand-colour treatment for the hero photograph, applied at every width because
    the band is full-width on mobile. Measured on the live landing: the image's
@@ -82,29 +82,33 @@
 }
 .heroImage img { filter: saturate(0.7); }
 .heroInner { position: relative; width: min(var(--uds-content-max), calc(100% - var(--uds-gutter) * 2)); margin-inline: auto; }
-.heroCopy { position: relative; padding: 18px 0 24px; }
+.heroCopy { position: relative; padding: 14px 0 20px; }
 .heroTitle { position: relative; margin: 0 0 18px; color: var(--uds-ink); font-family: var(--uds-font); font-size: var(--uds-hero-size); font-weight: var(--uds-heading-weight); line-height: var(--uds-heading-line); letter-spacing: var(--uds-tracking); }
 .heroTitle em { color: var(--uds-brand); font-style: italic; }
 .heroTitle .mobileHeadline em { display: inline-block; border-bottom: 3px solid var(--uds-warning); padding-bottom: 6px; }
 .heroSub { max-width: 43ch; margin: 0; color: var(--uds-ink); font-size: var(--uds-body-size); line-height: var(--uds-body-line); }
-.heroCtas { display: grid; gap: 10px; margin-top: 22px; }
+.heroCtas { display: grid; gap: 8px; margin-top: 16px; }
 .goldCta,.ghostCta,.resumeCta { display: inline-flex; align-items: center; justify-content: center; gap: 12px; min-height: var(--uds-primary-height); padding: 10px var(--uds-button-padding); border: var(--uds-border-width) solid transparent; border-radius: var(--uds-button-radius); font-size: var(--uds-button-size); font-weight: var(--uds-button-weight); line-height: var(--uds-body-line); text-decoration: none; text-align: center; }
 .ghostCta,.resumeCta { min-height: var(--uds-button-height); }
 .goldCta { background: var(--uds-button-background); color: var(--uds-primary-text); border-color: var(--uds-button-background); box-shadow: 0 5px 16px rgb(var(--uds-brand-rgb) / .13); }
 .goldCta:hover { background: var(--uds-brand-hover); }
-.ghostCta { color: var(--uds-brand-hover); background: var(--uds-surface); border-color: var(--uds-brand); }
-.ghostCta:hover { background: var(--uds-brand-soft); }
+.ghostCta { color: var(--uds-ink); background: var(--uds-surface); border-color: var(--uds-border); }
+.ghostCta:hover { color: var(--uds-brand-hover); border-color: var(--uds-brand); background: var(--uds-brand-soft); }
 .freeNote { display: flex; align-items: center; gap: 6px; margin: 12px 0 0; font-size: var(--uds-helper-size); line-height: var(--uds-body-line); color: var(--uds-muted); }
 .freeNote svg { color: var(--uds-brand); }
-.countryBand { padding: 4px 0 24px; background: var(--uds-surface); }
-.countryGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 0; margin: 0; list-style: none; }
-.countryCard { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 84px; padding: 10px 4px; border-radius: var(--uds-card-radius); background: var(--uds-canvas); color: var(--uds-ink); }
-.countryCard img { width: 32px; height: 24px; object-fit: contain; }
-.countryName { font-size: var(--uds-helper-size); font-weight: var(--uds-heading-weight); line-height: var(--uds-body-line); text-align: center; }
-.journeySection,.servicesSection,.interviewSection,.industriesSection,.marketsSection,.founderSection,.plansSection,.faqSection { padding-block: clamp(28px,4vw,48px); background: var(--uds-surface); }
+.countryBand { padding: 4px 0 14px; background: var(--uds-surface); }
+.countryGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 0; margin: 0; list-style: none; }
+/* Two columns on phones: at 390px a three-across tile is ~114px wide, too narrow for
+   "Saudi Arabia", which wrapped to two lines and left the row uneven (issue #115 asks
+   for no awkward wrapping). Two columns fit every name on one line and keep the tiles
+   the same height. Desktop restores the single six-across band below. */
+.countryCard { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 10px; min-height: 44px; padding: 8px 10px; border-radius: var(--uds-card-radius); background: var(--uds-canvas); color: var(--uds-ink); }
+.countryCard img { width: 24px; height: 18px; object-fit: contain; }
+.countryName { font-size: var(--uds-helper-size); font-weight: var(--uds-body-weight); line-height: var(--uds-body-line); text-align: left; }
+.journeySection,.servicesSection,.interviewSection,.industriesSection,.marketsSection,.founderSection,.plansSection,.faqSection { padding-block: clamp(36px,5vw,60px); background: var(--uds-surface); }
 .journeySection,.servicesSection,.interviewSection,.plansSection { background: var(--uds-canvas); }
-.sectionHeadCenter { text-align: center; margin-bottom: 24px; }
-.kickerGold { display: inline-block; color: var(--uds-brand-hover); font-size: var(--uds-helper-size); font-weight: var(--uds-heading-weight); line-height: var(--uds-body-line); }
+.sectionHeadCenter { text-align: center; margin-bottom: 30px; }
+.kickerGold { display: inline-block; color: var(--uds-brand-hover); font-size: var(--uds-helper-size); font-weight: var(--uds-heading-weight); text-transform: uppercase; line-height: var(--uds-body-line); }
 .sectionTitle { margin: 8px 0 12px; color: var(--uds-ink); font-family: var(--uds-font); font-size: var(--uds-marketing-size); font-weight: var(--uds-heading-weight); line-height: var(--uds-heading-line); letter-spacing: var(--uds-tracking); text-wrap: balance; }
 .sectionTitle em { color: var(--uds-brand); font-style: normal; }
 .sectionLead { margin: 0; color: var(--uds-muted); font-size: var(--uds-body-size); line-height: var(--uds-body-line); }
@@ -267,7 +271,7 @@
  .countryCard { background: var(--uds-surface); border-radius: 0; }
  .countryCard:not(:last-child) { border-right: var(--uds-border-width) solid var(--uds-border); }
  .journeySection .sectionLead { display: block; }
- .journeySection,.servicesSection,.interviewSection,.industriesSection,.marketsSection,.founderSection,.plansSection,.faqSection { padding-block: clamp(28px,4vw,48px); }
+ .journeySection,.servicesSection,.interviewSection,.industriesSection,.marketsSection,.founderSection,.plansSection,.faqSection { padding-block: clamp(36px,5vw,60px); }
  .journeyGrid { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 36px; padding: 0; }
  .journeyGrid::before,.journeyGrid>li::before { display: none; }
  .journeyCard { grid-template-columns: 46px minmax(0,1fr); min-height: 100px; padding: 16px; gap: 12px; }

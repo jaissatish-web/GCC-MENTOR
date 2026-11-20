@@ -143,7 +143,7 @@ Protected Tailwind config is unchanged.
 | Paragraph/input/button | 16px | 16px |
 | Label/helper | 14px | 14px |
 | Caption | 12px | 12px |
-| Hero | 32px (30 on narrow phones) | 38px tablet; 44–52px desktop |
+| Hero | 30px | 38px tablet; 46–52px desktop |
 | Marketing section | 24px | 30px tablet; 32px desktop |
 
 Inter remains the reading face. Paragraphs are 400, labels 500, section/card

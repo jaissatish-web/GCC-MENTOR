@@ -7,18 +7,18 @@ export const FONT_OPTIONS = [
   { value: 'georgia', label: 'Georgia' },
 ] as const
 export const COLOR_FIELDS = [
-  { key: 'canvas', label: 'Main canvas', value: '#F8FAFC' },
+  { key: 'canvas', label: 'Main canvas', value: '#F6F3EC' },
   { key: 'surface', label: 'Card background', value: '#FFFFFF' },
-  { key: 'ink', label: 'Primary text', value: '#10254D' },
-  { key: 'muted', label: 'Secondary text', value: '#64748B' },
-  { key: 'brand', label: 'Primary teal', value: '#007F78' },
-  { key: 'brandHover', label: 'Primary hover', value: '#006B64' },
-  { key: 'brandSoft', label: 'Soft teal', value: '#E7F5F1' },
-  { key: 'border', label: 'Borders', value: '#E2E8F0' },
-  { key: 'success', label: 'Success', value: '#16803D' },
-  { key: 'warning', label: 'Warning', value: '#B86A10' },
-  { key: 'error', label: 'Error', value: '#C43D45' },
-  { key: 'info', label: 'Information', value: '#2563EB' },
+  { key: 'ink', label: 'Primary text', value: '#12211D' },
+  { key: 'muted', label: 'Secondary text', value: '#5F6E69' },
+  { key: 'brand', label: 'Primary emerald', value: '#0A4A3F' },
+  { key: 'brandHover', label: 'Primary hover', value: '#0E5D4F' },
+  { key: 'brandSoft', label: 'Soft emerald', value: '#E7EEEA' },
+  { key: 'border', label: 'Borders', value: '#E4DFD4' },
+  { key: 'success', label: 'Success', value: '#1A6B48' },
+  { key: 'warning', label: 'Warning', value: '#8A6B2E' },
+  { key: 'error', label: 'Error', value: '#A4332D' },
+  { key: 'info', label: 'Information', value: '#0F6B5D' },
   { key: 'primaryText', label: 'Primary button text', value: '#FFFFFF' },
 ] as const
 export type ColorKey = typeof COLOR_FIELDS[number]['key']
@@ -27,10 +27,10 @@ export const DEVICES: Device[] = ['mobile', 'tablet', 'desktop']
 
 // A fixed schema, not a CSS editor. Every value has a known unit and bounds.
 export const NUMBER_FIELDS = [
-  { key: 'heroSize', label: 'Landing hero', min: 24, max: 72, step: 1, unit: 'px', section: 'Typography', defaults: [36,44,52] },
-  { key: 'marketingSize', label: 'Landing section heading', min: 20, max: 48, step: 1, unit: 'px', section: 'Typography', defaults: [26,30,34] },
+  { key: 'heroSize', label: 'Landing hero', min: 24, max: 72, step: 1, unit: 'px', section: 'Typography', defaults: [30,38,46] },
+  { key: 'marketingSize', label: 'Landing section heading', min: 20, max: 48, step: 1, unit: 'px', section: 'Typography', defaults: [24,30,32] },
   { key: 'pageSize', label: 'Application page heading', min: 20, max: 40, step: 1, unit: 'px', section: 'Typography', defaults: [24,26,28] },
-  { key: 'sectionSize', label: 'Section heading', min: 16, max: 32, step: 1, unit: 'px', section: 'Typography', defaults: [18,19,20] },
+  { key: 'sectionSize', label: 'Section heading', min: 16, max: 32, step: 1, unit: 'px', section: 'Typography', defaults: [22,23,24] },
   { key: 'cardSize', label: 'Card heading', min: 14, max: 24, step: 1, unit: 'px', section: 'Typography', defaults: [16,16,16] },
   { key: 'bodySize', label: 'Body text', min: 14, max: 20, step: 1, unit: 'px', section: 'Typography', defaults: [16,16,16] },
   { key: 'navSize', label: 'Navigation', min: 13, max: 20, step: 1, unit: 'px', section: 'Typography', defaults: [14,14,14] },
@@ -38,7 +38,7 @@ export const NUMBER_FIELDS = [
   { key: 'scoreSize', label: 'Important scores', min: 24, max: 48, step: 1, unit: 'px', section: 'Typography', defaults: [30,32,34] },
   { key: 'headingWeight', label: 'Heading weight', min: 400, max: 700, step: 100, unit: '', section: 'Typography', defaults: [700,700,700] },
   { key: 'bodyWeight', label: 'Body weight', min: 400, max: 600, step: 100, unit: '', section: 'Typography', defaults: [400,400,400] },
-  { key: 'bodyLine', label: 'Body line height', min: 1.4, max: 2, step: 0.05, unit: '', section: 'Typography', defaults: [1.5,1.5,1.5] },
+  { key: 'bodyLine', label: 'Body line height', min: 1.4, max: 2, step: 0.05, unit: '', section: 'Typography', defaults: [1.6,1.6,1.6] },
   { key: 'reportLine', label: 'Long report line height', min: 1.4, max: 2, step: 0.05, unit: '', section: 'Typography', defaults: [1.6,1.6,1.6] },
   { key: 'headingLine', label: 'Heading line height', min: 1.15, max: 1.5, step: 0.05, unit: '', section: 'Typography', defaults: [1.2,1.2,1.2] },
   { key: 'tracking', label: 'Letter spacing', min: -0.04, max: 0.05, step: 0.005, unit: 'em', section: 'Typography', defaults: [-0.025,-0.025,-0.025] },
