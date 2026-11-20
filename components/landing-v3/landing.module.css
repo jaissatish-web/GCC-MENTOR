@@ -51,7 +51,7 @@
   --ink: var(--lp-ink);
   --muted: var(--lp-muted);
   --line: var(--lp-line);
-  background: var(--uds-canvas);
+  background: var(--lp-ground, var(--uds-canvas));
   color: var(--lp-ink);
   font-family: var(--ui-font);
   overflow-x: clip;
@@ -99,7 +99,7 @@
    Document-bearing ancestors retain the original fixed UI inheritance above. */
 .desktopHeadline { display: none; }
 .mobileHeadline { display: block; }
-.heroNavy { position: relative; background: var(--lp-surface, var(--uds-surface)); }
+.heroNavy { position: relative; background: var(--lp-ground, var(--uds-canvas)); }
 .heroImage { position: relative; height: clamp(180px, 46vw, 300px); overflow: hidden; border-radius: 0 0 48% 8%; }
 .heroImage img { object-fit: cover; object-position: 76% 42%; }
 /* Brand-colour treatment for the hero photograph, applied at every width because
@@ -133,17 +133,17 @@
 .ghostCta:hover { color: var(--uds-brand-hover); border-color: var(--lp-brand, var(--uds-brand)); background: var(--lp-tint, var(--uds-brand-soft)); }
 .freeNote { display: flex; align-items: center; gap: 6px; margin: 12px 0 0; font-size: var(--lp-label, var(--uds-helper-size)); line-height: var(--uds-body-line); color: var(--lp-muted, var(--uds-muted)); }
 .freeNote svg { color: var(--lp-brand, var(--uds-brand)); }
-.countryBand { padding: 4px 0 14px; background: var(--lp-surface, var(--uds-surface)); }
+.countryBand { padding: 4px 0 14px; background: var(--lp-ground, var(--uds-canvas)); }
 .countryGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 0; margin: 0; list-style: none; }
 /* Two columns on phones: at 390px a three-across tile is ~114px wide, too narrow for
    "Saudi Arabia", which wrapped to two lines and left the row uneven (issue #115 asks
    for no awkward wrapping). Two columns fit every name on one line and keep the tiles
    the same height. Desktop restores the single six-across band below. */
-.countryCard { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 10px; min-height: 44px; padding: 8px 10px; border-radius: var(--uds-card-radius); background: var(--uds-canvas); color: var(--lp-ink, var(--uds-ink)); }
+.countryCard { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 10px; min-height: 44px; padding: 8px 10px; border: var(--uds-border-width) solid var(--lp-line, var(--uds-border)); border-radius: var(--uds-card-radius); background: var(--lp-ground, var(--uds-canvas)); color: var(--lp-ink, var(--uds-ink)); }
 .countryCard img { width: 24px; height: 18px; object-fit: contain; }
 .countryName { font-size: var(--lp-label, var(--uds-helper-size)); font-weight: var(--lp-body-weight, var(--uds-body-weight)); line-height: var(--uds-body-line); text-align: left; }
-.journeySection,.servicesSection,.interviewSection,.industriesSection,.marketsSection,.founderSection,.plansSection,.faqSection { padding-block: clamp(36px,5vw,60px); background: var(--lp-surface, var(--uds-surface)); }
-.journeySection,.servicesSection,.interviewSection,.plansSection { background: var(--uds-canvas); }
+.journeySection,.servicesSection,.interviewSection,.industriesSection,.marketsSection,.founderSection,.plansSection,.faqSection { padding-block: clamp(36px,5vw,60px); background: var(--lp-ground, var(--uds-canvas)); }
+.journeySection,.servicesSection,.interviewSection,.plansSection { background: var(--lp-ground, var(--uds-canvas)); }
 .sectionHeadCenter { text-align: center; margin-bottom: 30px; }
 .kickerGold { display: inline-block; color: var(--uds-brand-hover); font-size: var(--lp-label, var(--uds-helper-size)); font-weight: var(--lp-heading-weight, var(--uds-heading-weight)); line-height: var(--uds-body-line); }
 .sectionTitle { margin: 8px 0 12px; color: var(--lp-ink, var(--uds-ink)); font-family: var(--uds-font); font-size: var(--lp-section, var(--uds-marketing-size)); font-weight: var(--lp-heading-weight, var(--uds-heading-weight)); line-height: var(--uds-heading-line); letter-spacing: var(--uds-tracking); text-wrap: balance; }
@@ -185,7 +185,7 @@
 .serviceLinks span { flex: 1; }
 .serviceLinks strong,.serviceLinks small { display: block; font-size: var(--lp-label, var(--uds-helper-size)); line-height: var(--uds-body-line); }
 .serviceLinks small { color: var(--lp-muted, var(--uds-muted)); }
-.resumeSection { padding-block: var(--uds-landing-gap); position: relative; background: var(--uds-canvas); border-radius: 0; }
+.resumeSection { padding-block: var(--uds-landing-gap); position: relative; background: var(--lp-ground, var(--uds-canvas)); border-radius: 0; }
 .resumeInner { display: grid; gap: 12px; width: min(var(--uds-content-max), calc(100% - var(--uds-gutter) * 2)); margin-inline: auto; }
 .resumeCopy { order:2; position: relative; z-index: 1; text-align: center; }
 .resumeCopy .kickerGold { color: var(--uds-primary-text); }
@@ -215,7 +215,7 @@
 .industryPhoto img { object-fit: fill; }
 .industryLabel { position: absolute; bottom: 0; left: 0; right: 0; padding: 8px; display: flex; align-items: center; gap: 6px; min-height: 40px; color: var(--uds-primary-text); background: rgb(var(--uds-ink-rgb) / .9); font-size: var(--lp-label, var(--uds-helper-size)); font-weight: var(--lp-heading-weight, var(--uds-heading-weight)); }
 .industryLabel svg { flex: none; }
-.marketsSection { background: var(--uds-canvas); }
+.marketsSection { background: var(--lp-ground, var(--uds-canvas)); }
 .globeBoundary { margin-top: 24px; }
 .founderPanel { padding:24px 0; background:var(--lp-surface, var(--uds-surface)); color:var(--lp-ink, var(--uds-ink)); }
 .founderKicker { color:var(--uds-brand-hover); font-size:var(--lp-label, var(--uds-helper-size)); font-weight:var(--uds-button-weight); }
@@ -548,7 +548,7 @@
 .track { display: flex; width: max-content; animation: drift 77s linear infinite; }
 .reverse { animation-duration: 70s; animation-direction: reverse; }
 .group { display: flex; flex-shrink: 0; align-items: center; gap: 10px; margin: 0; padding: 0 10px 0 0; list-style: none; }
-.logo { display: flex; align-items: center; justify-content: center; width: 132px; height: 60px; flex-shrink: 0; padding: var(--uds-space-compact); border: var(--uds-border-width) solid var(--uds-border); border-radius: var(--uds-card-radius); background: var(--uds-canvas); }
+.logo { display: flex; align-items: center; justify-content: center; width: 132px; height: 60px; flex-shrink: 0; padding: var(--uds-space-compact); border: var(--uds-border-width) solid var(--uds-border); border-radius: var(--uds-card-radius); background: var(--lp-ground, var(--uds-canvas)); }
 .logo img { display: block; width: 100%; height: 38px; object-fit: contain; transform: scale(var(--logo-scale, 1)); }
 .reversed { background: var(--lp-ink, var(--uds-ink)); }
 .strip:hover .track, .section[data-paused='true'] .track { animation-play-state: paused; }
@@ -578,7 +578,7 @@
 #main-content {
   --lp-headline: 28px; --lp-section: 20px; --lp-card: 15px; --lp-body: 15px; --lp-label: 13px;
   --lp-heading-weight: 600; --lp-body-weight: 400;
-  --lp-ink: #12211D; --lp-muted: #5F6E69; --lp-brand: #0A4A3F; --lp-surface: #FFFFFF; --lp-line: #E4DFD4;
+  --lp-ground: #FFFFFF; --lp-ink: #12211D; --lp-muted: #5F6E69; --lp-brand: #0A4A3F; --lp-surface: #FFFFFF; --lp-line: #E4DFD4;
   --lp-tint: #E7EEEA; --lp-accent: #C8A45C;
 }
 /* The same values per breakpoint, so pinning does not flatten the responsive scale:
