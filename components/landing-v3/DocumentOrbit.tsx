@@ -311,7 +311,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
             }}
             onClick={() => openPreview(item)}
             data-orbit-centre={on ? 'true' : undefined}
-            aria-label={`Open ${itemName(item)} — ${sample.displayName}, ${sample.targetJobTitle}`}
+            aria-label={`Open ${itemName(item)}, ${sample.displayName}, ${sample.targetJobTitle}`}
             aria-pressed={on}
             className={cn(
               'absolute left-1/2 w-[170px] rounded-[12px] border-2 bg-white p-1.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal',
@@ -323,7 +323,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
             <FittedPage item={item} width={154} height={218} />
             <span className="flex flex-col px-1 pb-[3px] pt-[7px]">
               <span className="text-[11.5px] font-extrabold leading-tight text-ink">{itemName(item)}</span>
-              <span className="truncate text-[11px] font-bold uppercase text-ink-muted">{getTemplate(item.id).allowsPhoto ? 'Optional photo' : 'ATS · No photo'}</span>
+              <span className="truncate text-[11px] font-bold uppercase text-ink-muted">{getTemplate(item.id).allowsPhoto ? 'Optional photo' : 'ATS, No photo'}</span>
             </span>
           </button>
         )
@@ -339,6 +339,6 @@ export function DocumentOrbit({ className }: { className?: string }) {
 /** The landing and saved-resume previews share the same native text reader. */
 function FullSize({ item, onClose }: { item: Item; onClose: () => void }) {
   const sample = SAMPLE_RESUME_DOCUMENT.header
-  return <DocumentReader title={itemName(item)} caption={`${sample.displayName} · ${sample.targetJobTitle}`} onClose={onClose}><div className="actual-template-orbit-face"><ItemRender item={item} /></div></DocumentReader>
+  return <DocumentReader title={itemName(item)} caption={`${sample.displayName}, ${sample.targetJobTitle}`} onClose={onClose}><div className="actual-template-orbit-face"><ItemRender item={item} /></div></DocumentReader>
 }
 

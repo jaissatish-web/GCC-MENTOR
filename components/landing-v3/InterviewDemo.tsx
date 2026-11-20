@@ -33,12 +33,12 @@ export function InterviewDemo({ compact = false }: { compact?: boolean }) {
     <div className={s.learning}>
       <div className={s.head}><span>Illustrative demonstration</span><button type="button" aria-pressed={paused} onClick={()=>setPaused(!paused)}>{paused?<Play size={15} aria-hidden="true"/>:<Pause size={15} aria-hidden="true"/>}{paused?'Resume demo':'Pause demo'}</button></div>
       <details className={s.settings}><summary>Adjust demo</summary><div className={s.options}>
-        <label>Interviewer<select value={hostId} onChange={e=>setHostId(e.target.value)}>{INTERVIEWERS.map(person=><option key={person.id} value={person.id}>{person.name} · {person.label}</option>)}</select></label>
-        <label>Session<select value={length} onChange={e=>setLength(Number(e.target.value))}><option value={5}>Quick · 5 questions</option><option value={10}>Standard · 10 questions</option><option value={15}>Deep · 15 questions</option></select></label>
+        <label>Interviewer<select value={hostId} onChange={e=>setHostId(e.target.value)}>{INTERVIEWERS.map(person=><option key={person.id} value={person.id}>{person.name}, {person.label}</option>)}</select></label>
+        <label>Session<select value={length} onChange={e=>setLength(Number(e.target.value))}><option value={5}>Quick, 5 questions</option><option value={10}>Standard, 10 questions</option><option value={15}>Deep, 15 questions</option></select></label>
         <label>Mode<select value={mode} onChange={e=>setMode(e.target.value)}>{['HR','Technical','Gulf readiness','Manager','Mixed'].map(m=><option key={m}>{m}</option>)}</select></label>
       </div></details>
       <div className={s.stage} role="region" aria-label={`${stages[index]} details`}>
-        <div className={s.practiceIntro}><div className={s.portrait}><Image key={host.id} src={host.image} alt={`${host.name}, ${host.label}, virtual interviewer`} fill sizes="(min-width: 960px) 280px, (min-width: 600px) 45vw, 100vw" /><span>AI interviewer · {host.name}</span></div><div className={s.question}><span>Q · QUESTION {Math.min(4,length)} OF {length}</span><h3>{question}</h3><p>{mode} · {host.name}</p></div></div>
+        <div className={s.practiceIntro}><div className={s.portrait}><Image key={host.id} src={host.image} alt={`${host.name}, ${host.label}, virtual interviewer`} fill sizes="(min-width: 960px) 280px, (min-width: 600px) 45vw, 100vw" /><span>AI interviewer, {host.name}</span></div><div className={s.question}><span>Q, QUESTION {Math.min(4,length)} OF {length}</span><h3>{question}</h3><p>{mode}, {host.name}</p></div></div>
         <div className={s.answer}><strong>Your answer (structure)</strong><ol className={s.answerSteps}>{['Your responsibility', 'Your actions', 'Your result'].map(step => <li key={step}>{step}</li>)}</ol></div>
         <div className={s.wave} data-inactive={index!==0} aria-hidden="true">{Array.from({length:18},(_,i)=><i key={i} style={{height:8+(i*11%18),animationDelay:i*.06+'s',animationPlayState:moving&&index===0?'running':'paused'}} />)}<span>{clock%12<6?'Read the question':'Prepare your own answer'}</span></div>
         <p className={s.layoutNote}>Illustrative feedback layout</p>

@@ -9,5 +9,5 @@ export async function LandingFooter(){
     <div><Link href="/" className={s.footerBrand}>GCC MENTOR</Link><p className={s.footerCopy}>Prepare your next Gulf application with your real experience.</p></div>
     <nav aria-label="Product services"><h2>Preparation tools</h2><ul>{links.map(([text,href])=><li key={href}><Link href={href}>{text}</Link></li>)}</ul></nav>
     <div><h2>Stay connected</h2><a href="mailto:jaissatish@gmail.com">jaissatish@gmail.com</a><nav aria-label="Legal policies">{legalPages.map(page => <Link key={page.slug} href={`/${page.slug}`}>{page.title}</Link>)}</nav><a href="#faq">Common questions</a></div>
-  </div><div className={s.footerBottom}><span>© {new Date().getFullYear()} GCC MENTOR</span><span>Card checkout is not live yet — a purchase is arranged directly with us. Career preparation · Employment is not guaranteed</span></div></div></footer>
+  </div><div className={s.footerBottom}><span>© {new Date().getFullYear()} GCC MENTOR</span><span>Card checkout is not live yet, a purchase is arranged directly with us. Career preparation, Employment is not guaranteed</span></div></div></footer>
 }

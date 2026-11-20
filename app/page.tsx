@@ -16,7 +16,7 @@ import s from '@/components/landing-v3/landing.module.css'
 
 const TITLE = 'Gulf Career Preparation & Interview Coaching | GCC MENTOR'
 const DESCRIPTION = 'One profile for job-specific resumes, cover letters and interview practice. Prepare for Gulf opportunities using your real experience.'
-export const metadata: Metadata = { title: { absolute: TITLE }, description: DESCRIPTION, alternates: { canonical: '/' }, openGraph: { title: TITLE, description: DESCRIPTION, url: '/', images: [{ url: '/landing/v2/hero-gulf.webp', width: 1586, height: 992, alt: 'GCC Mentor — grounded Gulf career preparation' }] }, twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION, images: ['/landing/v2/hero-gulf.webp'] } }
+export const metadata: Metadata = { title: { absolute: TITLE }, description: DESCRIPTION, alternates: { canonical: '/' }, openGraph: { title: TITLE, description: DESCRIPTION, url: '/', images: [{ url: '/landing/v2/hero-gulf.webp', width: 1586, height: 992, alt: 'GCC Mentor, grounded Gulf career preparation' }] }, twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION, images: ['/landing/v2/hero-gulf.webp'] } }
 const anchors = [['Preparation', '#services'], ['Templates', '#templates'], ['Interview', '#interview'], ['Access', '#plans'], ['About', '#about'], ['FAQ', '#faq']] as const
 const COUNTRIES = [['sa','Saudi Arabia'],['ae','UAE'],['qa','Qatar'],['om','Oman'],['kw','Kuwait'],['bh','Bahrain']] as const
 const journey = [
@@ -45,7 +45,7 @@ export default function Home() {
         <div className={s.heroImage}><Image src="/landing/v2/hero-gulf.webp" alt="Illustration of an industrial professional overlooking a Gulf skyline" fill priority sizes="(min-width:960px) 75vw, 100vw" /></div>
         <div className={s.heroInner} data-uds="inner"><div className={s.heroCopy}>
           <h1 id="hero-title" className={s.heroTitle} data-uds="hero-title">Prepare for the<br className={s.desktopHeadline} /> Gulf job you want.</h1>
-          <p className={s.heroSub}>One Career Profile. Job-specific resumes, cover letters and interview practice — grounded in your real experience.</p>
+          <p className={s.heroSub}>One Career Profile. Job-specific resumes, cover letters and interview practice, grounded in your real experience.</p>
           <div className={s.heroCtas}><Link href="/gulf-readiness-score" className={s.goldCta} data-uds="button-primary">Check my readiness </Link><Link href="#how-it-works" className={s.ghostCta} data-uds="button-secondary">See how it works </Link></div>
           <p className={s.freeNote} data-uds="helper"><Check size={15} aria-hidden="true" />Start before signup.</p>
         </div></div>
@@ -54,7 +54,7 @@ export default function Home() {
       <EmployerMarquee />
       <CandidateConcerns />
       <section id="about" className={s.founderSection} data-uds="section" aria-labelledby="about-title"><div className={s.inner}><div className={s.founderPanel}>
-        <span className={s.founderKicker}>BUILT BY A GULF PROFESSIONAL</span>
+        <span className={s.founderKicker}>Built by a Gulf professional</span>
         <h2 id="about-title" className={s.sectionTitle} data-uds="marketing-title">Built with real Gulf industry experience.</h2>
         <div className={s.founderContent}>
           <div className={s.founderIdentity}><Image className={s.founderPortrait} src="/landing/v2/founder-satish.webp" alt="Satish Kumar Jaiswal, founder of GCC Mentor" width={400} height={400} sizes="(min-width:960px) 184px, 104px" /><div><h3>Satish Kumar Jaiswal</h3><span className={s.founderRole}>Founder, GCC Mentor</span></div></div>
@@ -62,18 +62,18 @@ export default function Home() {
         </div>
       </div></div></section>
       <section id="how-it-works" className={s.journeySection} data-uds="section" aria-labelledby="journey-title"><div className={s.inner}>
-        <div className={s.sectionHeadCenter}><span className={s.kickerGold} data-uds="kicker">THE GCC MENTOR JOURNEY</span><h2 id="journey-title" className={s.journeyTitle}>From your profile to interview preparation</h2></div>
+        <div className={s.sectionHeadCenter}><span className={s.kickerGold} data-uds="kicker">The GCC Mentor journey</span><h2 id="journey-title" className={s.journeyTitle}>From your profile to interview preparation</h2></div>
         <ol className={s.journeyGrid}>{journey.map(({title,text,Icon,href},i)=><li key={title}><Link href={href} className={s.journeyCard}><span className={s.journeyIcon}><Icon size={28} aria-hidden="true" /></span><div><h3>{title}</h3><p>{text}</p></div><ChevronRight className={s.journeyArrow} size={20} aria-hidden="true" /></Link>{i<2&&<span className={s.journeyConnector} aria-hidden="true"></span>}</li>)}</ol>
       </div></section>
       <section id="services" className={s.servicesSection} data-uds="soft-section" aria-labelledby="services-title"><div className={s.inner}>
         <h2 id="services-title" className={s.sectionTitle} data-uds="marketing-title">One Career Profile. Multiple Gulf Opportunities.</h2>
         <p className={s.sectionLead}>Present your real experience clearly. Understand what each job needs.</p>
         <PreparationProof />
-        <details className={s.moreServices}><summary>Explore all preparation services <ChevronRight size={17} aria-hidden="true" /></summary><ul className={s.serviceLinks}>{services.map(([name,description,href,key])=>{const Icon=icons[key as keyof typeof icons];return <li key={name}><Link href={href}><Icon size={18} aria-hidden="true" /><span><strong>{href==='/templates'?'Resume designs — sign-in required':name}</strong><small>{href==='/templates'?'Browse the full design library after signing in.':description}</small></span><ArrowUpRight size={16} aria-hidden="true"/></Link></li>})}</ul></details>
+        <details className={s.moreServices}><summary>Explore all preparation services <ChevronRight size={17} aria-hidden="true" /></summary><ul className={s.serviceLinks}>{services.map(([name,description,href,key])=>{const Icon=icons[key as keyof typeof icons];return <li key={name}><Link href={href}><Icon size={18} aria-hidden="true" /><span><strong>{href==='/templates'?'Resume designs, sign-in required':name}</strong><small>{href==='/templates'?'Browse the full design library after signing in.':description}</small></span><ArrowUpRight size={16} aria-hidden="true"/></Link></li>})}</ul></details>
       </div></section>
       <section id="templates" className={s.resumeSection} data-uds="section" aria-labelledby="templates-title"><div className={s.resumeInner}>
         <div className={s.resumeCopy}><JobPackagePreview /></div>
-        <div className={s.heroVisual} data-uds="visual"><div className={s.visualLabel}><strong>Real resume designs</strong><span>Sample template content · not a customer resume</span></div><DocumentOrbit /><div className={s.visualFoot}><Link href="/templates">Browse designs — sign-in required </Link></div></div>
+        <div className={s.heroVisual} data-uds="visual"><div className={s.visualLabel}><strong>Real resume designs</strong><span>Sample template content, not a customer resume</span></div><DocumentOrbit /><div className={s.visualFoot}><Link href="/templates">Browse designs, sign-in required </Link></div></div>
       </div></section>
       <section id="interview" className={s.interviewSection} data-uds="soft-section" aria-labelledby="interview-title"><div className={s.inner}>
         <div className={s.interviewHeading}><div><span className={s.kickerGold} data-uds="kicker">Sample demonstration</span><h2 id="interview-title" className={s.sectionTitle} data-uds="marketing-title">Right preparation. Clearer answers.</h2></div><p className={s.sectionLead}>A clear question, your answer and useful feedback. Practise your own experience, then choose what to improve.</p></div>

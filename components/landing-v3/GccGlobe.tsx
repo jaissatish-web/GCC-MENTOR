@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils'
 import { LAND_DOTS_B64 } from './globeDots'
 
 /**
- * GCC globe — a digital, dotted Earth that sways around the Gulf while flight
+ * GCC globe, a digital, dotted Earth that sways around the Gulf while flight
  * paths run from where candidates are to the six GCC countries (and between
  * them, for people changing jobs inside the Gulf).
  *
@@ -461,7 +461,7 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
           <div className="mt-3 min-h-[76px] rounded-[var(--uds-card-radius,var(--ui-card-radius))] bg-[var(--uds-canvas,var(--ui-canvas))] p-[var(--uds-card-padding,var(--ui-card-padding))] ring-1 ring-[var(--uds-border,var(--ui-line))] lg:mt-4" aria-live={focus ? 'polite' : 'off'}>
             {focused ? (
               <>
-                <div className="font-[number:var(--uds-heading-weight,var(--ui-weight-heading))] text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))] tracking-[var(--uds-tracking,var(--ui-tracking))] text-[var(--uds-brand-hover,var(--ui-brand-hover))]">{focused.country} · preparation guidance</div>
+                <div className="font-[number:var(--uds-heading-weight,var(--ui-weight-heading))] text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))] tracking-[var(--uds-tracking,var(--ui-tracking))] text-[var(--uds-brand-hover,var(--ui-brand-hover))]">{focused.country}, preparation guidance</div>
                 <div className="mt-1 text-[length:var(--uds-body-size,var(--ui-body-size))] leading-[var(--uds-body-line,var(--ui-body-line))] font-[number:var(--uds-heading-weight,var(--ui-weight-heading))] text-[var(--uds-ink,var(--ui-ink))]">{focused.role}</div><p className="mt-2 text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))] text-[var(--uds-muted,var(--ui-muted))]">Review job requirements. Prepare your resume, qualification records and availability details. Confirm documentation requests with the employer.</p>
                 <div className="text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))] text-[var(--uds-muted,var(--ui-muted))]">Resume, cover letter and interview prep made for {focused.country} jobs.</div>
               </>
@@ -477,7 +477,7 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
                 <div className="text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))] text-[var(--uds-muted,var(--ui-muted))]">Prepare for your next Gulf opportunity.</div>
               </>
             ) : (
-              <div className="text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))] text-[var(--uds-muted,var(--ui-muted))]">Watch the routes — or pick a country.</div>
+              <div className="text-[length:var(--uds-helper-size,var(--ui-helper-size))] leading-[var(--uds-body-line,var(--ui-body-line))] text-[var(--uds-muted,var(--ui-muted))]">Watch the routes, or pick a country.</div>
             )}
           </div>
         </div>
