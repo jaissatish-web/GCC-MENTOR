@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ArrowRight, BriefcaseBusiness, CheckCircle2, ChevronRight, CircleAlert, ClipboardCheck, FileCheck2, FileText, ListChecks, MessageCircle, Mic, Send, Target, UserRound } from 'lucide-react'
+import { BriefcaseBusiness, CheckCircle2, ChevronRight, CircleAlert, ClipboardCheck, FileCheck2, FileText, ListChecks, MessageCircle, Mic, Send, Target, UserRound } from 'lucide-react'
 import s from './landing.module.css'
 
 const concerns = [
@@ -87,7 +87,7 @@ export function CandidateConcerns() {
         <section id="solutions" className={s.solution} aria-labelledby="solutions-title">
           <h2 id="solutions-title" className={s.columnTitle}>Your experience deserves better preparation.</h2>
           <div id="preparation-response" className={s.response} aria-labelledby="preparation-response-title" aria-describedby="preparation-example-note">
-            <p id="preparation-example-note" className={s.example}>Illustrative example — not a real assessment</p>
+            <p id="preparation-example-note" className={s.example}>Illustrative example, not a real assessment</p>
             <div className={s.responseGrid}>
               <Image className={s.document} src="/landing/v3/preparation-evidence.webp" alt="" width={320} height={320} sizes="(min-width:1024px) 160px, 100px" />
               <div className={s.responseCopy}>
@@ -100,7 +100,7 @@ export function CandidateConcerns() {
             <p className={s.responseNote}>{current.note}</p>
           </div>
           <p className={s.announcement} role="status" aria-live="polite" aria-atomic="true">Preparation focus: {current.service}</p>
-          <div className={s.concernsAction}><Link href="#how-it-works" className={s.concernsCta}>See how it works <ArrowRight size={19} aria-hidden="true" /></Link><small>Preparation supports your application. Employers decide whom to shortlist and hire.</small></div>
+          <div className={s.concernsAction}><Link href="#how-it-works" className={s.concernsCta}>See how it works </Link><small>Preparation supports your application. Employers decide whom to shortlist and hire.</small></div>
         </section>
       </div>
     </div>

@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { ArrowRight, Award, BriefcaseBusiness, CheckCircle2, CircleAlert, GraduationCap, Target, UserRound, Wrench } from 'lucide-react'
+import { Award, BriefcaseBusiness, CheckCircle2, CircleAlert, GraduationCap, Target, UserRound, Wrench } from 'lucide-react'
 import s from './landing.module.css'
 
 const fields = [['Work experience', BriefcaseBusiness], ['Skills', Wrench], ['Education', GraduationCap], ['Achievements', Award], ['Career goals', Target]] as const
@@ -24,7 +24,7 @@ export function PreparationProof() {
     </article>
     <article className={`${s.panel} ${s.analysis}`} aria-labelledby="analysis-example-title">
       <h3 id="analysis-example-title">ATS Job Match</h3>
-      <p className={s.label}>MARKETING ILLUSTRATION · NOT A REAL ASSESSMENT</p>
+      <p className={s.label}>Marketing illustration, not a real assessment</p>
       <div className={s.columnLabels} aria-hidden="true"><span>Job requirements</span><span>Your Career Profile</span></div>
       <ul className={s.requirements}>{requirements.map(([label, status, review]) => <li key={label} data-requirement-row data-gap={review || undefined}><strong>{label}</strong><span>{review ? <CircleAlert size={18} aria-hidden="true" /> : <CheckCircle2 size={18} aria-hidden="true" />}{status}</span></li>)}</ul>
       <p className={s.note}>Understand the requirements. Review your evidence. A gap is not added as experience.</p>
@@ -49,6 +49,6 @@ export function JobPackagePreview() {
       <p className={s.confirmed}><CheckCircle2 size={18} aria-hidden="true" />Your Career Profile stays unchanged.</p>
       <p className={s.note}>Review before you use. No unsupported experience is added.</p>
     </div>
-    <Link className={s.proofCta} href="/templates">Browse designs — sign-in required <ArrowRight size={17} aria-hidden="true" /></Link>
+    <Link className={s.proofCta} href="/templates">Browse designs — sign-in required </Link>
   </div>
 }

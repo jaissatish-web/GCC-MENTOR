@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { ArrowRight, CheckCircle2, CircleAlert, Pause, Play, Sparkles } from 'lucide-react'
+import { CheckCircle2, CircleAlert, Pause, Play, Sparkles } from 'lucide-react'
 import { INTERVIEWERS, getInterviewer } from '@/lib/voice/interviewers'
 import { useInView, useReducedMotion } from './hooks'
 import s from './landing.module.css'
@@ -48,17 +48,17 @@ export function InterviewDemo({ compact = false }: { compact?: boolean }) {
           <article><Sparkles size={20} aria-hidden="true"/><div><h4>Suggested next practice</h4><p>Choose one focus from your question feedback.</p></div></article>
         </div>
         <div className={s.interviewTabs} role="group" aria-label="Interview stages">{stages.map((stage,i)=><button type="button" key={stage} aria-pressed={index===i} onClick={()=>setIndex(i)}>{stage}</button>)}</div>
-        <button type="button" className={s.interviewAction} onClick={()=>setIndex(index===0?1:index===1?2:0)}>{index===0?'Review this answer':index===1?'See repeat-session progress':'Return to practice'}<ArrowRight size={16} aria-hidden="true"/></button>
+        <button type="button" className={s.interviewAction} onClick={()=>setIndex(index===0?1:index===1?2:0)}>{index===0?'Review this answer':index===1?'See repeat-session progress':'Return to practice'}</button>
         {index===1&&<div className={s.review}>
           <h3>Review each question and answer</h3><p>Revisit the question, your response, strengths and areas to improve. Use the feedback to choose your next practice focus.</p>
-          <h4>A useful structure for your next answer</h4><p>Your responsibility → Your actions → Your result. Use examples you can explain from your own work.</p><p>Use only work you performed. This illustration does not assess your ability or predict an interview outcome.</p>
+          <h4>A useful structure for your next answer</h4><p>Your responsibility, your actions, your result. Use examples you can explain from your own work.</p><p>Use only work you performed. This illustration does not assess your ability or predict an interview outcome.</p>
         </div>}
         {index===2&&<p className={s.review}>Practice. Review. Prepare. Repeat. Compare attempts for the same application and settings. Use each question’s feedback to choose your next focus.</p>}
-        <Link href="/mock-interview" className={s.link}>Open mock interview <ArrowRight size={16} aria-hidden="true"/></Link>
+        <Link href="/mock-interview" className={s.link}>Open mock interview </Link>
       </div>
     </div>
     <figure className={s.progress} aria-labelledby="progress-title">
-      <figcaption><h3 id="progress-title">See the pattern across attempts.</h3><span className={s.badge}>ILLUSTRATIVE DATA · NOT CUSTOMER RESULTS</span></figcaption>
+      <figcaption><h3 id="progress-title">See the pattern across attempts.</h3><span className={s.badge}>Illustrative data, not customer results</span></figcaption>
       <p className={s.axis}>Answer-structure score / 100</p>
       <svg className={s.chart} viewBox="0 0 420 230" role="img" aria-labelledby="attempt-chart-title attempt-chart-desc"><title id="attempt-chart-title">Illustrative three-attempt progress</title><desc id="attempt-chart-desc">Attempt 1: 46. Attempt 2: 61. Attempt 3: 74. Synthetic answer-structure examples, not real results.</desc>
         {[0,25,50,75,100].map(v=><g key={v}><line x1="38" x2="402" y1={192-v*1.65} y2={192-v*1.65} stroke="#CBD5E1"/><text x="28" y={196-v*1.65} textAnchor="end">{v}</text></g>)}
@@ -67,7 +67,7 @@ export function InterviewDemo({ compact = false }: { compact?: boolean }) {
       </svg>
       <table className={s.attemptTable}><caption>Illustrative attempt values</caption><thead><tr><th scope="col">Attempt</th>{attempts.map((_,i)=><th key={i} scope="col">{i+1}</th>)}</tr></thead><tbody><tr><th scope="row">Score / 100</th>{attempts.map(v=><td key={v}>{v}</td>)}</tr></tbody></table>
       <p>Same application and settings. Not a hiring probability. These synthetic values explain the practice journey; they do not predict your improvement.</p>
-      <div className={s.next}><CheckCircle2 size={20} aria-hidden="true"/><strong>Next practice: make your own contribution clear.</strong></div><Link href="/dashboard" className={s.link}>Open my saved progress <ArrowRight size={16} aria-hidden="true"/></Link>
+      <div className={s.next}><CheckCircle2 size={20} aria-hidden="true"/><strong>Next practice: make your own contribution clear.</strong></div><Link href="/dashboard" className={s.link}>Open my saved progress </Link>
     </figure>
   </div>
 }
