@@ -284,19 +284,20 @@ export function DocumentOrbit({ className }: { className?: string }) {
       >
       <div
         aria-hidden="true"
-        className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-teal/20 shadow-[inset_0_-22px_46px_rgba(15,76,67,.08),0_26px_56px_rgba(15,76,67,.10)]"
+        className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2"
         style={{
           top: L.track,
           width: Math.min(L.trackW, rx * 2 + 60),
           height: L.trackH,
-          background:
-            'radial-gradient(ellipse at 50% 82%, rgba(201,150,46,.20), transparent 34%), radial-gradient(ellipse at center, rgba(237,226,205,.45), rgba(219,236,232,.25) 58%, transparent 64%)',
+          borderRadius: 0,
+          boxShadow: 'none',
+          border: '1px solid var(--lp-line, #E2E8F0)',
         }}
       />
       <div
         aria-hidden="true"
-        className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-teal/15"
-        style={{ top: L.track, width: Math.min(L.innerW, rx * 1.45), height: L.innerH }}
+        className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2"
+        style={{ top: L.track, width: Math.min(L.innerW, rx * 1.45), height: L.innerH, borderRadius: 0, border: '1px solid var(--lp-line, #E2E8F0)' }}
       />
 
       {ITEMS.map((item, i) => {
@@ -314,16 +315,15 @@ export function DocumentOrbit({ className }: { className?: string }) {
             aria-label={`Open ${itemName(item)}, ${sample.displayName}, ${sample.targetJobTitle}`}
             aria-pressed={on}
             className={cn(
-              'absolute left-1/2 w-[170px] rounded-[12px] border-2 bg-white p-1.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal',
-              'shadow-[0_8px_20px_rgba(15,76,67,.06)] data-[front=1]:shadow-[0_18px_34px_rgba(15,76,67,.16),0_34px_78px_rgba(15,76,67,.14)]',
-              on ? 'border-teal' : 'border-line',
+              'absolute left-1/2 w-[170px] rounded-[var(--lp-radius-lg,10px)] border bg-white p-1.5 text-left',
+              'transition-colors motion-reduce:transition-none',
             )}
-            style={{ top: L.track }}
+            style={{ top: L.track, boxShadow: 'none', borderColor: on ? 'var(--lp-accent, #B47B2B)' : 'var(--lp-line, #E2E8F0)' }}
           >
             <FittedPage item={item} width={154} height={218} />
             <span className="flex flex-col px-1 pb-[3px] pt-[7px]">
-              <span className="text-[11.5px] font-extrabold leading-tight text-ink">{itemName(item)}</span>
-              <span className="truncate text-[11px] font-bold uppercase text-ink-muted">{getTemplate(item.id).allowsPhoto ? 'Optional photo' : 'ATS, No photo'}</span>
+              <span className="text-[length:var(--lp-card,15px)] leading-tight" style={{ color: 'var(--lp-ink, #0B1628)', fontWeight: 'var(--lp-heading-weight, 600)' }}>{itemName(item)}</span>
+              <span className="truncate text-[length:var(--lp-label,13px)] uppercase" style={{ color: 'var(--lp-muted, #64748B)', fontWeight: 'var(--lp-body-weight, 400)' }}>{getTemplate(item.id).allowsPhoto ? 'Optional photo' : 'ATS, No photo'}</span>
             </span>
           </button>
         )

@@ -74,7 +74,7 @@ export function EmployerMarquee() {
     <div className={s.intro}>
       <h2 id="employers-title">Prepare for opportunities across the Gulf</h2>
 
-      <button type="button" className={s.control} aria-pressed={paused} aria-controls="employer-strips" aria-label={paused ? 'Resume logo animation' : 'Pause logo animation'} onClick={() => setPaused(!paused)}>
+      <button type="button" className={`${s.control} whitespace-nowrap`} aria-pressed={paused} aria-controls="employer-strips" aria-label={paused ? 'Resume logo animation' : 'Pause logo animation'} onClick={() => setPaused(!paused)}>
         {paused ? <Play size={14} aria-hidden="true" /> : <Pause size={14} aria-hidden="true" />}
         {paused ? 'Resume logos' : 'Pause logos'}
       </button>

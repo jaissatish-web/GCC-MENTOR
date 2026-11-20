@@ -12,7 +12,7 @@ import { useEffect, useRef, useState } from 'react'
  * nothing jumps when it arrives.
  */
 function OrbitLoading() {
-  return <div className="flex h-[350px] items-center justify-center gap-2 text-ink-muted md:h-[480px]" role="status"><LoaderCircle className="size-5 animate-spin motion-reduce:animate-none" aria-hidden="true" /><span className="type-helper">Loading resume designs…</span></div>
+  return <div className="flex h-[350px] items-center justify-center gap-2 md:h-[480px]" role="status" style={{ color: 'var(--lp-body-text, #475569)' }}><LoaderCircle className="size-5 animate-spin motion-reduce:animate-none" aria-hidden="true" /><span className="type-helper">Loading resume designs…</span></div>
 }
 
 const LoadedDocumentOrbit = dynamic(() => import('./DocumentOrbit').then((m) => m.DocumentOrbit), {
@@ -22,7 +22,8 @@ const LoadedDocumentOrbit = dynamic(() => import('./DocumentOrbit').then((m) => 
 
 const LoadedGccGlobe = dynamic(() => import('./GccGlobe').then((m) => m.GccGlobe), {
   ssr: false,
-  loading: () => <div className="min-h-[760px] rounded-[28px] border border-line bg-white lg:min-h-[640px]" aria-hidden="true" />,
+  // Flat hairline placeholder: the spec's card geometry, not a 28px capsule.
+  loading: () => <div className="min-h-[760px] rounded-[var(--lp-radius-lg,10px)] border bg-[var(--lp-surface,#FFFFFF)] lg:min-h-[640px]" aria-hidden="true" style={{ borderColor: 'var(--lp-line, #E2E8F0)' }} />,
 })
 
 /** Mount one expensive collection once, when its hero companion approaches. */

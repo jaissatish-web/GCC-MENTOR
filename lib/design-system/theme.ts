@@ -135,3 +135,75 @@ export function contrastRatio(first: string, second: string): number {
 export function withThemeFont(theme: ThemeSettings, fontFamily: unknown): ThemeSettings {
   return normalizeTheme({ ...theme, fontFamily })
 }
+
+/**
+ * LANDING PRESENTATION AUTHORITY — 20 November 2026 (founder spec). LANDING-SCOPED RECORD.
+ *
+ * SCOPE: the public landing route (`/`) only — `app/page.tsx`,
+ * `components/landing-v3/landing.module.css` and the landing-only faces in
+ * `components/landing-v3/landingFonts.ts`. Nothing in this record is a universal theme field,
+ * and reading it must never change a signed-in page.
+ *
+ * WHY THE LANDING CANNOT USE THE SCHEMA ABOVE. The landing needs Plus Jakarta Sans (headings,
+ * 600/700/800), DM Sans (body) and JetBrains Mono (numerals), but `FONT_OPTIONS` offers only
+ * inter / system / arial / georgia, and the landing h1 is weight 800 while
+ * `NUMBER_FIELDS.headingWeight.max` is 700. Extending either would change the stored settings
+ * contract for every page, so the landing carries its own pinned token layer instead. The
+ * app-wide defaults — COLOR_FIELDS, NUMBER_FIELDS, FONT_OPTIONS, DEFAULT_THEME, `app/ui-system.css`
+ * `--ui-*` and the `--uds-*` runtime — are deliberately unchanged.
+ *
+ * CARRIER: `.system, :global(#main-content)` in `components/landing-v3/landing.module.css`.
+ * `:global()` is required: css-loader localises a bare `#main-content` selector inside a CSS
+ * module, which silently compiled the previous pin to `#landing_main-content__<hash>` and left
+ * the landing following the visitor's `--uds-*` theme. The landing now reads no `--uds-*`
+ * value at all.
+ *
+ * THE STYLESHEET IS THE RENDERING OWNER of these values; this record documents the contract and
+ * the schema boundary, and `scripts/verify-mobile-layout.mjs` /
+ * `scripts/verify-landing-v3-presentation.mjs` assert it against the built page.
+ */
+export const LANDING_THEME = {
+  scope: ['app/page.tsx', 'components/landing-v3/landing.module.css', 'components/landing-v3/landingFonts.ts'],
+  carrier: '.system, :global(#main-content)',
+  /** Wired in landingFonts.ts and applied on the landing wrapper — never on <body>. */
+  fontVariables: ['--font-jakarta', '--font-dm-sans', '--font-jetbrains'],
+  tokens: {
+    '--lp-canvas': '#F8F7F4',
+    '--lp-surface': '#FFFFFF',
+    '--lp-surface-muted': '#F1EFEA',
+    '--lp-line': '#E2E8F0',
+    '--lp-ink': '#0B1628',
+    '--lp-body-text': '#475569',
+    '--lp-muted': '#64748B',
+    '--lp-accent': '#B47B2B',
+    '--lp-accent-hover': '#9E6A22',
+    '--lp-navy': '#0B1628',
+    '--lp-navy-hover': '#162742',
+    '--lp-navy-card': '#122038',
+    '--lp-navy-line': 'rgba(255, 255, 255, .15)',
+    '--lp-on-navy': '#FFFFFF',
+    '--lp-on-navy-body': '#CBD5E1',
+    '--lp-gold': '#E5B869',
+    '--lp-gold-strong': '#D99B43',
+    '--lp-h1-size': 'clamp(2.35rem, 4.1vw, 3.75rem)',
+    '--lp-h1-weight': '800',
+    '--lp-h1-line': '1.06',
+    '--lp-h2-size': '1.5rem / 1.75rem / 2.25rem (>=768px / >=1024px)',
+    '--lp-h2-weight': '700',
+    '--lp-h3-size': '1.125rem / 1.25rem / 1.5rem (>=768px / >=1024px)',
+    '--lp-h3-weight': '700',
+    '--lp-heading-tracking': '-0.025em',
+    '--lp-body-size': '0.875rem / 1rem (>=1024px)',
+    '--lp-body-line': '1.6',
+    '--lp-meta-size': '0.75rem',
+    '--lp-content-max': '1360px',
+    '--lp-gutter': '24px / 40px (>=1024px)',
+    '--lp-nav-height': '64px',
+    '--lp-section-pad': '64px / 96px (>=1024px)',
+    '--lp-radius': '6px',
+  },
+  /** CSS-generated (::before/::after); a literal interpunct in JSX is a copy change. */
+  metadataSeparator: 'CSS-generated "·"',
+  copyInvariance: 'D:/Deepseek harness/gcc-mentor-audit/labs/copy/copy-invariance-source.mjs + copy-invariance-html.mjs',
+} as const
+

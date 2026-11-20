@@ -124,5 +124,105 @@ try{
  }
  // Large-text responsiveness is separate from the visual reference screenshots.
  await page.setViewport({width:390,height:900});await page.goto(origin,{waitUntil:'networkidle0'});await page.addStyleTag({content:'html{font-size:200%}'});assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'200%text horizontal overflow');await page.screenshot({path:`${out}/text-200-390.png`,fullPage:true});results.largeText={width:390,pass:true}
+ // ---- Founder spec 2026-11-20: the landing-only token contract, palette, type scale, geometry
+ // and the CSS-generated metadata separator, measured on the real built page at phone and
+ // desktop. This restyle is presentation-only: every value below is fixed by the design
+ // authority (docs/12_DESIGN_SYSTEM.md, "Landing presentation"), so the guard asserts the
+ // spec rather than whatever the stylesheet happens to declare today. Class names stay free.
+ const LANDING_TOKENS={ // literal declarations only; alias-valued tokens are asserted through the rendered element that consumes them
+  '--lp-canvas':'#f8f7f4','--lp-surface':'#ffffff','--lp-surface-muted':'#f1efea','--lp-line':'#e2e8f0',
+  '--lp-accent':'#b47b2b','--lp-accent-hover':'#9e6a22','--lp-ink':'#0b1628','--lp-body-text':'#475569',
+  '--lp-muted':'#64748b','--lp-navy':'#0b1628','--lp-navy-hover':'#162742','--lp-navy-card':'#122038',
+  '--lp-navy-line':'rgba(255,255,255,.15)','--lp-on-navy':'#ffffff','--lp-on-navy-body':'#cbd5e1',
+  '--lp-gold':'#e5b869','--lp-gold-strong':'#d99b43','--lp-status-confirmed':'#065f46',
+  '--lp-heading-tracking':'-0.025em','--lp-h1-size':'clamp(2.35rem,4.1vw,3.75rem)','--lp-h1-weight':'800',
+  '--lp-h1-line':'1.06','--lp-h2-weight':'700','--lp-h2-line':'1.15','--lp-h3-weight':'700','--lp-h3-line':'1.25',
+  '--lp-body-line':'1.6','--lp-meta-size':'0.75rem','--lp-content-max':'1360px','--lp-nav-height':'64px','--lp-radius':'6px',
+ }
+ for(const width of [390,1440]){
+  await page.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'reduce'}])
+  await page.setViewport({width,height:900,deviceScaleFactor:1});await page.goto(origin,{waitUntil:'networkidle0'});await page.evaluate(()=>document.fonts.ready)
+  const spec=await page.evaluate(({names,literals})=>{
+   const root=document.querySelector('#main-content'),landing=document.querySelector('[data-website-ui]'),style=(element,pseudo)=>getComputedStyle(element,pseudo)
+   const token=name=>style(root).getPropertyValue(name).trim().toLowerCase().replace(/\s+/g,'')
+   const family=element=>style(element).fontFamily.split(',')[0].replaceAll('_',' ').replaceAll('"','').trim()
+   const services=document.querySelector('#services'),title=document.querySelector('#services-title'),lead=document.querySelector('#services-title + p')
+   const helper=document.querySelector('[data-uds="helper"]'),band=document.querySelector('[data-uds="final"]'),cta=band.querySelector('[data-uds="button-primary"]')
+   const footer=document.querySelector('footer'),inner=document.querySelector('[data-uds="inner"]'),navInner=document.querySelector('header > div')
+   const fontVar=name=>{let element=root;while(element){const value=style(element).getPropertyValue(name).trim();if(value)return value;element=element.parentElement}return ''}
+   const separators=[...landing.querySelectorAll('*')].filter(element=>['::before','::after'].some(pseudo=>(style(element,pseudo).content??'').includes('·'))).length
+   let literalInterpunct=null;const walker=document.createTreeWalker(landing,NodeFilter.SHOW_TEXT)
+   while(walker.nextNode())if(walker.currentNode.nodeValue.includes('·')){literalInterpunct=walker.currentNode.nodeValue.trim().slice(0,60);break}
+   return{tokens:Object.fromEntries(names.map(name=>[name,token(name)])),
+    fonts:{jakarta:fontVar('--font-jakarta'),dmSans:fontVar('--font-dm-sans'),jetbrains:fontVar('--font-jetbrains')},
+    ground:style(document.querySelector('[data-website-ui]')).backgroundColor,
+    services:{background:style(services).backgroundColor,paddingTop:style(services).paddingTop,borderBottomWidth:style(services).borderBottomWidth,borderBottomColor:style(services).borderBottomColor},
+    sectionBackgrounds:[...new Set([...document.querySelectorAll('main section')].map(section=>style(section).backgroundColor))],
+    title:{color:style(title).color,weight:style(title).fontWeight,size:parseFloat(style(title).fontSize),line:parseFloat(style(title).lineHeight)/parseFloat(style(title).fontSize),family:family(title)},
+    lead:{color:style(lead).color,size:parseFloat(style(lead).fontSize),line:parseFloat(style(lead).lineHeight)/parseFloat(style(lead).fontSize),family:family(lead)},
+    helper:{color:style(helper).color,size:parseFloat(style(helper).fontSize),background:style(helper).backgroundColor,borderWidth:style(helper).borderTopWidth,surface:(()=>{const section=helper.closest('section');return section?style(section).backgroundColor:'rgba(0, 0, 0, 0)'})()},
+    h3:[...services.querySelectorAll('h3')].map(element=>({size:parseFloat(style(element).fontSize),weight:style(element).fontWeight})),
+    band:{background:style(band).backgroundColor},cta:{background:style(cta).backgroundColor,radius:style(cta).borderRadius},
+    footer:{background:style(footer).backgroundColor,color:style(footer).color,borderTopColor:style(footer).borderTopColor,borderTopWidth:style(footer).borderTopWidth},
+    container:{width:inner.getBoundingClientRect().width,clientWidth:document.documentElement.clientWidth},
+    nav:{position:style(document.querySelector('header')).position,height:navInner.getBoundingClientRect().height,minHeight:style(navInner).minHeight},
+    numerals:{family:family(document.querySelector('#interview table')),variant:style(document.querySelector('#interview table')).fontVariantNumeric},
+    separators,literalInterpunct,literals}
+  },{names:[...Object.keys(LANDING_TOKENS),'--lp-h2-size','--lp-h3-size','--lp-body-size','--lp-gutter','--lp-section-pad'],literals:LANDING_TOKENS})
+  results.landingSpec??=[];results.landingSpec.push({width,...spec})
+  for(const [name,expected] of Object.entries(spec.literals))assert.equal(spec.tokens[name],expected,`Landing token contract ${name} at ${width}px`)
+  assert.equal(spec.tokens['--lp-h2-size'],width>=1024?'2.25rem':'1.5rem',`--lp-h2-size at ${width}px`)
+  assert.equal(spec.tokens['--lp-h3-size'],width>=1024?'1.5rem':'1.125rem',`--lp-h3-size at ${width}px`)
+  assert.equal(spec.tokens['--lp-body-size'],width>=1024?'1rem':'0.875rem',`--lp-body-size at ${width}px`)
+  assert.equal(spec.tokens['--lp-gutter'],width>=1024?'40px':'24px',`--lp-gutter at ${width}px`)
+  assert.equal(spec.tokens['--lp-section-pad'],width>=1024?'96px':'64px',`--lp-section-pad at ${width}px`)
+  for(const [name,value] of Object.entries(spec.fonts))assert.ok(value,`Landing font variable for ${name} must resolve on the landing wrapper`)
+  assert.equal(spec.ground,'rgb(248, 247, 244)',`Landing canvas must be #F8F7F4 at ${width}px: ${spec.ground}`)
+  assert.equal(spec.services.background,'rgb(255, 255, 255)',`Working sections must be the white surface at ${width}px: ${spec.services.background}`)
+  assert.ok(spec.sectionBackgrounds.every(color=>['rgb(248, 247, 244)','rgb(255, 255, 255)','rgb(11, 22, 40)','rgba(0, 0, 0, 0)'].includes(color) /* transparent = inherits the landing canvas ground */),`Landing sections may only use canvas, white or the navy band: ${JSON.stringify(spec.sectionBackgrounds)}`)
+  assert.ok(spec.sectionBackgrounds.includes('rgb(248, 247, 244)')&&spec.sectionBackgrounds.includes('rgb(255, 255, 255)'),`The canvas/white alternation must still be present: ${JSON.stringify(spec.sectionBackgrounds)}`)
+  assert.equal(spec.services.paddingTop,width>=1024?'96px':'64px',`Section rhythm must be 64-96px (--lp-section-pad) at ${width}px: ${spec.services.paddingTop}`)
+  assert.equal(spec.services.borderBottomWidth,'1px',`Section hairline must be 1px at ${width}px`)
+  assert.equal(spec.services.borderBottomColor,'rgb(226, 232, 240)',`Section hairline must be #E2E8F0 at ${width}px: ${spec.services.borderBottomColor}`)
+  assert.equal(spec.title.color,'rgb(11, 22, 40)',`Section headings must use the #0B1628 ink at ${width}px: ${spec.title.color}`)
+  assert.equal(spec.title.weight,'700',`h2 weight must be 700 at ${width}px`)
+  assert.equal(spec.title.size,width>=1024?36:24,`h2 must stay in the 24-36px band at ${width}px: ${spec.title.size}`)
+  assert.ok(/Plus Jakarta Sans/.test(spec.title.family),`h2 must paint Plus Jakarta Sans first at ${width}px: ${spec.title.family}`)
+  assert.ok(Math.abs(spec.title.line-1.15)<.02,`h2 line height must be 1.15 at ${width}px: ${spec.title.line}`)
+  assert.equal(spec.lead.color,'rgb(71, 85, 105)',`Body copy must be #475569 at ${width}px: ${spec.lead.color}`)
+  assert.equal(spec.lead.size,width>=1024?16:14,`Body copy must be 14-16px at ${width}px: ${spec.lead.size}`)
+  assert.ok(Math.abs(spec.lead.line-1.6)<.02,`Body line height must be 1.6 at ${width}px: ${spec.lead.line}`)
+  assert.ok(/DM Sans/.test(spec.lead.family),`Body copy must paint DM Sans first at ${width}px: ${spec.lead.family}`)
+  assert.equal(spec.helper.color,spec.helper.surface==='rgb(11, 22, 40)'?'rgb(203, 213, 225)':'rgb(100, 116, 139)',`Metadata must be #64748B on a light surface and #CBD5E1 on the navy band at ${width}px (surface ${spec.helper.surface}): ${spec.helper.color}`)
+  assert.equal(spec.helper.size,12,`Metadata must be 12px at ${width}px: ${spec.helper.size}`)
+  assert.equal(spec.helper.background,'rgba(0, 0, 0, 0)',`Metadata must be unboxed at ${width}px`)
+  assert.equal(spec.helper.borderWidth,'0px',`Metadata must be unboxed at ${width}px`)
+  assert.ok(spec.h3.length>=2,'The services section must still render its card headings')
+  for(const heading of spec.h3){assert.ok(heading.size>=18&&heading.size<=24,`h3 must stay in the 18-24px band at ${width}px: ${heading.size}`);assert.equal(heading.weight,'700',`h3 weight must be 700 at ${width}px`)}
+  assert.equal(spec.band.background,'rgb(11, 22, 40)',`Closing CTA band must be navy #0B1628 at ${width}px: ${spec.band.background}`)
+  assert.equal(spec.cta.background,'rgb(229, 184, 105)',`The closing CTA keeps the gold highlight on navy at ${width}px: ${spec.cta.background}`)
+  assert.equal(spec.cta.radius,'6px',`Controls must use the 6px radius at ${width}px: ${spec.cta.radius}`)
+  assert.equal(spec.footer.background,'rgb(11, 22, 40)',`Footer must be the third navy surface at ${width}px: ${spec.footer.background}`)
+  assert.equal(spec.footer.color,'rgb(203, 213, 225)',`Footer body copy must be #CBD5E1 at ${width}px: ${spec.footer.color}`)
+  assert.equal(spec.footer.borderTopColor,'rgba(255, 255, 255, 0.15)',`Footer hairline must be rgba(255,255,255,.15) at ${width}px: ${spec.footer.borderTopColor}`)
+  assert.equal(spec.footer.borderTopWidth,'1px',`Footer hairline must be 1px at ${width}px`)
+  const gutter=width>=1024?40:24,expectedContainer=Math.min(1360,spec.container.clientWidth-gutter*2)
+  assert.ok(Math.abs(spec.container.width-expectedContainer)<1.5,`Landing container must be min(1360px, 100% - 2x${gutter}px) at ${width}px: ${spec.container.width} vs ${expectedContainer}`)
+  assert.equal(spec.nav.position,'sticky',`Landing nav must stay sticky at ${width}px`)
+  assert.equal(spec.nav.minHeight,'64px',`Landing nav must reserve 64px at ${width}px`)
+  if(width===1440)assert.equal(Math.round(spec.nav.height),64,`Desktop nav must be one 64px row: ${spec.nav.height}`)
+  assert.ok(/JetBrains Mono/.test(spec.numerals.family),`Numerals must paint JetBrains Mono first: ${spec.numerals.family}`)
+  assert.ok(spec.numerals.variant.includes('tabular-nums'),`Numerals must be tabular: ${spec.numerals.variant}`)
+  assert.ok(spec.separators>0,`The metadata separator must be CSS-generated at ${width}px`)
+  assert.equal(spec.literalInterpunct,null,`No literal interpunct may appear in the landing DOM (found ${JSON.stringify(spec.literalInterpunct)})`)
+  console.log(`PASS spec ${width}px: canvas/surface/navy/gold palette, pinned token contract, 24-36px h2, 12px unboxed metadata, 1360px container, 64px nav, 6px controls, CSS-generated separator`)
+ }
+ // The founder fixed the focus ring at #B47B2B; assert it on the first keyboard stop.
+ await page.setViewport({width:1440,height:900,deviceScaleFactor:1});await page.goto(origin,{waitUntil:'networkidle0'});await page.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'reduce'}])
+ await page.keyboard.press('Tab')
+ const focusRing=await page.evaluate(()=>{const element=document.activeElement,style=getComputedStyle(element);return{tag:element.tagName,outlineColor:style.outlineColor,outlineWidth:style.outlineWidth,outlineStyle:style.outlineStyle}})
+ assert.equal(focusRing.outlineStyle,'solid',`Keyboard focus must draw the landing focus ring: ${JSON.stringify(focusRing)}`)
+ assert.equal(focusRing.outlineColor,'rgb(180, 123, 43)',`Focus-visible ring must be #B47B2B: ${JSON.stringify(focusRing)}`)
+ assert.ok(parseFloat(focusRing.outlineWidth)>=2,`Focus-visible ring must be at least 2px: ${JSON.stringify(focusRing)}`)
  assert.deepEqual(results.errors,[]);results.pass=true
 }catch(e){results.failures.push(e.stack);throw e}finally{writeFileSync(`${out}/results.json`,JSON.stringify(results,null,2));await browser?.close();server.close()}
