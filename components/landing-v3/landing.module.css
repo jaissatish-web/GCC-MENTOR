@@ -581,3 +581,7 @@
   --lp-ink: #12211D; --lp-muted: #5F6E69; --lp-brand: #0A4A3F; --lp-surface: #FFFFFF; --lp-line: #E4DFD4;
   --lp-tint: #E7EEEA; --lp-accent: #C8A45C;
 }
+/* The same values per breakpoint, so pinning does not flatten the responsive scale:
+   phone 28/20/15/15/13, tablet 34/24/15/15/13, desktop 42/28/16/16/14. */
+@media (min-width: 768px) { #main-content { --lp-headline: 34px; --lp-section: 24px; --lp-card: 15px; --lp-body: 15px; --lp-label: 13px; } }
+@media (min-width: 1024px) { #main-content { --lp-headline: 42px; --lp-section: 28px; --lp-card: 16px; --lp-body: 16px; --lp-label: 14px; } }
