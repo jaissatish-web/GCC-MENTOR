@@ -49,6 +49,6 @@ export function JobPackagePreview() {
       <p className={s.confirmed}><CheckCircle2 size={18} aria-hidden="true" />Your Career Profile stays unchanged.</p>
       <p className={s.note}>Review before you use. No unsupported experience is added.</p>
     </div>
-    <Link className={s.proofCta} href="/templates">Browse designs — sign-in required </Link>
+    <Link className={s.proofCta} href="/templates">Browse designs, sign-in required </Link>
   </div>
 }
