@@ -137,7 +137,12 @@ function serve(){
  const set=async(selector,value)=>{await page.waitForSelector(selector);await page.$eval(selector,(element,value)=>{let details=element.closest('details');while(details){details.open=true;details=details.parentElement?.closest('details')}const prototype=element instanceof HTMLTextAreaElement?HTMLTextAreaElement.prototype:HTMLInputElement.prototype;Object.getOwnPropertyDescriptor(prototype,'value').set.call(element,value);element.dispatchEvent(new Event('input',{bubbles:true}))},value)}
  const expandWork=async()=>{await section('Work');await page.waitForSelector('#sec_work_experience');await page.evaluate(()=>{const button=document.querySelector('#sec_work_experience h3 button');if(button?.getAttribute('aria-expanded')==='false')button.click()});await page.waitForSelector('input[id^="f_work_start_"]',{visible:true})}
  const firstStart='input[id^="f_work_start_"]'
- const save=async()=>{await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));if(!await page.$eval('#v4-profile-confirm',input=>input.checked))await clickSelector('#v4-profile-confirm');await page.waitForFunction(()=>document.querySelector('#v4-profile-confirm')?.checked);await click('Save Career Profile')}
+ // The app can restore a same-tab checkpoint while a review is open and, by design, reset the
+ // acknowledgement because the visible facts changed ("Your unsaved review was restored in this tab.
+ // Check the details and confirm again before saving." - app/profile/page.tsx:1144). Re-confirm as
+ // that notice instructs, bounded, then fall through to the hard wait below.
+ const confirmAcknowledgement=async()=>{for(let attempt=1;attempt<=3;attempt++){if(await page.$eval('#v4-profile-confirm',input=>input.checked))return;await clickSelector('#v4-profile-confirm');try{await page.waitForFunction(()=>document.querySelector('#v4-profile-confirm')?.checked,{timeout:6000});return}catch{}}}
+ const save=async()=>{await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));await confirmAcknowledgement();await page.waitForFunction(()=>document.querySelector('#v4-profile-confirm')?.checked);await click('Save Career Profile')}
  const snap=async name=>{const path=output+'/'+name+'.png';await page.screenshot({path,fullPage:false});checks.push({check:'screenshot',name,width:await page.evaluate(()=>innerWidth),path})}
  for(const width of [320,390,768,1440]){
   await page.setViewport({width,height:900,deviceScaleFactor:1});await state('new-import');await go();await page.waitForSelector('#f_full_name')
