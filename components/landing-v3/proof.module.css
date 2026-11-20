@@ -28,7 +28,7 @@
 .package { min-width:0; color:var(--uds-ink); }
 .package h2 { margin:0 0 16px; font-size:var(--uds-marketing-size); font-weight:var(--uds-heading-weight); line-height:var(--uds-body-line); text-wrap:balance; }
 .tabs { display:flex; gap:4px; margin-bottom:12px; }
-.tabs button { flex:1; min-width:0; min-height:48px; padding:10px 6px; border:1px solid var(--uds-border); border-radius:10px; background:var(--uds-surface); color:var(--uds-ink); font-size:var(--uds-helper-size); font-weight:var(--uds-button-weight); line-height:var(--uds-body-line); }
+.tabs button { flex:1; min-width:0; min-height:48px; padding:10px 0; border:1px solid var(--uds-border); border-radius:10px; background:var(--uds-surface); color:var(--uds-ink); font-size:var(--uds-helper-size); font-weight:var(--uds-button-weight); line-height:var(--uds-body-line); }
 .tabs button[aria-pressed=true] { background:var(--uds-brand); color:var(--uds-primary-text); border-color:var(--uds-brand); }
 .preview { min-height:322px; }
 .preview p { font-size:var(--uds-body-size); line-height:var(--uds-body-line); margin:0; }
