@@ -154,16 +154,25 @@ export const NAV_GROUPS: readonly NavGroup[] = [
   { key: 'account', label: 'Account', hrefs: ['/profile', '/settings'] },
 ]
 
-/** Stable workspace destinations; all other services remain in the shared menu. */
+/**
+ * Stable workspace destinations; all other services remain in the shared menu.
+ *
+ * Optimize joined this set (founder request, 2026-11-21): building a resume for
+ * the next job is one of the things a returning user does most, and until now
+ * the flow lit the Resumes entry instead of having one of its own. The bar
+ * order is the funnel - library, optimize, practice, profile.
+ */
 export const WORKSPACE_PRIMARY_ITEMS = [
   { ...NAV_ITEMS.find(item => item.href === '/dashboard')!, label: 'Home', shortLabel: 'Home', icon: HomeIcon },
   { ...NAV_ITEMS.find(item => item.href === '/dashboard/library')!, label: NAMES.library, shortLabel: 'Resumes', icon: DocumentTextIcon },
+  { ...NAV_ITEMS.find(item => item.href === '/optimize')!, shortLabel: 'Optimize' },
   { ...NAV_ITEMS.find(item => item.href === '/mock-interview')!, label: NAMES.mockInterview, shortLabel: 'Practice' },
   { ...NAV_ITEMS.find(item => item.href === '/profile')!, label: 'Career Profile', shortLabel: 'Profile' },
 ] as const
 
 export function workspaceItemActive(href: string, pathname: string): boolean {
-  if (href === '/dashboard/library') return pathname.startsWith('/dashboard/library') || pathname.startsWith('/package/') || pathname.startsWith('/optimize') || pathname === '/templates' || pathname === '/cover-letter'
+  if (href === '/dashboard/library') return pathname.startsWith('/dashboard/library') || pathname.startsWith('/package/') || pathname === '/templates' || pathname === '/cover-letter'
+  if (href === '/optimize') return pathname.startsWith('/optimize')
   if (href === '/mock-interview') return pathname.startsWith('/mock-interview') || pathname === '/interview-qa'
   return href === '/dashboard' ? pathname === href : pathname.startsWith(href)
 }
