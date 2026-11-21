@@ -629,7 +629,7 @@ function JobCheckCard({ state, check, title, onPasteAdvert }: { state: 'idle' | 
               Paste the real advert
             </button>
             {check.typicalAdvert ? (
-              <button type="button" onClick={() => setShowAdvert((v) => !v)} className="min-h-9 type-helper font-semibold text-teal underline-offset-2 hover:underline">
+              <button type="button" onClick={() => setShowAdvert((v) => !v)} className="min-h-11 type-helper font-semibold text-teal underline-offset-2 hover:underline">
                 {showAdvert ? 'Hide typical requirements' : 'See the typical requirements'}
               </button>
             ) : null}

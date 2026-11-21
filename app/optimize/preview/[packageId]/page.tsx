@@ -401,7 +401,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
                                   setRoles((r) => ({ ...r, [id]: (r[id] ?? item.bullets).filter((x) => x.trim() !== b.trim()) }))
                                   setRemovedAuto((list) => [...list, autoId])
                                 }}
-                                className="min-h-9 rounded-ctl border border-gold/50 bg-white px-3 font-semibold text-gold-ink"
+                                className="min-h-11 rounded-ctl border border-gold/50 bg-white px-3 font-semibold text-gold-ink"
                               >
                                 Remove
                               </button>

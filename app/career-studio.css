@@ -65,7 +65,7 @@
   bottom: 0;
   inset-inline: 0;
   display: grid;
-  grid-template-columns: repeat(4,minmax(0,1fr));
+  grid-template-columns: repeat(5,minmax(0,1fr));
   padding: var(--ui-space-1) var(--ui-space-2) max(6px,env(safe-area-inset-bottom));
   background: var(--ui-surface);
   border-top: 1px solid var(--ui-line);
