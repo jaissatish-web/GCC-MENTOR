@@ -330,23 +330,35 @@ body .premium-tools-scope h2.type-card {font-size:var(--ui-card-title-size)!impo
 /* Migrated website UI: normal, zero-specificity semantic defaults. Component
    classes own layout and consume --uds-* directly. Keep both document roots
    AND their ancestors outside inheritable policy changes: the orbit's native
-   document inheritance remains the original, independent baseline. */
-:where([data-website-ui] *):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *, :has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography="document"]))) {
+   document inheritance remains the original, independent baseline.
+
+   THE LANDING IS EXEMPT (2026-11-21). The landing owns its own typography
+   through --lp-* tokens on .system (components/landing-v3/landing.module.css),
+   and it is fully self-contained: its palette and its three faces never come
+   from --uds-*. Without this exclusion these rules still painted
+   font-family: var(--uds-font) onto every landing descendant at zero
+   specificity. Zero specificity still beats inheritance, so a landing element
+   that did not set its own font silently inherited the app's face - which is
+   exactly how the landing's faces broke during the 2026-11-20 restyle and had
+   to be pinned back with --uds-font. Excluding the landing here lets its own
+   tokens be the single authority for its type, and leaves every other
+   [data-website-ui] surface on the unchanged --uds-* defaults. */
+:where([data-website-ui] *):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *, :has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography="document"]), [data-marketing="white"], [data-marketing="white"] *)) {
   font-family: var(--uds-font);
   letter-spacing: var(--uds-tracking);
   overflow-wrap: anywhere;
 }
-:where([data-website-ui] :is(p,li,dd,dt,label,summary,input,select,textarea)):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *, :has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography="document"]))) {
+:where([data-website-ui] :is(p,li,dd,dt,label,summary,input,select,textarea)):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *, :has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography="document"]), [data-marketing="white"], [data-marketing="white"] *)) {
   font-size: var(--uds-body-size);
   font-weight: var(--uds-body-weight);
   line-height: var(--uds-body-line);
 }
-:where([data-website-ui] :is(h1,h2,h3,h4,h5,h6)):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *, :has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography="document"]))) {
+:where([data-website-ui] :is(h1,h2,h3,h4,h5,h6)):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *, :has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography="document"]), [data-marketing="white"], [data-marketing="white"] *)) {
   font-size: var(--uds-section-size);
   font-weight: var(--uds-heading-weight);
   line-height: var(--uds-heading-line);
   color: var(--uds-ink);
 }
-:where([data-website-ui] :is(a,button)):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *, :has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography="document"]))) {
+:where([data-website-ui] :is(a,button)):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *, :has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography="document"]), [data-marketing="white"], [data-marketing="white"] *)) {
   line-height: var(--uds-body-line);
 }
