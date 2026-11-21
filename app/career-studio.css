@@ -1173,10 +1173,14 @@
 .app-type.internal-ui.career-studio .studio-bottom-nav a>span {
   width: auto;
   height: auto;
-  min-width: 64px;
-  padding: 2px var(--ui-space-2);
+  /* Five primary destinations (Optimize joined 2026-11-21) must fit one line each at 320px.
+     The old 64px floor was sized for four slots; inside a five-column grid it forced
+     overflow-wrap to break the word instead of letting the track shrink. */
+  min-width: 0;
+  padding: 2px var(--ui-space-1);
   max-width: 100%;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  white-space: nowrap;
   text-align: center;
 }
 
