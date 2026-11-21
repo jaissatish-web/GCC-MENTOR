@@ -12,7 +12,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { PageShell } from '@/components/layout/PageShell'
 import { BriefcaseIcon, UserCircleIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { cn, GULF_COUNTRIES } from '@/lib/utils'
+import { cn, GULF_COUNTRIES, PACKAGE_STATUSES } from '@/lib/utils'
 import { StageSelect } from '@/components/package/StageSelect'
 import { getTemplate } from '@/lib/templates'
 import {
@@ -36,8 +36,17 @@ import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton'
  * founder decision. The row is the JOB — role, employer, country, stage — and
  * the CV and letters are things that job has.
  *
- * Lightweight summaries are paged on the server. Search and stage filters
- * are intentionally absent; the Career Profile resume is always first.
+ * Lightweight summaries are paged on the server, and the toolbar filters them
+ * there: `q` narrows by job title/company and `stage` by application stage -
+ * both already supported by app/api/packages/route.ts and the
+ * list_package_summaries RPC, which the page simply never used.
+ *
+ * Filtering on the SERVER is deliberate. A client-side filter over the page in
+ * memory would silently hide matches on pages the user has not loaded yet, and
+ * the keyset cursor would then page through a differently-filtered list.
+ *
+ * The Career Profile resume is always first and is never filtered: it is the
+ * user's own profile, not a job application.
  *
  * SAVED IS NOT APPLIED (audit M07). A new job starts as "Saved · not applied";
  * the user moves it on. Preparation progress (CV, letter, Q&A, mock) is shown
@@ -147,6 +156,77 @@ function ArtifactChip({ label, present }: { label: string; present: boolean }) {
     >
       {label}
     </span>
+  )
+}
+
+/**
+ * Search + stage filter for the Library.
+ *
+ * The FIELD owns its own draft so typing never fights the debounce; the parent
+ * owns the query actually sent to the server. The count is a polite live region
+ * so a screen reader hears the list change without interrupting what it is
+ * currently reading.
+ */
+function LibraryToolbar({
+  query,
+  onQuery,
+  stage,
+  onStage,
+  resultCount,
+  total,
+  busy,
+}: {
+  query: string
+  onQuery: (next: string) => void
+  stage: PackageStatus | 'all'
+  onStage: (next: PackageStatus | 'all') => void
+  resultCount: number
+  total: number
+  busy: boolean
+}) {
+  const [draft, setDraft] = useState(query)
+  // Stay in step when the parent resets the query (Clear, or a reload).
+  useEffect(() => { setDraft(query) }, [query])
+  const filtering = query.trim() !== '' || stage !== 'all'
+  return (
+    <section aria-label="Search and filter resumes" className="rounded-card border border-line bg-white p-4 sm:p-5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <label className="flex min-w-0 flex-1 flex-col gap-1 type-helper font-semibold text-ink">
+          Search your resumes
+          <input
+            type="search"
+            value={draft}
+            onChange={(e) => { setDraft(e.target.value); onQuery(e.target.value) }}
+            placeholder="Job title or employer"
+            maxLength={100}
+            className="field w-full"
+          />
+        </label>
+        <label className="flex flex-col gap-1 type-helper font-semibold text-ink sm:w-56">
+          Application stage
+          <select value={stage} onChange={(e) => onStage(e.target.value as PackageStatus | 'all')} className="field w-full">
+            <option value="all">All stages</option>
+            {PACKAGE_STATUSES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+          </select>
+        </label>
+        {filtering ? (
+          <button
+            type="button"
+            onClick={() => { setDraft(''); onQuery(''); onStage('all') }}
+            className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'min-h-11 sm:mb-0.5')}
+          >
+            Clear search and filters
+          </button>
+        ) : null}
+      </div>
+      <p role="status" aria-live="polite" className="mt-3 type-helper text-ink-soft">
+        {busy
+          ? 'Searching your resumes…'
+          : filtering
+            ? `${resultCount} match your search`
+            : `${total} ${total === 1 ? 'resume' : 'resumes'}`}
+      </p>
+    </section>
   )
 }
 
@@ -385,6 +465,16 @@ export default function TargetJobsPage() {
   const [searching, setSearching] = useState(false)
   const [reloadKey, setReloadKey] = useState(0)
   const requestSeq = useRef(0)
+  // What the field shows, and what the server is actually filtered by.
+  const [query, setQuery] = useState('')
+  const [debouncedQuery, setDebouncedQuery] = useState('')
+  const [stage, setStage] = useState<PackageStatus | 'all'>('all')
+
+  // One request per pause, not one per keystroke.
+  useEffect(() => {
+    const timer = window.setTimeout(() => setDebouncedQuery(query.trim()), 300)
+    return () => window.clearTimeout(timer)
+  }, [query])
 
   // Lightweight paged summaries; the base resume is pinned separately.
   useEffect(() => {
@@ -392,6 +482,8 @@ export default function TargetJobsPage() {
     setSearching(true)
     setLoadError(null)
     const qs = new URLSearchParams({ view: 'summary', limit: String(PAGE_SIZE), counts: '1' })
+    if (debouncedQuery) qs.set('q', debouncedQuery)
+    if (stage !== 'all') qs.set('stage', stage)
     fetch(`/api/packages?${qs.toString()}`, { cache: 'no-store' })
       .then((res) => {
         if (res.ok) return res.json() as Promise<PackageListPage>
@@ -409,7 +501,7 @@ export default function TargetJobsPage() {
       .finally(() => {
         if (seq === requestSeq.current) setSearching(false)
       })
-  }, [reloadKey])
+  }, [reloadKey, debouncedQuery, stage])
 
   async function loadMore() {
     if (!cursor || loadingMore) return
@@ -417,6 +509,8 @@ export default function TargetJobsPage() {
     setLoadingMore(true)
     setOpError(null)
     const qs = new URLSearchParams({ view: 'summary', limit: String(PAGE_SIZE), before: cursor.before, before_id: cursor.before_id })
+    if (debouncedQuery) qs.set('q', debouncedQuery)
+    if (stage !== 'all') qs.set('stage', stage)
     try {
       const res = await fetch(`/api/packages?${qs.toString()}`, { cache: 'no-store' })
       if (!res.ok) throw new Error(String(res.status))
@@ -544,10 +638,15 @@ export default function TargetJobsPage() {
 
   const list = items ?? []
   const raw = careerResume.resume
+  const isFiltering = query.trim() !== '' || stage !== 'all'
+  // The Career Profile resume survives every filter: it is the user's own
+  // profile, not a job application, so search must not make it disappear.
   const resumeList = [
     ...(raw ? [raw] : list.filter(isCareerProfileResume)),
     ...list.filter((resume) => !isCareerProfileResume(resume)),
   ]
+  const shown = isFiltering ? resumeList.filter((pkg) => isCareerProfileResume(pkg)) : resumeList
+  const jobCount = resumeList.filter((pkg) => !isCareerProfileResume(pkg)).length
 
   return (
     // The shared page frame (2026-09-23): the Library was the one list screen
@@ -568,7 +667,21 @@ export default function TargetJobsPage() {
         </Link>
       </section>
 
+      <LibraryToolbar
+        query={query}
+        onQuery={setQuery}
+        stage={stage}
+        onStage={setStage}
+        resultCount={jobCount}
+        total={total}
+        busy={searching}
+      />
+
       {searching ? <p role="status" className="type-helper text-ink-muted">Loading your resumes…</p> : null}
+
+      {isFiltering && jobCount === 0 ? (
+        <p className="type-helper text-ink-soft">No resumes match this search. Clear the filters to see them all.</p>
+      ) : null}
 
       {opError ? <Alert variant="danger">{opError}</Alert> : null}
       {loadError && items !== null ? <Alert variant="danger">{loadError}</Alert> : null}
@@ -589,7 +702,7 @@ export default function TargetJobsPage() {
       <div className="grid gap-5 xl:grid-cols-2 xl:gap-6">
         {careerResume.state === 'loading' ? <div role="status" className="rounded-card border border-line bg-white p-5 type-helper text-ink-soft">Opening your Career Profile Resume…</div> : null}
         {careerResume.state === 'error' ? <div role="alert" className="rounded-card border border-line bg-white p-5"><p className="type-helper text-alert">Could not open your Career Profile Resume.</p><button type="button" className={buttonVariants({ variant: 'secondary', size: 'sm' })} onClick={careerResume.reload}>Try again</button></div> : null}
-        {resumeList.map((pkg) => (
+        {shown.map((pkg) => (
           <ApplicationCard
             key={pkg.id}
             pkg={pkg}
@@ -604,7 +717,7 @@ export default function TargetJobsPage() {
         ))}
       </div>
 
-      {cursor ? (
+      {cursor && !isFiltering ? (
         <div className="flex justify-center">
           <button
             type="button"
