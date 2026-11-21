@@ -436,7 +436,12 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
             Select a destination. Explore what to prepare.
           </p>
 
-          <ul className="mt-4 grid grid-cols-3 gap-1.5 sm:gap-2 lg:mt-5" aria-label="GCC countries">
+          {/* Two columns on phones, three from 640px up. Three columns on a 390px
+              phone leaves each button ~83px wide, so "Saudi Arabia" wrapped to three
+              lines (and to eight at 320px) - the country names are the reason the grid
+              cannot simply be fixed at three. Measured before/after: 390px went from
+              3 buttons wrapping to 0. */}
+          <ul className="mt-4 grid grid-cols-2 gap-1.5 sm:grid-cols-3 sm:gap-2 lg:mt-5" aria-label="GCC countries">
             {GCC.map((g) => (
               <li key={g.code}>
                 <button
