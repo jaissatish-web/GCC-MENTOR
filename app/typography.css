@@ -348,17 +348,17 @@ body .premium-tools-scope h2.type-card {font-size:var(--ui-card-title-size)!impo
   letter-spacing: var(--uds-tracking);
   overflow-wrap: anywhere;
 }
-:where([data-website-ui] :is(p,li,dd,dt,label,summary,input,select,textarea)):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *, :has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography="document"]), [data-marketing="white"], [data-marketing="white"] *)) {
+:where([data-website-ui] :is(p,li,dd,dt,label,summary,input,select,textarea)):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *, :has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography="document"]))) {
   font-size: var(--uds-body-size);
   font-weight: var(--uds-body-weight);
   line-height: var(--uds-body-line);
 }
-:where([data-website-ui] :is(h1,h2,h3,h4,h5,h6)):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *, :has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography="document"]), [data-marketing="white"], [data-marketing="white"] *)) {
+:where([data-website-ui] :is(h1,h2,h3,h4,h5,h6)):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *, :has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography="document"]))) {
   font-size: var(--uds-section-size);
   font-weight: var(--uds-heading-weight);
   line-height: var(--uds-heading-line);
   color: var(--uds-ink);
 }
-:where([data-website-ui] :is(a,button)):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *, :has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography="document"]), [data-marketing="white"], [data-marketing="white"] *)) {
+:where([data-website-ui] :is(a,button)):not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, [data-typography="document"], [data-typography="document"] *, :has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography="document"]))) {
   line-height: var(--uds-body-line);
 }
