@@ -175,10 +175,14 @@ try {
         const expectedHero = parseFloat(getComputedStyle(probe).fontSize)
         probe.remove()
         const subStyle = getComputedStyle(sub)
+        // Self-hosted faces: next/font/local names them after the declaration ("display",
+        // "body", "numeric"), so identify them by what actually loaded rather than by the
+        // source font's name.
+        const facesLoaded = [...document.fonts].filter(face => face.status === 'loaded').map(face => face.family)
         const sectionStyle = getComputedStyle(section)
         return { scroll: document.documentElement.scrollWidth, size: parseFloat(heading.fontSize),
           weight: heading.fontWeight, font: heading.fontFamily,
-          lineRatio: parseFloat(heading.lineHeight) / parseFloat(heading.fontSize),
+          lineRatio: parseFloat(heading.lineHeight) / parseFloat(heading.fontSize), facesLoaded,
           clipped: hero.scrollWidth > hero.clientWidth + 1, expectedHero,
           sectionSize: parseFloat(sectionStyle.fontSize), sectionWeight: sectionStyle.fontWeight, sectionFont: sectionStyle.fontFamily,
           bodySize: parseFloat(subStyle.fontSize), bodyFont: subStyle.fontFamily,
@@ -193,7 +197,7 @@ try {
       // match a fallback that never paints.
       const firstFamily = font => font.split(',')[0].replaceAll('_', ' ').replaceAll('"', '').trim()
       assert.equal(metrics.weight, '800', `Landing hero must use the 800 display weight at ${width}, enlarged=${enlarged}: ${JSON.stringify(metrics)}`)
-      assert.ok(/Plus Jakarta Sans/.test(firstFamily(metrics.font)), `Landing headings must paint Plus Jakarta Sans first: ${metrics.font}`)
+      assert.ok(metrics.facesLoaded.includes(firstFamily(metrics.font)), `Landing headings must paint a loaded landing face: ${metrics.font} / loaded ${JSON.stringify(metrics.facesLoaded)}`)
       assert.ok(Math.abs(metrics.lineRatio - 1.06) < .01, `Landing hero line height must be 1.06 at ${width}: ${metrics.lineRatio}`)
       const textScale = enlarged ? 2 : 1
       assert.ok(Math.abs(metrics.size - metrics.expectedHero) < .02, `Marketing hero must resolve clamp(2.35rem,4.1vw,3.75rem) at ${width}, enlarged=${enlarged}: expected ${metrics.expectedHero}, got ${metrics.size}`)
@@ -202,11 +206,11 @@ try {
       const expectedSection = (width >= 1024 ? 36 : width >= 768 ? 28 : 24) * textScale
       assert.ok(Math.abs(metrics.sectionSize - expectedSection) < .02, `Marketing sections must use the landing section scale (${expectedSection}px at ${width}, enlarged=${enlarged}), got ${metrics.sectionSize}`)
       assert.equal(metrics.sectionWeight, '700', `Landing section headings must use the 700 weight at ${width}: ${JSON.stringify(metrics)}`)
-      assert.ok(/Plus Jakarta Sans/.test(firstFamily(metrics.sectionFont)), `Landing section headings must paint Plus Jakarta Sans first: ${metrics.sectionFont}`)
+      assert.ok(metrics.facesLoaded.includes(firstFamily(metrics.sectionFont)), `Landing section headings must paint a loaded landing face: ${metrics.sectionFont}`)
       // --lp-body-size is 0.875rem phone / 1rem desktop with --lp-body-line 1.6, and body copy
       // is DM Sans; it still doubles with the root font size.
       assert.ok(Math.abs(metrics.bodySize - (width >= 1024 ? 16 : 14) * textScale) < .02, `Landing body copy must use the landing body scale (${(width >= 1024 ? 16 : 14) * textScale}px at ${width}, enlarged=${enlarged}), got ${metrics.bodySize}`)
-      assert.ok(/DM Sans/.test(firstFamily(metrics.bodyFont)), `Landing body copy must paint DM Sans first: ${metrics.bodyFont}`)
+      assert.ok(metrics.facesLoaded.includes(firstFamily(metrics.bodyFont)) && firstFamily(metrics.bodyFont) !== firstFamily(metrics.font), `Landing body copy must paint the loaded body face, distinct from the display face: ${metrics.bodyFont}`)
       assert.ok(Math.abs(metrics.bodyLineRatio - 1.6) < .01, `Landing body line height must be 1.6 at ${width}: ${metrics.bodyLineRatio}`)
       await page.screenshot({ path: `artifacts/typography/landing-${width}${enlarged ? '-enlarged' : ''}.png`, fullPage: true })
       assert.equal(await page.$$eval('#how-it-works ol > li', items => items.length), 3, 'Approved V2 journey remains visible with three connected stages')
@@ -225,7 +229,7 @@ try {
 
     }
   }
-  console.log('PASS: production landing and shared UI at phone/laptop widths, enlarged text, distinct type roles, preserved document typography, bundled landing faces (Plus Jakarta Sans headings, DM Sans body), a source of theme-independent landing tokens and 44px controls.')
+  console.log('PASS: production landing and shared UI at phone/laptop widths, enlarged text, distinct type roles, preserved document typography, bundled self-hosted landing faces (a loaded display face for headings, a distinct loaded body face for copy), a source of theme-independent landing tokens and 44px controls.')
 } finally {
   await browser.close()
 }

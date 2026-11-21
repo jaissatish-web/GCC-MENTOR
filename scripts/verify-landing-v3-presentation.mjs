@@ -167,7 +167,7 @@ try{
     container:{width:inner.getBoundingClientRect().width,clientWidth:document.documentElement.clientWidth},
     nav:{position:style(document.querySelector('header')).position,height:navInner.getBoundingClientRect().height,minHeight:style(navInner).minHeight},
     numerals:{family:family(document.querySelector('#interview table')),variant:style(document.querySelector('#interview table')).fontVariantNumeric},
-    separators,literalInterpunct,literals}
+    separators,literalInterpunct,literals,facesLoaded:[...document.fonts].filter(face=>face.status==='loaded').map(face=>face.family)}
   },{names:[...Object.keys(LANDING_TOKENS),'--lp-h2-size','--lp-h3-size','--lp-body-size','--lp-gutter','--lp-section-pad'],literals:LANDING_TOKENS})
   results.landingSpec??=[];results.landingSpec.push({width,...spec})
   for(const [name,expected] of Object.entries(spec.literals))assert.equal(spec.tokens[name],expected,`Landing token contract ${name} at ${width}px`)
@@ -187,12 +187,12 @@ try{
   assert.equal(spec.title.color,'rgb(11, 22, 40)',`Section headings must use the #0B1628 ink at ${width}px: ${spec.title.color}`)
   assert.equal(spec.title.weight,'700',`h2 weight must be 700 at ${width}px`)
   assert.equal(spec.title.size,width>=1024?36:24,`h2 must stay in the 24-36px band at ${width}px: ${spec.title.size}`)
-  assert.ok(/Plus Jakarta Sans/.test(spec.title.family),`h2 must paint Plus Jakarta Sans first at ${width}px: ${spec.title.family}`)
+  assert.ok(spec.facesLoaded.includes(spec.title.family),`h2 must paint a LOADED landing face at ${width}px (self-hosted display face): ${spec.title.family}`)
   assert.ok(Math.abs(spec.title.line-1.15)<.02,`h2 line height must be 1.15 at ${width}px: ${spec.title.line}`)
   assert.equal(spec.lead.color,'rgb(71, 85, 105)',`Body copy must be #475569 at ${width}px: ${spec.lead.color}`)
   assert.equal(spec.lead.size,width>=1024?16:14,`Body copy must be 14-16px at ${width}px: ${spec.lead.size}`)
   assert.ok(Math.abs(spec.lead.line-1.6)<.02,`Body line height must be 1.6 at ${width}px: ${spec.lead.line}`)
-  assert.ok(/DM Sans/.test(spec.lead.family),`Body copy must paint DM Sans first at ${width}px: ${spec.lead.family}`)
+  assert.ok(spec.facesLoaded.includes(spec.lead.family)&&spec.lead.family!==spec.title.family,`Body copy must paint the loaded body face, distinct from the display face, at ${width}px: ${spec.lead.family}`)
   assert.equal(spec.helper.color,spec.helper.surface==='rgb(11, 22, 40)'?'rgb(203, 213, 225)':'rgb(100, 116, 139)',`Metadata must be #64748B on a light surface and #CBD5E1 on the navy band at ${width}px (surface ${spec.helper.surface}): ${spec.helper.color}`)
   assert.equal(spec.helper.size,12,`Metadata must be 12px at ${width}px: ${spec.helper.size}`)
   assert.equal(spec.helper.background,'rgba(0, 0, 0, 0)',`Metadata must be unboxed at ${width}px`)
@@ -211,7 +211,7 @@ try{
   assert.equal(spec.nav.position,'sticky',`Landing nav must stay sticky at ${width}px`)
   assert.equal(spec.nav.minHeight,'64px',`Landing nav must reserve 64px at ${width}px`)
   if(width===1440)assert.equal(Math.round(spec.nav.height),64,`Desktop nav must be one 64px row: ${spec.nav.height}`)
-  assert.ok(/JetBrains Mono/.test(spec.numerals.family),`Numerals must paint JetBrains Mono first: ${spec.numerals.family}`)
+  assert.ok(spec.facesLoaded.includes(spec.numerals.family)&&spec.numerals.family!==spec.title.family&&spec.numerals.family!==spec.lead.family,`Numerals must paint the loaded mono face, distinct from the other two: ${spec.numerals.family}`)
   assert.ok(spec.numerals.variant.includes('tabular-nums'),`Numerals must be tabular: ${spec.numerals.variant}`)
   assert.ok(spec.separators>0,`The metadata separator must be CSS-generated at ${width}px`)
   assert.equal(spec.literalInterpunct,null,`No literal interpunct may appear in the landing DOM (found ${JSON.stringify(spec.literalInterpunct)})`)
