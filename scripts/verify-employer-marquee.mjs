@@ -28,6 +28,10 @@ try {
    return {logoLayoutShift:window.marqueeLayoutShift,width:innerWidth,scrollWidth:document.documentElement.scrollWidth,direction,uniqueLogos:lists.reduce((n,l)=>n+l.children.length,0),broken:[...root.querySelectorAll('img')].filter(i=>!i.complete||!i.naturalWidth).map(i=>i.alt),disclaimer:root.lastElementChild.textContent,resources:performance.getEntriesByType('resource').filter(r=>r.name.includes('/landing/employers/')).map(r=>({name:r.name,bytes:r.encodedBodySize})),section:root.getBoundingClientRect().toJSON()}
   })
   assert.ok(state.scrollWidth<=width+1);assert.equal(state.uniqueLogos,21);assert.equal(state.logoLayoutShift,0);assert.deepEqual(state.broken,[]);assert.ok(state.direction[0].x2<state.direction[0].x1);assert.ok(state.direction[1].x2>state.direction[1].x1)
+  for (const name of ['mcdermott.svg', 'maaden.svg', 'larsen-toubro.svg']) {
+   const background = await page.$eval(`#employers img[src$="/${name}"]`, image => getComputedStyle(image.closest('li')).backgroundColor)
+   assert.equal(background, 'rgb(24, 40, 61)', `White employer logo ${name} needs its navy tile at ${width}px`)
+  }
   for(const d of state.direction)assert.ok(Math.abs(d.track-2*d.group)<.5,'Seamless equal groups')
   await page.hover('#employers [data-direction="left"]');assert.equal(await page.$eval('#employers [data-direction="left"]>div',e=>getComputedStyle(e).animationPlayState),'paused');await page.mouse.move(0,0)
   await page.focus('#employers button');await page.keyboard.press('Enter');assert.equal(await page.$eval('#employers button',e=>e.getAttribute('aria-pressed')),'true');assert.ok(await page.$$eval('#employers [data-direction]>div',es=>es.every(e=>getComputedStyle(e).animationPlayState==='paused')))
