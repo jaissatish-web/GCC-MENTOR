@@ -12,7 +12,6 @@ import { CandidateConcerns } from '@/components/landing-v3/CandidateConcerns'
 import { EmployerMarquee } from '@/components/landing-v3/EmployerMarquee'
 import { services } from '@/components/landing-premium/data'
 import { UniversalTheme } from '@/components/design-system/UniversalTheme'
-import { landingFontVariables } from '@/components/landing-v3/landingFonts'
 import s from '@/components/landing-v3/landing.module.css'
 
 const TITLE = 'Gulf Career Preparation & Interview Coaching | GCC MENTOR'
@@ -39,7 +38,7 @@ const faq = [
 ] as const
 
 export default function Home() {
-  return <UniversalTheme><div className={`${s.system} font-redesign-sans ${landingFontVariables}`} data-marketing="white" data-website-ui>
+  return <UniversalTheme><div className={`${s.system} font-redesign-sans`} data-marketing="white" data-website-ui>
     <PremiumNav anchors={anchors} /><AuthLinkCatcher />
     <main id="main-content" tabIndex={-1}>
       <section className={s.heroNavy} data-uds="hero" aria-labelledby="hero-title">
