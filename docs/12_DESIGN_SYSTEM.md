@@ -1,9 +1,14 @@
-# Current founder visual authority — 18 November 2026 (Ink & Champagne)
+# GCC Mentor design system
+
+Use the shared application and landing sections below when changing the website.
+The section headed **Historical design decisions** preserves earlier approvals and rationale.
+
+## Shared application — Ink & Champagne (18 November 2026)
 
 **Approved by the founder on 18 November 2026** from a rendered concept of the signed-in
-dashboard and the AI working / voice-interview screens. This section is the single current
-authority and supersedes every earlier palette notice below, including the 15 November
-Executive Slate & Teal notice.
+dashboard and the AI working / voice-interview screens. Shared tokens and type roles
+are implemented in `app/ui-system.css` and `app/typography.css`. The landing has a
+separate route-scoped section below. Authored resume documents keep their own styles.
 
 The founder's brief: the product must read premium and trustworthy to Gulf job-seekers. The
 previous palette carried three competing brand-ish colours in one viewport (teal, cyan and a
@@ -24,13 +29,13 @@ meaning: one ink frame, one action colour, one restrained accent.
 | `--ui-accent-rgb` | `200 164 92` (#C8A45C) | the premium accent — purchase action, premium markers. **Once or twice per screen** | text on white |
 | `--ui-accent-ink-rgb` | `138 107 46` (#8A6B2E) | accent as text, and text on accent fills | fills |
 | `--ui-accent-soft-rgb` | `251 244 230` (#FBF4E6) | premium/preparation tint | page ground |
-| `--ui-keyword-rgb` | `21 127 110` (#157F6E) | small links and keyword highlights | large fills |
+| `--ui-keyword-rgb` | `15 107 93` (#0F6B5D) | small links and keyword highlights | large fills |
 | `--ui-line-rgb` | `228 223 212` (#E4DFD4) | hairlines and card borders | text |
 | `--ui-line-strong-rgb` | `146 138 122` (#928A7A) | input and control borders | text |
 | `--ui-success-rgb` / `-soft` | `26 107 72` / `232 242 236` | success, done, verified | decoration |
 | `--ui-warning-rgb` / `-soft` | `138 107 46` / `251 244 230` | needs-attention | success |
 | `--ui-error-rgb` / `-soft` | `164 51 45` / `250 236 233` | failure, destructive | decoration |
-| `--ui-info-rgb` / `-soft` | `21 127 110` / `234 241 238` | neutral information | alerts |
+| `--ui-info-rgb` / `-soft` | `15 107 93` / `234 241 238` | neutral information | alerts |
 
 Geometry: cards 14px corners, controls 10px corners, 44px control height, card padding 16px
 phone / 24px larger screens, **no raised shadow on shared content surfaces** (depth comes from
@@ -73,14 +78,15 @@ The universal theme schema cannot express this design. `FONT_OPTIONS` has four e
 weight **800**. Extending the schema would change the stored settings contract for every page,
 so the landing carries a pinned, landing-only token layer instead.
 
-**Carrier:** `.system, :global(#main-content)` in `components/landing-v3/landing.module.css`. The
-`:global()` is load-bearing: css-loader localises a bare `#main-content` selector inside a CSS
-module, which is how the previous pin (`#main-content { … }`) compiled to
-`#landing_main-content__<hash>` and never matched the DOM element at all. The landing now reads
-**no** `--uds-*` value, so a visitor's saved theme — including a `?designPreview=1` draft — cannot
-change the marketed page. Do not "simplify" the selector back to a bare id.
+**Carrier:** The local `.system` class in `components/landing-v3/landing.module.css`
+wraps the landing, including the nav and footer. Its pinned `--lp-*` values
+inherit into `#main-content`. The wrapper also pins `--uds-font` to DM Sans
+for shared typography rules that still read that variable. A bare
+`#main-content` is renamed by the CSS module, and mixing a standalone global
+selector into the local selector list fails the module's purity rule.
 
-**Fonts:** `components/landing-v3/landingFonts.ts` declares the three `next/font/google` faces as
+**Fonts:** `components/landing-v3/landingFonts.ts` loads three variable fonts with `next/font/local`.
+The `.woff2` files live under `public/fonts/`. The fonts are exposed as
 `--font-jakarta`, `--font-dm-sans` and `--font-jetbrains` and they are applied as classes on the
 landing wrapper in `app/page.tsx`. They are deliberately **not** added to `<body>` in
 `app/layout.tsx`: a dozen guards harvest that body class for their own fixtures, and the landing
@@ -142,7 +148,7 @@ the resolved value at the tested viewport, never a copied pixel number.
 * **Metadata is unboxed and its `·` separator is CSS-generated**
   (`.badge::before`, `.metaRow > * + *::before`, `.visualLabel > *:not(:last-child)::after`,
   `.footerBottom > span:not(:last-child)::after`). **No literal `·` may appear in landing JSX**;
-  the copy-invariance check in `labs/copy/` treats a literal interpunct as a copy change.
+  the landing browser guard checks the DOM copy.
 * One deliberate trade-off, recorded rather than hidden: `app/typography.css` carries an
   app-wide `body a[class*="_navCta__"] { white-space: normal; max-inline-size: 18rem }` override,
   so the nav CTA still wraps at 200% text. The 64px single-row nav is a 100% guarantee; at 200%
@@ -156,13 +162,17 @@ font-size/family/weight/line-height/letter-spacing is a `var()` reference), then
 guards that assert this section: `CHROME_PATH=… npm run test:mobile`
 (`scripts/verify-mobile-layout.mjs`, landing block) and
 `CHROME_PATH=… node scripts/verify-premium-landing-v2.mjs`
-(`scripts/verify-landing-v3-presentation.mjs`, which also compares the served copy against the
-pre-restyle baseline). Copy is frozen: see `labs/copy/copy-invariance-source.mjs` (landing
-sources) and `copy-invariance-html.mjs` (built HTML).
+(`scripts/verify-landing-v3-presentation.mjs`, which checks imagery, section order,
+type, keyboard focus, motion controls and responsive layout).
 
 ---
 
-# Superseded — 15 November 2026 authority (Executive Slate & Teal), kept for history
+# Historical design decisions
+
+The sections below preserve past palettes, component guidance and approval records.
+Use the shared application and landing sections above for current design work.
+
+## Superseded — 15 November 2026 (Executive Slate & Teal)
 
 For future proposals, respect Executive Slate & Teal and the founder-approved Gulf landing references. Preserve the deployed approved composition until a specific visual batch is approved. Batch 1A changes documentation only; it does not recolor, redesign or migrate CSS.
 
@@ -201,7 +211,7 @@ resume templates are unchanged. Template preview descendants are excluded from m
 paragraph and span rules. Application and interview demos have manual controls, pausing and
 reduced-motion support.
 
-## 00. MERIDIAN — the current identity, and one product system (2026-09-23)
+## 00. MERIDIAN — historical identity (2026-09-23)
 
 **Historical identity section; the dated authority notice above takes precedence.** §0 below (Blueprint) and §2–§5 (the navy/gold
 era) are kept for their reasoning and measurements; where they disagree with this

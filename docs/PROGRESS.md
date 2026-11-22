@@ -1,3 +1,36 @@
+## Repository overlap follow-up — 22 November 2026
+
+Founder authorized removing verified overlaps from the read-only main baseline on
+the existing cleanup branch. Remove the unreferenced public menu, landing persona
+dataset and retired profile diagnostic panel. Their exact files already exist in
+the retained archive. Preserve both profile route URLs, their shared editor,
+the diagnostic library and its checks. Verify the route inventory, browser checks
+and repository suite before founder review.
+
+Typecheck, lint, all 103 repository checks and the local production build passed.
+The route manifests and 83 prerendered HTML documents matched main after
+normalizing build metadata. Tailwind emitted four fewer utilities used only by
+the retired components. Mobile layout and the profile review browser checks passed.
+The known overlap between active LinkedIn and NaukriGulf API handlers remains
+tracked as AUDIT-004 in [open items](14_OPEN_ITEMS.md).
+
+## Repository dependency audit and cleanup — 22 November 2026
+
+Founder-authorized for the dedicated cleanup branch and one review PR. Baseline main is
+`0f8dfefe78c34c4e3182042705ba0e4b36628674`. Archive only the retired Career Studio,
+Soft Indigo and White Workspace evidence and the standalone landing redesign concept
+after checking their archive blobs, consumers and local links. Preserve the original
+onboarding/resume mockup provenance, authoritative Markdown, and the current app,
+database, tests and deployment configuration. Acceptance requires a protected-tree
+comparison, before/after checks and an explicit list of verification limits.
+
+The cleanup archives 47 byte-identical legacy references and retains all 62 Markdown
+files. Local typecheck, lint, 103 repository checks and the production build passed
+on both trees. Route maps, compiled CSS, fonts, measured landing layout and 18 PDF
+fixtures matched. Supplementary checks with baseline failures are recorded in the
+[cleanup PR](https://github.com/jaissatish-web/GCC-MENTOR/pull/133). The Vercel rule
+applies to the exact cleanup branch. Founder review is the next step.
+
 ## ONBOARDING-V4 / DATE-096 — 17 November 2026
 
 Status: implemented on the isolated branch; local verification and founder-review handoff are recorded in [ONBOARDING_V4_VERIFICATION.md](ONBOARDING_V4_VERIFICATION.md). Production release remains prohibited. Founder approved #95 V4 design, #96 four nullable date-precision columns and atomic compatibility guard, precision-aware domain handling, limited duration/gaps, affected ATS/optimizer/interview grounding consumers and pending-score policy. This supersedes historical pending-approval wording for these exact items.
@@ -345,7 +378,7 @@ WHITE-WORKSPACE-001 final visual QA passed: enlarged-text reflow corrected and v
 25 October 2026 — SOFT-INDIGO-001 approved, not implemented: Satish selected SkillDrift sign-in typography, colours, theme and buttons for GCC Mentor. This supersedes previous no-blue/emerald presentation decisions. Spec: SOFT_INDIGO_2026-10-25.md. Presentation only; backend/auth/scoring/documents protected. Verify mobile/desktop and required CI before authorised main release.
 
 
-SOFT-INDIGO-001 implemented and visual QA passed: centralised Inter/indigo/plum/lavender system,12px controls,24px grouped cards, responsive auth shell and consistent landing/workspace/professional presentation. Removed conflicting legacy globals/responsive palette/type blocks. Mobile report inset issue corrected without weakening above-fold assertion. Local typecheck/lint/all80 checks/build, mobile/enlarged reflow, scoped controls/document isolation, Career Studio29 checks, CTA and universal typography checks passed. Reference/comparison/browser evidence in design-reference/soft-indigo and design-qa.md. Protected backend/auth/document directories unchanged. Required CI/main/Vercel release pending; user again explicitly instructs completion and main publication.
+SOFT-INDIGO-001 implemented and visual QA passed: centralised Inter/indigo/plum/lavender system,12px controls,24px grouped cards, responsive auth shell and consistent landing/workspace/professional presentation. Removed conflicting legacy globals/responsive palette/type blocks. Mobile report inset issue corrected without weakening above-fold assertion. Local typecheck/lint/all80 checks/build, mobile/enlarged reflow, scoped controls/document isolation, Career Studio29 checks, CTA and universal typography checks passed. Reference/comparison/browser evidence in [the archived Soft Indigo folder](https://github.com/jaissatish-web/GCC-MENTOR/tree/86bfaa75e60db6ee7cf45b18fe049f932759b7d2/design-reference/soft-indigo). Protected backend/auth/document directories unchanged. Required CI/main/Vercel release pending; user again explicitly instructs completion and main publication.
 
 
 25 October 2026 — SINGLE-EDITOR-001 approved, not implemented: Satish approved one Career Profile editor, read-only summary and uniform entry links, imported review inside same form, deferred photo save and Cancel/Save changes. Domain acceptance in CAREER_PROFILE_BLOCKS.md. Backend/schema/auth/scoring/templates protected. Implemented with focused regression checks passing: exact-account matching, monthly/daily allowances, unchanged ordinary quotas, atomic settlement, pauses, global capacity, concurrency and database failure. Full repository checks and deployment are release gates; live usage is not yet claimed.

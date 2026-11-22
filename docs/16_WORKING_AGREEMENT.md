@@ -47,6 +47,19 @@ Preserve grounding, existing user facts, account/data boundaries and service log
 
 Read the actual diff, including delegated work. Run appropriate repository checks for code changes (`typecheck`, `lint`, `build`, affected regression tests); inspect user-facing flows at mobile and desktop sizes where possible. Test service/data flows when they change. Record unavailable verification and existing failures accurately. Documentation-only changes require source/link/diff checks, not a claim that runtime behavior was retested.
 
+## Keeping one implementation per feature
+
+Before adding a component, workflow or style rule, trace the current route to its
+implementation. Reuse the existing owner for the same responsibility. The landing
+starts at `app/page.tsx`, with navigation in `components/landing-v3/PremiumNav.tsx`.
+Career Profile import and review use the same workspace from
+`app/profile/page.tsx`. Keep their route files as thin exports so existing links work.
+
+When replacing an implementation, review the old path in the same PR. Check imports,
+dynamic paths, assets, tests and build conventions before removing it. Record the
+reason in the PR when two similar files need to stay, such as separate route
+contracts or separate styling for authored resume documents.
+
 ## Before ending
 Update domain documents to actual implementation; record checks, failures, unresolved questions, commit and next action in `PROGRESS.md`. Never mark a feature complete only because a builder reports success. Distinguish source inspection, automated tests, synthetic UI checks and live production verification.
 

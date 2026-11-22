@@ -1,3 +1,9 @@
+# Typography decision history
+
+Start with [the current design system](12_DESIGN_SYSTEM.md). Current landing type roles are defined in the design system. Shared application type is implemented in `app/typography.css`. The dated records below preserve earlier scales and verification.
+
+---
+
 # Current application typography — 2 November 2026
 
 MENAJOBS-TYPE-001 replaces the historical scales below. Implemented in app/typography.css: mobile/desktop hero36/48, page28/32, section21/24, card17/18, body15/16, label14, helper13/14, button14/15, caption12/13px; inputs16px. Inter retained. See `implementation and QA report` (archived) for measured reference evidence, protected documents and release limits. Historical sections below explain earlier decisions, not current tokens.

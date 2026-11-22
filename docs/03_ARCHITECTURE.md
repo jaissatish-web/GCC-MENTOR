@@ -32,8 +32,18 @@ switching provider never needs a redeploy. See [`06_AI_PIPELINE.md`](06_AI_PIPEL
 | `types/` | Shared TypeScript types |
 | `supabase/migrations/` | Numbered SQL migrations, the only way schema changes |
 | `docs/` | This documentation — the specification |
-| `design-reference/` | The original approved mockups as working HTML. Convert, do not redesign |
-| `reference/` | Read-only donor code from an earlier build. Wiring patterns only |
+| `public/` | Publicly served assets, including landing images, fonts and editorial provenance |
+| `scripts/` | Regression checks, synthetic fixtures and developer utilities. See [the release checklist](SAAS_RELEASE_CHECKLIST.md) |
+| `design-reference/` | Original HTML mockups retained for provenance. Consult [the documentation index](DOCUMENTATION_INDEX.md) for retired design evidence |
+| `reference/` | Read-only donor code from an earlier build, excluded by TypeScript. Wiring patterns only |
+
+Start landing changes at `app/page.tsx`, `components/landing-v3/` and the
+shared service and destination data in `components/landing-premium/`. Start
+workspace changes at the relevant `app/` route and its `components/` imports.
+`app/layout.tsx` loads the global stylesheet and workspace fonts. The [design
+system](12_DESIGN_SYSTEM.md) defines current visual direction and identifies the
+shared and landing-specific style owners. API handlers in `app/api/` use server
+services in `lib/`. `.github/workflows/ci.yml` lists the release checks.
 
 **The one hard warning about `reference/`:** every AI prompt in it was written
 **without** the grounding rule and allowed the model to invent certifications and

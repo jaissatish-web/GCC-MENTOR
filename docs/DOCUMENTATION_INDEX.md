@@ -7,8 +7,9 @@ removed from `main` on **17 November 2026** and now live only on the
 `git show archive/docs-history-pre-2026-11:<path>` — never copy one back into
 `main`.
 
-This page lists **every** Markdown file that remains. If it is not listed here,
-it is not current documentation.
+Use this page to find current instructions. Some linked directories contain
+feature specifications, plans or evidence. The file's role and dated status
+determine how to use it.
 
 ## Read order
 
@@ -68,8 +69,8 @@ a document that disagree means the document is wrong.
 | Document | Role |
 |---|---|
 | [`12_DESIGN_SYSTEM.md`](12_DESIGN_SYSTEM.md) | **The single current visual authority** |
-| [`BRAND_SYSTEM.md`](BRAND_SYSTEM.md) | Brand colours and tokens |
-| [`TYPOGRAPHY_SYSTEM.md`](TYPOGRAPHY_SYSTEM.md) | Application typography |
+| [`BRAND_SYSTEM.md`](BRAND_SYSTEM.md) | Historical brand decisions |
+| [`TYPOGRAPHY_SYSTEM.md`](TYPOGRAPHY_SYSTEM.md) | Historical typography decisions and implementation references |
 | [`TERMINOLOGY.md`](TERMINOLOGY.md) | Agreed product terminology |
 
 ## Operations
@@ -96,7 +97,8 @@ a document that disagree means the document is wrong.
 | Path | Role |
 |---|---|
 | [`../README.md`](../README.md) | Repository entry point |
-| [`../design-reference/`](../design-reference/) | Approved mockups as working HTML — convert, do not redesign |
+| [`../design-reference/`](../design-reference/) | Original HTML mockups retained for provenance |
+| [Archived design references](https://github.com/jaissatish-web/GCC-MENTOR/tree/86bfaa75e60db6ee7cf45b18fe049f932759b7d2/design-reference) | Career Studio, Soft Indigo, White Workspace and an earlier landing concept |
 | [`../reference/README.md`](../reference/README.md) | Read-only donor code from an earlier build; plumbing patterns only, never prompts |
 | [`../supabase/migrations/README.md`](../supabase/migrations/README.md) | Migration conventions |
 | [`../public/landing/employers/SOURCES.md`](../public/landing/employers/SOURCES.md) | Employer logo provenance — keep |
