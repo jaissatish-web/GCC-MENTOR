@@ -89,7 +89,41 @@ try{
     assert.ok(await page.$eval('[data-job-package] button[aria-pressed=true]',e=>e===document.activeElement&&e.getBoundingClientRect().height>=44),'Package selection keeps keyboard focus and touch size');
   }
   assert.equal(await page.$$eval('#services [data-profile-field]',es=>es.length),5,'All profile categories shown');
-  assert.equal(await page.$$eval('#services [data-requirement-row]',es=>es.length),3,'Three neutral requirement categories');
+  const samplePackages = await page.$$('#services [data-career-package]');
+  assert.equal(samplePackages.length, 3, 'Three roles reuse the same profile');
+  const expectedServices = ['ATS Job Match', 'Optimized Resume', 'Cover Letter', 'Interview Q&A', 'Mock Interview'];
+  const expectedRoles = ['Senior Mechanical Engineer', 'Mechanical Commissioning Engineer', 'Mechanical Maintenance Engineer'];
+  for (const [index, job] of samplePackages.entries()) {
+    const packageState = await job.evaluate(element => {
+      const arrow = element.querySelector('svg').getBoundingClientRect();
+      const card = element.querySelector('article').getBoundingClientRect();
+      return {
+        role: element.querySelector('h3').textContent,
+        labels: Array.from(element.querySelectorAll('button'), button => button.getAttribute('aria-label')),
+        visible: Array.from(element.querySelectorAll('button')).every(button => button.offsetHeight >= 44),
+        connected: Math.abs(card.left - arrow.right) <= 2 && arrow.top > card.top && arrow.bottom < card.bottom,
+        reduced: element.querySelector('article').getAnimations().length === 0,
+      };
+    });
+    assert.deepEqual(packageState, { role: expectedRoles[index], labels: expectedServices, visible: true, connected: true, reduced: true });
+  }
+  const ats = await samplePackages[0].$('button');
+  await ats.focus();
+  await page.keyboard.press('Enter');
+  const detailId = await ats.evaluate(button => button.getAttribute('aria-controls'));
+  assert.ok(await page.evaluate(id => document.getElementById(id).textContent.includes('genuine gaps'), detailId));
+  assert.equal(await samplePackages[1].$$('button[aria-expanded=true]').then(buttons => buttons.length), 0);
+  await page.keyboard.press('Escape');
+  assert.ok(await ats.evaluate(button => button === document.activeElement && button.getAttribute('aria-expanded') === 'false'));
+  if ([375, 390, 430].includes(width)) {
+    const mock = await samplePackages[2].$('button[aria-label="Mock Interview"]');
+    await mock.evaluate(button => button.scrollIntoView({ block: "center", behavior: "instant" }));
+    await mock.tap();
+    assert.equal(await mock.evaluate(button => button.getAttribute('aria-expanded')), 'true');
+    await mock.evaluate(button => button.scrollIntoView({ block: "center", behavior: "instant" }));
+    await mock.tap();
+    assert.equal(await mock.evaluate(button => button.getAttribute('aria-expanded')), 'false');
+  }
   const founder=await page.$eval('#about img',i=>({src:i.getAttribute('src'),width:i.getBoundingClientRect().width,height:i.getBoundingClientRect().height,natural:i.naturalWidth}));
   // naturalWidth is density-corrected for Next's width-descriptor srcset;
   // the fixture serves original bytes, so it is not the source file width.

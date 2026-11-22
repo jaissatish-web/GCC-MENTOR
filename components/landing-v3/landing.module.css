@@ -509,35 +509,14 @@
 @media(min-width:600px) { .answerSteps { grid-template-columns:repeat(3,minmax(0,1fr)); } }
 
 /* ================= proof.module.css ================= */
-.proof { display:grid; gap:32px; margin-top:24px; }
-.panel,.preview { min-width:0; border:1px solid var(--lp-line); border-radius:var(--lp-radius-lg); padding: var(--lp-card-pad); background:var(--lp-surface-muted); color:var(--lp-body-text); }
-.panel { position:relative; }
-.panel:first-child::after { content:'↓'; position:absolute; bottom:-29px; left:50%; color:var(--lp-brand); font-family:var(--lp-font-mono); font-size:var(--lp-h3-size); line-height:var(--lp-h3-line); }
-.analysis { background:var(--lp-surface); }
+.preview { min-width:0; border:1px solid var(--lp-line); border-radius:var(--lp-radius-lg); padding: var(--lp-card-pad); background:var(--lp-surface-muted); color:var(--lp-body-text); }
 .label { display:block; width:auto; padding:0; border-radius:0; background:none; color:var(--lp-body-text); font-size:var(--lp-meta-size); line-height:var(--lp-meta-line); font-weight:var(--lp-meta-weight); margin:0; }
-.panel h3,.preview h3 { font-family:var(--lp-font-display); font-size:var(--lp-h3-size); line-height:var(--lp-h3-line); letter-spacing:var(--lp-h3-tracking); font-weight:var(--lp-h3-weight); margin:0 0 12px; color:var(--lp-ink); }
-.profile { display:flex; gap:12px; align-items:center; }
-.profile>svg { flex:none; color:var(--lp-brand); }
-.profile h3 { margin:0; }
-.facts { list-style:none; padding:0; margin:16px 0; }
-.facts li { display:grid; grid-template-columns:20px minmax(0,1fr) minmax(44px,.8fr); align-items:center; gap:10px; padding:12px 0; border-top:1px solid var(--lp-line); font-size:var(--lp-body-size); }
-.facts svg { color:var(--lp-ink); }
-.placeholder,.paper span { display:grid; gap:5px; }
-.placeholder i,.paper i { display:block; height:5px; background:var(--lp-line); border-radius:4px; }
-.placeholder i:last-child,.paper i:last-child { width:65%; }
+.paper span { display:grid; gap:5px; }
+.paper i { display:block; height:5px; background:var(--lp-line); border-radius:4px; }
+.paper i:last-child { width:65%; }
 .confirmed { display:flex; align-items:flex-start; gap:8px; margin:14px 0 8px; color:var(--lp-status-confirmed); font-size:var(--lp-meta-size); font-weight:var(--lp-strong-weight); line-height:var(--lp-meta-line); }
 .confirmed svg { flex:none; color:var(--lp-status-confirmed); margin-top:2px; }
 .note { color:var(--lp-muted); font-size:var(--lp-body-size); line-height:var(--lp-body-line); margin:10px 0 0; }
-.columnLabels { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:18px; padding-bottom:10px; color:var(--lp-muted); font-size:var(--lp-meta-size); font-weight:var(--lp-strong-weight); }
-.requirements { list-style:none; padding:0; margin:0; background:var(--lp-surface); border-radius:var(--lp-radius); }
-.requirements li { display:grid; grid-template-columns:1fr 1fr; gap:12px; align-items:center; padding:14px 10px; border-bottom:1px solid var(--lp-line); font-size:var(--lp-body-size); line-height:var(--lp-body-line); }
-.requirements li:last-child { border-bottom:0; }
-.requirements span { display:flex; align-items:flex-start; gap:7px; color:var(--lp-status-confirmed); }
-.requirements svg { flex:none; margin-top:2px; }
-/* Diagnostics only: evidence found, missing evidence, qualification gap. */
-.requirements li:nth-child(2) span { color:var(--lp-status-warning-ink); }
-.requirements li:nth-child(2) svg { color:var(--lp-status-missing); }
-.requirements li:nth-child(3) span { color:var(--lp-status-gap); }
 .package { min-width:0; color:var(--lp-body-text); }
 .package h2 { margin:0 0 16px; font-family:var(--lp-font-display); font-size:var(--lp-h2-size); font-weight:var(--lp-h2-weight); line-height:var(--lp-h2-line); letter-spacing:var(--lp-h2-tracking); color:var(--lp-ink); text-wrap:balance; }
 .proofTabs { display:flex; gap:4px; margin-bottom:12px; }
@@ -559,7 +538,7 @@
 .qa small { display:block; color:var(--lp-muted); font-size:var(--lp-meta-size); }
 .proofCta { display:flex; align-items:center; justify-content:center; gap:8px; min-height:48px; margin-top:12px; padding:var(--lp-control-y) 16px; border:1px solid var(--lp-brand); border-radius:var(--lp-radius-control); color:var(--lp-brand); background:var(--lp-surface); font-size:var(--lp-btn-size); font-weight:var(--lp-btn-weight); text-align:center; transition: background-color var(--lp-motion) ease, color var(--lp-motion) ease; }
 .proofCta:hover { background:var(--lp-tint); color:var(--lp-brand-hover); }
-@media(min-width:768px) { .proof { grid-template-columns:repeat(2,minmax(0,1fr)); } .panel:first-child::after { content:'→'; right:-29px; left:auto; bottom:50%; } .previewBody { grid-template-columns:124px minmax(0,1fr); } }
+@media(min-width:768px) { .previewBody { grid-template-columns:124px minmax(0,1fr); } }
 
 /* ================= employer-marquee.module.css ================= */
 .section { padding-block: var(--lp-section-pad); background: var(--lp-surface); color: var(--lp-body-text); border-bottom: 1px solid var(--lp-line); }
@@ -591,10 +570,10 @@
 }
 
 /* <strong> is emphasis inside body copy: DM Sans semibold, never the browser default. */
-.facts strong,.requirements strong,.placeholder strong,.qa strong,.evidence strong,.answer strong,.review strong,.founderExperience strong,.responseCopy strong,.columnLabels strong,.profile strong,.preview strong,.paper strong,.analysis strong,.system strong { font-weight: var(--lp-strong-weight); }
+.qa strong,.evidence strong,.answer strong,.review strong,.founderExperience strong,.responseCopy strong,.preview strong,.paper strong,.system strong { font-weight: var(--lp-strong-weight); }
 
 /* Card headings balance their lines like the page headlines do. */
-.journeyCard h3,.founderIdentity h3,.founderExperience h3,.accessCard h3,.panel h3,.preview h3,.question h3,.review h3,.progress h3 { text-wrap: balance; }
+.journeyCard h3,.founderIdentity h3,.founderExperience h3,.accessCard h3,.preview h3,.question h3,.review h3,.progress h3 { text-wrap: balance; }
 
 /* ============================================================================
    LANDING TOKENS - pinned, not inherited.
