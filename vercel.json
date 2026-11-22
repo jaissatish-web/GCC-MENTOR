@@ -1,5 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "git": {
+    "deploymentEnabled": {
+      "chore/repository-audit-safe-cleanup": false
+    }
+  },
   "regions": ["bom1"],
   "crons": [
     {

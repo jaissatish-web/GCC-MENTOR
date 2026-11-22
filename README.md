@@ -45,17 +45,22 @@ headless Chromium for HTML→PDF · deployed on Vercel from `main`.
 ## Repository layout
 
 ```
-docs/                The specification — start at 00_START_HERE.md
-docs/archive/        Frozen history. Not current
-app/                 Routes — pages and API handlers
-components/          Shared UI; components/templates/ holds the resume renderers
-lib/                 All business logic
-supabase/migrations/ Numbered SQL migrations — the only way schema changes
+docs/                Product and engineering specifications
+app/                 Next.js pages, layouts, shared CSS and API handlers
+components/          Reusable UI, landing sections and resume renderers
+lib/                 Business logic, data access and shared helpers
+public/              Public assets and their source records
+scripts/             Regression checks, fixtures and developer utilities
+supabase/migrations/ Numbered SQL migrations
 types/               Shared TypeScript types
-design-reference/    The approved mockups, as working HTML. Convert, don't redesign
-reference/           Read-only donor code from an earlier build. Plumbing patterns only,
-                     never prompts — every prompt in there predates the grounding rule
+design-reference/    Original HTML mockups kept for provenance
+reference/           Read-only donor code from an earlier build
 ```
+
+Use [the design system](docs/12_DESIGN_SYSTEM.md) for current visual direction.
+The original HTML mockups and donor code document earlier work. Donor prompts
+predate the grounding rule. See [the documentation index](docs/DOCUMENTATION_INDEX.md)
+for the archived design evidence.
 
 ---
 
