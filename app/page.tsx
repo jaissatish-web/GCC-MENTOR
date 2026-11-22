@@ -7,7 +7,8 @@ import { PremiumNav } from '@/components/landing-v3/PremiumNav'
 import { LandingFooter } from '@/components/landing-v3/LandingFooter'
 import { DocumentOrbit, GccGlobe } from '@/components/landing-v3/lazy'
 import { InterviewDemo } from '@/components/landing-v3/InterviewDemo'
-import { PreparationProof, JobPackagePreview } from '@/components/landing-v3/PreparationProof'
+import { JobPackagePreview } from '@/components/landing-v3/PreparationProof'
+import { CareerProfilePackages } from '@/components/landing-v3/CareerProfilePackages'
 import { CandidateConcerns } from '@/components/landing-v3/CandidateConcerns'
 import { EmployerMarquee } from '@/components/landing-v3/EmployerMarquee'
 import { services } from '@/components/landing-premium/data'
@@ -66,9 +67,7 @@ export default function Home() {
         <ol className={s.journeyGrid}>{journey.map(({title,text,Icon,href},i)=><li key={title}><Link href={href} className={s.journeyCard}><span className={s.journeyIcon}><Icon size={28} aria-hidden="true" /></span><div><h3>{title}</h3><p>{text}</p></div><ChevronRight className={s.journeyArrow} size={20} aria-hidden="true" /></Link>{i<2&&<span className={s.journeyConnector} aria-hidden="true"></span>}</li>)}</ol>
       </div></section>
       <section id="services" className={s.servicesSection} data-uds="soft-section" aria-labelledby="services-title"><div className={s.inner}>
-        <h2 id="services-title" className={s.sectionTitle} data-uds="marketing-title">One Career Profile. Multiple Gulf Opportunities.</h2>
-        <p className={s.sectionLead}>Present your real experience clearly. Understand what each job needs.</p>
-        <PreparationProof />
+        <CareerProfilePackages />
         <details className={s.moreServices}><summary>Explore all preparation services <ChevronRight size={17} aria-hidden="true" /></summary><ul className={s.serviceLinks}>{services.map(([name,description,href,key])=>{const Icon=icons[key as keyof typeof icons];return <li key={name}><Link href={href}><Icon size={18} aria-hidden="true" /><span><strong>{href==='/templates'?'Resume designs, sign-in required':name}</strong><small>{href==='/templates'?'Browse the full design library after signing in.':description}</small></span><ArrowUpRight size={16} aria-hidden="true"/></Link></li>})}</ul></details>
       </div></section>
       <section id="templates" className={s.resumeSection} data-uds="section" aria-labelledby="templates-title"><div className={s.resumeInner}>
