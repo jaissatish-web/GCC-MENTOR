@@ -146,7 +146,7 @@ try {
   // and the assertion fails here rather than in production. Only type/palette inputs are
   // overridden - never the geometry ones - so overflow and clipping keep their own meaning.
   const hostileTheme = `<style>[data-universal-theme]{--uds-hero-size:100px!important;--uds-marketing-size:100px!important;--uds-body-size:40px!important;--uds-card-size:60px!important;--uds-heading-weight:400!important;--uds-body-weight:900!important;--uds-heading-line:3!important;--uds-body-line:3!important;--uds-tracking:.3em!important;--uds-canvas:#FF00FF!important;--uds-surface:#00FF00!important;--uds-ink:#FF0000!important;--uds-muted:#0000FF!important;--uds-brand:#FF00FF!important;--uds-brand-hover:#00FFFF!important;--uds-font:Arial!important}</style>`
-  for (const width of [360, 375, 390, 430, 1280, 1366, 1440]) {
+  for (const width of [320, 360, 375, 390, 430, 768, 1280, 1366, 1440]) {
     for (const enlarged of [false, true]) {
       await page.setViewport({ width, height: width < 640 ? 844 : 900 })
       const bodyMarkup = publicMarkup.match(/<body[^>]*>([\s\S]*)<\/body>/i)?.[1] ?? publicMarkup
@@ -161,19 +161,6 @@ try {
         const heading = getComputedStyle(hero)
         const sub = document.querySelector('#hero-title ~ p')
         const section = document.querySelector('#templates-title')
-        // The hero is now `clamp(2.35rem, 4.1vw, 3.75rem)` (--lp-h1-size), so a fixed px
-        // expectation no longer exists. The clamp resolves to 37.6px below 917px, 42.0px at
-        // 1024, 52.5px at 1280, 56.0px at 1366 and 59.0px at 1440 at a 16px root; at a 32px
-        // root the rem minimum wins and it is 75.2px. A probe resolves that exact expression
-        // with this viewport and root size, which keeps the old guarantee intact: the hero
-        // consumes the landing display scale, whatever the clamp resolves to here.
-        const probe = document.createElement('p')
-        probe.style.position = 'absolute'
-        probe.style.visibility = 'hidden'
-        probe.style.fontSize = 'clamp(2.35rem, 4.1vw, 3.75rem)'
-        document.querySelector('#main-content').appendChild(probe)
-        const expectedHero = parseFloat(getComputedStyle(probe).fontSize)
-        probe.remove()
         const subStyle = getComputedStyle(sub)
         // Self-hosted faces: next/font/local names them after the declaration ("display",
         // "body", "numeric"), so identify them by what actually loaded rather than by the
@@ -183,7 +170,7 @@ try {
         return { scroll: document.documentElement.scrollWidth, size: parseFloat(heading.fontSize),
           weight: heading.fontWeight, font: heading.fontFamily,
           lineRatio: parseFloat(heading.lineHeight) / parseFloat(heading.fontSize), facesLoaded,
-          clipped: hero.scrollWidth > hero.clientWidth + 1, expectedHero,
+          clipped: hero.scrollWidth > hero.clientWidth + 1,
           sectionSize: parseFloat(sectionStyle.fontSize), sectionWeight: sectionStyle.fontWeight, sectionFont: sectionStyle.fontFamily,
           bodySize: parseFloat(subStyle.fontSize), bodyFont: subStyle.fontFamily,
           bodyLineRatio: parseFloat(subStyle.lineHeight) / parseFloat(subStyle.fontSize),
@@ -192,26 +179,20 @@ try {
       if (metrics.scroll > width + 1) await page.screenshot({path:'artifacts/typography/landing-overflow.png',fullPage:false})
       assert.ok(metrics.scroll <= width + 1, `Landing overflow at ${width}, enlarged=${enlarged}: ${JSON.stringify(metrics)}`)
       assert.ok(!metrics.clipped, `Clipped landing title at ${width}`)
-      // next/font registers a hashed family (`__Plus_Jakarta_Sans_<hash>`), so compare the
-      // FIRST family in the stack with underscores read as spaces; a bare substring test could
-      // match a fallback that never paints.
       const firstFamily = font => font.split(',')[0].replaceAll('_', ' ').replaceAll('"', '').trim()
-      assert.equal(metrics.weight, '800', `Landing hero must use the 800 display weight at ${width}, enlarged=${enlarged}: ${JSON.stringify(metrics)}`)
-      assert.ok(metrics.facesLoaded.includes(firstFamily(metrics.font)), `Landing headings must paint a loaded landing face: ${metrics.font} / loaded ${JSON.stringify(metrics.facesLoaded)}`)
-      assert.ok(Math.abs(metrics.lineRatio - 1.06) < .01, `Landing hero line height must be 1.06 at ${width}: ${metrics.lineRatio}`)
       const textScale = enlarged ? 2 : 1
-      assert.ok(Math.abs(metrics.size - metrics.expectedHero) < .02, `Marketing hero must resolve clamp(2.35rem,4.1vw,3.75rem) at ${width}, enlarged=${enlarged}: expected ${metrics.expectedHero}, got ${metrics.size}`)
-      // --lp-h2-size is 1.5rem/1.75rem/2.25rem at phone/tablet/desktop (24/28/36px), so the
-      // old per-breakpoint form of this assertion survives with the new numbers.
-      const expectedSection = (width >= 1024 ? 36 : width >= 768 ? 28 : 24) * textScale
-      assert.ok(Math.abs(metrics.sectionSize - expectedSection) < .02, `Marketing sections must use the landing section scale (${expectedSection}px at ${width}, enlarged=${enlarged}), got ${metrics.sectionSize}`)
-      assert.equal(metrics.sectionWeight, '700', `Landing section headings must use the 700 weight at ${width}: ${JSON.stringify(metrics)}`)
-      assert.ok(metrics.facesLoaded.includes(firstFamily(metrics.sectionFont)), `Landing section headings must paint a loaded landing face: ${metrics.sectionFont}`)
-      // --lp-body-size is 0.875rem phone / 1rem desktop with --lp-body-line 1.6, and body copy
-      // is DM Sans; it still doubles with the root font size.
-      assert.ok(Math.abs(metrics.bodySize - (width >= 1024 ? 16 : 14) * textScale) < .02, `Landing body copy must use the landing body scale (${(width >= 1024 ? 16 : 14) * textScale}px at ${width}, enlarged=${enlarged}), got ${metrics.bodySize}`)
-      assert.ok(metrics.facesLoaded.includes(firstFamily(metrics.bodyFont)) && firstFamily(metrics.bodyFont) !== firstFamily(metrics.font), `Landing body copy must paint the loaded body face, distinct from the display face: ${metrics.bodyFont}`)
-      assert.ok(Math.abs(metrics.bodyLineRatio - 1.6) < .01, `Landing body line height must be 1.6 at ${width}: ${metrics.bodyLineRatio}`)
+      const expectedHero = (width >= 1024 ? 36 : width >= 768 ? 30 : 24) * textScale
+      const expectedSection = (width >= 1024 ? 26 : width >= 768 ? 22 : 19) * textScale
+      assert.equal(metrics.weight, '600', `Landing hero weight at ${width}: ${JSON.stringify(metrics)}`)
+      assert.ok(/inter/i.test(firstFamily(metrics.font)) && metrics.facesLoaded.includes(firstFamily(metrics.font)), `Landing Inter must be loaded: ${metrics.font}`)
+      assert.ok(Math.abs(metrics.lineRatio - 1.25) < .01, `Landing hero line height at ${width}: ${metrics.lineRatio}`)
+      assert.ok(Math.abs(metrics.size - expectedHero) < .02, `Landing hero size at ${width}: ${metrics.size}, expected ${expectedHero}`)
+      assert.ok(Math.abs(metrics.sectionSize - expectedSection) < .02, `Landing section size at ${width}: ${metrics.sectionSize}, expected ${expectedSection}`)
+      assert.equal(metrics.sectionWeight, '600')
+      assert.equal(firstFamily(metrics.sectionFont), firstFamily(metrics.font))
+      assert.ok(Math.abs(metrics.bodySize - (width >= 1024 ? 16 : 14) * textScale) < .02, `Landing body size at ${width}: ${metrics.bodySize}`)
+      assert.equal(firstFamily(metrics.bodyFont), firstFamily(metrics.font))
+      assert.ok(Math.abs(metrics.bodyLineRatio - 1.55) < .01, `Landing body line height at ${width}: ${metrics.bodyLineRatio}`)
       await page.screenshot({ path: `artifacts/typography/landing-${width}${enlarged ? '-enlarged' : ''}.png`, fullPage: true })
       assert.equal(await page.$$eval('#how-it-works ol > li', items => items.length), 3, 'Approved V2 journey remains visible with three connected stages')
       assert.equal(await page.$$eval('[data-concern-choice]',items=>items.filter(el=>el.getBoundingClientRect().height>0).length),4,'All main candidate concerns remain visible');
@@ -229,7 +210,7 @@ try {
 
     }
   }
-  console.log('PASS: production landing and shared UI at phone/laptop widths, enlarged text, distinct type roles, preserved document typography, bundled self-hosted landing faces (a loaded display face for headings, a distinct loaded body face for copy), a source of theme-independent landing tokens and 44px controls.')
+  console.log('PASS: production landing and shared UI at phone/laptop widths, enlarged text, distinct type roles, preserved document typography, loaded Inter throughout the landing, a source of theme-independent landing tokens and 44px controls.')
 } finally {
   await browser.close()
 }

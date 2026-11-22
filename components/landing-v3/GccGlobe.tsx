@@ -126,6 +126,13 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
+    const palette = getComputedStyle(canvas)
+    const colorToken = (name: string) => palette.getPropertyValue(name).trim()
+    const rgb = (name: string) => colorToken(name).slice(1).match(/../g)?.map(channel => parseInt(channel, 16)).join(',')
+    const accent = rgb('--lp-accent')
+    const ink = rgb('--lp-ink')
+    const font = colorToken('--lp-font-body')
+
     const dots = decodeDots()
     const nDots = dots.length / 3
     const reduced = reducedMotion
@@ -180,26 +187,11 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
       cosL = Math.cos(lam)
       sinL = Math.sin(lam)
 
-      // Atmosphere glow + ocean disc. Canvas cannot read CSS, so these literals
-      // mirror the landing tokens: --lp-canvas #F8F7F4, --lp-surface-muted #F1EFEA,
-      // --lp-line #E2E8F0, --lp-accent #B47B2B, --lp-ink #0B1628,
-      // --lp-body-text #475569, --lp-gold #E5B869, --lp-gold-strong #D99B43.
-      const glow = ctx.createRadialGradient(c, cy, R * 0.95, c, cy, R * 1.1)
-      glow.addColorStop(0, 'rgba(180,123,43,0.10)')
-      glow.addColorStop(1, 'rgba(180,123,43,0)')
-      ctx.fillStyle = glow
-      ctx.beginPath()
-      ctx.arc(c, cy, R * 1.1, 0, Math.PI * 2)
-      ctx.fill()
-      const ocean = ctx.createRadialGradient(c - R * 0.3, cy - R * 0.45, R * 0.1, c, cy, R)
-      ocean.addColorStop(0, '#F8F7F4')
-      ocean.addColorStop(0.6, '#F1EFEA')
-      ocean.addColorStop(1, '#E2E8F0')
-      ctx.fillStyle = ocean
+      ctx.fillStyle = colorToken('--lp-surface-muted')
       ctx.beginPath()
       ctx.arc(c, cy, R, 0, Math.PI * 2)
       ctx.fill()
-      ctx.strokeStyle = 'rgba(11,22,40,0.18)'
+      ctx.strokeStyle = `rgba(${ink},0.18)`
       ctx.lineWidth = 1 * dpr
       ctx.stroke()
 
@@ -218,7 +210,7 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
       }
       const alphas = [0.35, 0.5, 0.65, 0.8, 0.95]
       for (let b = 0; b < 5; b++) {
-        ctx.fillStyle = `rgba(11,22,40,${alphas[b]})`
+        ctx.fillStyle = `rgba(${ink},${alphas[b]})`
         ctx.fill(buckets[b])
       }
 
@@ -231,7 +223,7 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
         const cycle = Math.floor((t + period - start) / period)
         const p = reduced ? 1 : (((t + period - start) % period) / FLIGHT_MS)
         const dim = f && f !== fl.to ? 0.18 : 1
-        const color = fl.move ? '11,22,40' : '180,123,43'
+        const color = fl.move ? ink : accent
         const head = Math.min(1, p)
         const nHead = Math.floor(head * ARC_STEPS)
         const fade = p > 1 ? Math.max(0, 1 - (p - 1) * (FLIGHT_MS / 1600)) : 1
@@ -273,7 +265,7 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
           const [sx, sy, , front] = project(x, y, z, R, c, cy)
           if (front) {
             const g = ctx.createRadialGradient(sx, sy, 0, sx, sy, 11 * dpr)
-            g.addColorStop(0, `rgba(255,246,230,${dim})`)
+            g.addColorStop(0, `rgba(255,255,255,${dim})`)
             g.addColorStop(0.35, `rgba(${color},${0.7 * dim})`)
             g.addColorStop(1, `rgba(${color},0)`)
             ctx.fillStyle = g
@@ -302,7 +294,7 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
       })
 
       // Origin cities.
-      ctx.font = `600 ${10 * dpr}px "Plus Jakarta Sans", Inter, system-ui, sans-serif`
+      ctx.font = `500 ${12 * dpr}px ${font}`
       ctx.textBaseline = 'middle'
       for (const key of Object.keys(ORIGINS)) {
         const o = ORIGINS[key]
@@ -319,7 +311,7 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
         }
       }
 
-      // GCC capitals: pulsing gold markers with leader-line labels.
+      // GCC capitals: pulsing teal markers with leader-line labels.
       const pulse = reduced ? 0.5 : (Math.sin(t / 420) + 1) / 2
       for (const g of GCC) {
         const v = toV(g.lat, g.lng)
@@ -327,21 +319,21 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
         if (!front || z < 0.05) continue
         const on = f === g.code
         const dim = f && !on ? 0.45 : 1
-        ctx.fillStyle = `rgba(217,155,67,${0.25 * (1 - pulse) * dim})`
+        ctx.fillStyle = `rgba(${accent},${0.25 * (1 - pulse) * dim})`
         ctx.beginPath()
         ctx.arc(sx, sy, (5 + pulse * (on ? 12 : 7)) * dpr, 0, Math.PI * 2)
         ctx.fill()
-        ctx.fillStyle = `rgba(229,184,105,${dim})`
+        ctx.fillStyle = `rgba(${accent},${dim})`
         ctx.beginPath()
         ctx.arc(sx, sy, (on ? 4.2 : 3.2) * dpr, 0, Math.PI * 2)
         ctx.fill()
         // Label pill at an offset, joined by a hairline.
         const lx = sx + g.dx * dpr * (compact ? 0.7 : 1)
         const ly = sy + g.dy * dpr * (compact ? 0.7 : 1)
-        ctx.strokeStyle = `rgba(217,155,67,${0.55 * dim})`
+        ctx.strokeStyle = `rgba(${accent},${0.55 * dim})`
         ctx.lineWidth = 1 * dpr
         ctx.beginPath()
-        ctx.font = `700 ${(on ? 13 : 12) * dpr}px "Plus Jakarta Sans", Inter, system-ui, sans-serif`
+        ctx.font = `600 ${(on ? 13 : 12) * dpr}px ${font}`
         const label = g.country
         const w = ctx.measureText(label).width + 14 * dpr
         const h = 20 * dpr
@@ -351,13 +343,13 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
         ctx.moveTo(sx, sy)
         ctx.lineTo(px, py)
         ctx.stroke()
-        ctx.fillStyle = on ? 'rgba(229,184,105,0.98)' : `rgba(255,255,255,${0.85 * dim + 0.1})`
-        ctx.strokeStyle = `rgba(217,155,67,${0.7 * dim})`
+        ctx.fillStyle = on ? colorToken('--lp-tint') : `rgba(255,255,255,${0.85 * dim + 0.1})`
+        ctx.strokeStyle = `rgba(${accent},${0.7 * dim})`
         ctx.beginPath()
         ctx.roundRect(px - w / 2, py - h / 2, w, h, 3 * dpr)
         ctx.fill()
         ctx.stroke()
-        ctx.fillStyle = on ? '#0B1628' : `rgba(11,22,40,${dim})`
+        ctx.fillStyle = on ? colorToken('--lp-ink') : `rgba(${ink},${dim})`
         ctx.textAlign = 'center'
         ctx.fillText(label, px, py + 0.5 * dpr)
         ctx.textAlign = 'start'
@@ -428,9 +420,9 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_70%_at_78%_50%,rgba(180,123,43,0.05),transparent_70%)]" aria-hidden="true" />
       <div className="relative grid grid-cols-[minmax(0,1fr)] items-center gap-3 lg:grid-cols-[0.8fr_1.2fr] lg:gap-8">
         <div className="order-2 lg:order-1">
-          <span className="text-[length:var(--lp-label,13px)] leading-[var(--lp-body-line,1.5)]" style={{ color: 'var(--lp-accent, #B47B2B)', fontWeight: 'var(--lp-heading-weight, 600)' }}>Six Gulf markets</span>
-          <h2 data-uds="globe-title" id="markets-title" className="mt-2 text-[length:var(--lp-section,20px)] leading-[var(--lp-body-line,1.5)] text-[var(--lp-ink,#0B1628)]" style={{ fontFamily: 'var(--lp-font-display, var(--font-jakarta, "Plus Jakarta Sans", sans-serif))', fontWeight: 'var(--lp-heading-weight, 600)', letterSpacing: 'var(--lp-h2-tracking, -0.025em)', textWrap: 'balance' }}>
-            Six Gulf destinations.<br /><em className="not-italic" style={{ color: 'var(--lp-accent, #B47B2B)' }}>Your next chapter.</em>
+          <span className="text-[length:var(--lp-label,13px)] leading-[var(--lp-body-line,1.5)]" style={{ color: 'var(--lp-brand, #066B63)', fontWeight: 'var(--lp-heading-weight, 600)' }}>Six Gulf markets</span>
+          <h2 data-uds="globe-title" id="markets-title" className="mt-2 text-[length:var(--lp-section,20px)] leading-[var(--lp-h2-line,1.3)] text-[var(--lp-ink,#18283D)]" style={{ fontFamily: 'var(--lp-font-display, var(--font-jakarta, "Plus Jakarta Sans", sans-serif))', fontWeight: 'var(--lp-heading-weight, 600)', letterSpacing: 'var(--lp-h2-tracking, -0.025em)', textWrap: 'balance' }}>
+            Six Gulf destinations.<br /><em className="not-italic" style={{ color: 'var(--lp-brand, #066B63)' }}>Your next chapter.</em>
           </h2>
           <p className="mt-2.5 max-w-[440px] text-[length:var(--lp-body,15px)] leading-[var(--lp-body-line,1.5)] text-[var(--lp-body-text,#475569)]">
             Select a destination. Explore what to prepare.
@@ -458,8 +450,8 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
                   )}
                   style={{
                     borderRadius: 'var(--lp-radius-control, 6px)',
-                    backgroundColor: focus === g.code ? 'var(--lp-ink, #0B1628)' : 'var(--lp-surface, #FFFFFF)',
-                    color: focus === g.code ? 'var(--lp-on-navy, #FFFFFF)' : 'var(--lp-ink, #0B1628)',
+                    backgroundColor: focus === g.code ? 'var(--lp-active-bg, #066B63)' : 'var(--lp-surface, #FFFFFF)',
+                    color: focus === g.code ? 'var(--lp-active-fg, #FFFFFF)' : 'var(--lp-ink, #18283D)',
                     border: '1px solid',
                     borderColor: 'var(--lp-line, #E2E8F0)',
                     fontWeight: 'var(--lp-heading-weight, 600)',
@@ -473,22 +465,22 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
           </ul>
 
           {/* Live card: the focused country, or the latest "landing". */}
-          <div className="mt-3 min-h-[76px] border bg-[var(--lp-surface-muted,#F1EFEA)] p-[var(--uds-card-padding,var(--ui-card-padding))] lg:mt-4" style={{ borderRadius: 'var(--lp-radius-lg, 10px)', borderColor: 'var(--lp-line, #E2E8F0)' }} aria-live={focus ? 'polite' : 'off'}>
+          <div className="mt-3 min-h-[76px] border bg-[var(--lp-surface-muted,#F8FAFC)] p-[var(--uds-card-padding,var(--ui-card-padding))] lg:mt-4" style={{ borderRadius: 'var(--lp-radius-lg, 10px)', borderColor: 'var(--lp-line, #E2E8F0)' }} aria-live={focus ? 'polite' : 'off'}>
             {focused ? (
               <>
-                <div className="text-[length:var(--lp-label,13px)] leading-[var(--lp-body-line,1.5)]" style={{ color: 'var(--lp-accent, #B47B2B)', fontWeight: 'var(--lp-heading-weight, 600)' }}>{focused.country}, preparation guidance</div>
-                <div className="mt-1 text-[length:var(--lp-body,15px)] leading-[var(--lp-body-line,1.5)] text-[var(--lp-ink,#0B1628)]" style={{ fontWeight: 'var(--lp-heading-weight, 600)' }}>{focused.role}</div><p className="mt-2 text-[length:var(--lp-label,13px)] leading-[var(--lp-body-line,1.5)] text-[var(--lp-body-text,#475569)]">Review job requirements. Prepare your resume, qualification records and availability details. Confirm documentation requests with the employer.</p>
-                <div className="text-[length:var(--lp-label,13px)] leading-[var(--lp-body-line,1.5)] text-[var(--lp-muted,#64748B)]">Resume, cover letter and interview prep made for {focused.country} jobs.</div>
+                <div className="text-[length:var(--lp-label,13px)] leading-[var(--lp-body-line,1.5)]" style={{ color: 'var(--lp-brand, #066B63)', fontWeight: 'var(--lp-heading-weight, 600)' }}>{focused.country}, preparation guidance</div>
+                <div className="mt-1 text-[length:var(--lp-body,15px)] leading-[var(--lp-body-line,1.5)] text-[var(--lp-ink,#18283D)]" style={{ fontWeight: 'var(--lp-heading-weight, 600)' }}>{focused.role}</div><p className="mt-2 text-[length:var(--lp-label,13px)] leading-[var(--lp-body-line,1.5)] text-[var(--lp-body-text,#475569)]">Review job requirements. Prepare your resume, qualification records and availability details. Confirm documentation requests with the employer.</p>
+                <div className="text-[length:var(--lp-label,13px)] leading-[var(--lp-body-line,1.5)] text-[var(--lp-muted,#475569)]">Resume, cover letter and interview prep made for {focused.country} jobs.</div>
               </>
             ) : arrival && arrivalTo ? (
               <>
-                <div className="flex items-center gap-2 text-[length:var(--lp-label,13px)] leading-[var(--lp-body-line,1.5)]" style={{ color: 'var(--lp-accent, #B47B2B)', fontWeight: 'var(--lp-heading-weight, 600)' }}>
+                <div className="flex items-center gap-2 text-[length:var(--lp-label,13px)] leading-[var(--lp-body-line,1.5)]" style={{ color: 'var(--lp-brand, #066B63)', fontWeight: 'var(--lp-heading-weight, 600)' }}>
                   Gulf career paths
                 </div>
-                <div className="mt-1 text-[length:var(--lp-body,15px)] leading-[var(--lp-body-line,1.5)] text-[var(--lp-ink,#0B1628)]" style={{ fontWeight: 'var(--lp-heading-weight, 600)' }}>
+                <div className="mt-1 text-[length:var(--lp-body,15px)] leading-[var(--lp-body-line,1.5)] text-[var(--lp-ink,#18283D)]" style={{ fontWeight: 'var(--lp-heading-weight, 600)' }}>
                   {cityOf(arrival.from).name} → {arrivalTo.name}, {arrivalTo.country}
                 </div>
-                <div className="text-[length:var(--lp-label,13px)] leading-[var(--lp-body-line,1.5)] text-[var(--lp-muted,#64748B)]">Prepare for your next Gulf opportunity.</div>
+                <div className="text-[length:var(--lp-label,13px)] leading-[var(--lp-body-line,1.5)] text-[var(--lp-muted,#475569)]">Prepare for your next Gulf opportunity.</div>
               </>
             ) : (
               <div className="text-[length:var(--lp-label,13px)] leading-[var(--lp-body-line,1.5)] text-[var(--lp-body-text,#475569)]">Watch the routes, or pick a country.</div>
@@ -509,7 +501,7 @@ export function GccGlobe({ compact = false }: { compact?: boolean }) {
           />
         </div>
       </div>
-<p className="relative mt-3 text-center text-[length:var(--lp-label,13px)] leading-[var(--lp-body-line,1.5)] text-[var(--lp-muted,#64748B)] lg:text-right">Drag the globe to explore Gulf markets.</p>
+<p className="relative mt-3 text-center text-[length:var(--lp-label,13px)] leading-[var(--lp-body-line,1.5)] text-[var(--lp-muted,#475569)] lg:text-right">Drag the globe to explore Gulf markets.</p>
     </div>
   )
 }
