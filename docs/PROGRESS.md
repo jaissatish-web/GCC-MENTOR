@@ -1,3 +1,19 @@
+## Repository overlap follow-up — 22 November 2026
+
+Founder authorized removing verified overlaps from the read-only main baseline on
+the existing cleanup branch. Remove the unreferenced public menu, landing persona
+dataset and retired profile diagnostic panel. Their exact files already exist in
+the retained archive. Preserve both profile route URLs, their shared editor,
+the diagnostic library and its checks. Verify the route inventory, browser checks
+and repository suite before founder review.
+
+Typecheck, lint, all 103 repository checks and the local production build passed.
+The route manifests and 83 prerendered HTML documents matched main after
+normalizing build metadata. Tailwind emitted four fewer utilities used only by
+the retired components. Mobile layout and the profile review browser checks passed.
+The known overlap between active LinkedIn and NaukriGulf API handlers remains
+tracked as AUDIT-004 in [open items](14_OPEN_ITEMS.md).
+
 ## Repository dependency audit and cleanup — 22 November 2026
 
 Founder-authorized for the dedicated cleanup branch and one review PR. Baseline main is
