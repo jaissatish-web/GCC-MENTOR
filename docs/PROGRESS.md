@@ -8,6 +8,13 @@ onboarding/resume mockup provenance, authoritative Markdown, and the current app
 database, tests and deployment configuration. Acceptance requires a protected-tree
 comparison, before/after checks and an explicit list of verification limits.
 
+The cleanup archives 47 byte-identical legacy references and retains all 62 Markdown
+files. Local typecheck, lint, 103 repository checks and the production build passed
+on both trees. Route maps, compiled CSS, fonts, measured landing layout and 18 PDF
+fixtures matched. Supplementary checks with baseline failures are recorded in the
+[cleanup PR](https://github.com/jaissatish-web/GCC-MENTOR/pull/133). The Vercel rule
+applies to the exact cleanup branch. Founder review is the next step.
+
 ## ONBOARDING-V4 / DATE-096 — 17 November 2026
 
 Status: implemented on the isolated branch; local verification and founder-review handoff are recorded in [ONBOARDING_V4_VERIFICATION.md](ONBOARDING_V4_VERIFICATION.md). Production release remains prohibited. Founder approved #95 V4 design, #96 four nullable date-precision columns and atomic compatibility guard, precision-aware domain handling, limited duration/gaps, affected ATS/optimizer/interview grounding consumers and pending-score policy. This supersedes historical pending-approval wording for these exact items.

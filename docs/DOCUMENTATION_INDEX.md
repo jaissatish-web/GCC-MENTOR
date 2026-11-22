@@ -69,8 +69,8 @@ a document that disagree means the document is wrong.
 | Document | Role |
 |---|---|
 | [`12_DESIGN_SYSTEM.md`](12_DESIGN_SYSTEM.md) | **The single current visual authority** |
-| [`BRAND_SYSTEM.md`](BRAND_SYSTEM.md) | Brand colours and tokens |
-| [`TYPOGRAPHY_SYSTEM.md`](TYPOGRAPHY_SYSTEM.md) | Application typography |
+| [`BRAND_SYSTEM.md`](BRAND_SYSTEM.md) | Historical brand decisions |
+| [`TYPOGRAPHY_SYSTEM.md`](TYPOGRAPHY_SYSTEM.md) | Historical typography decisions and implementation references |
 | [`TERMINOLOGY.md`](TERMINOLOGY.md) | Agreed product terminology |
 
 ## Operations
