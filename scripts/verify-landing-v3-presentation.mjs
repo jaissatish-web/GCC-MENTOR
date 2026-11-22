@@ -22,7 +22,7 @@ const results={source:'Compiled actual landing; read-only anonymous fixture APIs
 try{
  browser=await puppeteer.launch({executablePath:process.env.CHROME_PATH,headless:true,pipe:true,args:['--no-sandbox','--disable-dev-shm-usage','--disable-gpu','--no-zygote','--single-process']});const page=await browser.newPage();pageRef=page;page.on('pageerror',e=>results.errors.push(e.message));await page.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'reduce'}])
  await page.setRequestInterception(true);page.on('request',r=>r.url().startsWith(origin)||r.url().startsWith('data:')?r.continue():r.abort())
- for(const width of [320,360,390,430,768,1024,1440]){
+ for(const width of [320,360,375,390,430,768,1024,1440]){
   await page.setViewport({width,height:900,deviceScaleFactor:1});await page.goto(origin,{waitUntil:'networkidle0'});await page.evaluate(()=>document.fonts.ready)
   await page.$eval('#templates',e=>e.scrollIntoView({behavior:'instant'}));await page.waitForFunction(()=>document.querySelectorAll('.actual-template-orbit-face').length===10)
   await page.$eval('#markets',e=>e.scrollIntoView({behavior:'instant'}));await page.waitForSelector('#markets-title');await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))))
@@ -93,6 +93,18 @@ try{
   await page.$$eval('#interview button',es=>es.find(e=>e.textContent.includes('Pause demo')).click());assert.equal(await page.$eval('#interview [data-motion]',e=>e.dataset.motion),'static');
   assert.deepEqual(await page.$$eval('#interview tbody td',es=>es.map(e=>Number(e.textContent))),[46,61,74]);
   await page.$eval('[data-uds=globe-country]',e=>e.click());assert.equal(await page.$eval('[data-uds=globe-country]',e=>e.getAttribute('aria-pressed')),'true')
+  if(width<960){
+    const insets=await page.evaluate(()=>[...document.querySelectorAll('#hero-title,#industries-title,#markets-title,#plans-title,#faq-title,#preparation-example-note,article[aria-labelledby="profile-example-title"],#analysis-example-title,#package-preview,#interview [role="region"]')].map(element=>{
+      const style=getComputedStyle(element)
+      return {name:element.id||element.getAttribute('aria-label')||element.getAttribute('aria-labelledby'),left:element.getBoundingClientRect().left+parseFloat(style.paddingLeft)+parseFloat(style.borderLeftWidth)}
+    }))
+    for(const {name,left} of insets){
+      const gutter=width<768?16:24
+      // The demo panels and market card retain their intentional tablet padding.
+      if(width>=768&&!['hero-title','industries-title','plans-title','faq-title'].includes(name))continue
+      assert.ok(Math.abs(left-gutter)<1,`Expected one ${gutter}px page gutter for ${name} at ${width}px, got ${left}px`)
+    }
+  }
   console.log(`PASS V3 ${width}px: actual imagery, no overflow, all destinations, menu/focus, interview stages, globe`)
  }
  for(const width of [390,1440]) {
@@ -173,7 +185,7 @@ try{
   assert.equal(spec.tokens['--lp-h2-size'],width>=1024?'1.625rem':'1.1875rem',`--lp-h2-size at ${width}px`)
   assert.equal(spec.tokens['--lp-h3-size'],width>=1024?'1.125rem':'0.9375rem',`--lp-h3-size at ${width}px`)
   assert.equal(spec.tokens['--lp-body-size'],width>=1024?'1rem':'0.875rem',`--lp-body-size at ${width}px`)
-  assert.equal(spec.tokens['--lp-gutter'],width>=1024?'40px':'24px',`--lp-gutter at ${width}px`)
+  assert.equal(spec.tokens['--lp-gutter'],width>=1024?'40px':width>=768?'24px':'16px',`--lp-gutter at ${width}px`)
   assert.equal(spec.tokens['--lp-section-pad'],width>=1024?'96px':'64px',`--lp-section-pad at ${width}px`)
   for(const [name,value] of Object.entries(spec.fonts))assert.ok(value,`Landing font variable for ${name} must resolve on the landing wrapper`)
   assert.equal(spec.ground,'rgb(255, 255, 255)',`Landing canvas must be #FFFFFF at ${width}px: ${spec.ground}`)
@@ -205,7 +217,7 @@ try{
   assert.equal(spec.footer.color,'rgb(71, 85, 105)',`Footer body copy must be #475569 at ${width}px: ${spec.footer.color}`)
   assert.equal(spec.footer.borderTopColor,'rgb(226, 232, 240)',`Footer hairline must be #E2E8F0 at ${width}px: ${spec.footer.borderTopColor}`)
   assert.equal(spec.footer.borderTopWidth,'1px',`Footer hairline must be 1px at ${width}px`)
-  const gutter=width>=1024?40:24,expectedContainer=Math.min(1360,spec.container.clientWidth-gutter*2)
+  const gutter=width>=1024?40:width>=768?24:16,expectedContainer=Math.min(1360,spec.container.clientWidth-gutter*2)
   assert.ok(Math.abs(spec.container.width-expectedContainer)<1.5,`Landing container must be min(1360px, 100% - 2x${gutter}px) at ${width}px: ${spec.container.width} vs ${expectedContainer}`)
   assert.equal(spec.nav.position,'sticky',`Landing nav must stay sticky at ${width}px`)
   assert.equal(spec.nav.minHeight,'64px',`Landing nav must reserve 64px at ${width}px`)

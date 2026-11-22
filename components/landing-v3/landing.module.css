@@ -58,6 +58,7 @@
 }
 .system * { box-sizing: border-box; }
 .inner,.navInner,.heroInner,.resumeInner,.concernsInner,.secondaryGrid,.lowerGrid { width: min(var(--lp-content-max), calc(100% - var(--lp-gutter) * 2)); margin-inline: auto; }
+.secondaryGrid .inner,.lowerGrid .inner { width:100%; }
 
 /* ---- sticky top nav: one 64px row, translucent canvas, one primary CTA ---- */
 .system .header { position: sticky; top: 0; z-index: 40; background: var(--lp-canvas); backdrop-filter: blur(10px); border-bottom: 1px solid var(--lp-line); }
@@ -226,7 +227,6 @@
 }
 @media(min-width:960px) {
  .secondaryGrid,.lowerGrid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:start; }
- .secondaryGrid .inner,.lowerGrid .inner { width:100%; }
  .secondaryGrid .sectionTitle,.lowerGrid .sectionTitle { text-align:left; }
  .secondaryGrid .sectionLead { text-align:left; }
  .secondaryGrid .industryGrid { grid-template-columns:repeat(3,minmax(0,1fr)); }
@@ -610,7 +610,7 @@ h2.columnTitle { font-size: var(--lp-h2-size); font-weight: var(--lp-h2-weight);
 
   /* ---- geometry and rhythm ---- */
   --lp-content-max: 1360px;
-  --lp-gutter: 24px;
+  --lp-gutter: 16px;
   --lp-nav-height: 64px;
   --lp-section-pad: 64px;
   --lp-gap: 16px;
@@ -643,6 +643,7 @@ h2.columnTitle { font-size: var(--lp-h2-size); font-weight: var(--lp-h2-weight);
 /* The same pin per breakpoint, so pinning does not flatten the responsive scale. */
 @media (min-width: 768px) {
   .system {
+    --lp-gutter: 24px;
     --lp-h1-size: 1.875rem;
     --lp-h2-size: 1.375rem;
     --lp-h3-size: 1.0625rem;
@@ -671,3 +672,21 @@ h2.columnTitle { font-size: var(--lp-h2-size); font-weight: var(--lp-h2-weight);
 .metaRow > * + *::before,
 .visualLabel > *:not(:last-child)::after,
 .footerBottom > span:not(:last-child)::after { content: '·'; margin: 0 .5em; color: var(--lp-muted); }
+
+
+@media (width < 768px) {
+  /* Read directly from the page gutter while keeping individual controls visible. */
+  .response,.panel,.preview,.learning,.progress,.accessCard,.faqItem,
+  .globeBoundary [data-uds="globe-card"] {
+    padding-inline: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    overflow: visible;
+  }
+
+  .head,.settings,.stage,.faqItem summary,.faqItem p { padding-inline: 0; }
+  .panel,.preview,.progress,.accessCard,.faqItem { border-top: 1px solid var(--lp-line); }
+  .faqItem[open] { background: transparent; }
+  .visualLabel { padding-inline: 0; }
+}
