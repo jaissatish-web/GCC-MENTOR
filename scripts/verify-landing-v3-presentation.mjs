@@ -22,7 +22,7 @@ const results={source:'Compiled actual landing; read-only anonymous fixture APIs
 try{
  browser=await puppeteer.launch({executablePath:process.env.CHROME_PATH,headless:true,pipe:true,args:['--no-sandbox','--disable-dev-shm-usage','--disable-gpu','--no-zygote','--single-process']});const page=await browser.newPage();pageRef=page;page.on('pageerror',e=>results.errors.push(e.message));await page.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'reduce'}])
  await page.setRequestInterception(true);page.on('request',r=>r.url().startsWith(origin)||r.url().startsWith('data:')?r.continue():r.abort())
- for(const width of [320,360,390,430,768,1024,1440]){
+ for(const width of [320,360,375,390,430,768,1024,1440]){
   await page.setViewport({width,height:900,deviceScaleFactor:1});await page.goto(origin,{waitUntil:'networkidle0'});await page.evaluate(()=>document.fonts.ready)
   await page.$eval('#templates',e=>e.scrollIntoView({behavior:'instant'}));await page.waitForFunction(()=>document.querySelectorAll('.actual-template-orbit-face').length===10)
   await page.$eval('#markets',e=>e.scrollIntoView({behavior:'instant'}));await page.waitForSelector('#markets-title');await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))))
@@ -47,7 +47,30 @@ try{
     assert.ok(focusState.focused&&Math.abs(focusState.after-focusState.before)<2,`Selection retains focus and position: ${width}/${key} ${JSON.stringify(focusState)}`);
   }
   await page.click('[data-concern-choice="fit"]');
-  if([390,1440].includes(width)){
+  assert.deepEqual(
+    await page.$$eval('[aria-label="Sample job requirements"] li > span:last-child', nodes =>
+      nodes.map(node => node.textContent)),
+    ['Confirmed','Evidence needed','Qualification gap'],
+    'The illustrative dashboard keeps evidence and qualification gaps distinct'
+  );
+  assert.equal(await page.$eval('#preparation-example-note', e => e.textContent), 'Illustrative example, not a real assessment.');
+  assert.ok(await page.$eval('#preparation-response', e => !/\d+%/.test(e.textContent)), 'No numerical match score in the demonstration');
+  assert.equal(await page.$$eval('#challenges button[data-concern-choice] img', images =>
+    new Set(images.filter(image => image.complete && image.naturalWidth > 0).map(image => image.currentSrc)).size), 4);
+  assert.ok(await page.$$eval('#challenges button[data-concern-choice]', (buttons, desktop) =>
+    buttons.every(button => {
+      const problem = button.children[0].getBoundingClientRect();
+      const solution = button.children[2].getBoundingClientRect();
+      return desktop ? problem.right < solution.left : problem.bottom <= solution.top;
+    }), width >= 768), 'Problem and solution stay in the intended reading order');
+  if(width < 768) {
+    const typography = await page.$eval('#challenges', section => {
+      const size = selector => getComputedStyle(section.querySelector(selector)).fontSize;
+      return ['h2', '#preparation-response-title', 'button span[id^="concern-"]', '#preparation-response h3 + p', '#preparation-example-note'].map(size);
+    });
+    assert.deepEqual(typography, ['19px','19px','15px','14px','12px']);
+  }
+  if([375,390,430,768,1440].includes(width)){
     await page.evaluate(()=>{document.activeElement?.blur();scrollTo({top:0,behavior:'instant'})});
     const clip=await page.$eval('#challenges',e=>{const r=e.getBoundingClientRect();return{x:0,y:r.top+scrollY,width:innerWidth,height:r.height}});
     await page.screenshot({path:`${out}/candidate-story-${width}.png`,clip});
