@@ -2205,3 +2205,5 @@ Satish approved a dark brand surface for the existing resume carousel, with the 
 ## 23 November 2026 — Match employer and country tiles on phones
 
 Satish approved matching the phone employer tile dimensions to the country grid and sizing the logos proportionally within each tile.
+
+Satish also approved moving the countries into a middle strip that moves right to left, between two company strips that move left to right.

@@ -663,3 +663,5 @@ Implemented the deep-navy backdrop, subtle teal glow and readable section copy a
 Satish requested country and company boxes of the same size on phones. Change the employer tile sizing and logo scale within the existing landing stylesheet, and verify it against the country grid. The other landing sections and desktop tile sizing are outside this change.
 
 Implemented the phone dimensions using the destination grid gap and shared control height. The marquee check measures the country and employer tile bounds in animated and reduced-motion layouts. The dedicated PR tracks validation and review.
+
+Satish approved the tile proportions and requested the three-row arrangement in PR #143. Move the countries into the middle strip, reverse both employer rows to move left to right, and verify direction, matching tile dimensions, accessible source lists, and shared pause behavior.

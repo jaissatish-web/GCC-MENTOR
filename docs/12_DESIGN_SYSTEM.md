@@ -954,3 +954,5 @@ Satish approved a deep-navy surface for the rotating resume showcase only, with 
 ### Phone country and employer tile proportions
 
 Satish approved sizing the employer tiles to match one destination tile on phones below 600px. Reuse the country grid gap and control height, size down the brand marks within the shorter tile, and keep the marquee directions, controls, reduced-motion grid, authentic logo files, and desktop sizing. Verify measured tile widths and heights at phone sizes.
+
+Satish requested that the six destination tiles move into a middle row between the two employer strips. Both company rows move left to right. The country row moves right to left. All three use one pause control, retain matching mobile tile widths and heights, and show static lists when reduced motion is enabled. Keep exactly six countries and the original employer logo groups in the accessible lists.
