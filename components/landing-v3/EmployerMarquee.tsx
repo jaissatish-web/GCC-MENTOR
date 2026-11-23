@@ -1,9 +1,14 @@
 'use client'
 
-import { useState, type CSSProperties } from 'react'
+import { useState, type CSSProperties, type ReactNode } from 'react'
 import Image from 'next/image'
 import { Pause, Play } from 'lucide-react'
 import s from './landing.module.css'
+
+const countries = [
+  ['sa', 'Saudi Arabia'], ['ae', 'UAE'], ['qa', 'Qatar'],
+  ['om', 'Oman'], ['kw', 'Kuwait'], ['bh', 'Bahrain'],
+] as const
 
 // Local, sourced artwork only; names are references, never partnership claims.
 const rows = [
@@ -68,28 +73,59 @@ const OPTICAL_SCALE: Record<string, number> = {
   // samsung-ea.svg measures 1.00x and is left alone
 }
 
+function MarqueeRow({ label, direction, children }: {
+  label: string
+  direction: 'left' | 'right'
+  children: (duplicate: boolean) => ReactNode
+}) {
+  return (
+    <div className={s.strip} data-direction={direction}>
+      <div className={`${s.track} ${direction === 'right' ? s.reverse : ''}`}>
+        {[false, true].map(duplicate => (
+          <ul key={String(duplicate)} className={s.group} aria-label={duplicate ? undefined : label} aria-hidden={duplicate || undefined}>
+            {children(duplicate)}
+          </ul>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function CompanyRow({ label, logos }: { label: string; logos: (typeof rows)[number] }) {
+  return (
+    <MarqueeRow label={label} direction="right">
+      {duplicate => logos.map(([name, file]) => (
+        <li key={name} className={`${s.tile} ${s.logo} ${['mcdermott.svg', 'maaden.svg', 'larsen-toubro.svg'].includes(file) ? s.reversed : ''}`}
+          style={{ '--logo-scale': OPTICAL_SCALE[file] ?? 1 } as CSSProperties}>
+          <Image src={`/landing/employers/${file}`} alt={duplicate ? '' : name} width={160} height={52} unoptimized loading="eager" />
+        </li>
+      ))}
+    </MarqueeRow>
+  )
+}
+
 export function EmployerMarquee() {
   const [paused, setPaused] = useState(false)
-  return <section id="employers" className={s.section} aria-labelledby="employers-title" data-paused={paused}>
-    <div className={s.intro}>
-      <h2 id="employers-title">Prepare for opportunities across the Gulf</h2>
-
-      <button type="button" className={`${s.control} whitespace-nowrap`} aria-pressed={paused} aria-controls="employer-strips" aria-label={paused ? 'Resume logo animation' : 'Pause logo animation'} onClick={() => setPaused(!paused)}>
+  return (
+    <section id="employers" className={s.section} aria-labelledby="employers-title" data-paused={paused}>
+      <h2 id="employers-title" className="sr-only">GCC countries and employers</h2>
+      <button type="button" className={`${s.control} whitespace-nowrap`} aria-pressed={paused} aria-controls="employer-strips" onClick={() => setPaused(!paused)}>
         {paused ? <Play size={14} aria-hidden="true" /> : <Pause size={14} aria-hidden="true" />}
-        {paused ? 'Resume logos' : 'Pause logos'}
+        {paused ? 'Resume scrolling' : 'Pause scrolling'}
       </button>
-    </div>
-    <div id="employer-strips" className={s.strips}>
-      {rows.map((logos, row) => <div key={row} className={s.strip} data-direction={row === 0 ? 'left' : 'right'}>
-        <div className={`${s.track} ${row === 1 ? s.reverse : ''}`}>
-          {[false, true].map(duplicate => <ul key={String(duplicate)} className={s.group} aria-label={duplicate ? undefined : row === 0 ? 'Engineering and construction employers' : 'Energy and industrial employers'} aria-hidden={duplicate || undefined}>
-            {logos.map(([name, file]) => <li key={name} className={`${s.logo} ${['mcdermott.svg', 'maaden.svg', 'larsen-toubro.svg'].includes(file) ? s.reversed : ''}`} style={{ '--logo-scale': OPTICAL_SCALE[file] ?? 1 } as CSSProperties}>
-              <Image src={`/landing/employers/${file}`} alt={duplicate ? '' : name} width={160} height={52} unoptimized loading="eager" />
-            </li>)}
-          </ul>)}
-        </div>
-      </div>)}
-    </div>
-    <p className={s.disclaimer}>Company names and logos are shown for career-preparation reference only. GCC Mentor is not affiliated with or endorsed by these organizations.</p>
-  </section>
+      <div id="employer-strips" className={s.strips}>
+        <CompanyRow label="Engineering and construction employers" logos={rows[0]} />
+        <MarqueeRow label="GCC career destinations" direction="left">
+          {() => [false, true].flatMap(repeat => countries.map(([code, name]) => (
+            <li key={`${code}-${repeat}`} className={`${s.tile} ${s.countryCard}`} aria-hidden={repeat || undefined} data-repeat={repeat || undefined}>
+              <Image src={`/landing/v2/flags/${code}.svg`} width={36} height={26} alt="" loading="eager" />
+              <span className={s.countryName}>{name}</span>
+            </li>
+          )))}
+        </MarqueeRow>
+        <CompanyRow label="Energy and industrial employers" logos={rows[1]} />
+      </div>
+      <p className={s.disclaimer}>No company affiliation or endorsement.</p>
+    </section>
+  )
 }

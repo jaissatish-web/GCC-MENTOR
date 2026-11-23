@@ -2201,3 +2201,11 @@ Satish approved replacing the public interview section using the approved deskto
 ## 23 November 2026 — Darken the rotating resume showcase
 
 Satish approved a dark brand surface for the existing resume carousel, with the established deep navy, restrained teal, and sufficient contrast for the copy and controls. Scope is the showcase surface and foreground colors.
+
+## 23 November 2026 — Match employer and country tiles on phones
+
+Satish approved matching the phone employer tile dimensions to the country grid and sizing the logos proportionally within each tile.
+
+Satish also approved moving the countries into a middle strip that moves right to left, between two company strips that move left to right.
+
+Satish approved matching the marquee card dimensions and removing the visible marquee heading. The short affiliation note remains below the three rows.

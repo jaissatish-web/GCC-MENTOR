@@ -31,7 +31,7 @@
    ============================================================================ */
 
 /* ---- ROLE HELPERS: the only place a control's geometry is decided ---- */
-.system .header, .heroNavy, .countryBand, .section, .concernsSection, .founderSection,
+.system .header, .heroNavy, .section, .concernsSection, .founderSection,
 .servicesSection,
 .secondaryGrid, .lowerGrid, .finalBand, .footer {
   font-family: var(--lp-font-body);
@@ -117,15 +117,6 @@
 .ghostCta:hover { color: var(--lp-brand); border-color: var(--lp-brand); background: var(--lp-tint); }
 .freeNote { display: flex; align-items: center; gap: 6px; margin: 12px 0 0; font-size: var(--lp-meta-size); line-height: var(--lp-meta-line); color: var(--lp-muted); }
 .freeNote svg { color: var(--lp-brand); }
-.countryBand { padding: 4px 0 16px; background: var(--lp-ground); border-bottom: 1px solid var(--lp-line); }
-.countryGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 0; margin: 0; list-style: none; }
-/* Two columns on phones: at 390px a three-across tile is ~114px wide, too narrow for
-   "Saudi Arabia", which wrapped to two lines and left the row uneven (issue #115 asks
-   for no awkward wrapping). Two columns fit every name on one line and keep the tiles
-   the same height. Desktop restores the single six-across band below. */
-.countryCard { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 10px; min-height: var(--lp-control-min); padding: 8px 10px; border: 1px solid var(--lp-line); border-radius: var(--lp-radius); background: var(--lp-surface); color: var(--lp-ink); }
-.countryCard img { width: 24px; height: 18px; object-fit: contain; }
-.countryName { font-size: var(--lp-meta-size); font-weight: var(--lp-meta-weight); line-height: var(--lp-meta-line); text-align: left; }
 .servicesSection,.industriesSection,.marketsSection,.founderSection,.plansSection,.faqSection { padding-block: var(--lp-section-pad); border-bottom: 1px solid var(--lp-line); }
 .plansSection,.faqSection { background: var(--lp-ground); }
 .servicesSection,.industriesSection,.marketsSection,.founderSection { background: var(--lp-surface); }
@@ -219,7 +210,6 @@
  .heroCtas { display: flex; flex-wrap: wrap; }
  .heroImage { height: 360px; }
  .heroCtas>a { flex: 1; }
- .countryCard { flex-direction: row; min-height: 56px; }
  .serviceLinks { grid-template-columns: repeat(2,minmax(0,1fr)); }
  .industryGrid { grid-template-columns: repeat(3,minmax(0,1fr)); }
  .footerGrid { grid-template-columns: 1fr 1fr; }
@@ -254,10 +244,6 @@
  .heroSub { max-width: 40ch; }
  .heroCtas { display: flex; flex-wrap: wrap; margin-top: 28px; }
  .heroCtas>a { flex: none; }
- .countryBand { padding: 18px 0; }
- .countryGrid { grid-template-columns: repeat(6,minmax(0,1fr)); gap: 0; }
- .countryCard { background: var(--lp-surface); border: 0; border-right: 1px solid var(--lp-line); border-radius: 0; }
- .countryCard:last-child { border-right: 0; }
  .industryGrid { grid-template-columns: repeat(6,minmax(0,1fr)); }
  .industryTile { aspect-ratio: 1.45; }
  .founderContent { grid-template-columns:260px minmax(0,1fr); gap:48px; }
@@ -419,32 +405,46 @@
 }
 
 /* ================= employer-marquee.module.css ================= */
-.section { padding-block: var(--lp-section-pad); background: var(--lp-surface); color: var(--lp-body-text); border-bottom: 1px solid var(--lp-line); }
-.intro { width: min(760px, calc(100% - var(--lp-gutter) * 2)); margin-inline: auto; text-align: center; }
-.intro h2 { margin: 0; font-family: var(--lp-font-display); font-size: var(--lp-h2-size); font-weight: var(--lp-h2-weight); line-height: var(--lp-h2-line); letter-spacing: var(--lp-h2-tracking); color: var(--lp-ink); text-wrap: balance; }
-.intro p { margin: 8px 0 0; color: var(--lp-body-text); font-size: var(--lp-body-size); font-weight: var(--lp-body-weight); line-height: var(--lp-body-line); text-wrap: pretty; }
-.control { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: var(--lp-control-min); margin-top: 8px; padding: 8px 16px; border: 1px solid transparent; border-radius: var(--lp-radius-control); color: var(--lp-brand); background: transparent; font: inherit; font-size:var(--lp-btn-size); font-weight:var(--lp-btn-weight); cursor: pointer; transition: background-color var(--lp-motion) ease, border-color var(--lp-motion) ease; line-height:var(--lp-btn-line); }
+.section { padding-block: 24px; background: var(--lp-surface); color: var(--lp-body-text); border-bottom: 1px solid var(--lp-line); }
+.control { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: var(--lp-control-min); margin: 0 auto 8px; padding: 8px 16px; border: 1px solid transparent; border-radius: var(--lp-radius-control); color: var(--lp-brand); background: transparent; font: inherit; font-size:var(--lp-btn-size); font-weight:var(--lp-btn-weight); cursor: pointer; transition: background-color var(--lp-motion) ease, border-color var(--lp-motion) ease; line-height:var(--lp-btn-line); }
 .control:hover { background: var(--lp-tint); }
 .control:focus-visible { outline: 3px solid var(--lp-focus); outline-offset: 3px; }
-.strips { display: grid; gap: 16px; width: min(1440px, 100%); margin: 16px auto 0; }
+.strips { --marquee-tile-height: max(60px, 3.75rem); display: grid; gap: 10px; width: min(1440px, 100%); margin-inline: auto; }
 .strip { overflow: hidden; mask-image: linear-gradient(to right, transparent, black 6%, black 94%, transparent); }
 .track { display: flex; width: max-content; animation: drift 77s linear infinite; }
 .reverse { animation-duration: 70s; animation-direction: reverse; }
 .group { display: flex; flex-shrink: 0; align-items: center; gap: 10px; margin: 0; padding: 0 10px 0 0; list-style: none; }
-.logo { display: flex; align-items: center; justify-content: center; width: 132px; height: 60px; flex-shrink: 0; padding: 12px; border: 1px solid var(--lp-line); border-radius: var(--lp-radius); background: var(--lp-surface-muted); }
+.tile { display: flex; align-items: center; width: 132px; height: var(--marquee-tile-height); flex-shrink: 0; padding: 12px; border: 1px solid var(--lp-line); border-radius: var(--lp-radius); background: var(--lp-surface-muted); }
+.logo { justify-content: center; }
+.countryCard { justify-content: flex-start; gap: 10px; color: var(--lp-ink); }
+.countryCard img { flex: none; width: 24px; height: 18px; object-fit: contain; }
+.countryName { overflow-wrap: anywhere; font-size: var(--lp-meta-size); font-weight: var(--lp-meta-weight); line-height: var(--lp-meta-line); }
 .logo img { display: block; width: 100%; height: 38px; object-fit: contain; transform: scale(var(--logo-scale, 1)); }
 /* Light marks (McDermott, Ma'aden, L&T) need the dark tile to stay visible. */
 .reversed { background: var(--lp-ink); border-color: var(--lp-line); }
 .strip:hover .track, .section[data-paused='true'] .track { animation-play-state: paused; }
-.disclaimer { width: min(840px, calc(100% - var(--lp-gutter) * 2)); margin: 8px auto 0; text-align: center; font-size: var(--lp-body-size); line-height: var(--lp-body-line); color: var(--lp-muted); }
+.disclaimer { width: calc(100% - 32px); margin: 8px auto 0; text-align: center; font-size: var(--lp-meta-size); line-height: var(--lp-meta-line); color: var(--lp-muted); }
 @keyframes drift { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-@media (min-width: 768px) { .logo { width: 148px; height: 64px; padding: 12px; } }
+@media (min-width: 768px) { .strips { --marquee-tile-height: max(64px, 4rem); } .tile { width: 148px; } }
 @media (prefers-reduced-motion: reduce) {
-  .control, .group[aria-hidden='true'] { display: none; }
+  .control, .group[aria-hidden='true'], .group > [data-repeat] { display: none; }
   .strip { mask-image: none; }
   .track { animation: none; display: block; width: 100%; }
   .group { flex-wrap: wrap; justify-content: center; gap: var(--lp-gap); padding: 0 var(--lp-gutter); }
-  .logo { width: min(156px, calc((100vw - var(--lp-gutter) * 2 - var(--lp-gap)) / 2)); }
+  .tile { width: min(156px, calc((100vw - var(--lp-gutter) * 2 - var(--lp-gap)) / 2)); }
+}
+
+@media (max-width: 599px) {
+  .strips { --marquee-tile-height: max(var(--lp-control-min), 2.75rem); gap: var(--lp-country-gap); container-type: inline-size; }
+  .group { gap: var(--lp-country-gap); }
+  .tile {
+    width: calc((100cqw - 2 * var(--lp-gutter) - var(--lp-country-gap)) / 2);
+    padding: 6px 10px;
+  }
+  .logo img { width: min(100%, 96px); height: 24px; }
+}
+@media (max-width: 599px) and (prefers-reduced-motion: no-preference) {
+  .group { padding-inline-end: var(--lp-country-gap); }
 }
 
 /* <strong> is emphasis inside body copy: DM Sans semibold, never the browser default. */
@@ -547,6 +547,7 @@
   --lp-radius-card: 12px;
   --lp-radius-lg: var(--lp-radius-card);
   --lp-control-min: 44px;
+  --lp-country-gap: 8px;
   --lp-control-y: 10px;
   --lp-control-x: 20px;
   --lp-motion: 170ms;

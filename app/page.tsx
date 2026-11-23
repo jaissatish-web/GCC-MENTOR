@@ -18,7 +18,6 @@ const TITLE = 'Gulf Career Preparation & Interview Coaching | GCC MENTOR'
 const DESCRIPTION = 'One profile for job-specific resumes, cover letters and interview practice. Prepare for Gulf opportunities using your real experience.'
 export const metadata: Metadata = { title: { absolute: TITLE }, description: DESCRIPTION, alternates: { canonical: '/' }, openGraph: { title: TITLE, description: DESCRIPTION, url: '/', images: [{ url: '/landing/v2/hero-gulf.webp', width: 1586, height: 992, alt: 'GCC Mentor, grounded Gulf career preparation' }] }, twitter: { card: 'summary_large_image', title: TITLE, description: DESCRIPTION, images: ['/landing/v2/hero-gulf.webp'] } }
 const anchors = [['Preparation', '#services'], ['Templates', '#templates'], ['Interview', '#interview'], ['Access', '#plans'], ['About', '#about'], ['FAQ', '#faq']] as const
-const COUNTRIES = [['sa','Saudi Arabia'],['ae','UAE'],['qa','Qatar'],['om','Oman'],['kw','Kuwait'],['bh','Bahrain']] as const
 const industries = [ ['Oil & Gas',Droplets,'oil-gas'],['Construction',HardHat,'construction'],['Engineering',Factory,'engineering'],['Operations',Waves,'operations'],['Projects',Building2,'projects'],['Corporate',BriefcaseBusiness,'corporate'] ] as const
 const icons = { readiness: Target, match: ClipboardCheck, cv: FileText, letter: Mail, qa: BookOpen, interview: Mic, templates: FileText, reports: FolderOpen }
 const faq = [
@@ -45,7 +44,6 @@ export default function Home() {
           <p className={s.freeNote} data-uds="helper"><Check size={15} aria-hidden="true" />Start before signup.</p>
         </div></div>
       </section>
-      <section className={s.countryBand} aria-label="GCC career destinations"><div className={s.inner}><ul className={s.countryGrid}>{COUNTRIES.map(([code,name])=><li key={code} className={s.countryCard}><Image src={`/landing/v2/flags/${code}.svg`} width={36} height={26} alt="" /><span className={s.countryName}>{name}</span></li>)}</ul></div></section>
       <EmployerMarquee />
       <CandidateConcerns />
       <section id="about" className={s.founderSection} data-uds="section" aria-labelledby="about-title"><div className={s.inner}><div className={s.founderPanel}>
