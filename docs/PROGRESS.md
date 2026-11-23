@@ -657,3 +657,9 @@ Targeted visual check caught an overflow from the accessible chart table at 200%
 Satish approved the mock interview release and requested a dark, brand-matched resume showcase. Verify the showcase's local navy and teal palette and existing orbit at phone and desktop sizes. Other landing sections and resume documents are outside the visual change.
 
 Implemented the deep-navy backdrop, subtle teal glow and readable section copy and link. The browser check covers the new palette and white paper alongside the existing carousel bounds and interactions. Release status and evidence are tracked in the scoped pull request.
+
+## Phone employer tile sizing — 23 November 2026
+
+Satish requested country and company boxes of the same size on phones. Change the employer tile sizing and logo scale within the existing landing stylesheet, and verify it against the country grid. The other landing sections and desktop tile sizing are outside this change.
+
+Implemented the phone dimensions using the destination grid gap and shared control height. The marquee check measures the country and employer tile bounds in animated and reduced-motion layouts. The dedicated PR tracks validation and review.

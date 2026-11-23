@@ -19,7 +19,7 @@ const results={viewports:[],errors:[]}; let browser
 try {
  browser=await puppeteer.launch({executablePath:process.env.CHROME_PATH,headless:true,pipe:true,args:['--no-sandbox','--disable-dev-shm-usage','--no-zygote','--single-process']})
  const page=await browser.newPage();await page.evaluateOnNewDocument(()=>{window.marqueeLayoutShift=0;new PerformanceObserver(list=>{for(const e of list.getEntries())if(!e.hadRecentInput&&e.sources?.some(s=>s.node?.closest?.('#employers')))window.marqueeLayoutShift+=e.value}).observe({type:'layout-shift',buffered:true})});page.on('pageerror',e=>results.errors.push(e.message))
- for(const width of [360,390,430,768,1024,1440]) {
+ for(const width of [320,360,390,430,599,768,1024,1440]) {
   await page.setViewport({width,height:900,deviceScaleFactor:1});await page.goto(origin,{waitUntil:'networkidle0'});await page.evaluate(()=>document.fonts.ready)
   await page.waitForSelector('#employers button'); await page.$eval('#employers',e=>scrollTo({top:e.offsetTop-90,behavior:'instant'}))
   const state=await page.evaluate(()=>{
@@ -27,6 +27,17 @@ try {
    const direction=tracks.map(t=>{const a=t.getAnimations()[0];a.pause();a.currentTime=1000;const x1=new DOMMatrix(getComputedStyle(t).transform).m41;a.currentTime=2000;const x2=new DOMMatrix(getComputedStyle(t).transform).m41;const group=t.querySelector('ul').getBoundingClientRect().width;const track=t.getBoundingClientRect().width;a.currentTime=0;a.play();return{x1,x2,group,track}})
    return {logoLayoutShift:window.marqueeLayoutShift,width:innerWidth,scrollWidth:document.documentElement.scrollWidth,direction,uniqueLogos:lists.reduce((n,l)=>n+l.children.length,0),broken:[...root.querySelectorAll('img')].filter(i=>!i.complete||!i.naturalWidth).map(i=>i.alt),disclaimer:root.lastElementChild.textContent,resources:performance.getEntriesByType('resource').filter(r=>r.name.includes('/landing/employers/')).map(r=>({name:r.name,bytes:r.encodedBodySize})),section:root.getBoundingClientRect().toJSON()}
   })
+  async function checkPhoneTiles() {
+   const dimensions = await page.evaluate(() => {
+    const country = document.querySelector('[aria-label="GCC career destinations"] li').getBoundingClientRect();
+    return [...document.querySelectorAll('#employers ul:not([aria-hidden]) li')].every(tile => {
+     const box = tile.getBoundingClientRect();
+     return Math.abs(box.width - country.width) < 1 && Math.abs(box.height - country.height) < 1;
+    });
+   });
+   assert.equal(dimensions, true, `Employer tiles match country tiles at ${width}px`);
+  }
+  if (width < 600) await checkPhoneTiles();
   assert.ok(state.scrollWidth<=width+1);assert.equal(state.uniqueLogos,21);assert.equal(state.logoLayoutShift,0);assert.deepEqual(state.broken,[]);assert.ok(state.direction[0].x2<state.direction[0].x1);assert.ok(state.direction[1].x2>state.direction[1].x1)
   for (const name of ['mcdermott.svg', 'maaden.svg', 'larsen-toubro.svg']) {
    const background = await page.$eval(`#employers img[src$="/${name}"]`, image => getComputedStyle(image.closest('li')).backgroundColor)
@@ -38,7 +49,7 @@ try {
   await page.$eval('#employers',e=>scrollTo({top:e.offsetTop-90,behavior:'instant'}));await page.screenshot({path:`${out}/context-${width}.png`});await (await page.$('#employers')).screenshot({path:`${out}/section-${width}.png`})
   await page.focus('#employers button');await page.keyboard.press('Enter');assert.equal(await page.$eval('#employers button',e=>e.getAttribute('aria-pressed')),'false')
   await page.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'reduce'}]);state.reduced=await page.evaluate(()=>({overflow:document.documentElement.scrollWidth>innerWidth+1,animated:document.querySelector('#employers').getAnimations({subtree:true}).length,duplicates:[...document.querySelectorAll('#employers ul[aria-hidden]')].every(e=>getComputedStyle(e).display==='none'),control:getComputedStyle(document.querySelector('#employers button')).display,visible:[...document.querySelectorAll('#employers ul:not([aria-hidden]) li')].every(e=>{const b=e.getBoundingClientRect();return b.left>=0&&b.right<=innerWidth+1&&b.height>0})}))
-  assert.deepEqual(state.reduced,{overflow:false,animated:0,duplicates:true,control:'none',visible:true});await page.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'no-preference'}]);results.viewports.push(state);console.log(`PASS marquee ${width}px: opposite motion, seamless geometry, hover/keyboard pause, images, reduced motion, overflow`)
+  assert.deepEqual(state.reduced,{overflow:false,animated:0,duplicates:true,control:'none',visible:true});if(width<600)await checkPhoneTiles();await page.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'no-preference'}]);results.viewports.push(state);console.log(`PASS marquee ${width}px: opposite motion, seamless geometry, hover/keyboard pause, images, reduced motion, overflow`)
  }
  assert.deepEqual(results.errors,[]);results.pass=true
 } finally {writeFileSync(`${out}/results.json`,JSON.stringify(results,null,2));await browser?.close();server.close()}

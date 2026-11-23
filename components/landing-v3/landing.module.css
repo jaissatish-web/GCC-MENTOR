@@ -118,7 +118,7 @@
 .freeNote { display: flex; align-items: center; gap: 6px; margin: 12px 0 0; font-size: var(--lp-meta-size); line-height: var(--lp-meta-line); color: var(--lp-muted); }
 .freeNote svg { color: var(--lp-brand); }
 .countryBand { padding: 4px 0 16px; background: var(--lp-ground); border-bottom: 1px solid var(--lp-line); }
-.countryGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 0; margin: 0; list-style: none; }
+.countryGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--lp-country-gap); padding: 0; margin: 0; list-style: none; }
 /* Two columns on phones: at 390px a three-across tile is ~114px wide, too narrow for
    "Saudi Arabia", which wrapped to two lines and left the row uneven (issue #115 asks
    for no awkward wrapping). Two columns fit every name on one line and keep the tiles
@@ -447,6 +447,20 @@
   .logo { width: min(156px, calc((100vw - var(--lp-gutter) * 2 - var(--lp-gap)) / 2)); }
 }
 
+@media (max-width: 599px) {
+  .strips { container-type: inline-size; }
+  .group { gap: var(--lp-country-gap); }
+  .logo {
+    width: calc((100cqw - 2 * var(--lp-gutter) - var(--lp-country-gap)) / 2);
+    height: var(--lp-control-min);
+    padding: 6px 10px;
+  }
+  .logo img { width: min(100%, 96px); height: 24px; }
+}
+@media (max-width: 599px) and (prefers-reduced-motion: no-preference) {
+  .group { padding-inline-end: var(--lp-country-gap); }
+}
+
 /* <strong> is emphasis inside body copy: DM Sans semibold, never the browser default. */
 .evidence strong,.founderExperience strong,.responseCopy strong,.system strong { font-weight: var(--lp-strong-weight); }
 
@@ -547,6 +561,7 @@
   --lp-radius-card: 12px;
   --lp-radius-lg: var(--lp-radius-card);
   --lp-control-min: 44px;
+  --lp-country-gap: 8px;
   --lp-control-y: 10px;
   --lp-control-x: 20px;
   --lp-motion: 170ms;

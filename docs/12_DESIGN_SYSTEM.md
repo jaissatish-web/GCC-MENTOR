@@ -950,3 +950,7 @@ Affected files: app/page.tsx, InterviewDemo.tsx and its scoped stylesheet, retir
 ### Resume showcase dark brand surface
 
 Satish approved a deep-navy surface for the rotating resume showcase only, with a restrained teal glow, light caption, and mint link and focus styles. The section is an explicit exception to the white and slate landing bands. Keep the real white resume pages, split halo, carousel measurements and reader. Verify the backdrop, text contrast, and existing carousel behavior on phone and desktop. The change is scoped to showcase styles, its loading text and landing browser checks.
+
+### Phone country and employer tile proportions
+
+Satish approved sizing the employer tiles to match one destination tile on phones below 600px. Reuse the country grid gap and control height, size down the brand marks within the shorter tile, and keep the marquee directions, controls, reduced-motion grid, authentic logo files, and desktop sizing. Verify measured tile widths and heights at phone sizes.
