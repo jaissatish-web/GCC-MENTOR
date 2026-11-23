@@ -665,3 +665,5 @@ Satish requested country and company boxes of the same size on phones. Change th
 Implemented the phone dimensions using the destination grid gap and shared control height. The marquee check measures the country and employer tile bounds in animated and reduced-motion layouts. The dedicated PR tracks validation and review.
 
 Satish approved the tile proportions and requested the three-row arrangement in PR #143. Move the countries into the middle strip, reverse both employer rows to move left to right, and verify direction, matching tile dimensions, accessible source lists, and shared pause behavior.
+
+Satish reviewed the three-row preview and requested equal tile dimensions and a simpler presentation. Match all three rows with shared tile sizing and surface styles, remove the visible header, and use a concise affiliation note that fits on one line at default phone widths.

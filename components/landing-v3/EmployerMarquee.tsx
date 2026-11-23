@@ -108,13 +108,11 @@ export function EmployerMarquee() {
   const [paused, setPaused] = useState(false)
   return (
     <section id="employers" className={s.section} aria-labelledby="employers-title" data-paused={paused}>
-      <div className={s.intro}>
-        <h2 id="employers-title">Prepare for opportunities across the Gulf</h2>
-        <button type="button" className={`${s.control} whitespace-nowrap`} aria-pressed={paused} aria-controls="employer-strips" onClick={() => setPaused(!paused)}>
-          {paused ? <Play size={14} aria-hidden="true" /> : <Pause size={14} aria-hidden="true" />}
-          {paused ? 'Resume scrolling' : 'Pause scrolling'}
-        </button>
-      </div>
+      <h2 id="employers-title" className="sr-only">GCC countries and employers</h2>
+      <button type="button" className={`${s.control} whitespace-nowrap`} aria-pressed={paused} aria-controls="employer-strips" onClick={() => setPaused(!paused)}>
+        {paused ? <Play size={14} aria-hidden="true" /> : <Pause size={14} aria-hidden="true" />}
+        {paused ? 'Resume scrolling' : 'Pause scrolling'}
+      </button>
       <div id="employer-strips" className={s.strips}>
         <CompanyRow label="Engineering and construction employers" logos={rows[0]} />
         <MarqueeRow label="GCC career destinations" direction="left">
@@ -127,7 +125,7 @@ export function EmployerMarquee() {
         </MarqueeRow>
         <CompanyRow label="Energy and industrial employers" logos={rows[1]} />
       </div>
-      <p className={s.disclaimer}>Company names and logos are shown for career-preparation reference only. GCC Mentor is not affiliated with or endorsed by these organizations.</p>
+      <p className={s.disclaimer}>No company affiliation or endorsement.</p>
     </section>
   )
 }

@@ -2207,3 +2207,5 @@ Satish approved a dark brand surface for the existing resume carousel, with the 
 Satish approved matching the phone employer tile dimensions to the country grid and sizing the logos proportionally within each tile.
 
 Satish also approved moving the countries into a middle strip that moves right to left, between two company strips that move left to right.
+
+Satish approved matching the marquee card dimensions and removing the visible marquee heading. The short affiliation note remains below the three rows.
