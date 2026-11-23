@@ -5,9 +5,9 @@ import {createHash} from 'node:crypto'
 const html=readFileSync('.next/server/app/index.html','utf8')
 assert.equal(createHash('sha256').update(readFileSync('public/landing/v2/founder-satish.webp')).digest('hex'),'c9956711c5e7a778a12e91eec2dc4b2592eea03dfc851fe29a3233ac05ae7120','Authentic source portrait must remain unchanged')
 const text=html.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim()
-for(const copy of ['Prepare for the Gulf job you want.', 'One Career Profile. Multiple job opportunities in your field.', 'Illustrative demonstration', 'Illustrative data', 'Answer-structure score']) assert.ok(text.includes(copy), `Missing approved story: ${copy}`)
+for(const copy of ['Prepare for the Gulf job you want.', 'One Career Profile. Multiple job opportunities in your field.', 'Illustrative demonstration', 'Illustrative example', 'Overall score / 100', 'Try AI Mock Interview Now']) assert.ok(text.includes(copy), `Missing approved story: ${copy}`)
 for(const value of [46,61,74]) assert.ok(html.includes(`>${value}</`),`Missing illustrative attempt ${value}`)
-assert.ok(html.includes('Pause demo'), 'Needs persistent motion control')
+assert.ok(html.includes('Pause demo motion'), 'Needs persistent motion control')
 console.log('PASS V3 approved grounded story and explicitly illustrative chart')
 
 const marketing=html.slice(html.indexOf('id="services"'),html.indexOf('id="interview"'))
@@ -15,7 +15,10 @@ assert.ok(!/Instrumentation Commissioning Engineer|loop.check|offshore commissio
 for (const copy of ['Work Experience', 'Skills &amp; Competencies', 'Education &amp; Certifications', 'Achievements', 'Career Goals', 'reviewed and confirmed by you', 'Illustrative example: Mechanical Engineering.', 'Add Next Job Optimization', 'Usage depends on your plan and available credits.']) {
   assert.ok(marketing.includes(copy), `Missing job package concept: ${copy}`);
 }
-for(const copy of ['Built with real Gulf industry experience.','Satish Kumar Jaiswal','15+ years of Instrumentation','NEOM and ADNOC environments.','No platform affiliation or endorsement.','Your responsibility','Your actions','Your result'])assert.ok(text.includes(copy),`Missing approved marketing/founder content: ${copy}`)
+for(const copy of ['Built with real Gulf industry experience.','Satish Kumar Jaiswal','15+ years of Instrumentation','NEOM and ADNOC environments.','No platform affiliation or endorsement.'])assert.ok(text.includes(copy),`Missing approved marketing/founder content: ${copy}`)
+for (const step of ['Start directly', 'Explain the situation', 'Describe your actions', 'Explain the outcome', 'Close clearly']) {
+  assert.ok(text.includes(step), `Missing interview answer guide step: ${step}`)
+}
 assert.ok(!text.includes('I checked the records and spoke with the team.'),'Do not invent a candidate answer')
 
 const visible=text.replaceAll('&#x27;', "'").replaceAll('&amp;', '&')
