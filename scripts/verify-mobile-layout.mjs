@@ -194,7 +194,7 @@ try {
       assert.equal(firstFamily(metrics.bodyFont), firstFamily(metrics.font))
       assert.ok(Math.abs(metrics.bodyLineRatio - 1.55) < .01, `Landing body line height at ${width}: ${metrics.bodyLineRatio}`)
       await page.screenshot({ path: `artifacts/typography/landing-${width}${enlarged ? '-enlarged' : ''}.png`, fullPage: true })
-      assert.equal(await page.$$eval('#how-it-works ol > li', items => items.length), 3, 'Approved V2 journey remains visible with three connected stages')
+      assert.equal(await page.$('#how-it-works, [data-job-package]'), null, 'Founder-removed landing blocks stay absent')
       assert.equal(await page.$$eval('[data-concern-choice]',items=>items.filter(el=>el.getBoundingClientRect().height>0).length),4,'All main candidate concerns remain visible');
       assert.equal(await page.$$eval('[data-concern-choice][aria-pressed="true"]',items=>items.length),1,'One preparation focus is selected');
       assert.ok(await page.$eval('#solutions',el=>el.getBoundingClientRect().height>0),'Solution response remains visible');

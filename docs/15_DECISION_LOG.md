@@ -2182,3 +2182,6 @@ Founder repeats merge-to-main approval after disclosure of existing mounted-prev
 Satish approved Phase A mockups and authorized implementation plus merge after verification. Scope/acceptance/protection/rollback are in docs/superpowers/plans/2026-11-16-universal-marketing.md. Status: implementation starting, not yet verified or released.
 
 Implementation and local verification complete:92/92 checks, build/lint/types, seven widths, motion/enlarged text, strict orbit and selected raw/optimized PDF regressions pass. Independent review findings corrected. Evidence: docs/evidence/2026-11-16-marketing/README.md. Hosted preview/remote CI and authorized merge pending; Work Report89 records final release status.
+
+## 23 November 2026 — Remove redundant landing explanations
+Satish requested complete removal of the screenshot-identified three-step journey and tabbed connected-package preview. Keep the separate real resume-design orbit and CareerProfilePackages explanation. Scope is landing presentation only; implementation authorized, release tracked separately.
