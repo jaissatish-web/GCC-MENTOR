@@ -32,7 +32,7 @@
 
 /* ---- ROLE HELPERS: the only place a control's geometry is decided ---- */
 .system .header, .heroNavy, .countryBand, .section, .concernsSection, .founderSection,
-.journeySection, .servicesSection, .resumeCopy, .package, .interviewSection,
+.servicesSection, .interviewSection,
 .secondaryGrid, .lowerGrid, .finalBand, .footer {
   font-family: var(--lp-font-body);
   font-size: var(--lp-body-size);
@@ -126,8 +126,8 @@
 .countryCard { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 10px; min-height: var(--lp-control-min); padding: 8px 10px; border: 1px solid var(--lp-line); border-radius: var(--lp-radius); background: var(--lp-surface); color: var(--lp-ink); }
 .countryCard img { width: 24px; height: 18px; object-fit: contain; }
 .countryName { font-size: var(--lp-meta-size); font-weight: var(--lp-meta-weight); line-height: var(--lp-meta-line); text-align: left; }
-.journeySection,.servicesSection,.interviewSection,.industriesSection,.marketsSection,.founderSection,.plansSection,.faqSection { padding-block: var(--lp-section-pad); border-bottom: 1px solid var(--lp-line); }
-.journeySection,.resumeSection,.plansSection,.faqSection { background: var(--lp-ground); }
+.servicesSection,.interviewSection,.industriesSection,.marketsSection,.founderSection,.plansSection,.faqSection { padding-block: var(--lp-section-pad); border-bottom: 1px solid var(--lp-line); }
+.resumeSection,.plansSection,.faqSection { background: var(--lp-ground); }
 .servicesSection,.industriesSection,.marketsSection,.founderSection { background: var(--lp-surface); }
 .interviewSection { background: var(--lp-surface-muted); }
 .sectionHeadCenter { text-align: center; margin-bottom: 32px; }
@@ -135,20 +135,7 @@
 .sectionTitle { margin: 8px 0 12px; color: var(--lp-ink); font-family: var(--lp-font-display); font-size: var(--lp-h2-size); font-weight: var(--lp-h2-weight); line-height: var(--lp-h2-line); letter-spacing: var(--lp-h2-tracking); text-wrap: balance; }
 .sectionTitle em { color: inherit; font-style: normal; }
 .sectionLead { margin: 0; max-width: 68ch; color: var(--lp-body-text); font-size: var(--lp-body-size); line-height: var(--lp-body-line); text-wrap: pretty; }
-.journeySection .sectionLead { display: none; }
-.journeyTitle { margin: 8px 0 0; font-family: var(--lp-font-display); font-size: var(--lp-h2-size); color: var(--lp-ink); font-weight: var(--lp-h2-weight); line-height: var(--lp-h2-line); letter-spacing: var(--lp-h2-tracking); text-wrap: balance; }
 .accessNote { margin: 18px 0 0; color: var(--lp-muted); text-align: center; font-size: var(--lp-meta-size); line-height: var(--lp-meta-line); }
-.journeyGrid { display: grid; gap: 14px; margin: 0; padding: 0 0 0 22px; list-style: none; position: relative; }
-.journeyGrid::before { content: ''; position: absolute; left: 5px; top: 30px; bottom: 30px; width: 2px; background: var(--lp-brand); }
-.journeyGrid>li { min-width: 0; position: relative; }
-.journeyGrid>li::before { content: ''; position: absolute; width: 10px; height: 10px; top: calc(50% - 5px); left: -21px; border-radius: 50%; border: 2px solid var(--lp-brand); background: var(--lp-surface); }
-.journeyCard { display: grid; grid-template-columns: 32px minmax(0,1fr) 16px; gap: 14px; align-items: center; min-height: 96px; padding: 16px; border: 1px solid var(--lp-line); border-radius: var(--lp-radius-lg); background: var(--lp-surface); color: var(--lp-ink); transition: border-color var(--lp-motion) ease; }
-.journeyCard:hover { border-color: var(--lp-brand); }
-.journeyIcon { display: grid; place-items: center; width: 32px; height: 32px; color: var(--lp-brand); }
-.journeyCard h3 { margin: 0 0 4px; font-family: var(--lp-font-display); font-size: var(--lp-h3-size); font-weight: var(--lp-h3-weight); line-height: var(--lp-h3-line); letter-spacing: var(--lp-h3-tracking); color: var(--lp-ink); }
-.journeyCard p { margin: 0; font-size: var(--lp-body-size); line-height: var(--lp-body-line); color: var(--lp-body-text); }
-.journeyArrow { color: var(--lp-muted); }
-.journeyConnector { display: none; }
 .servicesSection .sectionTitle,.industriesSection .sectionTitle,.faqSection .sectionTitle { text-align: center; margin-top: 0; margin-bottom: 24px; }
 .moreServices { margin-top: 18px; }
 .moreServices summary { min-height: var(--lp-control-min); display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; color: var(--lp-brand); font-size:var(--lp-btn-size); font-weight:var(--lp-btn-weight); line-height:var(--lp-btn-line); }
@@ -159,11 +146,10 @@
 .serviceLinks small { color: var(--lp-muted); }
 .resumeSection { padding-block: var(--lp-section-pad); position: relative; background: var(--lp-ground); border-bottom: 1px solid var(--lp-line); }
 .resumeInner { display: grid; gap: 12px; }
-.resumeCopy { order: 2; position: relative; z-index: 1; text-align: center; }
 /* No UDS inheritance is applied to this document-bearing wrapper. */
 .heroVisual { order: 1; min-width: 0; position: relative; isolation: isolate; color: var(--lp-body-text); font-family: var(--lp-font-body); }
-.visualLabel { display: flex; justify-content: flex-start; align-items: center; gap: 0; color: var(--lp-muted); font-size: var(--lp-meta-size); line-height: var(--lp-meta-line); padding: 12px 8px; }
-.visualLabel strong { font-family: var(--lp-font-body); font-weight: var(--lp-strong-weight); color: var(--lp-ink); }
+.visualLabel { display: flex; flex-direction: column; text-align: center; align-items: center; gap: 8px; color: var(--lp-muted); font-size: var(--lp-meta-size); line-height: var(--lp-meta-line); padding: 12px 8px; }
+.visualLabel h2 { margin: 0; font-family: var(--lp-font-display); font-size: var(--lp-h2-size); font-weight: var(--lp-h2-weight); line-height: var(--lp-h2-line); letter-spacing: var(--lp-h2-tracking); color: var(--lp-ink); }
 .visualFoot { display: flex; justify-content: center; padding-bottom: 12px; }
 .visualFoot a { display: inline-flex; align-items: center; gap: 8px; min-height: var(--lp-control-min); color: var(--lp-brand); font-size: var(--lp-meta-size); font-weight: var(--lp-strong-weight); }
 .interviewHeading { display: grid; gap: 6px; margin-bottom: 24px; }
@@ -258,14 +244,7 @@
  .countryGrid { grid-template-columns: repeat(6,minmax(0,1fr)); gap: 0; }
  .countryCard { background: var(--lp-surface); border: 0; border-right: 1px solid var(--lp-line); border-radius: 0; }
  .countryCard:last-child { border-right: 0; }
- .journeySection .sectionLead { display: block; }
- .journeyGrid { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 36px; padding: 0; }
- .journeyGrid::before,.journeyGrid>li::before { display: none; }
- .journeyCard { grid-template-columns: 32px minmax(0,1fr); min-height: 104px; padding: 20px; gap: 14px; }
- .journeyArrow { display: none; }
- .journeyConnector { position: absolute; display: grid; place-items: center; top: calc(50% - 19px); right: -36px; z-index: 1; width: 38px; height: 38px; border: 1px solid var(--lp-line); border-radius: 50%; background: var(--lp-surface); color: var(--lp-brand); }
- .resumeInner { grid-template-columns: minmax(0,1.15fr) minmax(0,.85fr); align-items: center; gap: 40px; }
- .resumeCopy { grid-column: 2; grid-row: 1; text-align: left; }
+ .resumeInner { max-width: 960px; }
  .heroVisual { grid-column: 1; grid-row: 1; }
  .interviewHeading { grid-template-columns: 1fr 1fr; align-items: center; gap: 44px; }
  .industryGrid { grid-template-columns: repeat(6,minmax(0,1fr)); }
@@ -508,38 +487,6 @@
 
 @media(min-width:600px) { .answerSteps { grid-template-columns:repeat(3,minmax(0,1fr)); } }
 
-/* ================= proof.module.css ================= */
-.preview { min-width:0; border:1px solid var(--lp-line); border-radius:var(--lp-radius-lg); padding: var(--lp-card-pad); background:var(--lp-surface-muted); color:var(--lp-body-text); }
-.label { display:block; width:auto; padding:0; border-radius:0; background:none; color:var(--lp-body-text); font-size:var(--lp-meta-size); line-height:var(--lp-meta-line); font-weight:var(--lp-meta-weight); margin:0; }
-.paper span { display:grid; gap:5px; }
-.paper i { display:block; height:5px; background:var(--lp-line); border-radius:4px; }
-.paper i:last-child { width:65%; }
-.confirmed { display:flex; align-items:flex-start; gap:8px; margin:14px 0 8px; color:var(--lp-status-confirmed); font-size:var(--lp-meta-size); font-weight:var(--lp-strong-weight); line-height:var(--lp-meta-line); }
-.confirmed svg { flex:none; color:var(--lp-status-confirmed); margin-top:2px; }
-.note { color:var(--lp-muted); font-size:var(--lp-body-size); line-height:var(--lp-body-line); margin:10px 0 0; }
-.package { min-width:0; color:var(--lp-body-text); }
-.package h2 { margin:0 0 16px; font-family:var(--lp-font-display); font-size:var(--lp-h2-size); font-weight:var(--lp-h2-weight); line-height:var(--lp-h2-line); letter-spacing:var(--lp-h2-tracking); color:var(--lp-ink); text-wrap:balance; }
-.proofTabs { display:flex; gap:4px; margin-bottom:12px; }
-.proofTabs button { flex:1; min-width:0; min-height:48px; padding:10px 6px; border:1px solid var(--lp-line); border-radius:var(--lp-radius); background:var(--lp-surface); color:var(--lp-body-text); font-size:var(--lp-btn-size); font-weight:var(--lp-btn-weight); line-height:var(--lp-btn-line); transition: background-color var(--lp-motion) ease, color var(--lp-motion) ease, border-color var(--lp-motion) ease; }
-.proofTabs button[aria-pressed=true] { background:var(--lp-active-bg); color:var(--lp-active-fg); border-color:var(--lp-active-bg); }
-.preview { min-height:322px; }
-.preview p { font-size:var(--lp-body-size); line-height:var(--lp-body-line); margin:0; }
-.previewBody { display:grid; grid-template-columns:104px minmax(0,1fr); align-items:center; gap:16px; margin-block:18px; }
-.previewBody h3 { margin:0 0 8px; }
-.context { margin-top:12px; color:var(--lp-muted); font-size:var(--lp-meta-size); line-height:var(--lp-meta-line); }
-.paper { display:grid; gap:16px; padding:18px 10px; border:1px solid var(--lp-line); border-radius:var(--lp-radius-sm); background:var(--lp-surface); color:var(--lp-body-text); }
-.paper strong { font-weight: var(--lp-strong-weight); display:block; margin-bottom:7px; font-size:var(--lp-meta-size); line-height:var(--lp-meta-line); color:var(--lp-ink); }
-.paper i { height:4px; }
-.qa { margin-block:16px; }
-.qa>p { color:var(--lp-body-text); font-size:var(--lp-body-size); }
-.qa>div { display:flex; align-items:center; gap:14px; margin-top:12px; padding-top:12px; border-top:1px solid var(--lp-line); }
-.qa b { flex:none; font-family:var(--lp-font-mono); font-size:var(--lp-h3-size); color:var(--lp-brand); }
-.qa h3 { margin:0; }
-.qa small { display:block; color:var(--lp-muted); font-size:var(--lp-meta-size); }
-.proofCta { display:flex; align-items:center; justify-content:center; gap:8px; min-height:48px; margin-top:12px; padding:var(--lp-control-y) 16px; border:1px solid var(--lp-brand); border-radius:var(--lp-radius-control); color:var(--lp-brand); background:var(--lp-surface); font-size:var(--lp-btn-size); font-weight:var(--lp-btn-weight); text-align:center; transition: background-color var(--lp-motion) ease, color var(--lp-motion) ease; }
-.proofCta:hover { background:var(--lp-tint); color:var(--lp-brand-hover); }
-@media(min-width:768px) { .previewBody { grid-template-columns:124px minmax(0,1fr); } }
-
 /* ================= employer-marquee.module.css ================= */
 .section { padding-block: var(--lp-section-pad); background: var(--lp-surface); color: var(--lp-body-text); border-bottom: 1px solid var(--lp-line); }
 .intro { width: min(760px, calc(100% - var(--lp-gutter) * 2)); margin-inline: auto; text-align: center; }
@@ -570,10 +517,10 @@
 }
 
 /* <strong> is emphasis inside body copy: DM Sans semibold, never the browser default. */
-.qa strong,.evidence strong,.answer strong,.review strong,.founderExperience strong,.responseCopy strong,.preview strong,.paper strong,.system strong { font-weight: var(--lp-strong-weight); }
+.evidence strong,.answer strong,.review strong,.founderExperience strong,.responseCopy strong,.system strong { font-weight: var(--lp-strong-weight); }
 
 /* Card headings balance their lines like the page headlines do. */
-.journeyCard h3,.founderIdentity h3,.founderExperience h3,.accessCard h3,.preview h3,.question h3,.review h3,.progress h3 { text-wrap: balance; }
+.founderIdentity h3,.founderExperience h3,.accessCard h3,.question h3,.review h3,.progress h3 { text-wrap: balance; }
 
 /* ============================================================================
    LANDING TOKENS - pinned, not inherited.
@@ -717,5 +664,4 @@
    copy stays byte-identical (no middot is written into JSX). `.metaRow` is the
    hook for any future metadata container. ---- */
 .metaRow > * + *::before,
-.visualLabel > *:not(:last-child)::after,
 .footerBottom > span:not(:last-child)::after { content: '·'; margin: 0 .5em; color: var(--lp-muted); }

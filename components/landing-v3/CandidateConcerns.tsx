@@ -129,7 +129,7 @@ export function CandidateConcerns() {
             <p className={s.responseNote}><Info size={16} aria-hidden="true" />{current.note}</p>
           </div>
           <p className={s.announcement} role="status" aria-live="polite" aria-atomic="true">Preparation focus: {current.service}</p>
-          <div className={s.concernsAction}><Link href="#how-it-works" className={s.concernsCta}>See how it works </Link><small>Preparation supports your application. Employers decide whom to shortlist and hire.</small></div>
+          <div className={s.concernsAction}><Link href="#services" className={s.concernsCta}>See how it works </Link><small>Preparation supports your application. Employers decide whom to shortlist and hire.</small></div>
         </section>
       </div>
     </section>

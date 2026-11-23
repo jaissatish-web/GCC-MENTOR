@@ -28,7 +28,7 @@ try{
   await page.$eval('#markets',e=>e.scrollIntoView({behavior:'instant'}));await page.waitForSelector('#markets-title');await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))))
   // Lazy images must enter view and finish decoding before asserting their health.
   await page.evaluate(async()=>{for(const image of [...document.images].filter(image=>image.getBoundingClientRect().width>0)){image.scrollIntoView({behavior:'instant'});try{await image.decode()}catch{}}scrollTo({top:0,behavior:'instant'})})
-  const order=await page.evaluate(()=>['employers','challenges','solutions','how-it-works','services'].map(id=>document.getElementById(id).getBoundingClientRect().top+scrollY));
+  const order=await page.evaluate(()=>['employers','challenges','solutions','services'].map(id=>document.getElementById(id).getBoundingClientRect().top+scrollY));
   assert.ok(order.every((top,i)=>i===0||top>order[i-1]),'Approved visual section sequence');
   assert.equal(await page.$eval('#challenges',e=>!!e.closest('details')),false);
   assert.equal(await page.$$eval('[data-concern-choice]',es=>es.filter(e=>e.getBoundingClientRect().height>0).length),4,'Every concern visible');
@@ -78,16 +78,9 @@ try{
   assert.ok(await page.$('meta[property="og:image"]'), 'Homepage needs explicit social image');
   assert.equal(await page.$eval('meta[name="twitter:card"]', e=>e.content), 'summary_large_image');
   assert.ok(await page.$$eval('a[href="/templates"]', es=>es.every(e=>e.textContent.includes('sign-in required'))), 'Protected templates must disclose sign-in');
-  await page.$eval('[data-job-package]',e=>e.scrollIntoView({behavior:'instant'}));
-  for(const label of ['Cover Letter','Interview Q&A','Optimized Resume']){
-    await page.$$eval('[data-job-package] button',(es,label)=>es.find(e=>e.textContent===label).focus(),label);
-    await page.keyboard.press('Enter');
-    const expected={'Cover Letter':'A focused introduction to your application.','Interview Q&A':'How does your experience relate to this role?','Optimized Resume':'Clear structure. Relevant emphasis.'};
-    assert.ok(await page.$eval('#package-preview',(e,copy)=>e.textContent.includes(copy),expected[label]),`Distinct neutral preview: ${label}`);
-    assert.ok(await page.$eval('#package-preview',e=>e.textContent.includes('Your Career Profile stays unchanged.')));
-    assert.ok(await page.$eval('#package-preview',e=>!/loop.check|offshore|Example candidate/i.test(e.textContent)));
-    assert.ok(await page.$eval('[data-job-package] button[aria-pressed=true]',e=>e===document.activeElement&&e.getBoundingClientRect().height>=44),'Package selection keeps keyboard focus and touch size');
-  }
+  assert.equal(await page.$('#how-it-works'), null, 'Removed journey stays absent');
+  assert.equal(await page.$('[data-job-package]'), null, 'Removed tabbed package preview stays absent');
+  assert.ok(await page.$$eval('a[href="#services"]', es=>es.some(e=>e.textContent.includes('See how it works'))), 'Explanation links reach the remaining profile-to-packages section');
   assert.equal(await page.$$eval('#services [data-profile-field]',es=>es.length),5,'All profile categories shown');
   const samplePackages = await page.$$('#services [data-career-package]');
   assert.equal(samplePackages.length, 3, 'Three roles reuse the same profile');
