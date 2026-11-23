@@ -130,7 +130,8 @@ try{
   // Move focus out of the deep package card before screenshot positioning.
   // Native focus scrolling can otherwise compete with scrollTo in Chromium.
   await page.$eval('header a', e=>e.focus({preventScroll:true}));
-  await page.keyboard.press('Control+Home');
+  await page.keyboard.down('Control');
+  try { await page.keyboard.press('Home'); } finally { await page.keyboard.up('Control'); }
   await page.waitForFunction(()=>scrollY===0).catch(async error=>{
     console.error('Screenshot positioning', await page.evaluate(()=>({width:innerWidth,scrollY,focused:document.activeElement?.outerHTML,scrollBehavior:getComputedStyle(document.documentElement).scrollBehavior})));
     throw error;
