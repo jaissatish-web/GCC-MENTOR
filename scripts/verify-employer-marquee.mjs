@@ -30,7 +30,7 @@ try {
   async function checkPhoneTiles() {
    const dimensions = await page.evaluate(() => {
     const country = document.querySelector('[aria-label="GCC career destinations"] li').getBoundingClientRect();
-    return [...document.querySelectorAll('#employers ul:not([aria-hidden]) li')].every(tile => {
+    return [...document.querySelectorAll('#employers ul:not([aria-hidden]) li:not([aria-hidden])')].every(tile => {
      const box = tile.getBoundingClientRect();
      return Math.abs(box.width - country.width) < 1 && Math.abs(box.height - country.height) < 1;
     });
