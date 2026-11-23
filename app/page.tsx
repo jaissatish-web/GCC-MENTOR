@@ -63,10 +63,7 @@ export default function Home() {
       <section id="templates" className={s.resumeSection} data-uds="section" aria-labelledby="templates-title"><div className={s.resumeInner}>
         <div className={s.heroVisual} data-uds="visual"><div className={s.visualLabel}><h2 id="templates-title">Real resume designs</h2><span>Sample template content, not a customer resume</span></div><DocumentOrbit /><div className={s.visualFoot}><Link href="/templates">Browse designs, sign-in required </Link></div></div>
       </div></section>
-      <section id="interview" className={s.interviewSection} data-uds="soft-section" aria-labelledby="interview-title"><div className={s.inner}>
-        <div className={s.interviewHeading}><div><span className={s.kickerGold} data-uds="kicker">Sample demonstration</span><h2 id="interview-title" className={s.sectionTitle} data-uds="marketing-title">Right preparation. Clearer answers.</h2></div><p className={s.sectionLead}>A clear question, your answer and useful feedback. Practise your own experience, then choose what to improve.</p></div>
-        <div className={s.demoBoundary} data-uds="website-widget"><InterviewDemo /></div>
-      </div></section>
+      <InterviewDemo />
       <div className={s.secondaryGrid}>
       <section id="industries" className={s.industriesSection} aria-labelledby="industries-title"><div className={s.inner}><h2 id="industries-title" className={s.sectionTitle} data-uds="marketing-title">Preparation across industries and career stages</h2><p className={s.sectionLead}>Prepare from your own experience, whatever your profession or career stage.</p><ul className={s.industryGrid}>{industries.map(([name,Icon,file],i)=><li key={name} className={s.industryTile}><span className={s.industryPhoto} data-industry={i} role="img" aria-label={`${name} illustrative scene`}><Image src={`/landing/v2/industries/${file}.webp`} alt="" fill sizes="(min-width:960px) 16vw, (min-width:600px) 31vw, 46vw" /></span><span className={s.industryLabel}><Icon size={19} aria-hidden="true" />{name}</span></li>)}</ul></div></section>
       <section id="markets" className={s.marketsSection} data-uds="section" aria-label="Explore the six Gulf markets"><div className={s.inner}><div className={s.globeBoundary} data-uds="website-widget"><GccGlobe compact /></div></div></section>

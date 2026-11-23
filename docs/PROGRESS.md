@@ -643,3 +643,11 @@ CI follow-up: the landing screenshot setup timed out at 768px while using native
 Satish approved the follow-up layout after reviewing PR #139 in production. The acceptance criteria cover a centered half-width desktop stage, an edge-to-edge phone stage, tighter spacing, and the existing 3D depth and reader. Scope and test targets are in the [design system](12_DESIGN_SYSTEM.md#rotating-resume-showcase-width--23-november-2026).
 
 The carousel is implemented. Chromium verified a 390px stage at 390px and a centered 720px stage at 1440px. The six-width check from 320px to 1920px verified the selected-card stack, scroll width and card bounds. Keyboard selection, autoplay, layered depth and the reader passed at phone and desktop widths. The landing screenshot setup now retries positioning if Chromium adjusts the document scroll during capture. Hosted checks and release are tracked in the PR.
+
+## AI Mock Interview landing showcase — 23 November 2026
+
+Founder approved the [interview-only redesign](12_DESIGN_SYSTEM.md#ai-mock-interview-landing-showcase--23-november-2026) for branch implementation and preview review. Acceptance includes the reference layouts, 16px phone gutters, accessible feedback, answer guide and progress views, a clearly labeled example chart, and the existing service entry point. The resume orbit and other landing sections are protected. Production release awaits separate founder approval.
+
+Implemented the photo, laptop and native mobile practice views, Feedback / Answer Guide / Progress tabs, illustrative overall scores, five-step journey, and service CTA. The public demo animates only a sample waveform and uses the existing Omar and interview preparation images. Preview, browser measurements and review are tracked in the dedicated PR. Production approval is pending.
+
+Targeted visual check caught an overflow from the accessible chart table at 200% root text. Constrain its screen-reader container so the data remains accessible and the page fits. Keep the full desktop laptop portrait in balance with the feedback pane. Verify the final head in PR #141.

@@ -16,11 +16,9 @@ const server=createServer((req,res)=>{
  res.setHeader('Content-Type',mime[extname(file)]??'application/octet-stream');res.end(readFileSync(file))
 })
 await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin=process.env.QA_URL??`http://127.0.0.1:${server.address().port}`
-async function focusDemoAction(text){await pageRef.$$eval('#interview button',(es,text)=>{const e=es.find(e=>e.textContent.includes(text));e.scrollIntoView({block:'center',behavior:'instant'});e.focus({preventScroll:true})},text);await pageRef.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))))}
-let pageRef;
 const results={source:'Compiled actual landing; read-only anonymous fixture APIs, not authenticated service verification',viewports:[],errors:[],failures:[]};let browser
 try{
- browser=await puppeteer.launch({executablePath:process.env.CHROME_PATH,headless:true,pipe:true,args:['--no-sandbox','--disable-dev-shm-usage','--disable-gpu','--no-zygote','--single-process']});const page=await browser.newPage();pageRef=page;page.on('pageerror',e=>results.errors.push(e.message));await page.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'reduce'}])
+ browser=await puppeteer.launch({executablePath:process.env.CHROME_PATH,headless:true,pipe:true,args:['--no-sandbox','--disable-dev-shm-usage','--disable-gpu','--no-zygote','--single-process']});const page=await browser.newPage();page.on('pageerror',e=>results.errors.push(e.message));await page.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'reduce'}])
  await page.setRequestInterception(true);page.on('request',r=>r.url().startsWith(origin)||r.url().startsWith('data:')?r.continue():r.abort())
  for(const width of [320,360,375,390,430,768,1024,1440]){
   await page.setViewport({width,height:900,deviceScaleFactor:1});await page.goto(origin,{waitUntil:'networkidle0'});await page.evaluate(()=>document.fonts.ready)
@@ -147,12 +145,46 @@ try{
   if(width<1180){await page.$eval('summary[aria-label="Open section menu"]',e=>e.click());assert.equal(await page.$eval('header details',e=>e.open),true);await page.focus('summary[aria-label="Open section menu"]');await page.keyboard.press('Escape');assert.equal(await page.$eval('header details',e=>e.open),false);assert.equal(await page.$eval('summary[aria-label="Open section menu"]',e=>document.activeElement===e),true);await page.$eval('summary[aria-label="Open section menu"]',e=>e.click());await page.$eval('header details a[href="#templates"]',e=>e.click());assert.equal(await page.$eval('header details',e=>e.open),false)}
   await page.$eval('#services details>summary',e=>e.click());for(const href of ['/gulf-readiness-score','/templates','/optimize/target','/cover-letter','/interview-qa','/mock-interview','/dashboard/library','/linkedin-optimization','/naukrigulf-optimization','/settings','/signup','/login','/tools'])assert.ok(state.links.some(l=>l.href===href),`Destination missing ${href}`)
   await page.$eval('#faq details>summary',e=>e.click());assert.equal(await page.$eval('#faq details',e=>e.open),true)
-  await page.$eval('#interview',e=>e.scrollIntoView({behavior:'instant'}));await page.$eval('#interview details>summary',e=>e.click());await page.select('#interview select','british-woman');assert.ok(await page.$eval('#interview',e=>e.textContent.includes('Emma')))
-  await focusDemoAction('Review this answer');const actionBefore=await page.evaluate(()=>document.activeElement.getBoundingClientRect().top);await page.keyboard.press('Enter');assert.ok(await page.evaluate(y=>Math.abs(document.activeElement.getBoundingClientRect().top-y)<2,actionBefore),'Stage control must remain visibly stable');assert.ok(await page.evaluate(()=>document.activeElement?.textContent.includes('See repeat-session progress')),'Stage control retains keyboard focus');assert.ok(await page.$eval('#interview',e=>e.textContent.includes('Review each question and answer')));if([390,1440].includes(width))await (await page.$('#interview')).screenshot({path:`${out}/feedback-${width}.png`})
-  await focusDemoAction('See repeat-session progress');const progressBefore=await page.evaluate(()=>document.activeElement.getBoundingClientRect().top);await page.keyboard.press('Enter');assert.ok(await page.evaluate(y=>Math.abs(document.activeElement.getBoundingClientRect().top-y)<2,progressBefore),'Progress control remains visible');assert.ok(await page.$eval('#interview',e=>e.textContent.includes('Practice. Review. Prepare. Repeat.')))
-  await focusDemoAction('Return to practice');const returnBefore=await page.evaluate(()=>document.activeElement.getBoundingClientRect().top);await page.keyboard.press('Enter');assert.ok(await page.evaluate(y=>Math.abs(document.activeElement.getBoundingClientRect().top-y)<2,returnBefore),'Return control remains visible');
-  await page.$$eval('#interview button',es=>es.find(e=>e.textContent.includes('Pause demo')).click());assert.equal(await page.$eval('#interview [data-motion]',e=>e.dataset.motion),'static');
-  assert.deepEqual(await page.$$eval('#interview tbody td',es=>es.map(e=>Number(e.textContent))),[46,61,74]);
+  await page.$eval('#interview',e=>e.scrollIntoView({behavior:'instant'}));
+  const interview = await page.$eval('#interview', section => {
+   const inner = section.querySelector('[data-interview-inner]');
+   const {left, right} = inner.getBoundingClientRect();
+   const photo = section.querySelector('[data-interview-photo]');
+   const portrait = section.querySelector('[data-interview-practice] img');
+   const tabs = [...section.querySelectorAll('[role=tab]')];
+   return {
+    left, right: document.documentElement.clientWidth - right,
+    noOverflow: inner.scrollWidth <= inner.clientWidth + 1,
+    visiblePhoto: getComputedStyle(photo).display !== 'none',
+    portraitReady: portrait.naturalWidth > 0 && portrait.getBoundingClientRect().height >= 145,
+    tabs: tabs.map(tab => tab.textContent.trim()),
+    touchTargets: tabs.every(tab => tab.offsetHeight >= 44),
+    waveformStatic: getComputedStyle(section.querySelector('[data-interview-practice] span[class*="wave"] i')).animationName === 'none',
+    cta: section.querySelector('a[href="/mock-interview"]')?.getAttribute('href'),
+   };
+  });
+  assert.ok(interview.noOverflow && interview.portraitReady && interview.touchTargets, `Interview geometry at ${width}px: ${JSON.stringify(interview)}`);
+  assert.equal(interview.visiblePhoto, width >= 1200);
+  if (width < 768) {
+   assert.ok(Math.abs(interview.left - 16) < 1 && Math.abs(interview.right - 16) < 1);
+   assert.equal(await page.$$eval('#interview [data-interview-device], #interview figure, #interview ul[aria-label="Mock interview benefits"], #interview a[href="/mock-interview"]', elements => elements.every((element, index) => index === 0 || element.getBoundingClientRect().top > elements[index - 1].getBoundingClientRect().top)), true);
+  }
+  assert.deepEqual(interview.tabs, ['Feedback','Answer Guide','Progress']);
+  assert.equal(interview.waveformStatic, true);
+  assert.equal(interview.cta, '/mock-interview');
+  await page.focus('#interview-tab-feedback');
+  await page.keyboard.press('ArrowRight');
+  assert.ok(await page.$eval('#interview-panel-guide', panel => !panel.hidden && panel.querySelectorAll('ol li').length === 5));
+  assert.equal(await page.evaluate(() => document.activeElement.id), 'interview-tab-guide');
+  await page.keyboard.press('End');
+  assert.ok(await page.$eval('#interview-panel-progress', panel => !panel.hidden && panel.textContent.includes('Technical knowledge')));
+  await page.keyboard.press('Home');
+  assert.ok(await page.$eval('#interview-panel-feedback', panel => !panel.hidden && panel.querySelectorAll('li').length === 5));
+  if ([390,1440].includes(width)) {
+   await page.evaluate(() => document.activeElement.blur());
+   await (await page.$('#interview')).screenshot({path:`${out}/mock-interview-${width}.png`});
+  }
+  assert.deepEqual(await page.$$eval('#interview tbody td', cells => cells.map(cell => Number(cell.textContent))), [46,61,74]);
   await page.$eval('[data-uds=globe-country]',e=>e.click());assert.equal(await page.$eval('[data-uds=globe-country]',e=>e.getAttribute('aria-pressed')),'true')
   console.log(`PASS V3 ${width}px: actual imagery, no overflow, all destinations, menu/focus, interview stages, globe`)
  }
@@ -163,8 +195,12 @@ try{
   await page.$eval('#markets',e=>e.scrollIntoView({behavior:'instant'}));await page.waitForSelector('#markets-title');
   await page.$eval('#interview',e=>e.scrollIntoView({behavior:'instant'}));
   await page.$$eval('#employers button',es=>es[0].click());
-  await page.$$eval('#interview button',es=>es.find(e=>e.textContent.includes('Pause demo')).click());
+  await page.waitForFunction(() => document.querySelector('#interview [data-motion]').dataset.motion === 'playing');
+  await page.click('#interview button[aria-label="Pause demo motion"]');
   assert.equal(await page.$eval('#interview [data-motion]',e=>e.dataset.motion),'static');
+  await page.click('#interview button[aria-label="Play demo motion"]');
+  assert.equal(await page.$eval('#interview [data-motion]',e=>e.dataset.motion),'playing');
+  await page.click('#interview button[aria-label="Pause demo motion"]');
   await page.evaluate(async()=>{for(const image of [...document.images].filter(image=>image.getBoundingClientRect().width>0)){image.scrollIntoView({behavior:'instant'});try{await image.decode()}catch{}}scrollTo({top:0,behavior:'instant'})});await page.waitForFunction(()=>scrollY===0);await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
   await page.screenshot({path:`${out}/presentation-${width}.png`,fullPage:true});
  }

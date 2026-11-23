@@ -2193,3 +2193,7 @@ Satish approved a width-only correction for the existing landing showcase with 1
 ## 23 November 2026 — Refine the rotating resume showcase
 
 After reviewing production, Satish updated the showcase width to half the desktop viewport and edge to edge on phones. Keep the original templates and controls. Refine the selected card, orbit decoration and section spacing in the existing showcase. See the [acceptance criteria](12_DESIGN_SYSTEM.md#rotating-resume-showcase-width--23-november-2026).
+
+## 23 November 2026 — AI Mock Interview landing showcase
+
+Satish approved replacing the public interview section using the approved desktop and mobile references. Use a Gulf interview practice photo and a real interactive sample, with mentor-style guidance and clearly illustrative progress. Scope is the landing presentation. Use a dedicated PR and preview for visual approval before release.
