@@ -130,8 +130,11 @@ try{
   // Move focus out of the deep package card, then position the screenshot
   // directly so the fixture does not depend on Chromium's keyboard scrolling.
   await page.$eval('header a', e=>e.focus({preventScroll:true}));
-  await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));
-  await page.waitForFunction(()=>scrollY===0).catch(async error=>{
+  await page.waitForFunction(()=>{
+    if (scrollY === 0) return true;
+    scrollTo({top:0,behavior:'instant'});
+    return false;
+  }).catch(async error=>{
     console.error('Screenshot positioning', await page.evaluate(()=>({width:innerWidth,scrollY,focused:document.activeElement?.outerHTML,scrollBehavior:getComputedStyle(document.documentElement).scrollBehavior})));
     throw error;
   });

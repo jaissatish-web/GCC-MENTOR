@@ -637,3 +637,9 @@ Keyboard API correction: Puppeteer needs separate Control down / Home press / Co
 Implemented the [approved showcase width](12_DESIGN_SYSTEM.md#rotating-resume-showcase-width--23-november-2026) in PR #139. Local typecheck, lint, production build, and all 103 repository checks passed. Chromium verified gutters, no horizontal overflow, and all ten cards within the carousel at 320, 390, 768, 1440, and 1920px. The 390px and 1440px runs also verified movement, front and rear depth, keyboard selection, and the full-size reader. GitHub CI and production verification are tracked in the PR.
 
 CI follow-up: the landing screenshot setup timed out at 768px while using native keyboard scrolling. Use an instant scroll for screenshot positioning and retain the exact scroll-position check and all interaction assertions.
+
+## Rotating resume showcase refinement — 23 November 2026
+
+Satish approved the follow-up layout after reviewing PR #139 in production. The acceptance criteria cover a centered half-width desktop stage, an edge-to-edge phone stage, tighter spacing, and the existing 3D depth and reader. Scope and test targets are in the [design system](12_DESIGN_SYSTEM.md#rotating-resume-showcase-width--23-november-2026).
+
+The carousel is implemented. Chromium verified a 390px stage at 390px and a centered 720px stage at 1440px. The six-width check from 320px to 1920px verified the selected-card stack, scroll width and card bounds. Keyboard selection, autoplay, layered depth and the reader passed at phone and desktop widths. The landing screenshot setup now retries positioning if Chromium adjusts the document scroll during capture. Hosted checks and release are tracked in the PR.

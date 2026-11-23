@@ -2189,3 +2189,7 @@ Satish requested complete removal of the screenshot-identified three-step journe
 ## 23 November 2026 — Widen the rotating resume showcase
 
 Satish approved a width-only correction for the existing landing showcase with 16px mobile gutters and 32–48px desktop gutters. Preserve the existing interaction, content, templates and other landing sections. Release is authorized after checks pass. See the [showcase acceptance criteria](12_DESIGN_SYSTEM.md#rotating-resume-showcase-width--23-november-2026).
+
+## 23 November 2026 — Refine the rotating resume showcase
+
+After reviewing production, Satish updated the showcase width to half the desktop viewport and edge to edge on phones. Keep the original templates and controls. Refine the selected card, orbit decoration and section spacing in the existing showcase. See the [acceptance criteria](12_DESIGN_SYSTEM.md#rotating-resume-showcase-width--23-november-2026).
