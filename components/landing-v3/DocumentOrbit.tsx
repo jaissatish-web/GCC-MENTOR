@@ -28,28 +28,30 @@ const STEP = (Math.PI * 2) / N
 const FRONT = Math.PI / 2
 const PAGE_W = 794
 const CARD_W = 170
-const ORBIT_PADDING = 8
+const DEPTH_SCALE = 0.725
+const DEPTH_RANGE = 0.175
 const TURN_MS = 52_000
 function orbitLayout(width: number) {
   const compact = width < 480
   const size = compact
-    ? Math.max(0.76, Math.min(1, width / 360))
+    ? Math.max(0.76, Math.min(1, width / 390))
     : Math.max(0.9, Math.min(1.18, 0.8 + width / 4800))
   const orbitScale = (compact ? 0.65 : 1.07) * size
-  const box = compact ? 350 : 480 * Math.max(1, size)
+  const box = compact ? 336 : Math.max(432, 470 * size)
 
-  // Reserve room for the widest orbiting card and its focus outline at each edge.
-  const radius = Math.max(0, (width - CARD_W * 0.9 * orbitScale) / 2 - ORBIT_PADDING)
+  // The outside card edge follows both the horizontal orbit and the depth scale.
+  // Keep its widest point inside the stage, including room for the focus outline.
+  const cardHalfWidth = CARD_W * orbitScale / 2
+  const edgeRoom = Math.max(0, width / 2 - (compact ? 4 : 8) - cardHalfWidth * DEPTH_SCALE)
+  const radius = Math.sqrt(Math.max(0, edgeRoom ** 2 - (cardHalfWidth * DEPTH_RANGE) ** 2))
   return {
     radius,
     orbitScale,
-    focusScale: (compact ? 1.1 : 1.45) * size,
-    focusLift: compact ? 14 : 28,
-    rise: compact ? 62 : 100,
+    focusScale: (compact ? 1.06 : 1.45) * size,
+    focusLift: compact ? 10 : 20,
+    rise: compact ? 56 : 88,
     box,
-    track: box / 2 - (compact ? 5 : 10),
-    trackHeight: compact ? 230 : 380,
-    innerHeight: compact ? 160 : 240,
+    track: box / 2 - 5,
   }
 }
 
@@ -124,9 +126,9 @@ export function DocumentOrbit({ className }: { className?: string }) {
       const sn = Math.sin(th)
       const d = (sn + 1) / 2
       const f = focus.current[i]
-      const sc = (0.55 + 0.35 * d) * orbitScale * (1 - f) + focusScale * f
+      const sc = (DEPTH_SCALE + DEPTH_RANGE * sn) * orbitScale * (1 - f) + focusScale * f
       el.style.transform = `translate(-50%, -50%) translate(${(radius * Math.cos(th) * (1 - f)).toFixed(1)}px, ${(rise * sn * (1 - f) - focusLift * f).toFixed(1)}px) scale(${sc.toFixed(3)})`
-      el.style.zIndex = String(Math.round((sn > 0 ? 60 + d * 40 : 10 + d * 30) * (1 - f) + 50 * f))
+      el.style.zIndex = String(Math.round((sn > 0 ? 60 + d * 40 : 10 + d * 30) * (1 - f) + 105 * f))
       el.style.opacity = (0.55 + 0.45 * Math.max(d, f)).toFixed(2)
       el.dataset.front = sn > 0 ? '1' : '0'
     }
@@ -296,24 +298,6 @@ export function DocumentOrbit({ className }: { className?: string }) {
           if (suppressClick.current) { event.preventDefault(); event.stopPropagation(); suppressClick.current = false }
         }}
       >
-      <div
-        aria-hidden="true"
-        className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2"
-        style={{
-          top: layout.track,
-          width: layout.radius * 2 + 60,
-          height: layout.trackHeight,
-          borderRadius: 0,
-          boxShadow: 'none',
-          border: '1px solid var(--lp-line, #E2E8F0)',
-        }}
-      />
-      <div
-        aria-hidden="true"
-        className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2"
-        style={{ top: layout.track, width: layout.radius * 1.45, height: layout.innerHeight, borderRadius: 0, border: '1px solid var(--lp-line, #E2E8F0)' }}
-      />
-
       {ITEMS.map((item, i) => {
         const on = i === sel
         const sample = SAMPLE_RESUME_DOCUMENT.header

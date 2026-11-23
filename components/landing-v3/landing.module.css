@@ -144,14 +144,20 @@
 .serviceLinks span { flex: 1; }
 .serviceLinks strong,.serviceLinks small { display: block; font-size: var(--lp-body-size); line-height: var(--lp-body-line); }
 .serviceLinks small { color: var(--lp-muted); }
-.resumeSection { padding-block: var(--lp-section-pad); position: relative; background: var(--lp-ground); border-bottom: 1px solid var(--lp-line); }
-.resumeInner { width: calc(100% - 32px); margin-inline: auto; display: grid; gap: 12px; }
-@media(min-width:768px) { .resumeInner { width: calc(100% - 2 * clamp(32px, 3vw, 48px)); } }
+.resumeSection { padding-block: 40px; scroll-margin-top: 64px; position: relative; background: var(--lp-ground); border-bottom: 1px solid var(--lp-line); }
+.resumeInner { width: 100%; margin-inline: auto; --resume-halo-height: 33vw; }
+@media(min-width:768px) {
+  .resumeInner { width: min(calc(100% - 48px), 720px); }
+}
+@media(min-width:1024px) {
+  .resumeSection { padding-block: 56px; }
+  .resumeInner { width: 50%; --resume-halo-height: 16.7vw; }
+}
 /* No UDS inheritance is applied to this document-bearing wrapper. */
-.heroVisual { order: 1; min-width: 0; position: relative; isolation: isolate; color: var(--lp-body-text); font-family: var(--lp-font-body); }
-.visualLabel { display: flex; flex-direction: column; text-align: center; align-items: center; gap: 8px; color: var(--lp-muted); font-size: var(--lp-meta-size); line-height: var(--lp-meta-line); padding: 12px 8px; }
+.heroVisual { min-width: 0; position: relative; isolation: isolate; color: var(--lp-body-text); font-family: var(--lp-font-body); }
+.visualLabel { display: flex; flex-direction: column; text-align: center; align-items: center; gap: 8px; color: var(--lp-muted); font-size: var(--lp-meta-size); line-height: var(--lp-meta-line); padding: 0 16px 8px; }
 .visualLabel h2 { margin: 0; font-family: var(--lp-font-display); font-size: var(--lp-h2-size); font-weight: var(--lp-h2-weight); line-height: var(--lp-h2-line); letter-spacing: var(--lp-h2-tracking); color: var(--lp-ink); }
-.visualFoot { display: flex; justify-content: center; padding-bottom: 12px; }
+.visualFoot { display: flex; justify-content: center; text-align: center; padding-inline: 16px; }
 .visualFoot a { display: inline-flex; align-items: center; gap: 8px; min-height: var(--lp-control-min); color: var(--lp-brand); font-size: var(--lp-meta-size); font-weight: var(--lp-strong-weight); }
 .interviewHeading { display: grid; gap: 6px; margin-bottom: 24px; }
 .interviewHeading .sectionTitle { margin-top: 8px; }
@@ -245,7 +251,6 @@
  .countryGrid { grid-template-columns: repeat(6,minmax(0,1fr)); gap: 0; }
  .countryCard { background: var(--lp-surface); border: 0; border-right: 1px solid var(--lp-line); border-radius: 0; }
  .countryCard:last-child { border-right: 0; }
- .heroVisual { grid-column: 1; grid-row: 1; }
  .interviewHeading { grid-template-columns: 1fr 1fr; align-items: center; gap: 44px; }
  .industryGrid { grid-template-columns: repeat(6,minmax(0,1fr)); }
  .industryTile { aspect-ratio: 1.45; }
@@ -263,7 +268,7 @@
    carousel stacking context; front arc is above. Neither intercepts input.
    GUARD-CONTRACTED (scripts/verify-orbit-depth.mjs): the z-index pair, both
    clip-paths and pointer-events must stay as written, and both layers share the same inset. */
-.heroVisual::before,.heroVisual::after { content: ""; position: absolute; pointer-events: none; inset: 38% 0 8%; background: url("/landing/v2/resume-halo.webp") center / 100% min(100%, 33vw) no-repeat; }
+.heroVisual::before,.heroVisual::after { content: ""; position: absolute; pointer-events: none; inset: 38% 0 8%; background: url("/landing/v2/resume-halo.webp") center / 100% min(100%, var(--resume-halo-height)) no-repeat; }
 /* Phones get their own smaller halo: the desktop file is an 86 KB decoration
    that is pure weight on a narrow screen. */
 @media(max-width:959px) { .heroVisual::before,.heroVisual::after { background-image: url("/landing/v2/resume-halo-mobile.webp"); } }

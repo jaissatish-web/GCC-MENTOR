@@ -19,29 +19,37 @@ const outDepth='artifacts/orbit-depth';mkdirSync(outDepth,{recursive:true});let 
 try {
  browser=await puppeteer.launch({executablePath:process.env.CHROME_PATH,headless:true,pipe:true,args:['--no-sandbox','--disable-dev-shm-usage','--disable-gpu','--no-zygote','--single-process']})
  const page=await browser.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'reduce'}])
- for(const width of [320,390,768,1440,1920]) {
+ for(const width of [320,390,768,1024,1440,1920]) {
   await page.setViewport({width,height:1000,deviceScaleFactor:1});await page.goto(origin,{waitUntil:'networkidle0'});await page.$eval('[data-uds=visual]',e=>e.scrollIntoView({behavior:'instant'}));await page.waitForFunction(()=>document.querySelectorAll('[aria-roledescription=carousel] button[data-front]').length===10)
   await page.evaluate(()=>document.fonts.ready)
   const layers=await page.$eval('[data-uds=visual]',e=>{const rear=getComputedStyle(e,'::before'),front=getComputedStyle(e,'::after');return {isolation:getComputedStyle(e).isolation,rear:{z:rear.zIndex,clip:rear.clipPath,pointer:rear.pointerEvents,box:rear.inset},front:{z:front.zIndex,clip:front.clipPath,pointer:front.pointerEvents,box:front.inset},carouselZ:getComputedStyle(e.children[1]).zIndex,faces:e.querySelectorAll('.actual-template-orbit-face').length}})
   assert.equal(layers.isolation,'isolate');assert.equal(layers.rear.z,'0');assert.equal(layers.carouselZ,'1');assert.equal(layers.front.z,'2');assert.equal(layers.rear.clip,'inset(0px 0px 50%)');assert.equal(layers.front.clip,'inset(50% 0px 0px)');assert.equal(layers.front.pointer,'none');assert.equal(layers.rear.pointer,'none');assert.equal(layers.rear.box,layers.front.box)
   const geometry = await page.$eval('[aria-roledescription=carousel]', carousel => {
    const box = carousel.getBoundingClientRect()
-   const cards = [...carousel.querySelectorAll('button[data-front]')].map(card => card.getBoundingClientRect())
+   const buttons = [...carousel.querySelectorAll('button[data-front]')]
+   const selected = carousel.querySelector('[data-orbit-centre]')
+   const cards = buttons.map(card => card.getBoundingClientRect())
    const viewport = document.documentElement.clientWidth
    return {
     viewport, left: box.left, right: viewport - box.right,
     horizontalOverflow: document.documentElement.scrollWidth > viewport,
     cardCount: cards.length,
-    cardsFit: cards.every(card => card.left >= box.left - 1 && card.right <= box.right + 1 &&
-      card.top >= box.top - 1 && card.bottom <= box.bottom + 1),
+    selectedAboveCards: buttons.every(card => card === selected || Number(card.style.zIndex) < Number(selected.style.zIndex)),
+    clippedCards: cards.filter(card => card.left < box.left - 1 || card.right > box.right + 1 ||
+      card.top < box.top - 1 || card.bottom > box.bottom + 1).map(card => ({
+        top: card.top - box.top, bottom: box.bottom - card.bottom, left: card.left - box.left, right: box.right - card.right,
+      })),
     cardCoverage: (Math.max(...cards.map(card => card.right)) - Math.min(...cards.map(card => card.left))) / box.width,
    }
   })
-  const gutter = width < 768 ? 16 : Math.min(48, Math.max(32, width * 0.03))
+  const stageWidth = width >= 1024 ? width / 2 : width >= 768 ? Math.min(width - 48, 720) : width
+  const gutter = (width - stageWidth) / 2
   assert.ok(Math.abs(geometry.left - gutter) < 1 && Math.abs(geometry.right - gutter) < 1, JSON.stringify(geometry))
   assert.equal(geometry.horizontalOverflow, false, `Page overflows at ${width}px`)
   assert.equal(geometry.cardCount, 10)
-  assert.ok(geometry.cardsFit && geometry.cardCoverage >= 0.84, JSON.stringify(geometry))
+  assert.equal(geometry.selectedAboveCards, true)
+  assert.deepEqual(geometry.clippedCards, [])
+  assert.ok(geometry.cardCoverage >= (width < 768 ? 0.9 : 0.84), JSON.stringify(geometry))
   if (width !== 390 && width !== 1440) {
    results.push({width,layers,geometry})
    console.log('PASS orbit layout', width)
