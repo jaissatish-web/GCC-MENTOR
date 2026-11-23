@@ -95,11 +95,13 @@ function ProgressChart() {
           <p><strong>+{lastScore - attempts[0]} points</strong><br />since attempt 1</p>
         </div>
       </div>
-      <table className={s.attemptTable}>
-        <caption>Sample overall interview scores</caption>
-        <thead><tr><th scope="col">Attempt</th>{attempts.map((score, index) => <th key={score} scope="col">{index + 1}</th>)}</tr></thead>
-        <tbody><tr><th scope="row">Score out of 100</th>{attempts.map(score => <td key={score}>{score}</td>)}</tr></tbody>
-      </table>
+      <div className={s.chartData}>
+        <table className={s.attemptTable}>
+          <caption>Sample overall interview scores</caption>
+          <thead><tr><th scope="col">Attempt</th>{attempts.map((score, index) => <th key={score} scope="col">{index + 1}</th>)}</tr></thead>
+          <tbody><tr><th scope="row">Score out of 100</th>{attempts.map(score => <td key={score}>{score}</td>)}</tr></tbody>
+        </table>
+      </div>
       <p className={s.recommendation}><Target size={16} aria-hidden="true" /><span><strong>Next practice</strong> Explain your individual contribution more clearly.</span></p>
     </figure>
   )

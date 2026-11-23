@@ -142,7 +142,8 @@
 .scoreRing svg { display: block; width: 100%; }
 .scoreRing strong { color: var(--demo-ink); font-size: var(--demo-subtitle); font-variant-numeric: tabular-nums; }
 .scoreRing small { font-size: var(--demo-meta); }
-.attemptTable { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; clip-path: inset(50%); overflow: hidden; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.chartData { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; clip-path: inset(50%); overflow: hidden; }
+.attemptTable { font-variant-numeric: tabular-nums; }
 .recommendation { display: flex; gap: 6px; align-items: flex-start; margin: 3px 0 0; padding: 6px 8px; border-radius: 8px; color: var(--demo-ink); background: var(--demo-mint); font-size: var(--demo-meta); }
 .recommendation svg { flex: none; color: var(--demo-teal); }
 
@@ -203,6 +204,9 @@
 @media (min-width: 1200px) {
   .inner { grid-template-columns: minmax(0,1.05fr) minmax(0,1.9fr) minmax(0,1fr) minmax(0,1.04fr); grid-template-areas: "heading heading heading heading" "photo device device benefits" "journey journey chart chart" "cta cta cta cta"; gap: 16px; }
   .editorialPhoto { display: block; }
+  .practice { align-self: stretch; display: flex; flex-direction: column; }
+  .portrait { flex: 1; }
+  .voice { flex: none; }
   .device::after { inset-inline: -9px; }
   .chartBody { grid-template-columns: minmax(0,1fr) 105px; }
   .plot svg { max-height: 170px; }
