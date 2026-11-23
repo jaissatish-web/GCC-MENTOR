@@ -127,7 +127,15 @@ try{
    const navigation=performance.getEntriesByType("navigation")[0]; const resources=performance.getEntriesByType("resource");
    return{navigation:{domContentLoadedMs:navigation.domContentLoadedEventEnd,loadMs:navigation.loadEventEnd,resourceCount:resources.length,transferBytes:resources.reduce((n,r)=>n+r.transferSize,0)},width:innerWidth,height:document.documentElement.scrollHeight,scrollWidth:document.documentElement.scrollWidth,hero:{font:s.fontFamily,size:s.fontSize,weight:s.fontWeight,color:s.color,box:h.getBoundingClientRect().toJSON()},orbitCount:document.querySelectorAll('.actual-template-orbit-face').length,flags:document.querySelectorAll('img[src*="/flags/"]').length,industryTiles:document.querySelectorAll('[data-industry]').length,brokenImages:images.filter(i=>!i.complete||i.naturalWidth===0).map(i=>i.src),links:[...document.querySelectorAll('a[href]')].map(a=>({text:a.textContent.trim(),href:a.getAttribute('href')})),invalidAnchors:[...document.querySelectorAll('a[href^="#"]')].map(a=>a.getAttribute('href')).filter(v=>v.length>1&&!document.getElementById(v.slice(1))),selectFonts:[...document.querySelectorAll('select')].map(e=>getComputedStyle(e).fontSize)}
   });results.viewports.push(state)
-  await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await page.waitForFunction(()=>scrollY===0);await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
+  // Move focus out of the deep package card before screenshot positioning.
+  // Native focus scrolling can otherwise compete with scrollTo in Chromium.
+  await page.$eval('header a', e=>e.focus({preventScroll:true}));
+  await page.keyboard.press('Control+Home');
+  await page.waitForFunction(()=>scrollY===0).catch(async error=>{
+    console.error('Screenshot positioning', await page.evaluate(()=>({width:innerWidth,scrollY,focused:document.activeElement?.outerHTML,scrollBehavior:getComputedStyle(document.documentElement).scrollBehavior})));
+    throw error;
+  });
+  await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
   if(width===1440) assert.ok(await page.evaluate(()=>Math.abs(document.querySelector('#industries').getBoundingClientRect().top-document.querySelector('#markets').getBoundingClientRect().top)<2),'Approved desktop industries and globe share a row');
   if(width===1440)assert.ok(await page.$$eval('[data-uds=globe-country]',es=>es.every(e=>e.getBoundingClientRect().height<=88)),'Globe country labels must not wrap character by character');
   await page.screenshot({path:`${out}/landing-${width}.png`,fullPage:true})
