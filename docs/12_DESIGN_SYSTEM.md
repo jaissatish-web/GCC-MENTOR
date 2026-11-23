@@ -946,3 +946,7 @@ After reviewing the live showcase, Satish requested a centered carousel at half 
 Approved for a branch preview and founder review. Replace the public #interview section with the desktop photo, laptop demonstration, four benefits, interview journey, sample progress and CTA from the approved desktop and mobile references. Phones use 16px outer margins and a native interviewer panel, followed by mentor tabs, a chart, benefits, journey and CTA. Retain Omar, keyboard controls, motion preferences and the existing /mock-interview destination. Public examples are deterministic and illustrative. Keep the main landing sections, scoring, service requests, access and candidate data outside the change.
 
 Affected files: app/page.tsx, InterviewDemo.tsx and its scoped stylesheet, retired interview rules in landing.module.css, and the landing verification scripts. Verify the full built page at phone, tablet and desktop sizes, keyboard tabs, reduced motion, sample scores, CTA and visual comparison. Approval is required before production release.
+
+### Resume showcase dark brand surface
+
+Satish approved a deep-navy surface for the rotating resume showcase only, with a restrained teal glow, light caption, and mint link and focus styles. The section is an explicit exception to the white and slate landing bands. Keep the real white resume pages, split halo, carousel measurements and reader. Verify the backdrop, text contrast, and existing carousel behavior on phone and desktop. The change is scoped to showcase styles, its loading text and landing browser checks.
