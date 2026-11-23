@@ -2197,3 +2197,7 @@ After reviewing production, Satish updated the showcase width to half the deskto
 ## 23 November 2026 — AI Mock Interview landing showcase
 
 Satish approved replacing the public interview section using the approved desktop and mobile references. Use a Gulf interview practice photo and a real interactive sample, with mentor-style guidance and clearly illustrative progress. Scope is the landing presentation. Use a dedicated PR and preview for visual approval before release.
+
+## 23 November 2026 — Darken the rotating resume showcase
+
+Satish approved a dark brand surface for the existing resume carousel, with the established deep navy, restrained teal, and sufficient contrast for the copy and controls. Scope is the showcase surface and foreground colors.

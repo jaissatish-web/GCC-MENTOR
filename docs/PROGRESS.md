@@ -651,3 +651,9 @@ Founder approved the [interview-only redesign](12_DESIGN_SYSTEM.md#ai-mock-inter
 Implemented the photo, laptop and native mobile practice views, Feedback / Answer Guide / Progress tabs, illustrative overall scores, five-step journey, and service CTA. The public demo animates only a sample waveform and uses the existing Omar and interview preparation images. Preview, browser measurements and review are tracked in the dedicated PR. Production approval is pending.
 
 Targeted visual check caught an overflow from the accessible chart table at 200% root text. Constrain its screen-reader container so the data remains accessible and the page fits. Keep the full desktop laptop portrait in balance with the feedback pane. Verify the final head in PR #141.
+
+## Resume showcase dark brand surface — 23 November 2026
+
+Satish approved the mock interview release and requested a dark, brand-matched resume showcase. Verify the showcase's local navy and teal palette and existing orbit at phone and desktop sizes. Other landing sections and resume documents are outside the visual change.
+
+Implemented the deep-navy backdrop, subtle teal glow and readable section copy and link. The browser check covers the new palette and white paper alongside the existing carousel bounds and interactions. Release status and evidence are tracked in the scoped pull request.

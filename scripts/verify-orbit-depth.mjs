@@ -24,6 +24,20 @@ try {
   await page.evaluate(()=>document.fonts.ready)
   const layers=await page.$eval('[data-uds=visual]',e=>{const rear=getComputedStyle(e,'::before'),front=getComputedStyle(e,'::after');return {isolation:getComputedStyle(e).isolation,rear:{z:rear.zIndex,clip:rear.clipPath,pointer:rear.pointerEvents,box:rear.inset},front:{z:front.zIndex,clip:front.clipPath,pointer:front.pointerEvents,box:front.inset},carouselZ:getComputedStyle(e.children[1]).zIndex,faces:e.querySelectorAll('.actual-template-orbit-face').length}})
   assert.equal(layers.isolation,'isolate');assert.equal(layers.rear.z,'0');assert.equal(layers.carouselZ,'1');assert.equal(layers.front.z,'2');assert.equal(layers.rear.clip,'inset(0px 0px 50%)');assert.equal(layers.front.clip,'inset(50% 0px 0px)');assert.equal(layers.front.pointer,'none');assert.equal(layers.rear.pointer,'none');assert.equal(layers.rear.box,layers.front.box)
+  const palette = await page.$eval('#templates', section => {
+   const selected = section.querySelector('[data-orbit-centre]')
+   return {
+    background: getComputedStyle(section).backgroundColor,
+    heading: getComputedStyle(section.querySelector('h2')).color,
+    caption: getComputedStyle(section.querySelector('h2 + span')).color,
+    link: getComputedStyle(section.querySelector('a')).color,
+    paper: getComputedStyle(selected.querySelector('.actual-template-orbit-face')).backgroundColor,
+   }
+  })
+  assert.deepEqual(palette, {
+   background: 'rgb(11, 22, 40)', heading: 'rgb(255, 255, 255)', caption: 'rgb(204, 217, 229)',
+   link: 'rgb(167, 234, 219)', paper: 'rgb(255, 255, 255)',
+  })
   const geometry = await page.$eval('[aria-roledescription=carousel]', carousel => {
    const box = carousel.getBoundingClientRect()
    const buttons = [...carousel.querySelectorAll('button[data-front]')]
@@ -51,7 +65,7 @@ try {
   assert.deepEqual(geometry.clippedCards, [])
   assert.ok(geometry.cardCoverage >= (width < 768 ? 0.9 : 0.84), JSON.stringify(geometry))
   if (width !== 390 && width !== 1440) {
-   results.push({width,layers,geometry})
+   results.push({width,layers,palette,geometry})
    console.log('PASS orbit layout', width)
    continue
   }
@@ -59,7 +73,7 @@ try {
   await page.$eval('#templates',e=>e.scrollIntoView({behavior:'instant'}));await page.screenshot({path:`${outDepth}/orbit-${width}.png`,fullPage:false});await (await page.$('#templates')).screenshot({path:`${outDepth}/orbit-section-${width}.png`})
   const before=await page.$eval('[data-orbit-centre=true]',e=>e.getAttribute('aria-label'));await page.focus('[aria-roledescription=carousel] button[data-orbit-centre=true]');await page.keyboard.press('ArrowRight');await page.waitForFunction(label=>document.querySelector('[data-orbit-centre=true]').getAttribute('aria-label')!==label,{},before)
   await page.click('[data-orbit-centre=true]');await page.waitForSelector('dialog[open]');assert.equal(await page.$eval('dialog',e=>e.parentElement===document.body),true);await page.keyboard.press('Escape');await page.waitForFunction(()=>!document.querySelector('dialog[open]'))
-  await page.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'no-preference'}]);await page.$eval('#templates',e=>e.scrollIntoView({behavior:'instant'}));const transform=await page.$eval('[aria-roledescription=carousel] button',e=>e.style.transform);await page.waitForFunction(t=>document.querySelector('[aria-roledescription=carousel] button').style.transform!==t,{},transform);await page.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'reduce'}]);results.push({width,layers,geometry,keyboardSelection:true,readerOpenEscape:true,animationMovement:true,overlayInterceptsInput:false});console.log('PASS orbit depth',width)
+  await page.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'no-preference'}]);await page.$eval('#templates',e=>e.scrollIntoView({behavior:'instant'}));const transform=await page.$eval('[aria-roledescription=carousel] button',e=>e.style.transform);await page.waitForFunction(t=>document.querySelector('[aria-roledescription=carousel] button').style.transform!==t,{},transform);await page.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'reduce'}]);results.push({width,layers,palette,geometry,keyboardSelection:true,readerOpenEscape:true,animationMovement:true,overlayInterceptsInput:false});console.log('PASS orbit depth',width)
  }
  assert.deepEqual(errors,[])
 } finally {writeFileSync(`${outDepth}/results.json`,JSON.stringify(results,null,2));await browser?.close();server.close()}

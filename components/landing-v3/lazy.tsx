@@ -12,7 +12,7 @@ import { useEffect, useRef, useState } from 'react'
  * nothing jumps when it arrives.
  */
 function OrbitLoading() {
-  return <div className="flex h-[336px] items-center justify-center gap-2 min-[480px]:h-[432px]" role="status" style={{ color: 'var(--lp-body-text, #475569)' }}><LoaderCircle className="size-5 animate-spin motion-reduce:animate-none" aria-hidden="true" /><span className="type-helper">Loading resume designs…</span></div>
+  return <div className="flex h-[336px] items-center justify-center gap-2 min-[480px]:h-[432px]" role="status" style={{ color: 'var(--resume-caption, #475569)' }}><LoaderCircle className="size-5 animate-spin motion-reduce:animate-none" aria-hidden="true" /><span className="type-helper">Loading resume designs…</span></div>
 }
 
 const LoadedDocumentOrbit = dynamic(() => import('./DocumentOrbit').then((m) => m.DocumentOrbit), {

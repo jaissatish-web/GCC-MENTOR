@@ -253,7 +253,7 @@ try{
     fonts:{inter:fontVar('--font-inter')},
     ground:style(document.querySelector('[data-website-ui]')).backgroundColor,
     services:{background:style(services).backgroundColor,paddingTop:style(services).paddingTop,borderBottomWidth:style(services).borderBottomWidth,borderBottomColor:style(services).borderBottomColor},
-    sectionBackgrounds:[...new Set([...document.querySelectorAll('main section')].map(section=>style(section).backgroundColor))],
+    sectionBackgrounds:[...new Set([...document.querySelectorAll('main section:not(#templates)')].map(section=>style(section).backgroundColor))],
     title:{color:style(title).color,weight:style(title).fontWeight,size:parseFloat(style(title).fontSize),line:parseFloat(style(title).lineHeight)/parseFloat(style(title).fontSize),family:family(title)},
     lead:{color:style(lead).color,size:parseFloat(style(lead).fontSize),line:parseFloat(style(lead).lineHeight)/parseFloat(style(lead).fontSize),family:family(lead)},
     helper:{color:style(helper).color,size:parseFloat(style(helper).fontSize),background:style(helper).backgroundColor,borderWidth:style(helper).borderTopWidth,surface:(()=>{const section=helper.closest('section');return section?style(section).backgroundColor:'rgba(0, 0, 0, 0)'})()},
