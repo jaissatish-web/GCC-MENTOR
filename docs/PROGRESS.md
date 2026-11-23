@@ -631,3 +631,9 @@ Acceptance: neither removed block nor its preview tabs/CTA appears; no empty gri
 Verification follow-up: PR CI 45108226714 passed the full suite on cc07140. The duplicate push run twice timed out in screenshot setup waiting for scrollY === 0 after focus on a deep package-card button (different viewport on retry). Adjust only test setup: move focus to the header link before native Control+Home; retain the exact scroll-position assertion and every product assertion, and log positioning diagnostics on failure. No application change. Corrected-head hosted CI required.
 
 Keyboard API correction: Puppeteer needs separate Control down / Home press / Control up calls. Verified these calls against the installed CdpKeyboard with a recording protocol client: expected key events and modifier release passed; no browser success is inferred. Final hosted CI pending.
+
+## Rotating resume showcase width — 23 November 2026
+
+Implemented the [approved showcase width](12_DESIGN_SYSTEM.md#rotating-resume-showcase-width--23-november-2026) in PR #139. Local typecheck, lint, production build, and all 103 repository checks passed. Chromium verified gutters, no horizontal overflow, and all ten cards within the carousel at 320, 390, 768, 1440, and 1920px. The 390px and 1440px runs also verified movement, front and rear depth, keyboard selection, and the full-size reader. GitHub CI and production verification are tracked in the PR.
+
+CI follow-up: the landing screenshot setup timed out at 768px while using native keyboard scrolling. Use an instant scroll for screenshot positioning and retain the exact scroll-position check and all interaction assertions.

@@ -27,11 +27,32 @@ const N = ITEMS.length
 const STEP = (Math.PI * 2) / N
 const FRONT = Math.PI / 2
 const PAGE_W = 794
+const CARD_W = 170
+const ORBIT_PADDING = 8
 const TURN_MS = 52_000
-const LAYOUTS = {
-  wide: { k: 1.07, ry: 100, box: 480, track: 230, trackW: 1000, trackH: 380, innerW: 700, innerH: 240 },
-  compact: { k: 0.65, ry: 62, box: 350, track: 170, trackW: 340, trackH: 230, innerW: 240, innerH: 160 },
-} as const
+function orbitLayout(width: number) {
+  const compact = width < 480
+  const size = compact
+    ? Math.max(0.76, Math.min(1, width / 360))
+    : Math.max(0.9, Math.min(1.18, 0.8 + width / 4800))
+  const orbitScale = (compact ? 0.65 : 1.07) * size
+  const box = compact ? 350 : 480 * Math.max(1, size)
+
+  // Reserve room for the widest orbiting card and its focus outline at each edge.
+  const radius = Math.max(0, (width - CARD_W * 0.9 * orbitScale) / 2 - ORBIT_PADDING)
+  return {
+    radius,
+    orbitScale,
+    focusScale: (compact ? 1.1 : 1.45) * size,
+    focusLift: compact ? 14 : 28,
+    rise: compact ? 62 : 100,
+    box,
+    track: box / 2 - (compact ? 5 : 10),
+    trackHeight: compact ? 230 : 380,
+    innerHeight: compact ? 160 : 240,
+  }
+}
+
 const ItemRender = memo(function ItemRender({ item }: { item: Item }) {
   return <SampleResumePreview templateId={item.id} />
 })
@@ -82,8 +103,6 @@ export function DocumentOrbit({ className }: { className?: string }) {
   const target = useRef<number | null>(null)
   const playingRef = useRef(true)
   const selRef = useRef(0)
-  const rxRef = useRef(460)
-  const compactRef = useRef(false)
   const reduced = useRef(false)
   const focus = useRef(ITEMS.map((_, i) => i === 0 ? 1 : 0))
   const gesture = useRef<{ x: number; y: number } | null>(null)
@@ -91,15 +110,13 @@ export function DocumentOrbit({ className }: { className?: string }) {
   const kick = useRef<() => void>(() => {})
 
   const [sel, setSel] = useState(0)
-  const [compact, setCompact] = useState(false)
-  const [rx, setRx] = useState(460)
+  const [layout, setLayout] = useState(() => orbitLayout(960))
+  const layoutRef = useRef(layout)
   const [zoomed, setZoomed] = useState<Item | null>(null)
 
 
-  const L = compact ? LAYOUTS.compact : LAYOUTS.wide
   const paint = useCallback(() => {
-    const lay = compactRef.current ? LAYOUTS.compact : LAYOUTS.wide
-    const rx = rxRef.current
+    const { radius, orbitScale, focusScale, focusLift, rise } = layoutRef.current
     for (let i = 0; i < N; i++) {
       const el = slots.current[i]
       if (!el) continue
@@ -107,8 +124,8 @@ export function DocumentOrbit({ className }: { className?: string }) {
       const sn = Math.sin(th)
       const d = (sn + 1) / 2
       const f = focus.current[i]
-      const sc = (0.55 + 0.35 * d) * lay.k * (1 - f) + (compactRef.current ? 1.1 : 1.45) * f
-      el.style.transform = `translate(-50%, -50%) translate(${(rx * Math.cos(th) * (1 - f)).toFixed(1)}px, ${(lay.ry * sn * (1 - f) - (compactRef.current ? 14 : 28) * f).toFixed(1)}px) scale(${sc.toFixed(3)})`
+      const sc = (0.55 + 0.35 * d) * orbitScale * (1 - f) + focusScale * f
+      el.style.transform = `translate(-50%, -50%) translate(${(radius * Math.cos(th) * (1 - f)).toFixed(1)}px, ${(rise * sn * (1 - f) - focusLift * f).toFixed(1)}px) scale(${sc.toFixed(3)})`
       el.style.zIndex = String(Math.round((sn > 0 ? 60 + d * 40 : 10 + d * 30) * (1 - f) + 50 * f))
       el.style.opacity = (0.55 + 0.45 * Math.max(d, f)).toFixed(2)
       el.dataset.front = sn > 0 ? '1' : '0'
@@ -119,12 +136,9 @@ export function DocumentOrbit({ className }: { className?: string }) {
     const box = boxRef.current
     if (!box) return
     const measure = () => {
-      const w = box.clientWidth
-      const isCompact = w < 480
-      compactRef.current = isCompact
-      rxRef.current = isCompact ? Math.max(65, Math.min(140, (w - 104) / 2)) : Math.min(470, (w - 170) / 2)
-      setCompact(isCompact)
-      setRx(rxRef.current)
+      const measured = orbitLayout(box.clientWidth)
+      layoutRef.current = measured
+      setLayout(measured)
       paint()
     }
     measure()
@@ -259,7 +273,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
     >
       <div
         className="relative"
-        style={{ height: L.box, touchAction: 'pan-y' }}
+        style={{ height: layout.box, touchAction: 'pan-y' }}
         onPointerDown={(event) => {
           if (!event.isPrimary) return
           gesture.current = { x: event.clientX, y: event.clientY }
@@ -286,9 +300,9 @@ export function DocumentOrbit({ className }: { className?: string }) {
         aria-hidden="true"
         className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2"
         style={{
-          top: L.track,
-          width: Math.min(L.trackW, rx * 2 + 60),
-          height: L.trackH,
+          top: layout.track,
+          width: layout.radius * 2 + 60,
+          height: layout.trackHeight,
           borderRadius: 0,
           boxShadow: 'none',
           border: '1px solid var(--lp-line, #E2E8F0)',
@@ -297,7 +311,7 @@ export function DocumentOrbit({ className }: { className?: string }) {
       <div
         aria-hidden="true"
         className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2"
-        style={{ top: L.track, width: Math.min(L.innerW, rx * 1.45), height: L.innerH, borderRadius: 0, border: '1px solid var(--lp-line, #E2E8F0)' }}
+        style={{ top: layout.track, width: layout.radius * 1.45, height: layout.innerHeight, borderRadius: 0, border: '1px solid var(--lp-line, #E2E8F0)' }}
       />
 
       {ITEMS.map((item, i) => {
@@ -315,10 +329,10 @@ export function DocumentOrbit({ className }: { className?: string }) {
             aria-label={`Open ${itemName(item)}, ${sample.displayName}, ${sample.targetJobTitle}`}
             aria-pressed={on}
             className={cn(
-              'absolute left-1/2 w-[170px] rounded-[var(--lp-radius-lg,10px)] border bg-white p-1.5 text-left',
+              'absolute left-1/2 rounded-[var(--lp-radius-lg,10px)] border bg-white p-1.5 text-left',
               'transition-colors motion-reduce:transition-none',
             )}
-            style={{ top: L.track, boxShadow: 'none', borderColor: on ? 'var(--lp-accent, #B47B2B)' : 'var(--lp-line, #E2E8F0)' }}
+            style={{ top: layout.track, width: CARD_W, boxShadow: 'none', borderColor: on ? 'var(--lp-accent, #B47B2B)' : 'var(--lp-line, #E2E8F0)' }}
           >
             <FittedPage item={item} width={154} height={218} />
             <span className="flex flex-col px-1 pb-[3px] pt-[7px]">

@@ -2185,3 +2185,7 @@ Implementation and local verification complete:92/92 checks, build/lint/types, s
 
 ## 23 November 2026 — Remove redundant landing explanations
 Satish requested complete removal of the screenshot-identified three-step journey and tabbed connected-package preview. Keep the separate real resume-design orbit and CareerProfilePackages explanation. Scope is landing presentation only; implementation authorized, release tracked separately.
+
+## 23 November 2026 — Widen the rotating resume showcase
+
+Satish approved a width-only correction for the existing landing showcase with 16px mobile gutters and 32–48px desktop gutters. Preserve the existing interaction, content, templates and other landing sections. Release is authorized after checks pass. See the [showcase acceptance criteria](12_DESIGN_SYSTEM.md#rotating-resume-showcase-width--23-november-2026).
