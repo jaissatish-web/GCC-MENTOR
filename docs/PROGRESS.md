@@ -667,3 +667,9 @@ Implemented the phone dimensions using the destination grid gap and shared contr
 Satish approved the tile proportions and requested the three-row arrangement in PR #143. Move the countries into the middle strip, reverse both employer rows to move left to right, and verify direction, matching tile dimensions, accessible source lists, and shared pause behavior.
 
 Satish reviewed the three-row preview and requested equal tile dimensions and a simpler presentation. Match all three rows with shared tile sizing and surface styles, remove the visible header, and use a concise affiliation note that fits on one line at default phone widths.
+
+## Full-width industries and signup globe — 24 November 2026
+
+Satish approved the [full-width industry photos and signup globe](12_DESIGN_SYSTEM.md#full-width-industries-and-signup-globe--24-november-2026). Verify edge-to-edge images, the desktop split, mobile form order, active and reduced motion, and keyboard country selection before review. Production release requires separate approval.
+
+Implemented the full-width industry strip and the signup-only globe with blue land dots, light-blue route arrows and pause/play. The local optimized build and all 103 repository checks passed. The landing browser suite confirmed full-width imagery from 320px to 1440px. Signup interaction evidence and preview status are tracked in PR #144. The visual review caught the signup theme overriding dark-panel text colors. The globe panel now remaps the shared text tokens locally, and the industry lead is centered.

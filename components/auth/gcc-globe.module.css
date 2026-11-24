@@ -1,0 +1,114 @@
+.panel {
+  --globe-text: #eff8ff;
+  --globe-muted: #b4cfe7;
+  --globe-accent: #84deff;
+  --globe-line: #2b5277;
+  --ui-ink: var(--globe-text);
+  --ui-ink-soft: var(--globe-muted);
+
+  display: grid;
+  min-height: 100%;
+  place-items: center;
+  padding: 32px clamp(16px, 3vw, 48px);
+  background: radial-gradient(ellipse at 50% 38%, #123e68 0%, #0b2342 39%, #071629 77%);
+  color: var(--globe-text);
+}
+
+.content {
+  width: 100%;
+  max-width: 520px;
+  min-width: 0;
+  text-align: center;
+}
+
+
+.globe {
+  width: 100%;
+  max-width: min(410px, 44vh);
+  margin: 0 auto;
+}
+
+.countries {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 0;
+  margin: 12px 0 0;
+  list-style: none;
+}
+
+@media (min-width: 460px) {
+  .countries {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1150px) {
+  .countries {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.country,
+.motion {
+  color: var(--globe-text);
+  border-radius: var(--ui-control-radius);
+}
+
+.country {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  height: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--globe-line);
+  background: #0a203c;
+  text-align: left;
+  font-size: var(--ui-helper-size);
+  font-weight: var(--ui-weight-label);
+  overflow-wrap: anywhere;
+}
+
+.country:hover,
+.country[aria-pressed="true"] {
+  background: #163c62;
+  border-color: var(--globe-accent);
+}
+
+.motion {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  gap: 7px;
+  padding-inline: 8px;
+  color: var(--globe-accent);
+  font-size: var(--ui-helper-size);
+}
+
+.motion:hover {
+  text-decoration: underline;
+}
+
+.country:focus-visible,
+.motion:focus-visible {
+  outline: 2px solid var(--globe-accent);
+  outline-offset: 2px;
+}
+
+.guidance {
+  margin-top: 12px;
+  padding: 12px;
+  border-top: 1px solid var(--globe-line);
+  color: var(--globe-muted);
+  font-size: var(--ui-helper-size);
+  text-align: left;
+}
+
+.guidance > p:first-child {
+  margin-bottom: 4px;
+  color: var(--globe-text);
+}

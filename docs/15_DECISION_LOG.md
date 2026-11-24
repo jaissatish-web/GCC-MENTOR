@@ -2209,3 +2209,7 @@ Satish approved matching the phone employer tile dimensions to the country grid 
 Satish also approved moving the countries into a middle strip that moves right to left, between two company strips that move left to right.
 
 Satish approved matching the marquee card dimensions and removing the visible marquee heading. The short affiliation note remains below the three rows.
+
+## 24 November 2026 · Full-width industries and signup globe
+
+Satish requested edge-to-edge industry photos on the landing page and moved the six-market globe to signup. Use an electric-blue Earth with moving light-blue dotted arrows, a half-width panel to the left of credentials on laptops, and credentials first on phones. Reuse the present image assets and globe renderer.

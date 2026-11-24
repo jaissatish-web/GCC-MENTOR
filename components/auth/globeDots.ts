@@ -1,5 +1,5 @@
 /**
- * Land dots for the landing-page globe — GENERATED, do not edit by hand.
+ * Land dots for the GCC signup globe — GENERATED, do not edit by hand.
  *
  * Source: Natural Earth 1:110m land polygons (public domain,
  * naturalearthdata.com), sampled every 1.5° with longitude spacing widened

@@ -5,7 +5,7 @@ import { ArrowUpRight, BookOpen, Check, ChevronRight, ClipboardCheck, FileText, 
 import { AuthLinkCatcher } from '@/components/auth/AuthLinkCatcher'
 import { PremiumNav } from '@/components/landing-v3/PremiumNav'
 import { LandingFooter } from '@/components/landing-v3/LandingFooter'
-import { DocumentOrbit, GccGlobe } from '@/components/landing-v3/lazy'
+import { DocumentOrbit } from '@/components/landing-v3/lazy'
 import { InterviewDemo } from '@/components/landing-v3/InterviewDemo'
 import { CareerProfilePackages } from '@/components/landing-v3/CareerProfilePackages'
 import { CandidateConcerns } from '@/components/landing-v3/CandidateConcerns'
@@ -62,10 +62,22 @@ export default function Home() {
         <div className={s.heroVisual} data-uds="visual"><div className={s.visualLabel}><h2 id="templates-title">Real resume designs</h2><span>Sample template content, not a customer resume</span></div><DocumentOrbit /><div className={s.visualFoot}><Link href="/templates">Browse designs, sign-in required </Link></div></div>
       </div></section>
       <InterviewDemo />
-      <div className={s.secondaryGrid}>
-      <section id="industries" className={s.industriesSection} aria-labelledby="industries-title"><div className={s.inner}><h2 id="industries-title" className={s.sectionTitle} data-uds="marketing-title">Preparation across industries and career stages</h2><p className={s.sectionLead}>Prepare from your own experience, whatever your profession or career stage.</p><ul className={s.industryGrid}>{industries.map(([name,Icon,file],i)=><li key={name} className={s.industryTile}><span className={s.industryPhoto} data-industry={i} role="img" aria-label={`${name} illustrative scene`}><Image src={`/landing/v2/industries/${file}.webp`} alt="" fill sizes="(min-width:960px) 16vw, (min-width:600px) 31vw, 46vw" /></span><span className={s.industryLabel}><Icon size={19} aria-hidden="true" />{name}</span></li>)}</ul></div></section>
-      <section id="markets" className={s.marketsSection} data-uds="section" aria-label="Explore the six Gulf markets"><div className={s.inner}><div className={s.globeBoundary} data-uds="website-widget"><GccGlobe compact /></div></div></section>
-      </div>
+      <section id="industries" className={s.industriesSection} aria-labelledby="industries-title">
+        <div className={s.inner}>
+          <h2 id="industries-title" className={s.sectionTitle} data-uds="marketing-title">Preparation across industries and career stages</h2>
+          <p className={s.sectionLead}>Prepare from your own experience, whatever your profession or career stage.</p>
+        </div>
+        <ul className={s.industryGrid}>
+          {industries.map(([name, Icon, file], index) => (
+            <li key={name} className={s.industryTile}>
+              <span className={file === 'operations' ? `${s.industryPhoto} ${s.industryPortrait}` : s.industryPhoto} data-industry={index}>
+                <Image src={`/landing/v2/industries/${file}.webp`} alt="" fill sizes="(min-width:960px) 17vw, (min-width:600px) 33vw, 50vw" />
+              </span>
+              <span className={s.industryLabel}><Icon size={19} aria-hidden="true" />{name}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
       <div className={s.lowerGrid}>
       <section id="plans" className={s.plansSection} data-uds="section" aria-labelledby="plans-title"><div className={s.inner}><div className={s.sectionHeadCenter}><h2 id="plans-title" className={s.sectionTitle} data-uds="marketing-title">Start with clarity</h2><p className={s.sectionLead}>Understand access before you begin.</p></div><div className={s.accessCards}>
         <article className={s.accessCard}><span className={s.accessIcon}><Rocket size={27}/></span><div><h3>Free readiness</h3><p>Start before signup.</p><Link href="/gulf-readiness-score" className={s.textLink}>Check my readiness</Link></div></article>
