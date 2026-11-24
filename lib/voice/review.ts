@@ -5,7 +5,7 @@ import { normalizeMockInterviewFeedback, normalizeMockInterviewReport, onHundred
 import { collectNumbers, placeholderNumbers, unsourcedNumbers } from '@/lib/ai/answerGrounding'
 import { groundAnswer, notInCvFeedback, profileEvidenceText, splitSentences, totalExperienceYears, unverifiedEntityClaims, unsupportedAnswerClaims, claimsInFeedback, NOT_IN_CV_PREFIX } from '@/lib/ai/proseClaims'
 import { reserveAiAction } from '@/lib/ai/serviceGuard'
-import { incrementRateLimit, LIMIT_ACTION_MOCK_ANSWER, LIMIT_ACTION_MOCK_REPORT, LIMIT_ACTION_MOCK_TRANSCRIPTION } from '@/lib/rateLimit'
+import { LIMIT_ACTION_MOCK_ANSWER, LIMIT_ACTION_MOCK_REPORT, LIMIT_ACTION_MOCK_TRANSCRIPTION } from '@/lib/rateLimit'
 import { completeMockRunAtomic, recordMockAnswerAtomic } from '@/lib/packages/serverWrites'
 import { voiceAdmin, voiceAnswers, voiceEnabled, voiceTranscriptionAuth } from './server'
 import { NO_SPEECH_TRANSCRIPT, VOICE_BUCKET, type VoiceSession, type VoiceFeedback, type VoiceAnswer } from './types'
@@ -47,22 +47,20 @@ async function withRetry(started: number, work: () => Promise<void>): Promise<vo
 }
 
 /**
- * One reservation for a whole batch — each AI action allows one at a time per
- * user, so a reservation per answer would refuse its own parallel siblings as
- * "busy" — then one use counted per answer that succeeded, exactly as before.
+ * One reservation holds the batch's approved share of the daily allowance.
+ * Answers run in parallel within that share. The queue retains the rest.
  */
 async function guardedBatch<T>(userId: string, action: string, items: T[], started: number, work: (item: T) => Promise<void>): Promise<{ done: number; error: string | null }> {
-  const reservation = await reserveAiAction({ userId, action, ttlSeconds: 200 })
+  const reservation = await reserveAiAction({ userId, action, ttlSeconds: 200, units: items.length })
   if (!reservation.ok) throw new Error(reservation.error)
   let done = 0
   try {
-    const results = await Promise.allSettled(items.map((item) => withRetry(started, () => work(item))))
+    const results = await Promise.allSettled(items.slice(0, reservation.units).map((item) => withRetry(started, () => work(item))))
     done = results.filter((r) => r.status === 'fulfilled').length
     const failed = results.find((r): r is PromiseRejectedResult => r.status === 'rejected')
     return { done, error: failed ? (failed.reason instanceof Error ? failed.reason.message : String(failed.reason)) : null }
   } finally {
-    await reservation.finish(done > 0)
-    for (let i = 1; i < done; i++) await incrementRateLimit({ userId, action })
+    await reservation.finish(done)
   }
 }
 

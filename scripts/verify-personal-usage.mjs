@@ -18,7 +18,10 @@ const service = {
       then(ok, no) { return Promise.resolve(result()).then(ok, no) } }
     return q
   },
-  async rpc(name, args) { calls.push({ name, args }); return { error: null, data: { status: reserveStatus, reservation_id: 'reservation' } } },
+  async rpc(name, args) {
+    calls.push({ name, args })
+    return { error: null, data: { status: reserveStatus, reservation_id: 'reservation', granted_units: 2 } }
+  },
 }
 const id = require.resolve('../lib/supabase/serviceAdmin.ts')
 require.cache[id] = { id, filename: id, loaded: true, exports: { createServiceRoleClient: () => service } }
@@ -53,6 +56,15 @@ const duty = await reserveAiAction({ userId: 'other-user', action: 'typical_duti
 assert.equal(duty.ok, true)
 await duty.finish(false)
 assert.equal(calls.at(-1).name, 'release_rate_limit_reservation')
+const voice = await reserveAiAction({ userId: 'other-user', action: 'mock_interview_answer', units: 5 })
+assert.equal(voice.ok, true)
+assert.equal(voice.units, 2)
+assert.equal(calls.at(-1).name, 'reserve_rate_limit_units')
+assert.equal(calls.at(-1).args.p_requested_units, 5)
+await voice.finish(1)
+assert.equal(calls.at(-1).name, 'settle_rate_limit_units')
+assert.equal(calls.at(-1).args.p_successful_units, 1)
+
 
 paused = true
 assert.equal((await reserveAiAction(action)).code, 'paused')

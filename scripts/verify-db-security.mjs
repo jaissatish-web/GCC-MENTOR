@@ -172,6 +172,30 @@ console.log('\nLaunch usage protection')
   )).rows.every((row) => !row.anon && !row.authenticated))
 }
 
+{
+  const action = 'voice_batch_fixture'
+  const batch = (uid, units, limit, globalLimit) => asService(db, () =>
+    db.query('select * from public.reserve_rate_limit_units($1, $2, current_date, $3, $4, $5, 2, 360, $6)',
+      [uid, action, [uid], limit, globalLimit, units]),
+  ).then((r) => r.rows[0])
+  const settle = (id, units) => asService(db, () =>
+    db.query('select public.settle_rate_limit_units($1, $2) ok', [id, units]),
+  ).then((r) => r.rows[0].ok)
+
+  const first = await batch(A, 5, 3, 4)
+  check('voice batch reserves its available per-user capacity', first.status === 'reserved' && first.granted_units === 3)
+  check('single-use guard sees pending batch capacity', (await reserve(A, action, 3, 2, 4)).status === 'limit')
+  const second = await batch(B, 5, 5, 4)
+  check('another account gets only the remaining global capacity', second.status === 'reserved' && second.granted_units === 1)
+  check('no additional model work can start at full global capacity', (await batch(B, 1, 5, 4)).status === 'global_limit')
+  check('partial success releases unused capacity', await settle(first.reservation_id, 1))
+  check('batch settlement is idempotent', !(await settle(first.reservation_id, 1)))
+  const retry = await batch(A, 3, 3, 4)
+  check('failed or unused batch units can be retried', retry.status === 'reserved' && retry.granted_units === 2)
+  const used = await db.query('select count from public.rate_limits where user_id = $1 and action = $2', [A, action])
+  check('only successful answers count against allowance', used.rows[0]?.count === 1)
+}
+
 console.log('\nM14 · founder usage counters (counted where limits are enforced)')
 {
   const stat = async (action) =>
