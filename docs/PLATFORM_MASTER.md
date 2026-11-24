@@ -193,15 +193,9 @@ Sources: `app/settings/actions.ts`, `components/settings/DeleteDataSection.tsx`,
 
 A source inspection does not establish that the live website is running the same commit, that live migrations are correct or that every provider/device flow works. These checks were not performed in writing this guide. Historic reports keep their dated results; they do not certify today's deployment.
 
-## 13. The agreed way we work from now on
+## 13. Working on the repository
 
-1. Read root `AGENTS.md`, [00_START_HERE.md](00_START_HERE.md), [PROJECT_PLAN.md](PROJECT_PLAN.md), this guide, [CURRENT_STATE.md](CURRENT_STATE.md), [16_WORKING_AGREEMENT.md](16_WORKING_AGREEMENT.md) and [PROGRESS.md](PROGRESS.md).
-2. Satish explains the desired experience naturally. The lead assistant researches where needed, explains impact and turns the finalized decision into clear requirements.
-3. **Update the agreed specification and acceptance criteria before implementation.** Separate current behavior, proposed behavior and approved pending work.
-4. Implement only the authorized scope. Use bounded subagents where useful and review actual diffs. Visual-only work must preserve service logic and resume typography.
-5. Verify the affected journey, record results and limitations, update actual status and leave a clear next action. Never claim an untested feature is live-ready.
-
-For the present task, the agreed boundary is understanding main, reviewing/removing retired branches and updating documents. No application redesign, logic rewrite, schema change or old experimental feature is authorized by this guide.
+Use [AGENTS.md](../AGENTS.md) for the current development and review workflow.
 
 ## Subsequent authorized profile update — 22 October 2026
 The founder approved the [14-block Career Profile contract](CAREER_PROFILE_BLOCKS.md). This supersedes the preceding documentation-only task boundary for PROFILE-014. Existing fields and flexible categories are reused. Detailed project/client/status facts remain descriptive category data, not new separately queryable columns. Scoring arithmetic and other services remain unchanged; a future single Gulf Profile Readiness rubric is not implemented in this task. See PROGRESS.md for actual validation and release status.

@@ -1,6 +1,6 @@
 # AI service evaluation protocol
 
-Status: protocol established by Batch 1A, 15 November 2026. Evaluation implementation, live runs and production changes are **not approved**. See [working agreement](../16_WORKING_AGREEMENT.md), [open items](../14_OPEN_ITEMS.md) and [release gate](../SAAS_RELEASE_CHECKLIST.md).
+Status: protocol established by Batch 1A, 15 November 2026. Evaluation implementation, live runs and production changes are **not approved**. See [project instructions](../../AGENTS.md), [open items](../14_OPEN_ITEMS.md) and [release gate](../SAAS_RELEASE_CHECKLIST.md).
 
 ## Purpose and boundaries
 

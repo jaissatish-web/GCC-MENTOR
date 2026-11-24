@@ -840,7 +840,7 @@ resume edit, and all downstream services read the edited resume.
 **Founder asked for two things that are not built, and why.** (1) "Add the missing
 keywords into the CV based on the level". Writing a requirement the candidate's profile
 does not state is fabrication, which the grounding rule forbids (refuse-and-explain item
-in [`16_WORKING_AGREEMENT.md`](16_WORKING_AGREEMENT.md) §3). (2) "Show at least +20 points
+in [`16_WORKING_AGREEMENT.md`](https://github.com/jaissatish-web/GCC-MENTOR/blob/92385c853e97aaef27aa633f4ed5fcd029c0b357/docs/16_WORKING_AGREEMENT.md) §3). (2) "Show at least +20 points
 even if not". A score that does not measure the document is a false number shown to a
 paying user. Both were declined, and the legitimate route to each was built instead.
 

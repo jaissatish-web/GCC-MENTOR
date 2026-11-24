@@ -43,7 +43,7 @@ const rows = [
  * because the widest mark (maaden.svg, aspect 9.09) is already width-capped and
  * the most compact (qatarenergy.svg) would need 1.8x to reach the median. The
  * stronger fix - showing fewer marks - is proposed separately in
- * docs/plans/2026-11-17-landing-premium-and-design-consistency.md.
+ * docs/EMPLOYER_MARQUEE.md.
  *
  * Regenerate with analysis/logo-ink.mjs, then analysis/emit-scales.mjs.
  */

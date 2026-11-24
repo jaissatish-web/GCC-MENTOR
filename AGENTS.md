@@ -1,64 +1,67 @@
-## Current founder authorization — Batch 1A, 15 November 2026
+# GCC Mentor
 
-Documentation and development-quality foundation only, on a separate branch from verified main. This dated instruction supersedes older task-specific scope/branch notes below for Batch 1A. Modify only this file and the nine documentation paths listed in docs/16_WORKING_AGREEMENT.md. Open one PR; stop for founder review. No merge or deployment without explicit founder approval.
+GCC Mentor helps professionals preparing for jobs in Saudi Arabia, the UAE,
+Qatar, Oman, Kuwait and Bahrain, including people already working in the Gulf.
+One confirmed Career Profile supports the base CV, tailored job packages and
+interview preparation. The stack is Next.js App Router, React, strict
+TypeScript, Tailwind, Supabase Auth/Postgres/Storage and Vercel.
 
-Superpowers-inspired practices are development guidance, not a runtime integration or proof of plugin activation. Superpowers is not installed for this batch. No dependency installation, paid evaluations or production API calls. Do not modify existing PRs, particularly #79/#80.
+## Where to work
 
-Use brainstorming before plans, root-cause investigation before fixes, red/green/refactor for approved code changes, actual-diff review and verification before completion. Follow docs/16_WORKING_AGREEMENT.md and docs/engineering/AI_SERVICE_EVALUATION.md. Documentation-only work uses consistency/link/scope checks; do not manufacture TDD or claim runtime verification.
+| Concern | Code to inspect first |
+| --- | --- |
+| Public landing and tools | `app/page.tsx`, `components/landing-v3/`, `app/tools/`, `lib/free-tools/` |
+| Career Profile, import and review | `app/profile/page.tsx`, `app/api/profile/`, `lib/resumeParse/`, `lib/careerIntake/` |
+| Readiness, ATS and resume optimization | `lib/gulfReadiness/`, `lib/jobMatch/`, `app/api/optimize/`, `lib/optimizer/` |
+| Resume Library and job packages | `app/dashboard/library/`, `app/package/`, `app/api/packages/` |
+| Cover Letter, Interview Q&A, Mock Interview, reports and progress | Package API routes, `app/mock-interview/`, `lib/voice/` |
+| LinkedIn and NaukriGulf | `app/api/linkedin/`, `app/api/naukrigulf/`, `components/linkedin/` |
+| AI provider, usage and service allowances | `lib/ai/provider.ts`, `lib/ai/providerConfig.ts`, `lib/ai/serviceGuard.ts`, `lib/rateLimit.ts`, `lib/admin/servicePackages.ts` |
+| Resume styles, templates and exports | `lib/resumeStyle.ts`, `lib/templates.ts`, `lib/pdf/`, `app/api/resume/pdf/` and the package PDF/DOCX routes |
+| Account, administration, models, promo codes and logs | `app/settings/`, `app/admin/`, `lib/admin/` |
+| Application design | `tailwind.config.ts`, `app/globals.css`, `app/typography.css` and the [design system](docs/12_DESIGN_SYSTEM.md) |
 
-Future improvements require a measured baseline, smallest safe proposal, founder approval, isolated implementation, comparison, review and separate merge/deployment approval. One approved batch at a time unless parallel work is explicitly authorized. Protect facts, prompts, scoring, auth, database/RLS/configuration, provider keys, quotas/payments/referrals, user data and resume/template/preview/PDF behavior. No automatic agent may broaden scope or approve itself.
+## Rules
 
-# GCC Mentor — instructions for every working session
+- Inspect the current route, callers, schema, and tests before editing. Reuse
+  the existing owner for a responsibility. Verify real columns, endpoints,
+  configuration keys and function contracts before using them. Keep components
+  focused and add files, dependencies or documentation only when needed.
+- Treat current source, verified schema, and explicit founder decisions as
+  authoritative. Dated reports are evidence for their own revisions. Keep
+  feature and release decisions in the existing domain docs or the relevant
+  issue/PR. Use the [documentation index](docs/DOCUMENTATION_INDEX.md) to find
+  domain detail, operational instructions, and historical records.
+- Preserve candidate facts. Never invent skills, work, dates, qualifications,
+  employers, metrics or achievements. Keep unknown dates unknown. Protect
+  scoring policies, paid allowances, pricing, approved designs, and resume
+  template behavior. Obtain founder approval before changing those decisions,
+  introducing major architecture changes, or performing destructive operations.
+- Session refresh and private page redirects live in `middleware.ts`.
+  Independently authenticate server APIs via `lib/supabase/server.ts`, scope
+  data to the caller and keep owner-based RLS under `supabase/migrations/`.
+  Use `lib/admin/adminAuth.ts` for admin authorization. Service-role access
+  stays server-side. Never log credentials, raw resumes or passport numbers.
+- Reserve authenticated model work before calling the provider and settle the
+  reservation on success or failure. Use the existing guest pause and atomic
+  attempt limit for anonymous AI. Use the shared browser renderer for PDF
+  concurrency protection and keep Chromium trace entries scoped to its callers.
+- Search imports, dynamic paths, routes, assets, scripts, tests, database/cron
+  and external consumers before deleting superseded work. Preserve
+  uncertain dependencies and historical migrations. Keep temporary diagnostics
+  out of committed source.
 
-Read these files before planning or changing anything:
-1. `docs/00_START_HERE.md`
-2. `docs/PROJECT_PLAN.md`
-3. `docs/CURRENT_STATE.md` and `docs/PLATFORM_MASTER.md`
-4. `docs/16_WORKING_AGREEMENT.md`
-5. `docs/PROGRESS.md` and the relevant domain specification.
+## Verify and release
 
-## Documentation scope — current only (17 November 2026)
+Use `npm ci`, `npm run check` (types, lint, and deterministic checks), and
+`npm run build`. Use the affected checks in `.github/workflows/ci.yml` for
+mobile/desktop, database, document and accessibility behavior. Use synthetic
+fixtures for development and an isolated configuration for hosted write tests.
+Trace failures to their cause, inspect the final diff, and report what each
+check actually exercised.
 
-`main` carries **current** documentation only. Historical design campaigns, dated
-audit/QA/rollout reports and superseded design directions were moved out of `main`
-on 17 November 2026 and now live only on the `archive/docs-history-pre-2026-11`
-branch.
-
-- **Do not** look for retired design directions in `main`. They are not here.
-- **Do not** add new dated campaign reports to `docs/`. Record the outcome in the
-  relevant domain document and `docs/15_DECISION_LOG.md` instead.
-- If a historical file is genuinely needed, read it from the archive branch:
-  `git show archive/docs-history-pre-2026-11:<path>` — never copy it back into
-  `main`.
-- The current visual authority is stated once, in `docs/12_DESIGN_SYSTEM.md`.
-  There is no second or earlier direction to reconcile against.
-
-This exists because five competing visual directions (Meridian, soft-indigo,
-SKILLPILOT, compact-brand and Executive Slate & Teal) were readable as
-same-authority instructions at once, and agents re-applied retired palettes.
-`docs/DOCUMENTATION_INDEX.md` lists every file that remains.
-
-The founder is Satish, a non-coder. Explain outcomes, impact and choices in plain language. Help research and refine his ideas. Do not assume every suggestion in old chats is an approved requirement.
-
-## Documents first, implementation second
-- Record the authorized requirement, intended behavior, acceptance criteria, affected files and protected scope in the relevant domain document and `docs/PROGRESS.md` BEFORE editing implementation. Date product decisions in `docs/15_DECISION_LOG.md`.
-- Label proposed work, approved work, implemented code and verified behavior separately. An intended change is not an implemented feature.
-- Then implement within that scope, inspect the actual diff, run appropriate checks, and update results, limitations and the next action before ending the session.
-- When code and a document disagree, inspect current main and correct the document; do not change code merely to fit stale documentation. Explicitly record unresolved uncertainty.
-- Read `docs/DOCUMENTATION_INDEX.md` before using older reports as instructions. Historical plans and test evidence do not establish current behavior or current production health.
-
-## Scope and collaboration
-- Main is the only standing development branch. A temporary branch is permitted solely when required by main protection to deliver authorized work through a pull request; remove it after merge. Other feature/preview branches need Satish’s instruction. Do not force push or bypass protection.
-- Preserve existing service logic during visual-only work. Do not change resume template/document typography as part of application typography work.
-- Mobile first, then desktop. Shared application typography is in `app/typography.css`; use the existing central design system.
-- Preserve truthful candidate facts; never invent achievements, dates, employers or qualifications. Do not store passport numbers or commit credentials.
-- No unrequested schema, auth, payment, security or personal-data changes. Schema changes require numbered migrations and verification appropriate to the authorized scope.
-- Satish has authorized the lead assistant to coordinate subagents when useful. Give each a written bounded task, shared invariants and acceptance criteria; review their actual diffs and integration. Delegation is optional and does not replace lead review.
-- Keep only main when finished. Before removing a branch, compare it with main, record its name/SHA and preserve any unique work durably. Never merge old experimental logic just to clear a branch list.
-
-## Verification and handoff
-For code changes run checks appropriate to the affected behavior, including required repository checks. For documentation-only changes check links, claims against source and the diff; do not claim runtime tests were run. Report commit, completed work, pending work and concrete limitations. Do not claim deployed/live verification from source inspection.
-
-Current founder scope (22 October 2026): understand and document the platform as implemented on main, classify/remove old branches, and preserve unique historical work. Do not change application behavior, scoring, UI, prompts or database until a new implementation request is agreed and documented.
-
-Subsequent founder authorization (22 October 2026): implement PROFILE-014 according to docs/CAREER_PROFILE_BLOCKS.md, documentation first. This supersedes the preceding documentation-only boundary for that task; scoring/other services remain protected.
+Work from current `main` on a dedicated branch and open one PR for review.
+Respect branch protection. Follow the [release checklist](docs/SAAS_RELEASE_CHECKLIST.md)
+and [migration instructions](supabase/migrations/README.md). Preview and
+production have separate verification and release decisions. Merge or change
+production only with founder authorization.
