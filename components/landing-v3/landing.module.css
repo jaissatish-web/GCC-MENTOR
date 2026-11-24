@@ -33,7 +33,7 @@
 /* ---- ROLE HELPERS: the only place a control's geometry is decided ---- */
 .system .header, .heroNavy, .section, .concernsSection, .founderSection,
 .servicesSection,
-.secondaryGrid, .lowerGrid, .finalBand, .footer {
+.industriesSection, .lowerGrid, .finalBand, .footer {
   font-family: var(--lp-font-body);
   font-size: var(--lp-body-size);
   font-weight: var(--lp-body-weight);
@@ -57,7 +57,7 @@
   overflow-x: clip;
 }
 .system * { box-sizing: border-box; }
-.inner,.navInner,.heroInner,.concernsInner,.secondaryGrid,.lowerGrid { width: min(var(--lp-content-max), calc(100% - var(--lp-gutter) * 2)); margin-inline: auto; }
+.inner,.navInner,.heroInner,.concernsInner,.lowerGrid { width: min(var(--lp-content-max), calc(100% - var(--lp-gutter) * 2)); margin-inline: auto; }
 
 /* ---- sticky top nav: one 64px row, translucent canvas, one primary CTA ---- */
 .system .header { position: sticky; top: 0; z-index: 40; background: var(--lp-canvas); backdrop-filter: blur(10px); border-bottom: 1px solid var(--lp-line); }
@@ -117,9 +117,9 @@
 .ghostCta:hover { color: var(--lp-brand); border-color: var(--lp-brand); background: var(--lp-tint); }
 .freeNote { display: flex; align-items: center; gap: 6px; margin: 12px 0 0; font-size: var(--lp-meta-size); line-height: var(--lp-meta-line); color: var(--lp-muted); }
 .freeNote svg { color: var(--lp-brand); }
-.servicesSection,.industriesSection,.marketsSection,.founderSection,.plansSection,.faqSection { padding-block: var(--lp-section-pad); border-bottom: 1px solid var(--lp-line); }
+.servicesSection,.industriesSection,.founderSection,.plansSection,.faqSection { padding-block: var(--lp-section-pad); border-bottom: 1px solid var(--lp-line); }
 .plansSection,.faqSection { background: var(--lp-ground); }
-.servicesSection,.industriesSection,.marketsSection,.founderSection { background: var(--lp-surface); }
+.servicesSection,.industriesSection,.founderSection { background: var(--lp-surface); }
 .sectionHeadCenter { text-align: center; margin-bottom: 32px; }
 .kickerGold { display: inline-block; color: var(--lp-brand); font-size: var(--lp-meta-size); font-weight: var(--lp-strong-weight); line-height: var(--lp-meta-line); }
 .sectionTitle { margin: 8px 0 12px; color: var(--lp-ink); font-family: var(--lp-font-display); font-size: var(--lp-h2-size); font-weight: var(--lp-h2-weight); line-height: var(--lp-h2-line); letter-spacing: var(--lp-h2-tracking); text-wrap: balance; }
@@ -161,16 +161,16 @@
 .visualFoot a { display: inline-flex; align-items: center; gap: 8px; min-height: var(--lp-control-min); color: var(--resume-link); font-size: var(--lp-meta-size); font-weight: var(--lp-strong-weight); }
 .visualFoot a:hover { color: var(--lp-surface); text-decoration: underline; }
 .industriesSection .sectionLead { text-align: center; margin-top: -12px; margin-bottom: 22px; }
-.industryGrid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
-.industryTile { position: relative; overflow: hidden; border-radius: var(--lp-radius); aspect-ratio: 1.5; background: var(--lp-ink); }
+.industryGrid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 4px; margin: 0; padding: 0; list-style: none; }
+.industryTile { display: flex; min-width: 0; flex-direction: column; background: var(--lp-ink); }
 /* Six individual scene files, not one 1536px sheet. A single sheet cannot be
    lazy-loaded, so every phone downloaded 294 KB to show six thumbnails.
    data-industry stays as the scene index hook used by the landing checks. */
-.industryPhoto { position: absolute; inset: 0; overflow: hidden; }
-.industryPhoto img { object-fit: fill; }
-.industryLabel { position: absolute; bottom: 0; left: 0; right: 0; padding: 8px; display: flex; align-items: center; gap: 6px; min-height: 40px; color: var(--lp-surface); background: var(--lp-ink); border-top: 1px solid var(--lp-line); font-size: var(--lp-meta-size); font-weight: var(--lp-strong-weight); }
+.industryPhoto { position: relative; display: block; aspect-ratio: 16 / 10; overflow: hidden; }
+.industryPhoto img { object-fit: cover; }
+.industryPortrait img { object-position: center 8%; }
+.industryLabel { flex: 1; padding: 8px 12px; display: flex; align-items: center; gap: 6px; min-height: 40px; color: var(--lp-surface); background: var(--lp-ink); border-top: 1px solid var(--lp-line); font-size: var(--lp-meta-size); font-weight: var(--lp-strong-weight); }
 .industryLabel svg { flex: none; }
-.globeBoundary { margin-top: 24px; }
 .founderPanel { padding: 0; background: transparent; color: var(--lp-body-text); }
 .founderKicker { color: var(--lp-brand); font-size: var(--lp-meta-size); font-weight: var(--lp-strong-weight); }
 .founderPanel>.sectionTitle { max-width: 24ch; margin: 12px 0 24px; }
@@ -215,15 +215,9 @@
  .footerGrid { grid-template-columns: 1fr 1fr; }
 }
 @media(min-width:960px) {
- .secondaryGrid,.lowerGrid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:start; }
- .secondaryGrid .inner,.lowerGrid .inner { width:100%; }
- .secondaryGrid .sectionTitle,.lowerGrid .sectionTitle { text-align:left; }
- .secondaryGrid .sectionLead { text-align:left; }
- .secondaryGrid .industryGrid { grid-template-columns:repeat(3,minmax(0,1fr)); }
- .secondaryGrid .industryTile { aspect-ratio:1.4; }
- .secondaryGrid [data-uds="globe-card"] { padding:16px; }
- .secondaryGrid ul[aria-label="GCC countries"] { grid-template-columns:minmax(0,1fr); }
- .secondaryGrid [data-uds="globe-title"] { font-family: var(--lp-font-display); font-size: var(--lp-h3-size); font-weight: var(--lp-h3-weight); line-height: var(--lp-h3-line); }
+ .lowerGrid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:start; }
+ .lowerGrid .inner { width:100%; }
+ .lowerGrid .sectionTitle { text-align:left; }
  .lowerGrid .accessCards { grid-template-columns:minmax(0,1fr); gap:10px; }
  .lowerGrid .accessCard { padding:14px; }
  .lowerGrid .faqList { gap:0; }
@@ -245,7 +239,6 @@
  .heroCtas { display: flex; flex-wrap: wrap; margin-top: 28px; }
  .heroCtas>a { flex: none; }
  .industryGrid { grid-template-columns: repeat(6,minmax(0,1fr)); }
- .industryTile { aspect-ratio: 1.45; }
  .founderContent { grid-template-columns:260px minmax(0,1fr); gap:48px; }
  .founderIdentity { display:block; padding-right:28px; border-right:1px solid var(--lp-line); }
  .founderPortrait { width:184px; height:184px; margin-bottom:18px; }
@@ -553,8 +546,7 @@
   --lp-motion: 170ms;
 
   /* ---- compatibility aliases: the names the landing components already
-     consume (DocumentOrbit template thumbnails, GccGlobe labels and cards,
-     lazy.tsx placeholders, the section headings). Each one is a pure reference
+     consume (DocumentOrbit template thumbnails and section headings). Each one is a pure reference
      to a role above, so the two spellings can never drift apart.
      --lp-card stays at the compact end because the orbit card is a 170px
      document thumbnail, not a landing card. ---- */

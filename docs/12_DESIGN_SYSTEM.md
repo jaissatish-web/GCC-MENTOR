@@ -958,3 +958,9 @@ Satish approved sizing the employer tiles to match one destination tile on phone
 Satish requested that the six destination tiles move into a middle row between the two employer strips. Both company rows move left to right. The country row moves right to left. All three use one pause control, retain matching mobile tile widths and heights, and show static lists when reduced motion is enabled. Keep exactly six countries and the original employer logo groups in the accessible lists.
 
 Satish requested identical company and country card proportions across the three rows, removal of the visible marquee heading, and a single-line affiliation note. Use one responsive tile size and light surface for both types. Retain the dark contrast treatment for white logos and the existing shared pause control. Keep the note readable at increased text sizes.
+
+## Full-width industries and signup globe — 24 November 2026
+
+Approved for implementation. The landing industry images span the viewport without side gutters. Keep all six existing scenes and labels, with two columns on phones, three on tablets and six on desktop. Keep the section heading and lead in the standard reading container.
+
+Move the six-market globe to signup and restyle it with electric-blue land dots and moving light-blue dotted arrows. At 1024px and wider, the globe and credentials each occupy half the page, with the globe on the left. At narrower widths, show credentials first. Keep country selection, drag, reduced-motion support and a motion pause control. Use the existing Natural Earth land data. Scope includes the landing page and its styles, AuthShell presentation, the globe and the existing browser guard. Keep auth actions and account data outside this change.

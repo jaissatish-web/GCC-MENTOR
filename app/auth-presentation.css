@@ -94,3 +94,28 @@
     padding-inline: 64px;
   }
 }
+
+.auth-main-with-panel {
+  align-items: stretch;
+  grid-template-rows: auto 1fr;
+  grid-template-areas: "form" "panel";
+}
+.auth-main-with-panel .auth-form-column {
+  grid-area: form;
+}
+.auth-side-panel {
+  grid-area: panel;
+}
+
+@media (max-width: 1023px) {
+  .auth-shell > .auth-main-with-panel {
+    padding-top: 0;
+  }
+}
+@media (min-width: 1024px) {
+  .auth-main-with-panel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: 1fr;
+    grid-template-areas: "panel form";
+  }
+}

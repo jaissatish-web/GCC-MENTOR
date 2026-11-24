@@ -23,15 +23,16 @@ export function AuthShell({
   panelTitle,
   panelBody,
   aside,
+  sidePanel,
   children,
 }: {
-  /** Desktop brand panel headline. */
-  panelTitle: string
-  panelBody: string
   /** Top-right link, e.g. { prompt: 'New here?', label: 'Create account', href: '/signup' }. */
   aside?: { prompt: string; label: string; href: string }
   children: React.ReactNode
-}) {
+} & (
+  | { panelTitle: string; panelBody: string; sidePanel?: never }
+  | { sidePanel: React.ReactNode; panelTitle?: never; panelBody?: never }
+)) {
   return (
     <div className="auth-shell app-type flex min-h-dvh flex-col font-redesign-sans text-ink">
       <header className="auth-header">
@@ -54,39 +55,40 @@ export function AuthShell({
         </div>
       </header>
 
-      <main className="auth-main grid w-full flex-1">
-        {/* Brand panel — desktop only */}
-        <aside className="auth-story hidden min-w-0 lg:flex">
-          <div className="auth-story-content">
-            <p className="type-label font-semibold text-teal">PREPARE WITH CONFIDENCE</p>
-            <p className="auth-story-title type-title mt-4 text-ink">{panelTitle}</p>
-            <p className="auth-story-body mt-5 max-w-[42ch] type-body text-ink-soft">{panelBody}</p>
-            <ul className="auth-story-points mt-8 grid gap-4">
-              {POINTS.map(({ icon: Icon, title }) => (
-                <li key={title} className="flex items-center gap-3 type-label text-ink-soft">
-                  <span className="auth-point-icon"><Icon className="size-5 shrink-0 text-teal" aria-hidden="true" /></span>
-                  <span>{title}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-8 type-helper text-ink-muted">Built from 15 years of Gulf industry experience.</p>
-          </div>
-        </aside>
-
+      <main className={`auth-main grid w-full flex-1${sidePanel ? ' auth-main-with-panel' : ''}`}>
+        {!sidePanel && (
+          <aside className="auth-story hidden min-w-0 lg:flex">
+            <div className="auth-story-content">
+              <p className="type-label font-semibold text-teal">PREPARE WITH CONFIDENCE</p>
+              <p className="auth-story-title type-title mt-4 text-ink">{panelTitle}</p>
+              <p className="auth-story-body mt-5 max-w-[42ch] type-body text-ink-soft">{panelBody}</p>
+              <ul className="auth-story-points mt-8 grid gap-4">
+                {POINTS.map(({ icon: Icon, title }) => (
+                  <li key={title} className="flex items-center gap-3 type-label text-ink-soft">
+                    <span className="auth-point-icon"><Icon className="size-5 shrink-0 text-teal" aria-hidden="true" /></span>
+                    <span>{title}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-8 type-helper text-ink-muted">Built from 15 years of Gulf industry experience.</p>
+            </div>
+          </aside>
+        )}
         {/* Form column */}
         <div className="auth-form-column min-w-0">
           <div className="auth-form-content mx-auto w-full max-w-[460px]">
             {children}
             {/* Phones: one line of reassurance under the form, not a panel above it. */}
-            <ul className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-2 type-helper text-ink-muted lg:hidden" aria-label="Why GCC MENTOR">
+            {!sidePanel && <ul className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-2 type-helper text-ink-muted lg:hidden" aria-label="Why GCC MENTOR">
               {POINTS.map(({ icon: Icon, title }) => (
                 <li key={title} className="flex items-center gap-1.5">
                   <Icon className="size-4 text-teal" aria-hidden="true" /> {title}
                 </li>
               ))}
-            </ul>
+            </ul>}
           </div>
         </div>
+        {sidePanel && <div className="auth-side-panel min-w-0">{sidePanel}</div>}
       </main>
 
       <footer className="auth-footer border-t border-line/80">

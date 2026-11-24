@@ -23,7 +23,7 @@ try{
  for(const width of [320,360,375,390,430,768,1024,1440]){
   await page.setViewport({width,height:900,deviceScaleFactor:1});await page.goto(origin,{waitUntil:'networkidle0'});await page.evaluate(()=>document.fonts.ready)
   await page.$eval('#templates',e=>e.scrollIntoView({behavior:'instant'}));await page.waitForFunction(()=>document.querySelectorAll('.actual-template-orbit-face').length===10)
-  await page.$eval('#markets',e=>e.scrollIntoView({behavior:'instant'}));await page.waitForSelector('#markets-title');await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))))
+  await page.evaluate(()=>scrollTo({top:0,behavior:'instant'}));await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))))
   // Lazy images must enter view and finish decoding before asserting their health.
   await page.evaluate(async()=>{for(const image of [...document.images].filter(image=>image.getBoundingClientRect().width>0)){image.scrollIntoView({behavior:'instant'});try{await image.decode()}catch{}}scrollTo({top:0,behavior:'instant'})})
   const order=await page.evaluate(()=>['employers','challenges','solutions','services'].map(id=>document.getElementById(id).getBoundingClientRect().top+scrollY));
@@ -137,10 +137,20 @@ try{
     throw error;
   });
   await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
-  if(width===1440) assert.ok(await page.evaluate(()=>Math.abs(document.querySelector('#industries').getBoundingClientRect().top-document.querySelector('#markets').getBoundingClientRect().top)<2),'Approved desktop industries and globe share a row');
-  if(width===1440)assert.ok(await page.$$eval('[data-uds=globe-country]',es=>es.every(e=>e.getBoundingClientRect().height<=88)),'Globe country labels must not wrap character by character');
+  const industryLayout = await page.$eval('#industries ul', grid => {
+    const bounds = grid.getBoundingClientRect()
+    return {
+      left: bounds.left,
+      right: bounds.right,
+      viewport: document.documentElement.clientWidth,
+      columns: getComputedStyle(grid).gridTemplateColumns.split(' ').length,
+    }
+  })
+  assert.ok(Math.abs(industryLayout.left) <= 1 && Math.abs(industryLayout.right - industryLayout.viewport) <= 1, `Industry photos must reach both edges at ${width}px`)
+  assert.equal(industryLayout.columns, width >= 960 ? 6 : width >= 600 ? 3 : 2)
+  assert.equal(await page.$('#markets, #markets-title'), null, 'The globe lives on signup')
   await page.screenshot({path:`${out}/landing-${width}.png`,fullPage:true})
-  for(const id of ['hero-title','how-it-works','services','templates','interview','industries','markets','about','plans','faq']){const e=await page.$('#'+id);if(e){const clip=await e.evaluate(e=>{const r=e.getBoundingClientRect();return{x:r.left+scrollX,y:r.top+scrollY,width:r.width,height:r.height}});await page.screenshot({path:`${out}/${id}-${width}.png`,clip,captureBeyondViewport:true})}}
+  for(const id of ['hero-title','how-it-works','services','templates','interview','industries','about','plans','faq']){const e=await page.$('#'+id);if(e){const clip=await e.evaluate(e=>{const r=e.getBoundingClientRect();return{x:r.left+scrollX,y:r.top+scrollY,width:r.width,height:r.height}});await page.screenshot({path:`${out}/${id}-${width}.png`,clip,captureBeyondViewport:true})}}
   assert.ok(state.scrollWidth<=width+1,`Overflow at${width}`);assert.equal(state.orbitCount,10);assert.equal(state.flags,6);assert.equal(state.industryTiles,6);assert.deepEqual(state.brokenImages,[]);assert.deepEqual(state.invalidAnchors,[]);assert.ok(state.selectFonts.every(x=>parseFloat(x)>=16))
   if(width<1180){await page.$eval('summary[aria-label="Open section menu"]',e=>e.click());assert.equal(await page.$eval('header details',e=>e.open),true);await page.focus('summary[aria-label="Open section menu"]');await page.keyboard.press('Escape');assert.equal(await page.$eval('header details',e=>e.open),false);assert.equal(await page.$eval('summary[aria-label="Open section menu"]',e=>document.activeElement===e),true);await page.$eval('summary[aria-label="Open section menu"]',e=>e.click());await page.$eval('header details a[href="#templates"]',e=>e.click());assert.equal(await page.$eval('header details',e=>e.open),false)}
   await page.$eval('#services details>summary',e=>e.click());for(const href of ['/gulf-readiness-score','/templates','/optimize/target','/cover-letter','/interview-qa','/mock-interview','/dashboard/library','/linkedin-optimization','/naukrigulf-optimization','/settings','/signup','/login','/tools'])assert.ok(state.links.some(l=>l.href===href),`Destination missing ${href}`)
@@ -185,14 +195,12 @@ try{
    await (await page.$('#interview')).screenshot({path:`${out}/mock-interview-${width}.png`});
   }
   assert.deepEqual(await page.$$eval('#interview tbody td', cells => cells.map(cell => Number(cell.textContent))), [46,61,74]);
-  await page.$eval('[data-uds=globe-country]',e=>e.click());assert.equal(await page.$eval('[data-uds=globe-country]',e=>e.getAttribute('aria-pressed')),'true')
-  console.log(`PASS V3 ${width}px: actual imagery, no overflow, all destinations, menu/focus, interview stages, globe`)
+  console.log(`PASS V3 ${width}px: actual imagery, no overflow, all destinations, menu/focus, interview stages, edge-to-edge industries`)
  }
  for(const width of [390,1440]) {
   await page.emulateMediaFeatures([{name:'prefers-reduced-motion',value:'no-preference'}]);await page.setViewport({width,height:width===390?844:900,deviceScaleFactor:1});await page.goto(origin,{waitUntil:'networkidle0'});
   await page.$eval('#templates',e=>e.scrollIntoView({behavior:'instant'}));
   await page.waitForFunction(()=>document.querySelectorAll('.actual-template-orbit-face').length===10);
-  await page.$eval('#markets',e=>e.scrollIntoView({behavior:'instant'}));await page.waitForSelector('#markets-title');
   await page.$eval('#interview',e=>e.scrollIntoView({behavior:'instant'}));
   await page.$$eval('#employers button',es=>es[0].click());
   await page.waitForFunction(() => document.querySelector('#interview [data-motion]').dataset.motion === 'playing');
