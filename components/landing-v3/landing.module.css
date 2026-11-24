@@ -160,7 +160,7 @@
 .visualFoot { display: flex; justify-content: center; text-align: center; padding-inline: 16px; }
 .visualFoot a { display: inline-flex; align-items: center; gap: 8px; min-height: var(--lp-control-min); color: var(--resume-link); font-size: var(--lp-meta-size); font-weight: var(--lp-strong-weight); }
 .visualFoot a:hover { color: var(--lp-surface); text-decoration: underline; }
-.industriesSection .sectionLead { text-align: center; margin-top: -12px; margin-bottom: 22px; }
+.industriesSection .sectionLead { text-align: center; margin: -12px auto 22px; }
 .industryGrid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 4px; margin: 0; padding: 0; list-style: none; }
 .industryTile { display: flex; min-width: 0; flex-direction: column; background: var(--lp-ink); }
 /* Six individual scene files, not one 1536px sheet. A single sheet cannot be

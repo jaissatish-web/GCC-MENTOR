@@ -3,6 +3,8 @@
   --globe-muted: #b4cfe7;
   --globe-accent: #84deff;
   --globe-line: #2b5277;
+  --ui-ink: var(--globe-text);
+  --ui-ink-soft: var(--globe-muted);
 
   display: grid;
   min-height: 100%;
@@ -19,9 +21,6 @@
   text-align: center;
 }
 
-.content > p {
-  color: var(--globe-muted);
-}
 
 .globe {
   width: 100%;
