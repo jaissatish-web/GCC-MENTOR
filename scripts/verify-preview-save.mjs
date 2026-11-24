@@ -206,8 +206,16 @@ try {
       await page.waitForFunction(() => !document.querySelector('.editor-settings-panel').open)
       assert.equal(await page.evaluate(() => document.activeElement.textContent.trim()), 'Templates', 'Escape returns focus to the design control')
       await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight))
-      assert.ok(await page.$eval('[aria-label="Save and download resume"]', el => { const rect = el.getBoundingClientRect(); return rect.top >= 0 && rect.bottom <= innerHeight }), 'Save/download remain visible after scrolling the CV')
+      assert.equal(await page.$('.editor-action-dock'), null, 'No floating controls cover the CV')
+      const actions = '[aria-label="Resume actions"]'
+      await page.$eval(actions, el => el.scrollIntoView({ block: 'start' }))
+      assert.ok(await page.$eval(actions, el => {
+        const save = [...el.querySelectorAll('button')].find(button => button.textContent.trim() === 'Save changes')
+        const rect = save?.getBoundingClientRect()
+        return save && !save.disabled && rect.top >= 0 && rect.bottom <= innerHeight
+      }), 'Save is reachable in the top action group')
       await click('Save changes'); await blocked(false)
+      assert.ok(await page.$(actions + ' a[href$="/pdf"]'), 'Saved resume exposes a PDF download link')
       await click('Text')
       await page.waitForFunction(() => document.querySelector('.editor-settings-panel').open)
       await click('Large'); await blocked(true)

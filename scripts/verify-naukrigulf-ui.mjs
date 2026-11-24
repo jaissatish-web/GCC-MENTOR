@@ -291,6 +291,17 @@ try {
       ),
       'horizontal overflow',
     )
+  const usesFontSize = (element, tokens) => {
+    const style = getComputedStyle(element)
+    const token = tokens.map(name => style.getPropertyValue(name).trim()).find(Boolean)
+    if (!token) return false
+    const rootSize = parseFloat(getComputedStyle(document.documentElement).fontSize)
+    const expected = parseFloat(token) * (token.endsWith('rem') ? rootSize : 1)
+    return Math.abs(parseFloat(style.fontSize) - expected) < 0.1
+  }
+  const titleSize = ['--ui-h1-size', '--ui-title-size']
+  const sectionSize = ['--ui-h2-size', '--ui-section-size']
+  const readingSize = ['--ui-reading-size']
   for (const width of [320, 390, 768, 1440]) {
     await page.setViewport({ width, height: 900 })
     await page.goto('https://preview.test/guide')
@@ -310,7 +321,7 @@ try {
     await fits()
     if (process.env.NAUKRIGULF_SCREENSHOT_DIR) await page.screenshot({ path: join(process.env.NAUKRIGULF_SCREENSHOT_DIR, `naukrigulf-setup-${width}.png`), fullPage: true })
     assert.ok(await page.$('h1'))
-    assert.equal(await page.$eval('h1', el => getComputedStyle(el).fontSize), width>=768?'28px':'24px')
+    assert.ok(await page.$eval('h1', usesFontSize, titleSize), 'Workspace title uses the shared heading scale')
     if (width < 640) {
       assert.equal(await page.$eval('h2', el => getComputedStyle(el).fontWeight), '600')
     }
@@ -330,8 +341,8 @@ try {
     await fits()
     assert.equal(generateRequests.at(-1).setup.targetRoles, 'Staff Nurse')
     if (width < 640) {
-      assert.equal(await page.$eval('h2', el => getComputedStyle(el).fontSize), '18px')
-      assert.equal(await page.$eval('.profile-copy-text', el => getComputedStyle(el).fontSize), '15px')
+      assert.ok(await page.$eval('h2', usesFontSize, sectionSize), 'Result headings use the workspace heading scale')
+      assert.ok(await page.$eval('.profile-copy-text', usesFontSize, readingSize), 'Profile copy uses the reading scale')
     }
     assert.equal(await disabled('Changes saved'), true)
     if (process.env.NAUKRIGULF_SCREENSHOT_DIR) await page.screenshot({path: join(process.env.NAUKRIGULF_SCREENSHOT_DIR, `naukrigulf-results-${width}.png`), fullPage: true})
@@ -339,19 +350,16 @@ try {
     await page.waitForSelector('[data-testid="naukrigulf-preview"]')
     await fits()
     const preview = await page.$eval('[data-testid="naukrigulf-preview"]', el => ({
-      body: getComputedStyle(el.querySelector('.linkedin-profile-headline')).fontSize,
-      metadata: getComputedStyle(el.querySelector('.linkedin-profile-card p.text-sm')).fontSize,
       family: getComputedStyle(el.querySelector('h2')).fontFamily,
       weight: getComputedStyle(el.querySelector('.linkedin-profile-headline')).fontWeight,
-      name: getComputedStyle(el.querySelector('.linkedin-profile-name')).fontSize,
       cardX: el.querySelector('section').getBoundingClientRect().x,
       cardWidth: el.querySelector('section').getBoundingClientRect().width,
     }))
-    assert.equal(preview.body, width < 768 ? '15px' : '16px')
-    assert.equal(preview.metadata, '14px')
+    assert.ok(await page.$eval('.linkedin-profile-headline', usesFontSize, readingSize))
+    assert.ok(await page.$eval('.linkedin-profile-card p.text-sm', usesFontSize, ['--ui-helper-size']))
     assert.ok(preview.family.includes('Inter'))
     assert.equal(preview.weight, '400')
-    assert.equal(preview.name, width>=768?'20px':'18px')
+    assert.ok(await page.$eval('.linkedin-profile-name', usesFontSize, sectionSize))
     if (width < 640) {
       assert.equal(preview.cardX, 0, 'Phone profile card reaches the screen edge')
       assert.equal(preview.cardWidth, width)

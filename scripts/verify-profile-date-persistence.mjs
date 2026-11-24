@@ -1,12 +1,13 @@
-/** DATE-096: real SQL/atomic RPC, entirely disposable synthetic Postgres. */
+/** Staged migrations 073 and 074 against existing rows in disposable Postgres. */
 import assert from 'node:assert/strict'
 import { fileURLToPath } from 'node:url'
-import { existsSync } from 'node:fs'
-import { createSupabaseLikeDb, applyMigrations, bootstrapOrder, createAuthUser, asUser } from './db/supabaseStub.mjs'
+import { createSupabaseLikeDb, applyMigrations, bootstrapOrder, createAuthUser, asUser, asService } from './db/supabaseStub.mjs'
 const directory=fileURLToPath(new URL('../supabase/migrations',import.meta.url))
 const db=await createSupabaseLikeDb()
 try {
-  await applyMigrations(db,directory,bootstrapOrder(directory).filter(name=>name!=='073_profile_date_precision.sql'))
+  const dateMigration = '073_profile_date_precision.sql'
+  const usageMigration = '074_launch_usage_protection.sql'
+  await applyMigrations(db,directory,bootstrapOrder(directory).filter(name=>![dateMigration, usageMigration].includes(name)))
   const owner=await createAuthUser(db,'date-owner@example.test')
   const other=await createAuthUser(db,'date-other@example.test')
   const profile={full_name:'Synthetic Example',email:'',phone:'',currently_in_gulf:false}
@@ -15,8 +16,36 @@ try {
   })
   await save({work_experience:[{company:'Legacy Employer',role:'Coordinator',start_date:'2021-11-01',end_date:'2022-02-01',sort_order:0}]})
   const legacy=(await asUser(db,owner,()=>db.query('select id,profile_id from public.profile_work_experience'))).rows[0]
-  assert.ok(existsSync(directory+'/073_profile_date_precision.sql'),'approved precision migration is not implemented')
-  await applyMigrations(db,directory,['073_profile_date_precision.sql'])
+  const action = 'mock_interview_answer'
+  const reserve = async () => (await asService(db, () => db.query(
+    'select * from public.reserve_rate_limit($1, $2, current_date, $3, 10, null, 1, 360)',
+    [owner, action, [owner]],
+  ))).rows[0]
+  const previous = await reserve()
+  assert.equal(previous.status, 'reserved')
+  await asService(db, () => db.query(
+    'insert into public.rate_limits (user_id, action, window_start, count, limit_override) values ($1,$2,current_date,3,7)',
+    [owner, action],
+  ))
+  await asService(db, () => db.query(
+    'select public.increment_anonymous_rate_limit($1, $2, current_date)', ['legacy-guest', 'ats_scan'],
+  ))
+  await applyMigrations(db,directory,[dateMigration])
+  await applyMigrations(db,directory,[usageMigration])
+  assert.equal((await reserve()).status, 'busy', 'pre-migration reservations still occupy one slot')
+  const completed = await asService(db, () => db.query(
+    'select public.consume_rate_limit_reservation($1) as ok', [previous.reservation_id],
+  ))
+  assert.equal(completed.rows[0].ok, true, 'the prior application can finish its in-flight reservation')
+  const counter = (await asUser(db,owner,()=>db.query('select count, limit_override from public.rate_limits where action=$1',[action]))).rows[0]
+  assert.deepEqual(counter, { count: 4, limit_override: 7 })
+  assert.equal((await asUser(db,other,()=>db.query('select * from public.rate_limits where action=$1',[action]))).rows.length,0)
+  const guestAllowed = await asService(db, () => db.query(
+    'select public.consume_anonymous_rate_limit($1, $2, current_date, 1) as ok', ['legacy-guest', 'ats_scan'],
+  ))
+  assert.equal(guestAllowed.rows[0].ok, false, 'previous guest usage survives migration')
+  assert.equal((await reserve()).status, 'reserved', 'previous application can continue using the old reservation API')
+  console.log('PASS migration 074 upgrade: existing usage, overrides, guest attempts, in-flight work, old RPC compatibility and owner isolation')
   const rows=async()=> (await asUser(db,owner,()=>db.query('select *,start_date::text start_text,end_date::text end_text from public.profile_work_experience order by sort_order'))).rows
   assert.equal((await rows())[0].start_date_precision,null,'migration must not backfill legacy precision')
   const base={id:legacy.id,company:'Legacy Employer',role:'Coordinator',sort_order:0,start_date:'2021-11-01',end_date:'2022-02-01'}
