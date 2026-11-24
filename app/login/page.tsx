@@ -1,6 +1,7 @@
 import { AuthCard, AuthShell } from '@/components/auth/AuthShell'
 import { AuthForm } from '@/components/auth/AuthForm'
 import { AuthHashHandler } from '@/components/auth/AuthHashHandler'
+import { GccGlobe } from '@/components/auth/GccGlobe'
 import { Notice } from '@/components/auth/Notice'
 import { DEFAULT_AFTER_LOGIN, safeRedirectPath } from '@/lib/safeRedirect'
 import { resendConfirmation } from '@/app/signup/actions'
@@ -28,8 +29,7 @@ export default async function LoginPage(props: {
 
   return (
     <AuthShell
-      panelTitle="Welcome back. Your next Gulf application is waiting."
-      panelBody="Your Career Profile, optimized resumes, cover letters and interview practice — all in one place."
+      sidePanel={<GccGlobe />}
       aside={{ prompt: 'New to GCC MENTOR?', label: 'Create account', href: carry ? `/signup?redirectTo=${encodeURIComponent(carry)}` : '/signup' }}
     >
       <AuthCard title="Sign in" subtitle="Welcome back. Sign in to continue your applications.">

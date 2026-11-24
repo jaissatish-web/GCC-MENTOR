@@ -673,3 +673,9 @@ Satish reviewed the three-row preview and requested equal tile dimensions and a 
 Satish approved the [full-width industry photos and signup globe](12_DESIGN_SYSTEM.md#full-width-industries-and-signup-globe--24-november-2026). Verify edge-to-edge images, the desktop split, mobile form order, active and reduced motion, and keyboard country selection before review. Production release requires separate approval.
 
 Implemented the full-width industry strip and the signup-only globe with blue land dots, light-blue route arrows and pause/play. The local optimized build and all 103 repository checks passed. The landing browser suite confirmed full-width imagery from 320px to 1440px. Signup interaction evidence and preview status are tracked in PR #144. The visual review caught the signup theme overriding dark-panel text colors. The globe panel now remaps the shared text tokens locally, and the industry lead is centered.
+
+## Gulf globe on both account entry pages — 24 November 2026
+
+Satish approved reusing the signup globe on sign-in. Verify that the two auth pages share the same layout and that sign-in retains its credential fields, recovery link, expired-link notice and redirect.
+
+Implemented on the sign-in route using the same globe component and layout as signup. Production build, type checking and lint passed. Chromium verified both routes at 390px and 1440px, including credential fields, safe redirect, motion and keyboard selection. The sign-in recovery link and expired-link notice also passed. Landing and password recovery rendered without the globe. Production release is pending approval.

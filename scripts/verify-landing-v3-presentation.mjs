@@ -148,7 +148,7 @@ try{
   })
   assert.ok(Math.abs(industryLayout.left) <= 1 && Math.abs(industryLayout.right - industryLayout.viewport) <= 1, `Industry photos must reach both edges at ${width}px`)
   assert.equal(industryLayout.columns, width >= 960 ? 6 : width >= 600 ? 3 : 2)
-  assert.equal(await page.$('#markets, #markets-title'), null, 'The globe lives on signup')
+  assert.equal(await page.$('#markets, #markets-title'), null, 'The globe lives on the account entry pages')
   await page.screenshot({path:`${out}/landing-${width}.png`,fullPage:true})
   for(const id of ['hero-title','how-it-works','services','templates','interview','industries','about','plans','faq']){const e=await page.$('#'+id);if(e){const clip=await e.evaluate(e=>{const r=e.getBoundingClientRect();return{x:r.left+scrollX,y:r.top+scrollY,width:r.width,height:r.height}});await page.screenshot({path:`${out}/${id}-${width}.png`,clip,captureBeyondViewport:true})}}
   assert.ok(state.scrollWidth<=width+1,`Overflow at${width}`);assert.equal(state.orbitCount,10);assert.equal(state.flags,6);assert.equal(state.industryTiles,6);assert.deepEqual(state.brokenImages,[]);assert.deepEqual(state.invalidAnchors,[]);assert.ok(state.selectFonts.every(x=>parseFloat(x)>=16))

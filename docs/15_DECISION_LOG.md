@@ -2213,3 +2213,7 @@ Satish approved matching the marquee card dimensions and removing the visible ma
 ## 24 November 2026 · Full-width industries and signup globe
 
 Satish requested edge-to-edge industry photos on the landing page and moved the six-market globe to signup. Use an electric-blue Earth with moving light-blue dotted arrows, a half-width panel to the left of credentials on laptops, and credentials first on phones. Reuse the present image assets and globe renderer.
+
+## 24 November 2026 · Gulf globe on both account entry pages
+
+Satish requested the existing signup globe on sign-in as well, using the same desktop split and phone order.
