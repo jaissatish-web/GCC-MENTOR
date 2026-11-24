@@ -964,3 +964,7 @@ Satish requested identical company and country card proportions across the three
 Approved for implementation. The landing industry images span the viewport without side gutters. Keep all six existing scenes and labels, with two columns on phones, three on tablets and six on desktop. Keep the section heading and lead in the standard reading container.
 
 Move the six-market globe to signup and restyle it with electric-blue land dots and moving light-blue dotted arrows. At 1024px and wider, the globe and credentials each occupy half the page, with the globe on the left. At narrower widths, show credentials first. Keep country selection, drag, reduced-motion support and a motion pause control. Use the existing Natural Earth land data. Scope includes the landing page and its styles, AuthShell presentation, the globe and the existing browser guard. Keep auth actions and account data outside this change.
+
+## Gulf globe on sign-in and signup — 24 November 2026
+
+Approved. Use the same existing globe panel on both sign-in and signup. On laptops and desktops, give the globe the left half and credentials the right half. Below 1024px, place credentials first. Preserve account actions, redirects and recovery. Verify both routes at phone and desktop widths. Scope includes the sign-in route, the landing assertion description and current design records.
