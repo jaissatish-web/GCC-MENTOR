@@ -24,8 +24,8 @@ const id = require.resolve('../lib/supabase/serviceAdmin.ts')
 require.cache[id] = { id, filename: id, loaded: true, exports: { createServiceRoleClient: () => service } }
 const { hasUnlimitedPersonalUsage, UNLIMITED_PERSONAL_ALLOWANCE: max } = require('../lib/personalUsage.ts')
 const { getRecreationStatus } = require('../lib/recreateLimit.ts')
-const { getRateLimitStatus } = require('../lib/rateLimit.ts')
-const { reserveAiAction } = require('../lib/ai/serviceGuard.ts')
+const { getDefaultDailyLimit, getRateLimitStatus, LIMIT_ACTION_PDF_RENDER } = require('../lib/rateLimit.ts')
+const { reserveAction, reserveAiAction } = require('../lib/ai/serviceGuard.ts')
 assert.equal(hasUnlimitedPersonalUsage(owner), true)
 for (const other of ['', 'jaissatish@gmail.com', 'other-user', owner + ' ']) assert.equal(hasUnlimitedPersonalUsage(other), false)
 assert.equal((await getRecreationStatus(owner)).unlimited, true)
@@ -43,6 +43,17 @@ await r.finish(true); await r.finish(true)
 assert.equal(calls.filter(c => c.name === 'consume_rate_limit_reservation').length, 1)
 await reserveAiAction({ ...action, userId: 'other-user' })
 assert.equal(calls.at(-1).args.p_limit, 2)
+const pdf = await reserveAction({ userId: owner, action: LIMIT_ACTION_PDF_RENDER })
+assert.equal(pdf.ok, true)
+assert.equal(calls.at(-1).args.p_limit, getDefaultDailyLimit(LIMIT_ACTION_PDF_RENDER))
+assert.equal(calls.at(-1).args.p_max_concurrent, 1)
+await pdf.finish(true)
+
+const duty = await reserveAiAction({ userId: 'other-user', action: 'typical_duties' })
+assert.equal(duty.ok, true)
+await duty.finish(false)
+assert.equal(calls.at(-1).name, 'release_rate_limit_reservation')
+
 paused = true
 assert.equal((await reserveAiAction(action)).code, 'paused')
 paused = false

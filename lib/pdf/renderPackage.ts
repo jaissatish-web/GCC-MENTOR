@@ -1,6 +1,6 @@
 import { createElement } from 'react'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { launchBrowser, waitForImages } from '@/lib/pdf/browser'
+import { printResumePdf } from '@/lib/pdf/browser'
 import { signedPhotoUrl } from '@/lib/storage/profilePhoto'
 import { type GulfPremiumProps } from '@/components/templates/GulfPremium'
 import { getTemplate } from '@/lib/templates'
@@ -154,17 +154,9 @@ export async function renderPackagePdf(opts: {
 </html>`
 
     // lib/pdf/browser.ts: @sparticuz/chromium on serverless, local Chrome in dev.
-    const browser = await launchBrowser()
-    let pdf: Uint8Array
-    try {
-      const page = await browser.newPage()
-      await page.setViewport({ width: 794, height: 1123 })
-      await page.setContent(fullHtml, { waitUntil: 'domcontentloaded' })
-      await waitForImages(page)
-      pdf = await page.pdf({ format: 'A4', printBackground: true, preferCSSPageSize: false })
-    } finally {
-      await browser.close().catch(() => {})
-    }
+    const rendered = await printResumePdf(userId, fullHtml)
+    if (!rendered.ok) return rendered
+    const pdf = rendered.value
 
     const document = documentForRender
     return { ok: true, pdf, document, profile, pkg, templateId: entry.id }

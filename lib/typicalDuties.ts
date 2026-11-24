@@ -45,7 +45,7 @@ export function cleanDuties(raw: unknown): string[] {
   return out.slice(0, 12)
 }
 
-async function readDuties(title: string): Promise<string[] | null> {
+export async function readDuties(title: string): Promise<string[] | null> {
   const { data, error } = await createServiceRoleClient().from('typical_role_duties').select('duties').eq('key', dutiesKey(title)).maybeSingle()
   if (error) {
     console.error('typical duties read failed', error.message)
@@ -54,9 +54,7 @@ async function readDuties(title: string): Promise<string[] | null> {
   return Array.isArray(data?.duties) ? (data.duties as string[]) : null
 }
 
-export async function getTypicalDuties(title: string, userId: string): Promise<{ duties: string[]; cached: boolean }> {
-  const stored = await readDuties(title)
-  if (stored) return { duties: stored, cached: true }
+export async function generateTypicalDuties(title: string, userId: string): Promise<string[]> {
   const res = await generate({
     system: TYPICAL_DUTIES_SYSTEM,
     user: `Job title: ${title.trim().slice(0, 120)}`,
@@ -75,5 +73,5 @@ export async function getTypicalDuties(title: string, userId: string): Promise<{
     .from('typical_role_duties')
     .upsert({ key: dutiesKey(title), title: title.trim().slice(0, 200), duties, model: 'deepseek-v4-flash' }, { onConflict: 'key', ignoreDuplicates: true })
   if (error) console.error('typical duties write failed', error.message)
-  return { duties: (await readDuties(title)) ?? duties, cached: false }
+  return (await readDuties(title)) ?? duties
 }

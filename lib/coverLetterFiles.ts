@@ -1,5 +1,5 @@
 import { AlignmentType, Document, Packer, Paragraph, TextRun } from 'docx'
-import { launchBrowser } from '@/lib/pdf/browser'
+import { renderWithBrowser } from '@/lib/pdf/browser'
 
 /**
  * A cover letter as the file a Gulf applicant actually sends (2026-10-03,
@@ -55,13 +55,10 @@ ${paras}
 </body></html>`
 }
 
-export async function letterPdf(fullText: string, now: Date = new Date()): Promise<Uint8Array> {
-  const browser = await launchBrowser()
-  try {
+export async function letterPdf(fullText: string, userId: string, now: Date = new Date()) {
+  return renderWithBrowser(userId, async (browser) => {
     const page = await browser.newPage()
     await page.setContent(letterHtml(fullText, now), { waitUntil: 'domcontentloaded' })
-    return await page.pdf({ format: 'A4', printBackground: true, preferCSSPageSize: true })
-  } finally {
-    await browser.close().catch(() => {})
-  }
+    return page.pdf({ format: 'A4', printBackground: true, preferCSSPageSize: true })
+  })
 }

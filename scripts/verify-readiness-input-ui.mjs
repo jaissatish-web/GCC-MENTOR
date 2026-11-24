@@ -12,7 +12,7 @@ import {Document,Packer,Paragraph} from 'docx'
 import puppeteer from 'puppeteer-core'
 const root=resolve('.'),dir=mkdtempSync(join(tmpdir(),'gcc-readiness-')),require=createRequire(root+'/package.json')
 require('sucrase/register');require('./scripts/resolve-paths')
-const limiter=require.resolve('./lib/anonymousRateLimit');require.cache[limiter]={id:limiter,filename:limiter,loaded:true,exports:{getClientIdentityHash:()=> 'isolated-test',getAnonymousRateLimitStatus:async()=>({allowed:true}),incrementAnonymousRateLimit:async()=>{},LIMIT_ACTION_ANON_ATS_SCAN:'ats_scan'}}
+const limiter=require.resolve('./lib/anonymousRateLimit');require.cache[limiter]={id:limiter,filename:limiter,loaded:true,exports:{getClientIdentityHash:()=> 'isolated-test',getAnonymousRateLimitStatus:async()=>({allowed:true}),consumeAnonymousAttempt:async()=>({ok:true}),LIMIT_ACTION_ANON_ATS_SCAN:'ats_scan'}}
 function stub(path,exports){const id=require.resolve(path);require.cache[id]={id,filename:id,loaded:true,exports}}
 stub('./lib/ai/serviceGuard',{isServicePaused:async()=>({paused:false})})
 stub('./lib/ai/provider',{generate:async()=>({text:JSON.stringify({full_name:'Demo Candidate',email:'demo@example.com',phone:'+919000000000',current_location:'India',date_of_birth:'1990-01-01',notice_period:'30 days',work_experience:[{role:'Instrumentation Engineer',company:'Example Engineering',start_date:'2020-01-01',responsibilities:'Delivered commissioning and calibration'}],education:[{degree:'BTech'}],skills:['Calibration'],certifications:[],additional_information:[]}),inputTokens:10,outputTokens:20,truncated:false})})

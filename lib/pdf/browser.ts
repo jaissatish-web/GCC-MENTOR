@@ -2,6 +2,8 @@ import fs from 'fs'
 import path from 'path'
 import os from 'os'
 import type { Browser, Page } from 'puppeteer-core'
+import { reserveAction } from '@/lib/ai/serviceGuard'
+import { getDefaultDailyLimit, LIMIT_ACTION_PDF_RENDER } from '@/lib/rateLimit'
 
 /**
  * One place that knows how to get a Chrome, for every route that renders the
@@ -93,6 +95,46 @@ export async function launchBrowser(): Promise<Browser> {
     headless: true,
     executablePath,
     args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+  })
+}
+
+/**
+ * Hold one database-backed slot across every export path for this account.
+ * Count Chromium attempts even when Chrome fails, and close before freeing the slot.
+ */
+export async function renderWithBrowser<T>(
+  userId: string,
+  render: (browser: Browser) => Promise<T>,
+): Promise<{ ok: true; value: T } | { ok: false; status: number; error: string }> {
+  const slot = await reserveAction({ userId, action: LIMIT_ACTION_PDF_RENDER, ttlSeconds: 120 })
+  if (!slot.ok) {
+    const error = slot.code === 'limit'
+      ? `You have reached today's limit of ${getDefaultDailyLimit(LIMIT_ACTION_PDF_RENDER)} PDF requests. Try again tomorrow.`
+      : slot.code === 'busy'
+        ? 'A PDF is already being prepared. Wait for it to finish, then try again.'
+        : 'PDF generation is temporarily unavailable. Please try again shortly.'
+    return { ok: false, status: slot.status, error }
+  }
+
+  try {
+    const browser = await launchBrowser()
+    try {
+      return { ok: true, value: await render(browser) }
+    } finally {
+      await browser.close().catch(() => {})
+    }
+  } finally {
+    await slot.finish(true)
+  }
+}
+
+export function printResumePdf(userId: string, html: string) {
+  return renderWithBrowser(userId, async (browser) => {
+    const page = await browser.newPage()
+    await page.setViewport({ width: 794, height: 1123 })
+    await page.setContent(html, { waitUntil: 'domcontentloaded' })
+    await waitForImages(page)
+    return page.pdf({ format: 'A4', printBackground: true, preferCSSPageSize: false })
   })
 }
 

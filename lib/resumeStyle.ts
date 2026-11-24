@@ -189,13 +189,13 @@ export interface ResumeStyleOverrides {
 }
 
 export function isFontKey(v: unknown): v is FontKey {
-  return typeof v === 'string' && v in FONT_OPTIONS
+  return typeof v === 'string' && Object.hasOwn(FONT_OPTIONS, v)
 }
 export function isSizeKey(v: unknown): v is SizeKey {
-  return typeof v === 'string' && v in SIZE_OPTIONS
+  return typeof v === 'string' && Object.hasOwn(SIZE_OPTIONS, v)
 }
 export function isAccentKey(v: unknown): v is AccentKey {
-  return typeof v === 'string' && v in ACCENT_OPTIONS
+  return typeof v === 'string' && Object.hasOwn(ACCENT_OPTIONS, v)
 }
 export function isInkKey(v: unknown): v is InkKey {
   return typeof v === 'string' && Object.hasOwn(INK_OPTIONS, v)

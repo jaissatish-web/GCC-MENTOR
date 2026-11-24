@@ -151,6 +151,27 @@ const reserve = (uid, action, limit, maxConc = 5, globalLimit = null, ids = []) 
   check('secondary identity keying: usage on a linked account counts', shared.status === 'limit')
 }
 
+console.log('\nLaunch usage protection')
+{
+  const take = (identity, limit = 2) => db.query(
+    "select public.consume_anonymous_rate_limit($1, 'ats_scan', current_date, $2) as ok",
+    [identity, limit],
+  ).then((r) => r.rows[0].ok)
+  const identity = 'fixture-guest'
+  await asService(db, async () => {
+    const results = await Promise.all(Array.from({ length: 5 }, () => take(identity)))
+    check('guest routes share a capped atomic allowance', results.filter(Boolean).length === 2)
+    await db.query("update public.anonymous_rate_limits set limit_override = 3 where identity_hash = $1", [identity])
+    check('guest admission honors the existing override', (await take(identity)) && !(await take(identity)))
+    check('a separate visitor has an independent allowance', await take('other-guest'))
+    const controls = await db.query("select action from public.ai_service_controls where action in ('typical_duties', 'anonymous_claim_review')")
+    check('each new AI action is registered for admin controls', controls.rows.length === 2)
+  })
+  check('guest admission RPC is server-only', (await db.query(
+    "select has_function_privilege('anon', 'public.consume_anonymous_rate_limit(text,text,date,integer)', 'execute') as anon, has_function_privilege('authenticated', 'public.consume_anonymous_rate_limit(text,text,date,integer)', 'execute') as authenticated",
+  )).rows.every((row) => !row.anon && !row.authenticated))
+}
+
 console.log('\nM14 · founder usage counters (counted where limits are enforced)')
 {
   const stat = async (action) =>

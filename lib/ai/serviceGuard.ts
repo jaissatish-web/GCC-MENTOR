@@ -1,10 +1,10 @@
 import { createServiceRoleClient } from '@/lib/supabase/serviceAdmin'
 import { hasUnlimitedPersonalUsage, UNLIMITED_PERSONAL_ALLOWANCE } from '@/lib/personalUsage'
-import { getDefaultDailyLimit, identityUserIds, resetsInText, windowStart } from '@/lib/rateLimit'
+import { getDefaultDailyLimit, identityUserIds, LIMIT_ACTION_PDF_RENDER, resetsInText, windowStart } from '@/lib/rateLimit'
 
 /**
- * The one server-side gate in front of every paid model call (audit H01, H03,
- * M14 — 2026-09-15).
+ * Authenticated usage gate. AI actions and Chromium renders share the same
+ * database reservations, with an independent render limit.
  *
  * In order, for one quota action:
  *   1. SERVICE SWITCH — the founder's pause in /admin/services
@@ -59,7 +59,7 @@ export function limitMessage(limit: number): string {
   )
 }
 
-export async function reserveAiAction(opts: {
+export async function reserveAction(opts: {
   userId: string
   action: string
   phone?: string | null
@@ -97,9 +97,14 @@ export async function reserveAiAction(opts: {
   }
   const override = ((overrides ?? []) as Array<{ limit_override: number | null }>).find((r) => r.limit_override != null)
     ?.limit_override
-  const limit =
-    hasUnlimitedPersonalUsage(opts.userId) ? UNLIMITED_PERSONAL_ALLOWANCE
-      : override != null && override >= 0 ? override : c?.daily_limit_per_user ?? getDefaultDailyLimit(opts.action)
+  const pdfRender = opts.action === LIMIT_ACTION_PDF_RENDER
+  const defaultLimit = getDefaultDailyLimit(opts.action)
+  let limit = defaultLimit
+  if (!pdfRender) {
+    limit = c?.daily_limit_per_user ?? defaultLimit
+    if (override != null && override >= 0) limit = override
+    if (hasUnlimitedPersonalUsage(opts.userId)) limit = UNLIMITED_PERSONAL_ALLOWANCE
+  }
 
   const { data, error } = await supabase.rpc('reserve_rate_limit', {
     p_user_id: opts.userId,
@@ -108,7 +113,7 @@ export async function reserveAiAction(opts: {
     p_identity_user_ids: ids,
     p_limit: limit,
     p_global_limit: c?.global_daily_limit ?? null,
-    p_max_concurrent: c?.max_concurrent_per_user ?? 1,
+    p_max_concurrent: pdfRender ? 1 : c?.max_concurrent_per_user ?? 1,
     p_ttl_seconds: opts.ttlSeconds ?? DEFAULT_TTL_SECONDS,
   })
   if (error) {
@@ -149,6 +154,8 @@ export async function reserveAiAction(opts: {
       return { ok: false, status: 503, code: 'unavailable', error: MESSAGES.unavailable }
   }
 }
+
+export const reserveAiAction = reserveAction
 
 /** Pause check alone — for paths with their own quota (the anonymous scan). */
 export async function isServicePaused(action: string): Promise<{ paused: boolean; message: string }> {

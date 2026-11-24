@@ -34,6 +34,7 @@ const error = (input: unknown) => {
 }
 
 console.log('The server keeps only named choices')
+check('font, text size and accent reject unsupported choices', ['font', 'size', 'accent'].every((key) => error({ [key]: 'unsupported-choice' }) === `styleOverrides.${key}`))
 check('text colour: dark and black are accepted', value({ ink: 'dark' })?.ink === 'dark' && value({ ink: 'black' })?.ink === 'black')
 check('text colour: anything else is rejected by name', error({ ink: '#000' }) === 'styleOverrides.ink')
 check('highlight: every named tint and none are accepted', ['none', 'grey', 'blue', 'green', 'yellow', 'rose'].every((h) => value({ highlight: h })?.highlight === h))

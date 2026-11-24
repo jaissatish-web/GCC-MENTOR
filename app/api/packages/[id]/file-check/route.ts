@@ -28,7 +28,10 @@ export async function POST(_request: NextRequest, props: { params: Promise<{ id:
 
   const t0 = Date.now()
   const r = await renderPackagePdf({ supabase, userId: user.id, packageId })
-  if (!r.ok) return NextResponse.json({ error: r.status === 404 ? 'CV not found' : 'We could not build your PDF to check it. Please try again.' }, { status: r.status })
+  if (!r.ok) {
+    const error = r.status === 500 ? 'We could not build your PDF to check it. Please try again.' : r.error
+    return NextResponse.json({ error }, { status: r.status })
+  }
   try {
     const { text, pages } = await atsTextOfPdf(r.pdf)
     const keywords = ((r.pkg.match_report as { target?: { keywords?: Array<{ term: string }> } } | null)?.target?.keywords ?? []).map((k) => k.term)

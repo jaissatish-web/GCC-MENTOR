@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createElement } from 'react'
 import { createClient } from '@/lib/supabase/server'
-import { launchBrowser, waitForImages } from '@/lib/pdf/browser'
+import { printResumePdf } from '@/lib/pdf/browser'
 import { signedPhotoUrl } from '@/lib/storage/profilePhoto'
 import { getTemplate } from '@/lib/templates'
 import { buildResumeDocument } from '@/lib/resumeDocument'
@@ -160,17 +160,9 @@ export async function GET(): Promise<NextResponse> {
 <body>${bodyHtml}</body>
 </html>`
 
-    const browser = await launchBrowser()
-    let pdf: Uint8Array
-    try {
-      const page = await browser.newPage()
-      await page.setViewport({ width: 794, height: 1123 })
-      await page.setContent(fullHtml, { waitUntil: 'domcontentloaded' })
-      await waitForImages(page)
-      pdf = await page.pdf({ format: 'A4', printBackground: true, preferCSSPageSize: false })
-    } finally {
-      await browser.close().catch(() => {})
-    }
+    const rendered = await printResumePdf(user.id, fullHtml)
+    if (!rendered.ok) return NextResponse.json({ error: rendered.error }, { status: rendered.status })
+    const pdf = rendered.value
 
     const safeName =
       (profile.full_name || 'my')
@@ -181,6 +173,7 @@ export async function GET(): Promise<NextResponse> {
     return new NextResponse(Buffer.from(pdf), {
       headers: {
         'Content-Type': 'application/pdf',
+        'Cache-Control': 'private, no-store',
         'Content-Disposition': `attachment; filename="${safeName}_CV.pdf"`,
       },
     })

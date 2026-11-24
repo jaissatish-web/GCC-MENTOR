@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { getRateLimitStatus, incrementRateLimit, LIMIT_ACTION_TYPICAL_DUTIES } from '@/lib/rateLimit'
-import { getTypicalDuties } from '@/lib/typicalDuties'
+import { LIMIT_ACTION_TYPICAL_DUTIES } from '@/lib/rateLimit'
+import { reserveAiAction } from '@/lib/ai/serviceGuard'
+import { generateTypicalDuties, readDuties } from '@/lib/typicalDuties'
 
 /**
  * POST /api/profile/typical-duties — { title } → { duties: string[] }
@@ -23,16 +24,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const title = typeof body?.title === 'string' ? body.title.replace(/\s+/g, ' ').trim() : ''
   if (title.length < 2 || title.length > 120) return NextResponse.json({ error: 'Add the job title first.' }, { status: 400 })
 
-  const limit = await getRateLimitStatus({ userId: user.id, action: LIMIT_ACTION_TYPICAL_DUTIES })
-  if (!limit.allowed) return NextResponse.json({ error: limit.message ?? 'Daily limit reached. Please try again tomorrow.' }, { status: 429 })
+  const cached = await readDuties(title)
+  if (cached) return NextResponse.json({ duties: cached })
 
+  const reservation = await reserveAiAction({ userId: user.id, action: LIMIT_ACTION_TYPICAL_DUTIES })
+  if (!reservation.ok) {
+    return NextResponse.json({ error: reservation.error, code: reservation.code }, { status: reservation.status })
+  }
+
+  let succeeded = false
   try {
-    const { duties, cached } = await getTypicalDuties(title, user.id)
-    // Only a new title costs a model call, so only that counts.
-    if (!cached) await incrementRateLimit({ userId: user.id, action: LIMIT_ACTION_TYPICAL_DUTIES })
+    const duties = await generateTypicalDuties(title, user.id)
+    succeeded = true
     return NextResponse.json({ duties })
   } catch (e) {
     console.error('typical duties failed user=' + user.id, e instanceof Error ? e.message : String(e))
     return NextResponse.json({ error: 'Could not load typical duties just now. Please try again.' }, { status: 502 })
+  } finally {
+    await reservation.finish(succeeded)
   }
 }
