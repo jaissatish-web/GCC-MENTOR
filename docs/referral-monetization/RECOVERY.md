@@ -9,6 +9,9 @@ record the exact compatible deployment for rollback. A read-only production
 catalogue query confirmed PostgreSQL 17.6, Career Profile, packages with RLS,
 existing service allowances, and absence of the new ledger and Auth triggers.
 Production migration history confirms the 073/074 prerequisite batch.
+Supabase reports the production organization is on its Free plan. Managed
+automatic backups are unavailable on that plan. An existing logical archive
+and an authorized encrypted destination were not independently confirmed.
 
 Run `node scripts/verify-referral-recovery.mjs` to reproduce the recovery
 rehearsal on disposable Postgres. It restores a synthetic pre-release archive
