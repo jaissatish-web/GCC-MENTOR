@@ -64,15 +64,15 @@ try {
   // Browser evidence belongs under artifacts/, not docs/ â€” verification runs must
 // never write into the documentation tree (2026-11-17 cleanup).
 mkdirSync('artifacts/workspace-navigation',{recursive:true})
-  for (const region of ['.studio-sidebar', '.studio-bottom-nav']) {
-    assert.ok(await page.$(region + ' a[href="/optimize/target"]'), region + ' must link to the optimizer target step')
-    assert.equal(await page.$(region + ' a[href="/optimize"]'), null, region + ' must use the canonical optimizer route')
-  }
   const required=['/dashboard','/dashboard/library','/optimize/target','/templates','/cover-letter','/interview-qa','/mock-interview','/linkedin-optimization','/naukrigulf-optimization','/profile','/settings']
   for(const width of [360,390,430,768,1024,1366,1440]){
     await page.setViewport({width,height:900})
     await page.goto('https://interview.test/dashboard',{waitUntil:'networkidle0'})
     await page.waitForFunction(()=>document.body.textContent.includes('Engineer'))
+    for (const region of ['.studio-sidebar', '.studio-bottom-nav']) {
+      assert.ok(await page.$(region + ' a[href="/optimize/target"]'), region + ' must link to the optimizer target step')
+      assert.equal(await page.$(region + ' a[href="/optimize"]'), null, region + ' must use the canonical optimizer route')
+    }
     await page.evaluate(()=>document.fonts.ready)
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`Dashboard overflow ${width}`)
     const title=await page.$eval('h1',el=>({size:getComputedStyle(el).fontSize,weight:getComputedStyle(el).fontWeight,internal:!!el.closest('.internal-ui')}))
