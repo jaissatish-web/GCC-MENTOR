@@ -32,8 +32,15 @@ Development only. Hosted test evidence, CI, recovery verification and founder pr
 - A local Next.js and Chromium smoke test using a synthetic HTTP database fixture passed anonymous redirect and claim cookie, authenticated generation, persistent code after reload, share URL and responsive layout at 360, 768 and 1440 px. It does not exercise real email or model calls.
 - Local navigation harness passed at seven widths plus keyboard navigation and enlarged text. It verifies the canonical `/optimize/target` route remains in both desktop and mobile navigation.
 
+## Local release checks
+
+- TypeScript, lint and all 107 verification scripts passed. The database security suite reported 144 assertions passed. The production build completed.
+- The Referral & Credits browser fixture passed at 360, 768 and 1440 pixels. Existing workspace navigation passed at seven widths, plus keyboard focus and enlarged text.
+- The branch's GitHub Actions conclusion could not be retrieved from the connector. Local results and the Vercel build are recorded independently.
+
 ## Hosted application preview
 
-Vercel has the GCC-MENTOR-TEST URL and public client key scoped to Preview for `feature/referral-credit-monetization`. No matching branch-scoped server key was available in this session. The provider integration returned 403 and the dashboard requires authentication. Shared Preview values also need an isolation check. Automatic deployment for this feature branch is disabled until verified, and no hosted app Preview has run. Hosted email confirmation, live AI and full browser regression remain pending. Production still requires the founder's explicit release approval.
-
-Credential scope recheck: the old launch-readiness branch entry and the shared Preview entry have identical creation timestamps. Production has a separate entry. An isolated Preview build can use the shared entry only if its test project and role claims match and the test database accepts a scoped read. Preview-only overrides prevent inheritance of the shared database connection and payment settings.
+- Vercel Preview is Ready at [the isolated deployment](https://gcc-mentor-iuhf8g875-satishs-projects-c02c354b.vercel.app) for application commit `3c58f3d81a4d0be273c8cfe061c2fddc78c3b377`. The successful deployment's complete Git tree matches the tested local tree. The first attempt failed because two large files were truncated during GitHub transfer. Both blobs were corrected and verified by Git hash before redeploying.
+- Vercel has separate sensitive entries for Production and Preview. The existing shared Preview entry authenticated a read against GCC-MENTOR-TEST in the build guard. The launch-readiness branch-specific entry remains scoped to its original branch. No secret was retrieved or logged. Referral Preview settings isolate the test URL and public key and neutralize inherited database connection and payment variables.
+- The Vercel connector loaded the hosted homepage, signup and Free Tools and confirmed that signed-out Referral & Credits is redirected to sign-in. A synthetic login to GCC-MENTOR-TEST Auth succeeded. The direct signed-in browser runner could not pass Vercel authentication, so end-to-end hosted email confirmation, admin UI, live premium AI and the full hosted regression remain pending. Local browser and SQL evidence covers the work described above.
+- Test referral and enforcement flags are enabled for isolated review. Production still serves `b5128243370b119aca2f14f83045f1d53511b9b8`. Production backup or recovery verification, rollout approval and authorized post-deployment tests remain open.
