@@ -1,8 +1,10 @@
 'use server'
 
-import { headers } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/serviceAdmin'
+import { REFERRAL_BROWSER_COOKIE, REFERRAL_CLAIM_COOKIE, REFERRAL_TOKEN } from '@/lib/referrals/cookies'
 import { safeRedirectPath } from '@/lib/safeRedirect'
 import { authLinkOrigin } from '@/lib/authOrigin'
 import { friendlyAuthError } from '@/lib/authMessages'
@@ -37,11 +39,29 @@ export async function signup(_prev: AuthState, formData: FormData): Promise<Auth
   const callback = new URL('/auth/callback', origin)
   if (destination !== '/onboarding') callback.searchParams.set('next', destination)
 
+  const cookieJar = await cookies()
+  const claim = cookieJar.get(REFERRAL_CLAIM_COOKIE)?.value ?? ''
+  const browser = cookieJar.get(REFERRAL_BROWSER_COOKIE)?.value ?? ''
+  let referralIntent: string | null = null
+  if (REFERRAL_TOKEN.test(claim) && REFERRAL_TOKEN.test(browser)) {
+    try {
+      const { data, error } = await createServiceRoleClient({ fresh: true }).rpc('create_referral_signup_intent', {
+        p_claim_id: claim, p_browser_id: browser, p_email: email,
+      })
+      if (error) return { error: 'We could not record your referral. Please try signing up again.' }
+      if (typeof data === 'string') referralIntent = data
+    } catch {
+      return { error: 'We could not record your referral. Please try signing up again.' }
+    }
+  }
   const supabase = await createClient()
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { emailRedirectTo: callback.toString() },
+    options: {
+      emailRedirectTo: callback.toString(),
+      ...(referralIntent ? { data: { referral_signup_intent: referralIntent } } : {}),
+    },
   })
 
   if (error) {

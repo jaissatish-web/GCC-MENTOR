@@ -14,3 +14,10 @@ Pending implementation. Record command, commit, environment and outcome here as 
 ## Release decision
 
 Development only. Hosted test evidence, CI, recovery verification and founder production approval are pending.
+
+## Referral foundation
+
+- Migration 075 applied to GCC-MENTOR-TEST with program defaults disabled.
+- Local disposable Postgres passed permanent-code, first-click, wrong-browser/recipient, forged and reused intent, email verification, suspension and browser-role denial checks.
+- GCC-MENTOR-TEST catalogue confirms authenticated cannot invoke the referral mutation RPCs. Service role can call the three server entry points. Auth triggers cannot be invoked directly.
+- Full signed-in browser qualification and hosted race tests remain pending.

@@ -29,6 +29,18 @@ const PROTECTED_ROUTES = [
 const AUTH_ROUTES = ['/login', '/signup']
 
 export async function middleware(request: NextRequest) {
+  if (request.nextUrl.pathname === '/') {
+    const code = request.nextUrl.searchParams.get('ref')
+    if (code) {
+      const visit = new URL('/api/referrals/visit', request.url)
+      visit.searchParams.set('ref', code)
+      const response = NextResponse.redirect(visit)
+      response.headers.set('Cache-Control', 'private, no-store')
+      return response
+    }
+    return NextResponse.next()
+  }
+
   let supabaseResponse = NextResponse.next({ request })
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -144,6 +156,7 @@ export async function middleware(request: NextRequest) {
 // touched by middleware.
 export const config = {
   matcher: [
+    { source: '/', has: [{ type: 'query', key: 'ref' }] },
     '/dashboard/:path*',
     '/profile/:path*',
     '/optimize/:path*',
