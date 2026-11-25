@@ -1,10 +1,10 @@
 import { createServiceRoleClient } from '@/lib/supabase/serviceAdmin'
 import { hasUnlimitedPersonalUsage, UNLIMITED_PERSONAL_ALLOWANCE } from '@/lib/personalUsage'
-import { getDefaultDailyLimit, identityUserIds, resetsInText, windowStart } from '@/lib/rateLimit'
+import { getDefaultDailyLimit, identityUserIds, LIMIT_ACTION_PDF_RENDER, resetsInText, windowStart } from '@/lib/rateLimit'
 
 /**
- * The one server-side gate in front of every paid model call (audit H01, H03,
- * M14 — 2026-09-15).
+ * Authenticated usage gate. AI actions and Chromium renders share the same
+ * database reservations, with an independent render limit.
  *
  * In order, for one quota action:
  *   1. SERVICE SWITCH — the founder's pause in /admin/services
@@ -40,7 +40,7 @@ export interface ServiceControl {
 export type GuardFailureCode = 'paused' | 'limit' | 'global_limit' | 'busy' | 'unavailable'
 
 export type ReserveResult =
-  | { ok: true; reservationId: string; limit: number; finish: (succeeded: boolean) => Promise<void> }
+  | { ok: true; reservationId: string; limit: number; units: number; finish: (succeeded: boolean | number) => Promise<void> }
   | { ok: false; status: 409 | 429 | 503; code: GuardFailureCode; error: string }
 
 const DEFAULT_TTL_SECONDS = 360
@@ -59,12 +59,13 @@ export function limitMessage(limit: number): string {
   )
 }
 
-export async function reserveAiAction(opts: {
+export async function reserveAction(opts: {
   userId: string
   action: string
   phone?: string | null
   email?: string | null
   ttlSeconds?: number
+  units?: number
 }): Promise<ReserveResult> {
   const supabase = createServiceRoleClient({ fresh: true })
 
@@ -97,39 +98,55 @@ export async function reserveAiAction(opts: {
   }
   const override = ((overrides ?? []) as Array<{ limit_override: number | null }>).find((r) => r.limit_override != null)
     ?.limit_override
-  const limit =
-    hasUnlimitedPersonalUsage(opts.userId) ? UNLIMITED_PERSONAL_ALLOWANCE
-      : override != null && override >= 0 ? override : c?.daily_limit_per_user ?? getDefaultDailyLimit(opts.action)
+  const pdfRender = opts.action === LIMIT_ACTION_PDF_RENDER
+  const defaultLimit = getDefaultDailyLimit(opts.action)
+  let limit = defaultLimit
+  if (!pdfRender) {
+    limit = c?.daily_limit_per_user ?? defaultLimit
+    if (override != null && override >= 0) limit = override
+    if (hasUnlimitedPersonalUsage(opts.userId)) limit = UNLIMITED_PERSONAL_ALLOWANCE
+  }
 
-  const { data, error } = await supabase.rpc('reserve_rate_limit', {
+  const batch = opts.units !== undefined
+  const { data, error } = await supabase.rpc(batch ? 'reserve_rate_limit_units' : 'reserve_rate_limit', {
     p_user_id: opts.userId,
     p_action: opts.action,
     p_window_start: today,
     p_identity_user_ids: ids,
     p_limit: limit,
     p_global_limit: c?.global_daily_limit ?? null,
-    p_max_concurrent: c?.max_concurrent_per_user ?? 1,
+    p_max_concurrent: pdfRender ? 1 : c?.max_concurrent_per_user ?? 1,
     p_ttl_seconds: opts.ttlSeconds ?? DEFAULT_TTL_SECONDS,
+    ...(batch ? { p_requested_units: opts.units } : {}),
   })
   if (error) {
     console.error('serviceGuard: reserve failed action=' + opts.action + ' user=' + opts.userId, error.message)
     return { ok: false, status: 503, code: 'unavailable', error: MESSAGES.unavailable }
   }
 
-  const row = (Array.isArray(data) ? data[0] : data) as { status?: string; reservation_id?: string | null } | null
+  const row = (Array.isArray(data) ? data[0] : data) as { status?: string; reservation_id?: string | null; granted_units?: number } | null
   switch (row?.status) {
     case 'reserved': {
-      const reservationId = String(row.reservation_id)
+      const reservationId = row.reservation_id
+      const units = batch ? row.granted_units : 1
+      if (!reservationId || typeof units !== 'number' || !Number.isInteger(units) || units < 1 || units > (opts.units ?? 1)) {
+        return { ok: false, status: 503, code: 'unavailable', error: MESSAGES.unavailable }
+      }
       let settled = false
       return {
         ok: true,
         reservationId,
         limit,
-        finish: async (succeeded: boolean) => {
+        units,
+        finish: async (succeeded: boolean | number) => {
           if (settled) return
           settled = true
-          const fn = succeeded ? 'consume_rate_limit_reservation' : 'release_rate_limit_reservation'
-          const { error: settleError } = await createServiceRoleClient().rpc(fn, { p_reservation_id: reservationId })
+          const fn = batch ? 'settle_rate_limit_units'
+            : succeeded ? 'consume_rate_limit_reservation' : 'release_rate_limit_reservation'
+          const { error: settleError } = await createServiceRoleClient().rpc(fn, {
+            p_reservation_id: reservationId,
+            ...(batch ? { p_successful_units: typeof succeeded === 'number' ? succeeded : succeeded ? units : 0 } : {}),
+          })
           if (settleError) {
             // Never thrown: the user's result is already saved (or already
             // failed). An unsettled reservation simply expires.
@@ -149,6 +166,8 @@ export async function reserveAiAction(opts: {
       return { ok: false, status: 503, code: 'unavailable', error: MESSAGES.unavailable }
   }
 }
+
+export const reserveAiAction = reserveAction
 
 /** Pause check alone — for paths with their own quota (the anonymous scan). */
 export async function isServicePaused(action: string): Promise<{ paused: boolean; message: string }> {

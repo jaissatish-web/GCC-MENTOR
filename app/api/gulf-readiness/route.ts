@@ -5,7 +5,7 @@ import { resumeTextFromFile } from '@/lib/resumeTextFromUpload'
 import {
   getClientIdentityHash,
   getAnonymousRateLimitStatus,
-  incrementAnonymousRateLimit,
+  consumeAnonymousAttempt,
   LIMIT_ACTION_ANON_ATS_SCAN,
 } from '@/lib/anonymousRateLimit'
 
@@ -106,7 +106,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   // Count the scan against the daily limit only after it succeeded — a failed read
   // should not cost the visitor an attempt.
-  await incrementAnonymousRateLimit({ identityHash, action: LIMIT_ACTION_ANON_ATS_SCAN })
+  const attempt = await consumeAnonymousAttempt({ identityHash, action: LIMIT_ACTION_ANON_ATS_SCAN })
+  if (!attempt.ok) return NextResponse.json({ error: attempt.error }, { status: attempt.status })
 
   // The result plus the resume text go back to the CLIENT, which holds them in
   // sessionStorage for the signup handoff. Nothing is written server-side.

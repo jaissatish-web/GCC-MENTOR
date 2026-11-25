@@ -17,7 +17,9 @@ import { AI_SERVICES, isServiceKey } from '@/lib/ai/services'
 
 export const ACTION_LABELS: Record<string, { label: string; help: string; usesQuota: boolean }> = {
   profile_extraction: { label: 'CV reading', help: 'Reading an uploaded or pasted CV into the Career Profile.', usesQuota: true },
-  anonymous_scan: { label: 'Anonymous scan (legacy)', help: 'The old signed-out scan at /ats-scan. It keeps its own per-visitor limit; only the pause applies here.', usesQuota: false },
+  anonymous_scan: { label: 'Guest resume reading', help: 'Applies to guest AI resume reading and the legacy scan API. The per-visitor limit is configured separately.', usesQuota: false },
+  anonymous_claim_review: { label: 'Guest scan claim review', help: 'Optional wording review when a signed-in user claims a saved guest scan.', usesQuota: true },
+  typical_duties: { label: 'Typical duties suggestions', help: 'Suggestions for a job title. Cached suggestions are free.', usesQuota: true },
   job_description: { label: 'Job advert reading', help: 'Structuring a pasted job advert when a job is set up.', usesQuota: true },
   optimization: { label: 'Optimized CV build', help: 'Writing the job-specific CV.', usesQuota: true },
   cover_letter: { label: 'Cover letter', help: 'One letter per request.', usesQuota: true },

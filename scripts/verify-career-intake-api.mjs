@@ -2,9 +2,9 @@ import assert from 'node:assert/strict'
 import {createRequire} from 'node:module'
 const require=createRequire(import.meta.url);require('sucrase/register');require('./resolve-paths.ts')
 const draft={full_name:'Example Person',email:'person@example.com',phone:'+919876543210',work_experience:[],education:[],skills:[],certifications:[],additional_information:[]}
-let allowed=true,paused=false,calls=0,reads=0,fail=false,user={id:'owner'},existing=null,saves=0
+let allowed=true,atomicAllowed=true,paused=false,calls=0,reads=0,fail=false,user={id:'owner'},existing=null,saves=0
 function stub(path,exports){const id=require.resolve(path);require.cache[id]={id,filename:id,loaded:true,exports}}
-stub('../lib/anonymousRateLimit.ts',{getClientIdentityHash:()=> 'test',getAnonymousRateLimitStatus:async()=>({allowed,message:'Limit reached'}),incrementAnonymousRateLimit:async()=>{reads++},LIMIT_ACTION_ANON_ATS_SCAN:'ats_scan'})
+stub('../lib/anonymousRateLimit.ts',{getClientIdentityHash:()=> 'test',getAnonymousRateLimitStatus:async()=>({allowed,message:'Limit reached'}),consumeAnonymousAttempt:async()=>{reads++;return atomicAllowed ? {ok:true} : {ok:false,status:429,error:'Limit reached'}},LIMIT_ACTION_ANON_ATS_SCAN:'ats_scan'})
 stub('../lib/ai/serviceGuard.ts',{isServicePaused:async()=>({paused,message:'Paused'})})
 stub('../lib/ai/provider.ts',{generate:async()=>{calls++;if(fail)throw Error('fake provider failure');return {text:JSON.stringify(draft),inputTokens:10,outputTokens:20,truncated:false}}})
 stub('../lib/supabase/server.ts',{
@@ -26,6 +26,8 @@ function request(text=source){const body=new FormData();body.append('resume_text
 assert.equal((await read(request('short'))).status,400);assert.equal(calls,0);assert.equal(reads,0)
 allowed=false;assert.equal((await read(request())).status,429);assert.equal(calls,0);allowed=true
 paused=true;assert.equal((await read(request())).status,503);paused=false
+atomicAllowed=false;assert.equal((await read(request())).status,429);assert.equal(calls,0)
+atomicAllowed=true;reads=0
 const response=await read(request());assert.equal(response.status,200);const payload=await response.json();assert.ok(payload.intake.draft);assert.ok(payload.intake.report.review);assert.equal(reads,1);assert.equal(calls,1)
 const claimRequest=()=>new NextRequest('http://localhost/api/career-intake/claim',{method:'POST',body:JSON.stringify(payload.intake),headers:{'Content-Type':'application/json'}})
 user=null;assert.equal((await claim(claimRequest())).status,401);assert.equal(saves,0)

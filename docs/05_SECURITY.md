@@ -217,17 +217,19 @@ than only an abuse edge case. **A free service still needs a limit; payment is n
 the abuse control** (2026-09-15 audit H03 — the cover letter, Q&A and every mock
 interview call had none).
 
-- **One gate in front of every model call: `lib/ai/serviceGuard.ts`.** CV reading,
+- **Authenticated model work uses `lib/ai/serviceGuard.ts`.** CV reading,
   advert structuring, CV build, cover letter, Q&A, mock start / answer / report. In
   order: the founder's **pause** switch, the **daily allowance** (per-user admin
   override → founder setting → code default), a **one-at-a-time** cap, an optional
   **all-users daily cap**, then an atomic **reservation** (migration 049). Pending
   reservations count toward the limit, so two tabs cannot both pass it. A saved result
   consumes the slot; any failure releases it; a killed function's reservation expires.
-  **Fails closed** — unreadable controls or counters refuse the request.
+  Voice review reserves the number of allowed answers before processing.
+  Unreadable controls or counters refuse the request.
 - **Keying:** user id, with the secondary phone/email key that survives account
   cycling. Admin can still raise or reset one user's allowance.
-- **Anonymous scans:** a separate IP-keyed daily limit, plus the founder's pause.
+- **Anonymous scans:** a shared, atomic daily limit keyed by a hashed client IP.
+  Model-powered guest routes also check the founder's pause.
 - **Profile recreation:** 2 a month on the free plan, 5 for paid users, checked before
   the model call and counted on success only (`lib/recreateLimit.ts`, 2026-09-11).
 - **Input bounds:** CV text 20,000 characters pasted / 30,000 extracted; uploads 4 MB
@@ -236,8 +238,8 @@ interview call had none).
   `maxDuration`, through every attempt, provider tier and repair
   (`scripts/verify-deadlines.ts`), so it answers with its own message instead of the
   platform's timeout page.
-- **Authentication precedes every model call.** An anonymous caller cannot spend
-  tokens on an authenticated route.
+- **Authenticated AI routes verify the session and the caller’s ownership of
+  any input record.** Guest entry points use the separate guest controls above.
 
 **Founder visibility:** `/admin/services` shows, per action, today's and the last
 seven days' allowed / saved / failed / refused counts — counted inside the same

@@ -1,3 +1,5 @@
+> Dated implementation records. For the current workflow and code map, see [AGENTS.md](../AGENTS.md).
+
 ## Repository overlap follow-up — 22 November 2026
 
 Founder authorized removing verified overlaps from the read-only main baseline on
@@ -218,7 +220,7 @@ Satish approved issue #87 final desktop/mobile references and all V3 batches. Is
 
 # QUALITY-FOUNDATION-1A — 15 November 2026
 
-Founder approved documentation/development-quality foundation only, separate main-based branch and one review PR. Base: ca0abcf3ab386a252dc39a08ba26707d07019816. Scope: the ten-file allowlist in [working agreement](16_WORKING_AGREEMENT.md). No merge/deployment approval.
+Founder approved documentation/development-quality foundation only, separate main-based branch and one review PR. Base: ca0abcf3ab386a252dc39a08ba26707d07019816. Scope: the ten-file allowlist in [working agreement](https://github.com/jaissatish-web/GCC-MENTOR/blob/92385c853e97aaef27aa633f4ed5fcd029c0b357/docs/16_WORKING_AGREEMENT.md). No merge/deployment approval.
 
 Implemented documentation: workflow/approval standards, evidence/rollback gates, refreshed baseline and visual authority notices, proposed issue report and six-service evaluation protocol. No plugin installation, dependency change, paid AI evaluation or production API call. Existing PRs are untouched.
 

@@ -199,8 +199,10 @@ try {
       assert(await card.evaluate(el => {const r = el.getBoundingClientRect(); return r.width > 0 && r.width <= innerWidth + 1}), `${id}: distorted thumbnail at ${width}px`)
       assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${id}: template controls overflow at ${width}px`)
       if (width < 1024) { await click('Back to preview'); await page.waitForFunction(() => !document.querySelector('.editor-settings-panel').open) }
-      const save = width < 1024 ? await page.$('[aria-label="Save and download resume"]') : await page.$('a[href="/api/packages/preview-fixture/pdf"]')
-      assert(save, `${id}: save/download controls absent`)
+      const actions = '[aria-label="Resume actions"]'
+      assert(await page.$(actions + ' a[href="/api/packages/preview-fixture/pdf"]'), `${id}: PDF download link absent`)
+      assert(await page.$$eval(actions + ' button', buttons => buttons.some(button => button.textContent.trim() === 'Save changes')),
+        `${id}: Save changes control absent`)
       await click('Open full-size preview')
       await page.waitForSelector('dialog[open] [aria-label="Document zoom"]')
       await page.waitForFunction(() => document.querySelector('dialog[open] [aria-label="Scrollable resume document"] [data-document-preview]').getBoundingClientRect().width <= innerWidth)

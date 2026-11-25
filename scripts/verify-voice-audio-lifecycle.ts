@@ -113,8 +113,8 @@ cache('../lib/voice/server.ts', {
   transcriptionReady: async () => true,
   ownVoiceSession: async () => ({ session: structuredClone(state.session), user: { id: 'owner' } }),
 })
-cache('../lib/ai/serviceGuard.ts', { reserveAiAction: async () => ({ ok: true, finish: async () => undefined }) })
-cache('../lib/rateLimit.ts', { incrementRateLimit: async () => undefined, LIMIT_ACTION_MOCK_TRANSCRIPTION: 'transcribe', LIMIT_ACTION_MOCK_ANSWER: 'answer', LIMIT_ACTION_MOCK_REPORT: 'report' })
+cache('../lib/ai/serviceGuard.ts', { reserveAiAction: async ({ units = 1 } = {}) => ({ ok: true, units, finish: async () => undefined }) })
+cache('../lib/rateLimit.ts', { LIMIT_ACTION_MOCK_TRANSCRIPTION: 'transcribe', LIMIT_ACTION_MOCK_ANSWER: 'answer', LIMIT_ACTION_MOCK_REPORT: 'report' })
 cache('../lib/resumeParse/pipeline.ts', { FAST_HOSTS: [] })
 class FixtureAiTaskError extends Error {}
 cache('../lib/ai/runTask.ts', { AiTaskError: FixtureAiTaskError, runAiTask: async (task: Row) => {

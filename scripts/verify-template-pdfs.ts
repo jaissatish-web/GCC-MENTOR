@@ -43,12 +43,33 @@ import type { AddressInfo } from 'node:net'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { getDocumentProxy } from 'unpdf'
 import { buildCareerProfileResume } from '../lib/careerProfileResume'
-import { renderPackagePdf } from '../lib/pdf/renderPackage'
 import { atsTextOfPdf, checkAtsText, norm } from '../lib/atsFileCheck'
 import { availableTemplates, type TemplateEntry } from '../lib/templates'
 import { makeLongTemplateFixture, makeTemplateFixture } from './fixtures/templateFixture'
 
 ;(globalThis as unknown as { React: unknown }).React = React
+
+// The fixture never contacts Supabase. The renderer still uses the real browser
+// and the real reservation lifecycle; this stand-in supplies the RPC responses.
+const serviceClient = require.resolve('../lib/supabase/serviceAdmin')
+const serviceQuery = {
+  select: () => serviceQuery,
+  eq: () => serviceQuery,
+  in: async () => ({ data: [], error: null }),
+  maybeSingle: async () => ({ data: null, error: null }),
+}
+require.cache[serviceClient] = {
+  id: serviceClient,
+  filename: serviceClient,
+  loaded: true,
+  exports: {
+    createServiceRoleClient: () => ({
+      from: () => serviceQuery,
+      rpc: async () => ({ data: { status: 'reserved', reservation_id: 'pdf-fixture' }, error: null }),
+    }),
+  },
+} as NodeModule
+const { renderPackagePdf } = require('../lib/pdf/renderPackage') as typeof import('../lib/pdf/renderPackage')
 
 /** A head-and-shoulders silhouette as a real PNG, so the PDF carries a raster image like a photo. */
 function portraitPng(w = 120, h = 150): Buffer {

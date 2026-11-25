@@ -128,22 +128,26 @@ export async function getAnonymousRateLimitStatus(opts: {
   }
 }
 
-/** Anonymous-path equivalent of incrementRateLimit (lib/rateLimit.ts). */
-export async function incrementAnonymousRateLimit(opts: {
+/** Atomically claim an attempt before starting protected work. */
+export async function consumeAnonymousAttempt(opts: {
   identityHash: string
   action: string
-}): Promise<void> {
-  const supabase = createServiceRoleClient()
-
-  const { error } = await supabase.rpc('increment_anonymous_rate_limit', {
+}): Promise<{ ok: true } | { ok: false; status: 429 | 503; error: string }> {
+  const { data, error } = await createServiceRoleClient().rpc('consume_anonymous_rate_limit', {
     p_identity_hash: opts.identityHash,
     p_action: opts.action,
     p_window_start: windowStart(),
+    p_limit: getAnonymousDefaultDailyLimit(opts.action),
   })
 
-  if (error) {
-    console.error('anonymousRateLimit increment error: action=' + opts.action, error?.message ?? '')
+  if (error || typeof data !== 'boolean') {
+    console.error('anonymousRateLimit authorization failed: action=' + opts.action, error?.message)
+    return { ok: false, status: 503, error: 'We could not verify usage limits right now. Please try again in a moment.' }
   }
+  if (!data) {
+    return { ok: false, status: 429, error: `You've reached today's limit for this action. It resets ${resetsInText()}.` }
+  }
+  return { ok: true }
 }
 
 function resetAtIso(): string {

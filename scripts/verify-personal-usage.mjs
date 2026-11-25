@@ -18,14 +18,17 @@ const service = {
       then(ok, no) { return Promise.resolve(result()).then(ok, no) } }
     return q
   },
-  async rpc(name, args) { calls.push({ name, args }); return { error: null, data: { status: reserveStatus, reservation_id: 'reservation' } } },
+  async rpc(name, args) {
+    calls.push({ name, args })
+    return { error: null, data: { status: reserveStatus, reservation_id: 'reservation', granted_units: 2 } }
+  },
 }
 const id = require.resolve('../lib/supabase/serviceAdmin.ts')
 require.cache[id] = { id, filename: id, loaded: true, exports: { createServiceRoleClient: () => service } }
 const { hasUnlimitedPersonalUsage, UNLIMITED_PERSONAL_ALLOWANCE: max } = require('../lib/personalUsage.ts')
 const { getRecreationStatus } = require('../lib/recreateLimit.ts')
-const { getRateLimitStatus } = require('../lib/rateLimit.ts')
-const { reserveAiAction } = require('../lib/ai/serviceGuard.ts')
+const { getDefaultDailyLimit, getRateLimitStatus, LIMIT_ACTION_PDF_RENDER } = require('../lib/rateLimit.ts')
+const { reserveAction, reserveAiAction } = require('../lib/ai/serviceGuard.ts')
 assert.equal(hasUnlimitedPersonalUsage(owner), true)
 for (const other of ['', 'jaissatish@gmail.com', 'other-user', owner + ' ']) assert.equal(hasUnlimitedPersonalUsage(other), false)
 assert.equal((await getRecreationStatus(owner)).unlimited, true)
@@ -43,6 +46,26 @@ await r.finish(true); await r.finish(true)
 assert.equal(calls.filter(c => c.name === 'consume_rate_limit_reservation').length, 1)
 await reserveAiAction({ ...action, userId: 'other-user' })
 assert.equal(calls.at(-1).args.p_limit, 2)
+const pdf = await reserveAction({ userId: owner, action: LIMIT_ACTION_PDF_RENDER })
+assert.equal(pdf.ok, true)
+assert.equal(calls.at(-1).args.p_limit, getDefaultDailyLimit(LIMIT_ACTION_PDF_RENDER))
+assert.equal(calls.at(-1).args.p_max_concurrent, 1)
+await pdf.finish(true)
+
+const duty = await reserveAiAction({ userId: 'other-user', action: 'typical_duties' })
+assert.equal(duty.ok, true)
+await duty.finish(false)
+assert.equal(calls.at(-1).name, 'release_rate_limit_reservation')
+const voice = await reserveAiAction({ userId: 'other-user', action: 'mock_interview_answer', units: 5 })
+assert.equal(voice.ok, true)
+assert.equal(voice.units, 2)
+assert.equal(calls.at(-1).name, 'reserve_rate_limit_units')
+assert.equal(calls.at(-1).args.p_requested_units, 5)
+await voice.finish(1)
+assert.equal(calls.at(-1).name, 'settle_rate_limit_units')
+assert.equal(calls.at(-1).args.p_successful_units, 1)
+
+
 paused = true
 assert.equal((await reserveAiAction(action)).code, 'paused')
 paused = false

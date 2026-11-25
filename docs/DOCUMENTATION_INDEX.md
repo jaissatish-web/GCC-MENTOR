@@ -1,41 +1,8 @@
-# Documentation index — current only
+# Documentation index
 
-**Scope:** `main` carries current documentation only. Historical design
-campaigns, dated audit/QA/rollout reports and superseded design directions were
-removed from `main` on **17 November 2026** and now live only on the
-`archive/docs-history-pre-2026-11` branch. Retrieve any of them with
-`git show archive/docs-history-pre-2026-11:<path>` — never copy one back into
-`main`.
-
-Use this page to find current instructions. Some linked directories contain
-feature specifications, plans or evidence. The file's role and dated status
-determine how to use it.
-
-## Read order
-
-1. [`../AGENTS.md`](../AGENTS.md) — working rules and current authorization
-2. [`16_WORKING_AGREEMENT.md`](16_WORKING_AGREEMENT.md) — documents first, then code
-3. [`CURRENT_STATE.md`](CURRENT_STATE.md) — what is actually implemented
-4. [`PLATFORM_MASTER.md`](PLATFORM_MASTER.md) — plain-language platform explanation
-5. [`PROGRESS.md`](PROGRESS.md) — the single task/progress surface
-6. The relevant domain document below
-
-The live product surface is defined by `app/` (53 pages, 51 API routes). Code and
-a document that disagree means the document is wrong.
-
-## Authority
-
-| Document | Role |
-|---|---|
-| [`../AGENTS.md`](../AGENTS.md) | Canonical workflow, scope and authorization |
-| [`00_START_HERE.md`](00_START_HERE.md) | Entry point |
-| [`16_WORKING_AGREEMENT.md`](16_WORKING_AGREEMENT.md) | Documentation-first working method |
-| [`CURRENT_STATE.md`](CURRENT_STATE.md) | Current implementation baseline |
-| [`PLATFORM_MASTER.md`](PLATFORM_MASTER.md) | Current platform in plain language |
-| [`PROGRESS.md`](PROGRESS.md) | Sole implementation/verification progress surface |
-| [`PROJECT_PLAN.md`](PROJECT_PLAN.md) | Agreed direction |
-| [`15_DECISION_LOG.md`](15_DECISION_LOG.md) | Dated founder decisions and rationale |
-| [`14_OPEN_ITEMS.md`](14_OPEN_ITEMS.md) | Sole unresolved-proposal surface |
+Start with [AGENTS.md](../AGENTS.md) for the current code map and workflow.
+The following references cover product decisions, domain contracts and operations.
+Use the source for current behavior and Git history for dated evidence.
 
 ## Product and domain specifications
 
@@ -88,9 +55,7 @@ a document that disagree means the document is wrong.
 | Path | Covers |
 |---|---|
 | [`free-tools/`](free-tools/) | Free tools: country rules, field contracts, inventory, UI system, SEO and conversion |
-| [`evidence/`](evidence/) | Verification evidence |
-| [`plans/`](plans/) | Active plans |
-| [`superpowers/`](superpowers/) | Development-practice material |
+| [Historical design plans and QA evidence](https://github.com/jaissatish-web/GCC-MENTOR/tree/92385c853e97aaef27aa633f4ed5fcd029c0b357/docs) | Dated records |
 
 ## Outside `docs/`
 
@@ -104,12 +69,11 @@ a document that disagree means the document is wrong.
 | [`../public/landing/employers/SOURCES.md`](../public/landing/employers/SOURCES.md) | Employer logo provenance — keep |
 | [`../public/landing/v2/ASSET_SOURCES.md`](../public/landing/v2/ASSET_SOURCES.md) | Landing asset provenance — keep |
 
-## Adding documentation
+## Decision and implementation history
 
-Record new work in the relevant domain document and
-[`15_DECISION_LOG.md`](15_DECISION_LOG.md). Do **not** add a new dated campaign
-report, and do **not** create a second design direction. One current statement per
-subject.
+- [Product direction](PROJECT_PLAN.md) and [decision log](15_DECISION_LOG.md)
+- [Dated implementation baselines](CURRENT_STATE.md), [platform guide](PLATFORM_MASTER.md), and [progress history](PROGRESS.md)
+- [Open product proposals](14_OPEN_ITEMS.md)
 
 ## Current feature review —18 November2026
 

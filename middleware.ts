@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-// Routes that require login. Must stay in sync with docs/USER_FLOW.md.
+// Routes that require login. Keep the static Next.js matcher below aligned.
 const PROTECTED_ROUTES = [
   '/dashboard',
   '/profile',
@@ -17,6 +17,8 @@ const PROTECTED_ROUTES = [
   '/create-resume',
   '/templates',
   '/linkedin-optimization',
+  '/naukrigulf-optimization',
+  '/onboarding',
   // /payments is now a redirect into /settings?tab=payments, but it stays
   // listed here: it must not become an unauthenticated route just because
   // its body is a redirect, and it was in fact never protected before.
@@ -43,15 +45,15 @@ export async function middleware(request: NextRequest) {
   // expose an authenticated page.
   if (!url || !anonKey) {
     const isProtected = PROTECTED_ROUTES.some((route) =>
-      request.nextUrl.pathname.startsWith(route)
+      request.nextUrl.pathname === route || request.nextUrl.pathname.startsWith(route + '/')
     )
     if (isProtected) {
       console.error(
         '[middleware] Supabase env vars missing — refusing access to a protected route. ' +
-          'Copy .env.example to .env.local and fill it in. See docs/INFRASTRUCTURE.md §5.'
+          'Copy .env.example to .env.local and fill it in. See docs/SUPABASE_AUTH_SETUP.md.'
       )
       return new NextResponse(
-        'Supabase is not configured. See docs/INFRASTRUCTURE.md §5.',
+        'Supabase is not configured. See docs/SUPABASE_AUTH_SETUP.md.',
         { status: 503 }
       )
     }
@@ -91,9 +93,14 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   const pathname = request.nextUrl.pathname
+  const redirect = (url: URL) => {
+    const response = NextResponse.redirect(url)
+    for (const cookie of supabaseResponse.cookies.getAll()) response.cookies.set(cookie)
+    return response
+  }
 
   const isProtectedRoute = PROTECTED_ROUTES.some((route) =>
-    pathname.startsWith(route)
+    pathname === route || pathname.startsWith(route + '/')
   )
   if (isProtectedRoute && !user) {
     const loginUrl = new URL('/login', request.url)
@@ -101,12 +108,12 @@ export async function middleware(request: NextRequest) {
     // between services, and losing it made them find their task again after
     // signing in (audit M09). Validated again on the way out (lib/safeRedirect.ts).
     loginUrl.searchParams.set('redirectTo', pathname + request.nextUrl.search)
-    return NextResponse.redirect(loginUrl)
+    return redirect(loginUrl)
   }
 
   const isAuthRoute = AUTH_ROUTES.some((route) => pathname.startsWith(route))
   if (isAuthRoute && user) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+    return redirect(new URL('/dashboard', request.url))
   }
 
   // Admin gate (docs/ADMIN.md §1): "Check is_admin server-side in the route
@@ -122,7 +129,7 @@ export async function middleware(request: NextRequest) {
       .eq('user_id', user.id)
       .maybeSingle()
     if (!profile || profile.is_admin !== true) {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
+      return redirect(new URL('/dashboard', request.url))
     }
   }
 
@@ -151,6 +158,7 @@ export const config = {
     '/templates/:path*',
     '/linkedin-optimization/:path*',
     '/naukrigulf-optimization/:path*',
+    '/onboarding/:path*',
     '/payments/:path*',
     '/login',
     '/signup',

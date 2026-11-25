@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { extractProfile, readResumeText } from '@/lib/resumeParse/pipeline'
 import { isServicePaused } from '@/lib/ai/serviceGuard'
-import { getClientIdentityHash,getAnonymousRateLimitStatus,incrementAnonymousRateLimit,LIMIT_ACTION_ANON_ATS_SCAN } from '@/lib/anonymousRateLimit'
+import { getClientIdentityHash,getAnonymousRateLimitStatus,consumeAnonymousAttempt,LIMIT_ACTION_ANON_ATS_SCAN } from '@/lib/anonymousRateLimit'
 import { buildImportReview } from '@/lib/resumeParse/importReview'
 import { contextFromDraft } from '@/lib/careerIntake/shared'
 
@@ -26,7 +26,8 @@ export async function POST(request:NextRequest) {
   if(!read?.ok)return NextResponse.json({error:'We could not read this resume clearly. Try a fresh export or paste its text.',code:read?.code},{status:400})
   // Reserve the anonymous attempt before model work. Retry failures are explicitly
   // described as attempted reads; malformed uploads above never use an attempt.
-  await incrementAnonymousRateLimit({identityHash,action:LIMIT_ACTION_ANON_ATS_SCAN})
+  const attempt = await consumeAnonymousAttempt({ identityHash, action: LIMIT_ACTION_ANON_ATS_SCAN })
+  if (!attempt.ok) return NextResponse.json({ error: attempt.error }, { status: attempt.status })
   const parsed=await extractProfile(read.text,{route:'/api/career-intake',layout:read.layout})
   if(!parsed.ok)return NextResponse.json({error:'We could not finish this reading. Your resume has not been saved. Try again later or create a profile manually.',code:parsed.code},{status:502})
   parsed.report.review=buildImportReview(parsed.draft,parsed.draft,parsed.text,parsed.report.warnings)

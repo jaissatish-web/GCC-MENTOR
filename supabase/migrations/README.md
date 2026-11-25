@@ -169,3 +169,12 @@ revert the UI/API first, then `DROP FUNCTION public.dashboard_overview();`.
 067 adds one private LinkedIn draft per user and its independent service guard.
 Authenticated access is owner-only SELECT; validated server routes own mutations.
 No Career Profile or resume package changes. See docs/19_LINKEDIN_OPTIMIZATION.md.
+
+## Applying 074 — launch usage protection
+
+Apply `074_launch_usage_protection.sql` before deploying the launch-remediation
+branch against a database. It adds two admin control rows and a service-only
+guest rate-limit function. It reuses existing guest counters and adds batch
+capacity to the existing voice-review reservations.
+Rollback the application first so older routes can keep using their original
+counter function. The additive database objects can stay in place.

@@ -1,3 +1,5 @@
+> Dated implementation records. For the current workflow and code map, see [AGENTS.md](../AGENTS.md).
+
 # Inspected baseline — 15 November 2026
 
 Batch 1A baseline is verified main ca0abcf3ab386a252dc39a08ba26707d07019816 (PR #82 employer marquee). This current notice supersedes older baseline/status descriptions below; older evidence remains dated, not recertified. Batch 1A changes documentation only.

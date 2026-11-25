@@ -23,7 +23,7 @@ writeFileSync(dir + '/link.js', `import React from 'react';export default functi
 writeFileSync(dir + '/image.js', `import React from 'react';export default function Image({fill,priority,sizes,...p}){return React.createElement('img',{...p,style:fill?{position:'absolute',height:'100%',width:'100%',inset:0,...p.style}:p.style})}`)
 writeFileSync(dir + '/loader.cjs', `module.exports=s=>require(${JSON.stringify(require.resolve('sucrase'))}).transform(s,{transforms:['typescript','jsx'],jsxRuntime:'automatic',production:true}).code`)
 // Exercise current CSS-module screens in the isolated fixture as well.
-writeFileSync(dir + '/css-loader.cjs', `module.exports=source=>{const classes=Object.fromEntries([...source.matchAll(new RegExp('[.]([A-Za-z_][A-Za-z0-9_-]*)','g'))].map(m=>[m[1],m[1]]));return 'const style=document.createElement("style");style.textContent='+JSON.stringify(source)+';document.head.appendChild(style);export default '+JSON.stringify(classes)}`)
+writeFileSync(dir + '/css-loader.cjs', String.raw`module.exports=source=>{const classes=Object.fromEntries([...source.matchAll(new RegExp('[.]([A-Za-z_][A-Za-z0-9_-]*)','g'))].map(m=>[m[1],m[1]]));return 'const style=document.createElement("style");style.textContent='+JSON.stringify(source.replace(/:global\(([^)]+)\)/g, "$1"))+';document.head.appendChild(style);export default '+JSON.stringify(classes)}`)
 const webpack = require('next/dist/compiled/webpack/webpack'); webpack.init()
 await new Promise((yes, no) => webpack.webpack({ mode: 'development', devtool: false, entry: dir + '/entry.mjs', output: { path: dir, filename: 'fixture.js' }, resolve: { extensions: ['.tsx', '.ts', '.js', '.mjs'], alias: { '@': root, 'next/navigation': dir + '/navigation.js', 'next/link': dir + '/link.js', 'next/image': dir + '/image.js' }, modules: [root + '/node_modules', 'node_modules'] }, module: { rules: [{test:/\.module\.css$/,use:dir+'/css-loader.cjs'}, { test: /\.tsx?$/, exclude: /node_modules/, use: dir + '/loader.cjs' }] } }, (e, s) => e || s.hasErrors() ? no(e || Error(s.toString({ errors: true }))) : yes()))
 const landing = readFileSync('.next/server/app/index.html', 'utf8')
@@ -41,7 +41,7 @@ try {
       const u = new URL(r.url()), json = (body, status = 200) => r.respond({ status, contentType: 'application/json', body: JSON.stringify(body) })
       if (u.origin !== 'https://interview.test') return r.abort()
       if (u.pathname.startsWith('/_next/static/media/')) return r.respond({status:200,contentType:'font/woff2',body:readFileSync(root+u.pathname.replace('/_next/','/.next/'))})
-      if (!u.pathname.startsWith('/api/') && !u.pathname.startsWith('/interviewers/') && u.pathname !== '/fixture.js') return r.respond({ status: 200, contentType: 'text/html', body: `<html><head><meta charset="utf-8"><style>${css}</style></head><body class="${bodyClass} app-type internal-ui"><div id="root"></div><script src="/fixture.js"></script></body></html>` })
+      if (!u.pathname.startsWith('/api/') && !u.pathname.startsWith('/interviewers/') && u.pathname !== '/fixture.js') return r.respond({ status: 200, contentType: 'text/html', body: `<html><head><meta charset="utf-8"><style>${css}</style></head><body class="${bodyClass} app-type internal-ui${u.searchParams.get('screen') === 'dashboard' ? ' career-studio' : ''}"><div id="root"></div><script src="/fixture.js"></script></body></html>` })
       if (u.pathname === '/fixture.js') return r.respond({ status: 200, contentType: 'application/javascript', body: readFileSync(dir + '/fixture.js') })
       if (u.pathname.startsWith('/interviewers/')) return r.respond({ status: 200, contentType: 'image/webp', body: readFileSync(root + '/public' + u.pathname) })
       if (r.method() !== 'GET' && u.pathname.includes('/mock-interview/')) writes.push(u.pathname)
@@ -109,9 +109,22 @@ try {
     assert.ok(await page.$eval('[aria-label="Your improvement plan"] details',el=>el.open&&el.textContent.includes('Practise a specific example.')))
     if(width<400){await page.evaluate(()=>document.documentElement.style.fontSize='200%');const enlarged=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth,overflow:[...document.querySelectorAll('main *')].filter(el=>el.getBoundingClientRect().right>innerWidth+1).map(el=>({text:el.textContent.slice(0,70),class:el.className})).slice(0,6)}));assert.ok(enlarged.scroll<=width+1,JSON.stringify(enlarged))}
     await page.goto('https://interview.test/?screen=dashboard', { waitUntil: 'networkidle0' })
-    await page.waitForSelector('[aria-label="Interview progress report"]')
-    assert.ok(await page.$eval('[aria-label="Your interview practice"]', el=>el.textContent.includes('12 saved interviews')))
-    assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1))
+    const performance = '[aria-label="My interview performance"]'
+    await page.waitForSelector(performance + ' progress')
+    assert.ok(await page.$eval(performance, el => el.textContent.includes('Latest reviewed score')))
+    const reportLink = performance + ' a[href*="#interview-report"]'
+    assert.equal(await page.$eval(reportLink, el => el.getAttribute('href')),
+      `/mock-interview?package=${pkg.id}&run=${progress.selectedId}#interview-report`)
+    const dashboardLayout = await page.evaluate(() => ({
+      width: innerWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+      overflow: [...document.querySelectorAll('#root *')]
+        .filter(el => el.getBoundingClientRect().right > innerWidth + 1)
+        .slice(0, 5).map(el => ({ tag: el.tagName, className: el.getAttribute('class') })),
+    }))
+    assert.ok(dashboardLayout.scrollWidth <= dashboardLayout.width + 1, JSON.stringify(dashboardLayout))
+    await page.click(reportLink)
+    await page.waitForSelector('[aria-label="Result cards"]')
     await page.goto('https://interview.test/?screen=workspace',{waitUntil:'networkidle0'})
     await page.waitForSelector('[aria-label="Interview progress report"]')
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1))

@@ -10,7 +10,7 @@ import type { CoverLetter } from '@/types/package'
  *   PATCH { full_text }          — save the user's own edit of the letter.
  *   GET   ?format=pdf|docx       — the letter as the file they send.
  * Owner-scoped like every package route: a letter on someone else's package
- * matches nothing and 404s. No AI call and no quota — it is the user's text.
+ * matches nothing and 404s. PDF requests share the account’s Chromium render limit.
  */
 
 export const maxDuration = 60
@@ -84,8 +84,9 @@ export async function GET(request: NextRequest, props: Params): Promise<NextResp
         },
       })
     }
-    const file = await letterPdf(ctx.letter.full_text)
-    return new NextResponse(new Uint8Array(file), {
+    const file = await letterPdf(ctx.letter.full_text, ctx.user.id)
+    if (!file.ok) return NextResponse.json({ error: file.error }, { status: file.status })
+    return new NextResponse(new Uint8Array(file.value), {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="${name}.pdf"`,

@@ -1,3 +1,4 @@
+import { reserveAiAction } from '@/lib/ai/serviceGuard'
 import { buildImportReview } from '@/lib/resumeParse/importReview'
 import { reviewWording } from '@/lib/resumeParse/reviewWording'
 import { savePendingDraft } from '@/lib/pendingDraft'
@@ -65,7 +66,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (claimed?.extractedProfile && claimed.resumeText) {
     const original = structuredClone(claimed.extractedProfile)
     const review = buildImportReview(original, claimed.extractedProfile, claimed.resumeText, [])
-    await reviewWording(review, claimed.extractedProfile, { userId: user.id, route: '/api/anonymous-session/claim' })
+    // Wording remains optional. A pause or limit still permits claiming the
+    // existing facts and showing the deterministic review.
+    const wording = await reserveAiAction({ userId: user.id, action: 'anonymous_claim_review' })
+    if (wording.ok) {
+      try {
+        await reviewWording(review, claimed.extractedProfile, { userId: user.id, route: '/api/anonymous-session/claim' })
+      } finally {
+        await wording.finish(review.wordingStatus === 'checked')
+      }
+    } else {
+      review.wordingStatus = 'unavailable'
+    }
     await savePendingDraft(supabase, user.id, claimed.extractedProfile, 'paste', { version: 'v2', ms: 0, attempts: 0, repaired: false, inputTokens: 0, outputTokens: 0, host: null, layout: [], warnings: [], review })
   }
 

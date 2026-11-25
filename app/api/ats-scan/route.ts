@@ -29,7 +29,7 @@ import {
 import type { JobMatchCategoryKey, JobMatchCategoryResult, JobMatchResult } from '@/types/jobMatch'
 import {
   getAnonymousRateLimitStatus,
-  incrementAnonymousRateLimit,
+  consumeAnonymousAttempt,
   getClientIdentityHash,
   LIMIT_ACTION_ANON_ATS_SCAN,
 } from '@/lib/anonymousRateLimit'
@@ -232,7 +232,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // A successful scan consumes a rate-limit slot regardless of what happens
   // below — the score itself already succeeded and is what the caller paid
   // a rate-limit slot for.
-  await incrementAnonymousRateLimit({ identityHash, action: LIMIT_ACTION_ANON_ATS_SCAN })
+  const attempt = await consumeAnonymousAttempt({ identityHash, action: LIMIT_ACTION_ANON_ATS_SCAN })
+  if (!attempt.ok) return NextResponse.json({ error: attempt.error }, { status: attempt.status })
 
   // Extraction, the Job Match engine, and session persistence are ALL
   // best-effort ON TOP OF the score — never let a failure below turn a
