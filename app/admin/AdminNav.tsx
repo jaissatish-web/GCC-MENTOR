@@ -11,6 +11,7 @@ const TABS = [
   { href: '/admin/prompts', label: 'Prompts' },
   { href: '/admin/promo-codes', label: 'Promo Codes' },
   { href: '/admin/packages', label: 'Packages' },
+  { href: '/admin/referrals', label: 'Referrals & Credits' },
   { href: '/admin/users', label: 'Users' },
   { href: '/admin/content', label: 'Site Content' },
   { href: '/admin/access-log', label: 'Access Log' },

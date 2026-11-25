@@ -67,6 +67,8 @@ function database({ expired = 0, cleanup = 0, sessions = 0, answersPerSession = 
         for (const [table, key] of [['anonymous_analysis_sessions', 'anonymous_sessions_deleted'], ['anonymous_rate_limits', 'anonymous_rate_limit_rows_deleted'], ['rate_limit_reservations', 'stale_reservations_deleted'], ['job_analyses', 'job_analyses_deleted']]) { summary[key] = state[table].length; state[table] = [] }
         return { data: summary, error: null }
       }
+      if (name === 'prune_referral_tracking') return { data: null, error: null }
+      if (name === 'reconcile_stale_wallet_reservations' || name === 'expire_wallet_credits') return { data: 0, error: null }
       assert.equal(name, 'voice_delete_session')
       const row = state.voice_interview_sessions.find(s => s.id === args.p_session_id && s.user_id === args.p_user_id)
       if (!row) return { data: false, error: null }

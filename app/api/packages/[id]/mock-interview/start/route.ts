@@ -12,10 +12,11 @@ import { buildMockInterviewStartPrompt } from '@/lib/ai/buildMockInterviewPrompt
 import { runAiTask, AiTaskError } from '@/lib/ai/runTask'
 import { normalizeMockInterviewQuestions, validateMockInterviewStart } from '@/lib/ai/validateMockInterview'
 import { allowedNumbersFor, resumeDocumentTexts, unsourcedNumbers } from '@/lib/ai/answerGrounding'
-import { reserveAiAction } from '@/lib/ai/serviceGuard'
+import { reservePremiumAction } from '@/lib/credits/premiumAction'
 import { LIMIT_ACTION_MOCK_START } from '@/lib/rateLimit'
 import { loadCareerProfileFull, ProfileLoadError } from '@/lib/packages/profileLoader'
-import { appendMockRunAtomic } from '@/lib/packages/serverWrites'
+import { packageEvent } from '@/lib/packageEvents'
+import { appendMockRunAtomic, saveCreditBackedPackageResult } from '@/lib/packages/serverWrites'
 import type { MockInterviewDifficulty, MockInterviewMode, MockInterviewRun, OptimizedContent } from '@/types/package'
 
 /**
@@ -128,16 +129,17 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
     target.target_company,
   ])
 
-  const reservation = await reserveAiAction({
+  const reservation = await reservePremiumAction({
     userId: user.id,
+    request,
+    packageId,
+    options: { mode, difficulty, questionCount, voice, interviewerId: body.interviewerId },
     action: LIMIT_ACTION_MOCK_START,
     phone: profile.phone,
     email: profile.email,
     ttlSeconds: 210,
   })
-  if (!reservation.ok) {
-    return NextResponse.json({ error: reservation.error, code: reservation.code }, { status: reservation.status })
-  }
+  if (!reservation.ok) return reservation.response
 
   let succeeded = false
   try {
@@ -237,7 +239,14 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
 
     let saved: boolean
     try {
-      if (voice) {
+      if (reservation.walletReservationId) {
+        saved = await saveCreditBackedPackageResult({
+          packageId, userId: user.id, walletReservationId: reservation.walletReservationId,
+          service: 'mock_interview_start', resultId: run.id,
+          data: { run, ...(voice ? { profile, fingerprint, rubric: VOICE_RUBRIC } : {}) },
+          event: packageEvent('mock_interview_started', 'Mock interview started', { mode, difficulty, question_count: questionCount }),
+        })
+      } else if (voice) {
         const { data, error } = await voiceAdmin().rpc('voice_start_session', { p_package_id: packageId, p_user_id: user.id, p_run: run, p_profile: profile, p_fingerprint: fingerprint, p_rubric: VOICE_RUBRIC })
         if (error) throw error
         saved = data === true

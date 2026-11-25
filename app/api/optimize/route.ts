@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 import { generate } from '@/lib/ai/provider'
 import type { SelectedBlocks, OptimizationTarget } from '@/lib/ai/buildOptimizationPrompt'
 import { reserveAiAction } from '@/lib/ai/serviceGuard'
+import { reservePremiumAction } from '@/lib/credits/premiumAction'
 import { loadCareerProfileFull, ProfileLoadError } from '@/lib/packages/profileLoader'
 import { appendPackageEventAtomic, insertPackageForUser, updatePackageServerFields } from '@/lib/packages/serverWrites'
 import { getTemplate } from '@/lib/templates'
@@ -298,8 +299,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         await slot.finish(ok)
       }
     }
-    const reservation = await reserveAiAction({ userId: user.id, action: LIMIT_ACTION_OPTIMIZATION, phone: profile.phone, email: profile.email, ttlSeconds: 330 })
-    if (!reservation.ok) return NextResponse.json({ error: reservation.error, code: reservation.code }, { status: reservation.status })
+    const reservation = await reservePremiumAction({ userId: user.id, action: LIMIT_ACTION_OPTIMIZATION, phone: profile.phone, email: profile.email, ttlSeconds: 330, request, packageId: generatePackageId })
+    if (!reservation.ok) return reservation.response
     let savedOk = false
     try {
       await ensureAdvert()
@@ -318,6 +319,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       const { row: saved, error: saveError } = await updatePackageServerFields<{ id: string }>({
         packageId: generatePackageId,
         userId: user.id,
+        walletReservationId: reservation.walletReservationId,
+        matchScores: result.report.after ? { match_before: result.report.before.total, match_after: result.report.after.total } : undefined,
         fields: {
           optimized_content: result.optimizedContent,
           skills_order: result.skillsOrder,
@@ -331,7 +334,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         console.error('optimize v3: package update failed user=' + user.id + ' package=' + generatePackageId, saveError ?? 'no row')
         return NextResponse.json({ error: 'Could not save your optimized resume. Please try again.' }, { status: 500 })
       }
-      await appendPackageEventAtomic({
+      if (!reservation.walletReservationId) await appendPackageEventAtomic({
         packageId: saved.id,
         userId: user.id,
         type: 'cv_generated',
@@ -464,16 +467,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // Reserved BEFORE any model call and settled after (lib/ai/serviceGuard.ts):
   // in-flight builds count toward the daily limit, and the founder's pause
   // applies here.
-  const reservation = await reserveAiAction({
+  const reservation = await reservePremiumAction({
     userId: user.id,
+    request,
+    packageId: generatePackageId,
     action: LIMIT_ACTION_OPTIMIZATION,
     phone: profile.phone,
     email: profile.email,
     ttlSeconds: 330,
   })
-  if (!reservation.ok) {
-    return NextResponse.json({ error: reservation.error, code: reservation.code }, { status: reservation.status })
-  }
+  if (!reservation.ok) return reservation.response
 
   // Only a build that is SAVED counts as a use.
   let generatedAndSaved = false
@@ -560,6 +563,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const { row: saved, error: saveError } = await updatePackageServerFields<{ id: string }>({
       packageId: generatePackageId,
       userId: user.id,
+      walletReservationId: reservation.walletReservationId,
+      matchScores: result.report?.after ? { match_before: result.report.before.total, match_after: result.report.after.total } : undefined,
       fields: {
         optimized_content: result.optimizedContent,
         skills_order: result.skillsOrder,
@@ -584,7 +589,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: 'Could not save your optimized resume. Please try again.' }, { status: 500 })
     }
 
-    await appendPackageEventAtomic({
+    if (!reservation.walletReservationId) await appendPackageEventAtomic({
       packageId: saved.id,
       userId: user.id,
       type: 'cv_generated',

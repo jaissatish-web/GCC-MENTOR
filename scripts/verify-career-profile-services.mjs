@@ -60,6 +60,13 @@ const session = { auth: { getUser: async () => ({ data: { user }, error: null })
 mock('../lib/supabase/server.ts', { createClient: async () => session })
 const { ProfileLoadError } = require('../lib/packages/profileLoader.ts')
 mock('../lib/packages/profileLoader.ts', { ProfileLoadError, loadCareerProfileFull: async (_db, id, owner) => { assert.equal(id, profile.id); assert.equal(owner, user.id); if (failProfile) throw new ProfileLoadError('skills'); return profile } })
+mock('../lib/supabase/serviceAdmin.ts', { createServiceRoleClient: () => ({
+  rpc(name, args) {
+    assert.equal(name, 'reserve_wallet_credits')
+    assert.equal(args.p_owner, user.id)
+    return { single: async () => ({ data: { status: 'disabled', reservation_id: null }, error: null }) }
+  },
+}) })
 mock('../lib/ai/serviceGuard.ts', { reserveAiAction: async () => ({ ok: true, finish: async (ok) => finishes.push(ok) }) })
 mock('../lib/packages/serverWrites.ts', {
   appendCoverLetterAtomic: async (v) => { writes.push(v); return true },
@@ -95,7 +102,7 @@ const routes = [
   [require('../app/api/packages/[id]/mock-interview/start/route.ts').POST, { questionCount: 5, inputMode: 'text' }],
   [require('../app/api/packages/[id]/mock-interview/start/route.ts').POST, { questionCount: 5, inputMode: 'voice' }],
 ]
-const request = (body) => new Request('http://localhost/api/packages/raw-owner/service', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+const request = (body) => new Request('http://localhost/api/packages/raw-owner/service', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Idempotency-Key': crypto.randomUUID() }, body: JSON.stringify(body) })
 for (const [post, body] of routes) {
   user = null
   assert.equal((await post(request(body), { params: Promise.resolve({ id: 'raw-owner' }) })).status, 401)

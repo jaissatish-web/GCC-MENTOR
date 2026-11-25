@@ -129,6 +129,7 @@ run('verify-incomplete-profile-save.mjs', [join('scripts', 'verify-incomplete-pr
 run('verify-import-review-api.mjs', [join('scripts', 'verify-import-review-api.mjs')])
 run('verify-import-review-db.mjs', [join('scripts', 'verify-import-review-db.mjs')])
 run('verify-db-security.mjs', [join('scripts', 'verify-db-security.mjs')])
+for (const script of ['verify-referral-foundation.mjs', 'verify-credit-wallet.mjs', 'verify-monetization-integration.mjs']) run(script, [join('scripts', script)])
 run('verify-dashboard-overview.mjs', [join('scripts', 'verify-dashboard-overview.mjs')])
 run('verify-profile-categories-db.mjs', [join(root, 'scripts', 'verify-profile-categories-db.mjs')])
 run('verify-voice-db.mjs', [join('scripts', 'verify-voice-db.mjs')])

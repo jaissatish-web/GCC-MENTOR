@@ -25,7 +25,7 @@ import {
   yearsToState,
   totalExperienceYears,
 } from '@/lib/ai/proseClaims'
-import { reserveAiAction } from '@/lib/ai/serviceGuard'
+import { reservePremiumAction } from '@/lib/credits/premiumAction'
 import { LIMIT_ACTION_INTERVIEW_QA } from '@/lib/rateLimit'
 import { loadCareerProfileFull, ProfileLoadError } from '@/lib/packages/profileLoader'
 import { setInterviewQuestionsAtomic } from '@/lib/packages/serverWrites'
@@ -77,7 +77,7 @@ function aiFailureMessage(error: unknown): string {
     : 'Could not generate interview Q&A. Nothing was used — please try again.'
 }
 
-export async function POST(_request: Request, props: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+export async function POST(request: Request, props: { params: Promise<{ id: string }> }): Promise<NextResponse> {
   const startedAt = Date.now()
   const params = await props.params
   const supabase = await createClient()
@@ -169,16 +169,17 @@ export async function POST(_request: Request, props: { params: Promise<{ id: str
     return bad
   }
 
-  const reservation = await reserveAiAction({
+  const reservation = await reservePremiumAction({
     userId: user.id,
+    request,
+    packageId,
+
     action: LIMIT_ACTION_INTERVIEW_QA,
     phone: profile.phone,
     email: profile.email,
     ttlSeconds: 330,
   })
-  if (!reservation.ok) {
-    return NextResponse.json({ error: reservation.error, code: reservation.code }, { status: reservation.status })
-  }
+  if (!reservation.ok) return reservation.response
 
   let succeeded = false
   try {
@@ -287,7 +288,7 @@ export async function POST(_request: Request, props: { params: Promise<{ id: str
 
     let saved: boolean
     try {
-      saved = await setInterviewQuestionsAtomic({ packageId, userId: user.id, questions: interviewQuestions })
+      saved = await setInterviewQuestionsAtomic({ packageId, userId: user.id, questions: interviewQuestions, walletReservationId: reservation.walletReservationId })
     } catch (e) {
       console.error('interview-qa: save failed user=' + user.id + ' pkg=' + packageId, e instanceof Error ? e.message : String(e))
       return NextResponse.json({ error: 'Your Q&A was generated but could not be saved. Please try again.' }, { status: 500 })

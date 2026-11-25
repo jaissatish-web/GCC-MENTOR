@@ -12,7 +12,8 @@ export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get('ref')
   const agent = request.headers.get('user-agent') ?? ''
   const purpose = request.headers.get('sec-purpose') ?? request.headers.get('purpose') ?? ''
-  if (!code || !REFERRAL_CODE.test(code) || !agent || /bot|crawler|spider|preview/i.test(agent)
+  const destination = request.headers.get('sec-fetch-dest')
+  if ((destination && destination !== 'document') || !code || !REFERRAL_CODE.test(code) || !agent || /bot|crawler|spider|preview/i.test(agent)
     || /prefetch|prerender/i.test(purpose) || request.headers.has('next-router-prefetch')) {
     return response
   }

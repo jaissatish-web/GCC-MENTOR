@@ -18,7 +18,7 @@ import {
   totalExperienceYears,
   type ProseClaimIssue,
 } from '@/lib/ai/proseClaims'
-import { reserveAiAction } from '@/lib/ai/serviceGuard'
+import { reservePremiumAction } from '@/lib/credits/premiumAction'
 import { LIMIT_ACTION_COVER_LETTER } from '@/lib/rateLimit'
 import { buildResumeDocument, type ResumeDocument } from '@/lib/resumeDocument'
 import { capWords, naturalVoice, signOffBlock, writtenAboutApplicant } from '@/lib/ai/naturalLetter'
@@ -194,16 +194,17 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
     target_company: pkgRow.target_company as string | null,
   }
 
-  const reservation = await reserveAiAction({
+  const reservation = await reservePremiumAction({
     userId: user.id,
+    request,
+    packageId,
+    options: { tone },
     action: LIMIT_ACTION_COVER_LETTER,
     phone: profile.phone,
     email: profile.email,
     ttlSeconds: 150,
   })
-  if (!reservation.ok) {
-    return NextResponse.json({ error: reservation.error, code: reservation.code }, { status: reservation.status })
-  }
+  if (!reservation.ok) return reservation.response
 
   let succeeded = false
   try {
@@ -367,6 +368,7 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
         packageId,
         userId: user.id,
         letter,
+        walletReservationId: reservation.walletReservationId,
         meta: { tone, source: isRaw ? 'career_profile' : savedResume ? 'saved_cv' : 'career_profile' },
       })
     } catch (e) {

@@ -1,5 +1,7 @@
 'use client'
 
+import { CreditUnlock } from '@/components/referrals/CreditUnlock'
+import { usePremiumRequest } from '@/lib/credits/usePremiumRequest'
 import { CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileResume'
 import { Suspense, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
@@ -79,6 +81,7 @@ function InterviewQaScreen() {
   const { list, total, listError, selectedId, setSelectedId, selectedSummary, detail, detailError, detailLoading } = picker
   const isRaw = isCareerProfileResume(selectedSummary ?? {})
   const [generating, setGenerating] = useState(false)
+  const premium = usePremiumRequest()
   const [genError, setGenError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
   const [showAll, setShowAll] = useState(false)
@@ -104,8 +107,8 @@ function InterviewQaScreen() {
     setGenerating(true)
     setCopied(false)
     try {
-      const res = await fetch(`/api/packages/${encodeURIComponent(packageId)}/interview-qa`, { method: 'POST' })
-      const payload = await res.json().catch(() => ({}))
+      const { response: res, payload, blocked } = await premium.request(`/api/packages/${encodeURIComponent(packageId)}/interview-qa`, { method: 'POST' })
+      if (blocked) return
       if (!res.ok) {
         setGenError((payload?.error as string | undefined) ?? 'Could not generate interview Q&A. Please try again.')
         return
@@ -122,7 +125,7 @@ function InterviewQaScreen() {
         picker.patchSummary(packageId, { qa_question_count: next.question_count })
       }
     } catch {
-      setGenError('Could not reach the server. Check your connection and try again — nothing was used.')
+      setGenError('Could not reach the server. Check your connection and retry to recover the result.')
     } finally {
       setGenerating(false)
     }
@@ -318,7 +321,8 @@ function InterviewQaScreen() {
       {selectedSummary && !detailError && !detailLoading ? (
         <ServiceOptions key={selectedId} title={questionSet ? 'Prepare another Q&A set' : 'Prepare your first Q&A set'}
           description="Prepare a new set. Earlier sets stay available above."
-          hasSaved={Boolean(questionSet)} busy={generating} hasError={Boolean(genError)}>
+          hasSaved={Boolean(questionSet)} busy={generating} hasError={Boolean(genError || premium.shortfall)}>
+            {premium.shortfall && <CreditUnlock balance={premium.shortfall} />}
             {genError ? (
               <p role="alert" className="rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-3 type-helper text-alert">
                 {genError}

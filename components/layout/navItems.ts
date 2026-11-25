@@ -8,6 +8,7 @@ import {
   DocumentTextIcon,
   EnvelopeIcon,
   Cog6ToothIcon,
+  GiftIcon,
   IdentificationIcon,
   UserCircleIcon,
   HomeIcon,
@@ -100,6 +101,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { label: NAMES.linkedin, href: '/linkedin-optimization', iconClass: 'ui-nav-linkedin', icon: IdentificationIcon },
   { label: 'Career Profile', href: '/profile', iconClass: 'ui-nav-profile', icon: UserCircleIcon, shortLabel: 'Profile' },
   { label: 'Free Tools', href: '/tools', iconClass: 'ui-nav-free-tools', icon: Squares2X2Icon },
+  { label: 'Referral & Credits', href: '/settings/referrals', iconClass: 'ui-nav-referrals', icon: GiftIcon },
   { label: 'Settings', href: '/settings', iconClass: 'ui-nav-settings', icon: Cog6ToothIcon },
 ] as const
 
@@ -151,7 +153,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
   { key: 'apply', label: 'Job preparation', hrefs: ['/interview-qa', '/mock-interview'], stage: 'apply' },
   { key: 'professional', label: 'Profile optimization', hrefs: [ '/linkedin-optimization', '/naukrigulf-optimization'] },
   { key: 'free-tools', label: null, hrefs: ['/tools'] },
-  { key: 'account', label: 'Account', hrefs: ['/profile', '/settings'] },
+  { key: 'account', label: 'Account', hrefs: ['/profile', '/settings/referrals', '/settings'] },
 ]
 
 /**

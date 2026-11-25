@@ -102,3 +102,7 @@ validated owner-scoped API writes. Both Career Profile deletion and auth-account
 deletion remove it through foreign-key cascades. Existing LinkedIn drafts have
 only the auth-account cascade; the Settings cleanup gap is recorded in
 `14_OPEN_ITEMS.md`.
+
+## Referral and credit records
+
+Referral visits store a random first-party browser ID for up to 90 days. Lifetime visit counts are retained as totals without browser identifiers. A signup intent uses a keyed email digest to bind the claim and expires after 20 minutes. Reward deduplication uses a keyed digest retained for up to 365 days after award. This data is server-only. Referrers receive anonymous referral IDs, status and dates, with no referred account contact details or Career Profile data. Account-level wallet events, credit lots and records required for service allowances follow account deletion and applicable audit retention. The referral feature does not store card details, raw IP addresses or device fingerprints.

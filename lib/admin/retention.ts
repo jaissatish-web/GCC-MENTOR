@@ -78,6 +78,16 @@ export async function runRetention(trigger: 'cron' | 'admin'): Promise<{ ok: boo
     const voiceBudget = Math.min(100_000, deadline - Date.now() - 35_000)
     if (voiceBudget <= 0) throw new Error('Retention time budget exhausted before voice cleanup')
     Object.assign(summary, await purgeDeletedVoiceSessions({ db, budgetMs: voiceBudget }))
+    step = 'referral'
+    const [reconcile, prune] = await bounded(Promise.all([
+      db.rpc('reconcile_stale_wallet_reservations', { p_limit: 100 }),
+      db.rpc('prune_referral_tracking'),
+    ]))
+    if (reconcile.error || prune.error) throw new Error('Referral or wallet retention failed')
+    if (typeof reconcile.data === 'number') summary.wallet_reservations_released = reconcile.data
+    const expiry = await bounded(db.rpc('expire_wallet_credits', { p_limit: 100 }))
+    if (expiry.error) throw new Error('Wallet expiry failed')
+    if (typeof expiry.data === 'number') summary.wallet_lots_expired = expiry.data
   } catch (error) {
     if (error instanceof VoiceRetentionError) Object.assign(summary, error.summary)
     failure = step + ': ' + (error instanceof Error ? error.message : 'Retention cleanup failed')

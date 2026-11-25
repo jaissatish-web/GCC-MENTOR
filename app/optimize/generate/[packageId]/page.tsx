@@ -1,5 +1,7 @@
 'use client'
 
+import { CreditUnlock } from '@/components/referrals/CreditUnlock'
+import { usePremiumRequest } from '@/lib/credits/usePremiumRequest'
 import { useCallback, useEffect, useRef, useState, use } from 'react';
 import { useRouter } from 'next/navigation'
 import { FlowHeader } from '@/components/optimizer/FlowHeader'
@@ -48,6 +50,7 @@ export default function GeneratePage(props: { params: Promise<{ packageId: strin
   const [phase, setPhase] = useState<'analysis' | 'build' | 'opening'>('analysis')
   const [analysisReady, setAnalysisReady] = useState<boolean | null>(null)
   const running = useRef(false)
+  const { request: requestPremium, shortfall } = usePremiumRequest()
   const [error, setError] = useState<string | null>(null)
   const started = useRef(false)
 
@@ -69,12 +72,12 @@ export default function GeneratePage(props: { params: Promise<{ packageId: strin
       setAnalysisReady(Boolean(analysis?.ok))
       setPhase('build')
       // 2. Write the resume and score it.
-      const res = await fetch('/api/optimize', {
+      const { response: res, payload: body, blocked } = await requestPremium('/api/optimize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ packageId }),
       })
-      const body = await res.json().catch(() => ({}))
+      if (blocked) return
 
       if (!res.ok) {
         // The 402 branch is gone with the paywall. A 429 is the one remaining
@@ -106,7 +109,7 @@ export default function GeneratePage(props: { params: Promise<{ packageId: strin
     } finally {
       running.current = false
     }
-  }, [packageId, router])
+  }, [packageId, router, requestPremium])
 
   useEffect(() => {
     // Ref guard: React runs effects twice in development StrictMode, and this
@@ -125,12 +128,14 @@ export default function GeneratePage(props: { params: Promise<{ packageId: strin
     void run()
   }, [run, packageId])
 
-  if (error) {
+  if (error || shortfall) {
     return (
       <main className="ui-page ui-page-form page-gutter mx-auto w-full pb-10 font-redesign-sans">
         <div className="mx-auto w-full max-w-[480px] rounded-card border border-line bg-white p-8 text-center">
-          <h1 className="font-display type-title leading-tight text-ink">We couldn&apos;t build it</h1>
-          <Alert variant="danger" className="mt-4 text-left" title="Optimization interrupted">{error}</Alert>
+          {shortfall ? <CreditUnlock balance={shortfall} /> : <>
+            <h1 className="font-display type-title leading-tight text-ink">We couldn&apos;t build it</h1>
+            <Alert variant="danger" className="mt-4 text-left" title="Optimization interrupted">{error}</Alert>
+          </>}
           {/* Was "Your payment is safe … without paying twice" — there is no
               payment step while the locks are off, so it reassured the user
               about something that never happened. What is true: the job is kept. */}

@@ -115,6 +115,51 @@ try {
   assert.equal((await service('select public.reconcile_stale_wallet_reservations() freed')).freed, 0)
   assert.equal((await service('select * from public.wallet_source_summary($1)', [one])).available, 2)
 
+  const plan = { action: 'configure_wallet', subject: null, details: {
+    enforcement_enabled: true, pricing_visible: false,
+    prices: { optimization: 3, cover_letter: 1, interview_qa: 2, mock_interview_start: 3 },
+  } }
+  const configId = randomUUID()
+  assert.equal((await adminAction(admin, plan, configId)).result.prices.optimization, 3)
+  assert.equal((await adminAction(admin, plan, configId)).result.settings.enforcement_enabled, true)
+  const eventReference = randomUUID()
+  const purchase = () => service('select public.grant_wallet_credits($1,$2,$3,$4) lot', [one, 'purchase', eventReference, 12])
+  assert.equal((await purchase()).lot, (await purchase()).lot, 'synthetic verified purchase is idempotent')
+  const sourceRows = await asService(db, () => db.query('select * from public.wallet_source_summary($1)', [one]))
+  assert.equal(sourceRows.rows.find(value => value.source === 'purchase').earned, 12)
+
+  const artifactCases = [
+    ['optimization', packageId, { optimized_content: { summary: 'Synthetic resume' }, skills_order: [], field_visibility_snapshot: {} }],
+    ['interview_qa', randomUUID(), { question_count: 1, questions: [{ question: 'Synthetic question' }] }],
+    ['mock_interview_start', randomUUID(), { run: { input_mode: 'text', questions: [] } }],
+    ['mock_interview_start', randomUUID(), { run: { input_mode: 'voice',
+      questions: Array.from({ length: 5 }, () => ({ id: randomUUID(), question: 'Synthetic question' })) },
+      profile: { id: firstProfile.id }, fingerprint: 'synthetic-fingerprint', rubric: 'synthetic-rubric' }],
+  ]
+  const appropriateEvent = {
+    optimization: 'cv_generated', interview_qa: 'qa_generated', mock_interview_start: 'mock_interview_started',
+  }
+  for (const [type, artifact, data] of artifactCases) {
+    if (type === 'mock_interview_start') data.run.id = artifact
+    if (type === 'interview_qa') data.id = artifact
+    const operation = randomUUID()
+    const hold = await reserve(type, operation)
+    assert.equal(hold.status, 'reserved')
+    const saved = await service('select public.save_credit_backed_package_result($1,$2,$3,$4,$5,$6,$7) saved',
+      [one, packageId, hold.reservation_id, type, artifact, JSON.stringify(data),
+        JSON.stringify({ id: randomUUID(), type: appropriateEvent[type], label: 'Synthetic', at: new Date().toISOString() })])
+    assert.equal(saved.saved, true)
+    assert.equal((await reserve(type, operation)).result_id, artifact)
+  }
+  const artifacts = (await db.query('select optimized_content, interview_question_sets, mock_interview_runs from public.packages where id=$1',
+    [packageId])).rows[0]
+  assert.equal(artifacts.optimized_content.summary, 'Synthetic resume')
+  assert.equal(artifacts.interview_question_sets.length, 1)
+  assert.equal(artifacts.mock_interview_runs.length, 2)
+  assert.equal((await db.query('select count(*) as sessions from public.voice_interview_sessions where package_id=$1',
+    [packageId])).rows[0].sessions, 1)
+  assert.equal((await asService(db, () => db.query('select * from public.wallet_source_summary($1)', [one]))).rows.reduce((sum, row) => sum + row.used, 0), 11)
+
   console.log('Monetization integration passed: profile qualification, admin review and free grants, recreation protection, atomic artifact save, wallet corrections and stale recovery.')
 } finally {
   await db.close()
