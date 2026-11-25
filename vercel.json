@@ -2,8 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "git": {
     "deploymentEnabled": {
-      "chore/repository-audit-safe-cleanup": false,
-      "feature/referral-credit-monetization": false
+      "chore/repository-audit-safe-cleanup": false
     }
   },
   "regions": ["bom1"],

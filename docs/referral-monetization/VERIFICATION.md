@@ -35,3 +35,5 @@ Development only. Hosted test evidence, CI, recovery verification and founder pr
 ## Hosted application preview
 
 Vercel has the GCC-MENTOR-TEST URL and public client key scoped to Preview for `feature/referral-credit-monetization`. No matching branch-scoped server key was available in this session. The provider integration returned 403 and the dashboard requires authentication. Shared Preview values also need an isolation check. Automatic deployment for this feature branch is disabled until verified, and no hosted app Preview has run. Hosted email confirmation, live AI and full browser regression remain pending. Production still requires the founder's explicit release approval.
+
+Credential scope recheck: the old launch-readiness branch entry and the shared Preview entry have identical creation timestamps. Production has a separate entry. An isolated Preview build can use the shared entry only if its test project and role claims match and the test database accepts a scoped read. Preview-only overrides prevent inheritance of the shared database connection and payment settings.
