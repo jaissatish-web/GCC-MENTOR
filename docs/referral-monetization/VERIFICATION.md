@@ -1,50 +1,41 @@
-# Verification report
-
-## Audit evidence
-
-- Source baseline: main `b5128243370b119aca2f14f83045f1d53511b9b8`; Vercel live alias reports the same commit and Ready state.
-- Supabase production and GCC-MENTOR-TEST read-only catalogues confirm the existing schema inventory. Security Advisor found an informational no-policy finding and a leaked-password protection warning on each.
-- Vercel environment metadata shows no branch-specific isolation for the new feature branch; shared Preview configuration requires isolation before hosted deployment.
-- No production mutation or provider payment action was performed.
-
-## Implementation and tests
-
-Pending implementation. Record command, commit, environment and outcome here as each milestone is verified.
+# Preproduction verification
 
 ## Release decision
 
-The isolated Preview is available for review. Live email delivery, live AI tests, production backup or recovery verification and explicit founder rollout approval remain open.
+The [protected Preview](https://gcc-mentor-iuhf8g875-satishs-projects-c02c354b.vercel.app) is Ready and runs application commit `3c58f3d81a4d0be273c8cfe061c2fddc78c3b377` against GCC-MENTOR-TEST. Review [tracker #148](https://github.com/jaissatish-web/GCC-MENTOR/issues/148) and [draft PR #149](https://github.com/jaissatish-web/GCC-MENTOR/pull/149). Production remained at `b5128243370b119aca2f14f83045f1d53511b9b8`. Launch remains on hold pending actual Auth email delivery, the remaining release checks below, and founder approval.
 
-## Referral foundation
+The implementation adds one persistent direct-referral link per account, profile qualification and review, a source-aware integer wallet, and service-specific complimentary admin grants. Migrations 075–080 add the referral, wallet, and audit structures and integrate atomic wallet settlement with artifact persistence. Referral links and balances are independent of existing subscription quotas. Initial Preview configuration uses 3 credits per referral, service costs 3/1/2/3, and disabled payments.
 
-- Migration 075 applied to GCC-MENTOR-TEST with program defaults disabled.
-- Local disposable Postgres passed permanent-code, first-click, wrong-browser/recipient, forged and reused intent, email verification, suspension and browser-role denial checks.
-- GCC-MENTOR-TEST catalogue confirms authenticated cannot invoke the referral mutation RPCs. Service role can call the three server entry points. Auth triggers cannot be invoked directly.
-- Full signed-in browser qualification and hosted race tests remain pending.
+## Verified results
 
-## Wallet, complimentary access and hosted database
+| Area | Evidence |
+| --- | --- |
+| Repository and database | `npm run check` passed 108/108 locally including the added recovery rehearsal. Earlier build, lint, typecheck, and database security suite with 144 assertions passed. Review the final branch [Actions checks](https://github.com/jaissatish-web/GCC-MENTOR/pull/149/checks) for the CI result of the evidence revision. |
+| Preview isolation | The existing sensitive Preview service-role entry passed the Supabase build identity guard for GCC-MENTOR-TEST. The other feature branch's specific entry retains its original scope. The project has separate Production and Preview entries. No Vercel secret value was displayed or changed. |
+| Referral journey | One permanent link served two independent browser IDs on a shared network. Both synthetic account confirmation callbacks worked without the original attribution cookie. Incomplete profiles earned zero. Completing both and repeating confirmation issued two rewards totaling six credits. Hosted races returned one link from overlapping requests and one grant from overlapping qualification requests. |
+| Fraud and access | Disposable Postgres covered wrong-browser and recipient binding, forged and reused intents, account recreation, link suspension, session-role permissions and duplicate reward prevention. Hosted ordinary user administration was denied. A valid shared network did not block either referral. |
+| Wallet and configuration | Hosted overlapping spends produced one reservation and one insufficient-credit response. A hosted rollback-only test persisted synthetic artifacts for all four services, denied cross-user settlement, verified repeated requests and confirmed a refund returned 1 on first call and 0 on repeat. Preview wallet showed 6 referral and 16 promotion credits with paginated history. Admin configuration checks validated ownership, rules and audit. Simulated purchase grants passed idempotency. No real payment was processed. |
+| Complimentary access | Hosted Admin → Users form issued one Cover Letter use with a recorded reason. An earlier provider configuration failure left it unused with zero holds. Database checks covered service scope, exact-once successful consumption and failed work releasing the allowance. |
+| Browser and sharing | Hosted Chromium passed at 360, 390, 768 and 1440 px. Referral link persisted, the keyboard path worked, and six direct share destinations carried the permanent URL. The manual copy fallback was available. Physical-device native share and installed-app handoff remain untested. |
+| Compatibility | Chromium loaded 11 signed-in legacy routes including the canonical Resume Optimizer redirect to `/optimize/target`. Browser downloads returned valid PDF for both Career Profile Resume and optimized resume, and valid DOCX for the optimized resume. The legacy Career Profile Resume DOCX fallback deliberately returns 409 and directs users to PDF. |
+| Security Advisor | GCC-MENTOR-TEST reported no errors after migrations, one informational finding for an intentional server-only RLS table and the existing leaked-password protection warning. No permission was widened to dismiss an advisory, and no plan upgrade was made. |
+| Recovery | The [recovery plan](RECOVERY.md) identifies the known-good Vercel deployment. A disposable PostgreSQL test restored a synthetic archive, rolled back 075–080, reapplied them with launch flags off, and verified legacy rows and cross-user isolation. The production backup screen requires an authenticated Supabase Dashboard session, so a live restore point was not confirmed. |
 
-- Migrations 075–080 applied in order to GCC-MENTOR-TEST. Launch switches were off before and after testing.
-- Hosted synthetic database tests submitted three overlapping permanent-link requests and received one code. Three overlapping qualification requests against one confirmed candidate issued exactly three reward credits. Two overlapping requests to spend that balance produced one hold and one insufficient-credit response. Synthetic rows were removed and settings restored after verifying the result.
-- Disposable Postgres exercised one-time grants, reviewed referral eligibility, account recreation, expiry ordering, rollback of failed generation holds, source detail, idempotent refunds, optional promotions, and atomic result writes for all four premium services, including a voice-session start. These use synthetic artifacts.
-- Admin complimentary grants are per selected premium service. Tests covered unauthorized grants, a repeat of the same admin request, recovery after a released hold, a successful zero-wallet service run, consumption exactly once, isolation from other services and an audit row.
-- Post-migration Security Advisor for GCC-MENTOR-TEST returned no errors, the existing informational no-policy finding, and an existing leaked-password-protection warning. Access to the new records is server-scoped and RLS is enabled. No plan upgrade was requested.
-- A local Next.js and Chromium smoke test using a synthetic HTTP database fixture passed anonymous redirect and claim cookie, authenticated generation, persistent code after reload, share URL and responsive layout at 360, 768 and 1440 px. It does not exercise real email or model calls.
-- Local navigation harness passed at seven widths plus keyboard navigation and enlarged text. It verifies the canonical `/optimize/target` route remains in both desktop and mobile navigation.
+## Live AI and credit accounting
 
-## Local release checks
+The production configuration was inspected read-only. Its approved default was OpenRouter `deepseek/deepseek-v4-flash` with fallback disabled. The credential was encrypted before retrieval and submitted directly through the protected Preview Admin form. It was never displayed. This isolated test used synthetic data, the existing AI budget and no additional service.
 
-- TypeScript, lint and all 107 verification scripts passed. The database security suite reported 144 assertions passed. The production build completed.
-- The Referral & Credits browser fixture passed at 360, 768 and 1440 pixels. Existing workspace navigation passed at seven widths, plus keyboard focus and enlarged text.
-- The landing browser regression originally failed in GitHub Actions because it asserted the previous Settings destination. The updated check verifies Referral & Credits and the unchanged service destinations. The landing and orbit browser steps passed locally. See [PR checks](https://github.com/jaissatish-web/GCC-MENTOR/pull/149/checks) for the current hosted CI conclusion.
+| Hosted request | Result |
+| --- | --- |
+| Resume Optimizer | HTTP 200 for draft and real generation. Optimized content persisted. |
+| Cover Letter | HTTP 200. Generated letter persisted. |
+| Interview Q&A | HTTP 200. Generated question set persisted. |
+| AI Mock Interview | HTTP 200. Five text-mode questions persisted. Live answer feedback and final report passed. Repeating finish returned the saved report. |
+| Credit settlement | The four starts used 9 credits in total. Balance moved from 12 to 3 with zero outstanding holds. Saved result downloads use the existing access path. |
 
-## Hosted application preview
+## Open release checks
 
-- Vercel Preview is Ready at [the isolated deployment](https://gcc-mentor-iuhf8g875-satishs-projects-c02c354b.vercel.app) for application commit `3c58f3d81a4d0be273c8cfe061c2fddc78c3b377`. The successful deployment's complete Git tree matches the tested local tree. The first attempt failed because two large files were truncated during GitHub transfer. Both blobs were corrected and verified by Git hash before redeploying.
-- Vercel has separate sensitive entries for Production and Preview. The existing shared Preview entry authenticated a read against GCC-MENTOR-TEST in the build guard. The launch-readiness branch-specific entry remains scoped to its original branch. No secret was retrieved or logged. Referral Preview settings isolate the test URL and public key and neutralize inherited database connection and payment variables.
-- Hosted HTTP checks passed for the homepage, signup, Free Tools and the signed-out referral redirect. With a synthetic test account, two simultaneous calls returned one permanent link. An anonymous visit set an HttpOnly claim cookie. Career Profile Resume creation remained free and a zero-wallet Cover Letter returned an insufficient-credit response for one credit.
-- Hosted server routes accepted a synthetic Supabase confirmation token from a new session without referral cookies. The incomplete profile received no reward. Confirming the eligible profile issued one three-credit lot. Repeating confirmation left the same reward. The confirmation test used seeded synthetic Auth state and exercised the application callback and Auth verification. SMTP delivery was outside this check.
-- The hosted admin form granted one complimentary Cover Letter use. The recipient saw the grant and a regular user was redirected from administration. A generation request reached the AI service, which failed because the test project has no model configuration. Its allowance remained unused, with zero outstanding holds and an admin audit record.
-- A test transaction confirmed that disabling referrals and wallet enforcement stopped new claims and preserved existing allowances. The transaction was rolled back. Temporary QA accounts and protected access grants were removed after testing.
-- Browser layout and navigation were verified using local fixtures. The direct hosted Chromium runner rejected the proxy certificate, so hosted integration was verified over HTTP. Live email delivery, successful live AI generation and the remaining hosted legacy regressions still require test infrastructure.
-- Test referral and enforcement flags are enabled for isolated review. Production still serves `b5128243370b119aca2f14f83045f1d53511b9b8`. Production backup or recovery verification, rollout approval and authorized post-deployment tests remain open.
+- **Real email delivery**. Test-only signup and recovery requests using synthetic addresses were rejected before sending. Two signup requests for the connected project-owner inbox returned `429 over_email_send_rate_limit` with no identity or `Retry-After`. Synthetic signup and recovery callback tests passed without SMTP. Confirm signup and recovery after verifying the existing test sender and rate-limit settings in Supabase.
+- **Remaining hosted workflows**. Verify recorded Mock Interview transcription and review, native sharing on a physical device, and any existing tools for which route checks or automated regression tests are the only present evidence.
+- **Production recovery**. Confirm an actual restore point or obtain explicit approval for a documented alternative. The synthetic recovery rehearsal does not establish that production data can be restored.
+- **Release**. Obtain founder approval, apply the approved migrations and deploy, then confirm production smoke tests and synchronize main with the production alias. The tracker stays open.
