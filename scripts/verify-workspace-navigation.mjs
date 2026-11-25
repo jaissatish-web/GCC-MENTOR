@@ -69,6 +69,10 @@ mkdirSync('artifacts/workspace-navigation',{recursive:true})
     await page.setViewport({width,height:900})
     await page.goto('https://interview.test/dashboard',{waitUntil:'networkidle0'})
     await page.waitForFunction(()=>document.body.textContent.includes('Engineer'))
+    for (const region of ['.studio-sidebar', '.studio-bottom-nav']) {
+      assert.ok(await page.$(region + ' a[href="/optimize/target"]'), region + ' must link to the optimizer target step')
+      assert.equal(await page.$(region + ' a[href="/optimize"]'), null, region + ' must use the canonical optimizer route')
+    }
     await page.evaluate(()=>document.fonts.ready)
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`Dashboard overflow ${width}`)
     const title=await page.$eval('h1',el=>({size:getComputedStyle(el).fontSize,weight:getComputedStyle(el).fontWeight,internal:!!el.closest('.internal-ui')}))

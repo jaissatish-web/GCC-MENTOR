@@ -16,6 +16,10 @@ const nextConfig = {
     ],
   },
 
+  async redirects() {
+    return [{ source: '/optimize', destination: '/optimize/target', permanent: false }]
+  },
+
   async headers() {
     return [{
       source: '/:path*',
