@@ -178,3 +178,7 @@ guest rate-limit function. It reuses existing guest counters and adds batch
 capacity to the existing voice-review reservations.
 Rollback the application first so older routes can keep using their original
 counter function. The additive database objects can stay in place.
+
+## Applying 075–080 — referral and service-credit wallet
+
+Apply the referral foundation, wallet, qualification, credit-backed package writers, reporting and administration in numerical order. Test schema changes using synthetic values in GCC-MENTOR-TEST. Both feature switches default to off until the isolated preview is verified. Then verify the approved launch settings with the founder before production activation. New service-only tables use RLS and grants that keep browser roles out, including expected RLS-without-policy Advisor notices. See the [referral rollout and recovery notes](../../docs/referral-monetization/README.md).
