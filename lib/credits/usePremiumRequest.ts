@@ -23,8 +23,10 @@ export function usePremiumRequest() {
     headers.set('Idempotency-Key', operation)
     const response = await fetch(url, { ...init, headers })
     const payload = await response.json().catch(() => null)
-    if (payload && payload.code !== 'operation_busy' && payload.code !== 'operation_replay_unavailable') {
-      if (pending.current.get(key) === operation) pending.current.delete(key)
+    // These responses can arrive before the server checks a previous settlement.
+    const retryableStatus = response.status >= 500 || [401, 403, 408, 425, 429].includes(response.status)
+    if (payload && !retryableStatus && payload.code !== 'operation_busy' && pending.current.get(key) === operation) {
+      pending.current.delete(key)
     }
     const data = payload?.unlock as CreditShortfall | undefined
     const blocked = response.status === 402 && payload?.code === 'insufficient_credits' && data
