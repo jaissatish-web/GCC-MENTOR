@@ -48,3 +48,11 @@
 .notice button { display: inline-flex; min-height: 44px; align-items: center; color: rgb(var(--workspace-link, var(--ui-brand-hover-rgb))); text-decoration: underline; }
 .performance :is(a,button,select):focus-visible { outline: 2px solid var(--ui-brand); outline-offset: 3px; }
 @media (max-width: 359px) { .metric { grid-template-columns: minmax(0,1.3fr) minmax(24px,1fr) 3ch; gap: 6px; } }
+
+:global([data-workspace-card]) .performance :is(.sectionIcon, .emptyIcon) {
+  background: var(--workspace-card-inset);
+  color: rgb(var(--workspace-link));
+}
+:global([data-workspace-card]) .performance .sectionIcon svg {
+  color: rgb(var(--workspace-link));
+}

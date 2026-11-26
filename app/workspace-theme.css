@@ -86,6 +86,7 @@
   --workspace-accent: 250 215 144;
   --workspace-success: 134 239 172;
   --workspace-alert: 254 171 163;
+  --workspace-meter-warning: #f9cd6a;
   --workspace-inset: var(--workspace-card-inset);
   background-color: var(--workspace-card);
   border-color: var(--ui-line);
