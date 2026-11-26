@@ -1,3 +1,4 @@
+import { createServiceRoleClient } from '@/lib/supabase/serviceAdmin'
 import { validProfileEmail, validProfilePhone } from '@/lib/profileFieldValidity'
 import {contextFromProfile} from '@/lib/careerIntake/shared'
 import { validateCategoryEntries } from '@/lib/profileCategories'
@@ -546,6 +547,19 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     `profile PUT success: user=${user.id} profile=${profileId} ` +
       `fields=career_profiles,${CHILD_TABLES.join(',')}`
   )
+  let referralQualification: string | null = null
+  if (body.confirmed_for_referral === true && result?.updated_at) {
+    try {
+      const { data, error } = await createServiceRoleClient({ fresh: true }).rpc('qualify_referral', {
+        p_referred: user.id, p_assessed_profile_version: result.updated_at,
+      })
+      if (error) {
+        if (error.code !== 'PGRST202') console.error('Referral qualification could not run', error.code)
+      } else if (typeof data === 'string') referralQualification = data
+    } catch {
+      console.error('Referral qualification storage unavailable')
+    }
+  }
   // updated_at is the version the editor sends back next time (stale-tab check).
-  return NextResponse.json({ ok: true, profileId, updated_at: result?.updated_at ?? null })
+  return NextResponse.json({ ok: true, profileId, updated_at: result?.updated_at ?? null, referralQualification })
 }

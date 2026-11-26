@@ -299,6 +299,7 @@ body .ui-button:not(:where([data-document-preview], [data-document-preview] *, #
 .ui-nav-naukrigulf { background:var(--ui-nav-naukrigulf-bg); color:var(--ui-nav-naukrigulf-ink); }
 .ui-nav-linkedin { background:var(--ui-nav-linkedin-bg); color:var(--ui-nav-linkedin-ink); }
 .ui-nav-settings { background:var(--ui-nav-settings-bg); color:var(--ui-nav-settings-ink); }
+.ui-nav-referrals { background:var(--ui-nav-settings-bg); color:var(--ui-nav-settings-ink); }
 
 /* Theme bridge for retained Tailwind semantic utilities. */
 body .bg-canvas:not(:where([data-document-preview], [data-document-preview] *, #resume-render, #resume-render *, .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *)):not(:where([data-website-ui] :not(:has([data-document-preview], #resume-render, .actual-template-orbit-face, [data-typography="document"])))) { background-color:rgb(var(--ui-canvas-rgb) / 1); }

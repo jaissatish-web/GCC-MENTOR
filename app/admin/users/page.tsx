@@ -3,6 +3,9 @@ import { requireAdmin } from '@/lib/admin/adminAuth'
 import { searchUsers, listPackages, getTodayRateLimits } from '@/lib/admin/adminData'
 import { overrideRateLimitAction, grantCreditAction } from '@/app/admin/actions'
 import { listCreditsForUser } from '@/lib/admin/credits'
+import { grantComplimentaryService } from './complimentaryActions'
+import { CREDIT_SERVICES } from '@/lib/credits/services'
+import { createServiceRoleClient } from '@/lib/supabase/serviceAdmin'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
@@ -29,7 +32,7 @@ function readableCategory(cat: string | null): string {
  */
 export default async function UsersPage(
   props: {
-    searchParams: Promise<{ q?: string; user?: string }>
+    searchParams: Promise<{ q?: string; user?: string; complimentary?: string }>
   }
 ) {
   const searchParams = await props.searchParams
@@ -37,6 +40,17 @@ export default async function UsersPage(
   const { q, user: selectedUserId } = searchParams
 
   const results = q ? await searchUsers(q) : []
+  // Users can be approved before creating a Career Profile.
+  if (q && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(q.trim())) {
+    const { data: account } = await createServiceRoleClient({ fresh: true })
+      .rpc('admin_find_monetization_user', { p_admin: admin.id, p_email: q.trim() }).maybeSingle<{
+        user_id: string; email: string; signup_date: string
+      }>()
+    if (account && !results.some(result => result.userId === account.user_id)) {
+      results.push({ userId: account.user_id, fullName: null, phone: null, email: account.email,
+        readinessScore: null, readinessCategory: null, signupDate: account.signup_date })
+    }
+  }
   const selectedPackages = selectedUserId
     ? await listPackages({ userId: selectedUserId, limit: 50 }, admin)
     : []
@@ -93,7 +107,7 @@ export default async function UsersPage(
                     href={`/admin/users?${new URLSearchParams({ q: q ?? '', user: r.userId }).toString()}`}
                     className="text-[12px] font-semibold text-teal"
                   >
-                    View packages →
+                    Manage access and packages →
                   </Link>
                 </div>
               ))}
@@ -109,6 +123,34 @@ export default async function UsersPage(
       {/* ---- Selected user: packages + rate limit ---------------------- */}
       {selectedUserId ? (
         <>
+          <section id="complimentary-service" className="scroll-mt-4">
+            <Card className="flex flex-col gap-4 p-5">
+              <div>
+                <h2 className="type-card text-ink">Complimentary service access</h2>
+                <p className="mt-1 type-helper text-ink-soft">Approve free uses for this user. Service availability and AI usage limits still apply.</p>
+              </div>
+              {searchParams.complimentary === 'granted' && <p role="status" className="type-helper text-ok">Complimentary access granted.</p>}
+              {searchParams.complimentary === 'error' && <p role="alert" className="type-helper text-alert">Access could not be granted. Check the service, quantity and reason, then retry.</p>}
+              <form action={grantComplimentaryService} className="grid gap-3 sm:grid-cols-2">
+                <input type="hidden" name="user" value={selectedUserId} />
+                <input type="hidden" name="q" value={q ?? ''} />
+                <input type="hidden" name="operation" value={crypto.randomUUID()} />
+                <label className="grid gap-1 type-label">Premium service
+                  <select className="min-h-11 rounded-ctl border border-line bg-white px-3" name="service" required>
+                    {Object.entries(CREDIT_SERVICES).map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+                  </select>
+                </label>
+                <label className="grid gap-1 type-label">Free uses
+                  <Input name="uses" type="number" min={1} max={50} defaultValue={1} required />
+                </label>
+                <label className="grid gap-1 type-label sm:col-span-2">Reason
+                  <Input name="reason" maxLength={500} required />
+                </label>
+                <Button type="submit" variant="primary" className="justify-self-start">Grant free access</Button>
+              </form>
+              <Link className="type-label text-teal underline" href={'/admin/referrals?user=' + encodeURIComponent(selectedUserId)}>View referral activity and wallet</Link>
+            </Card>
+          </section>
           <Card className="flex flex-col gap-4 p-5">
             <h2 className="text-[13px] font-bold uppercase tracking-wide text-ink-muted">
               Packages — read-only (docs/ADMIN.md §2.2)

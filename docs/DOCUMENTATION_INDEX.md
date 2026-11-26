@@ -78,3 +78,7 @@ Use the source for current behavior and Git history for dated evidence.
 ## Current feature review —18 November2026
 
 [Career Profile Onboarding V4 verification](ONBOARDING_V4_VERIFICATION.md) records the approved date contract, affected consumers, local evidence and unreleased status for Issues#95/#96.
+
+## Referral and monetization
+
+- [Audit, implementation design, checklist and verification](referral-monetization/README.md)

@@ -1,5 +1,7 @@
 'use client'
 
+import { CreditUnlock } from '@/components/referrals/CreditUnlock'
+import { usePremiumRequest } from '@/lib/credits/usePremiumRequest'
 import { CallOrb, JOINING_LINES } from '@/components/mock-interview/CallOrb'
 import { CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileResume'
 import { Suspense, useEffect, useRef, useState } from 'react'
@@ -114,6 +116,7 @@ function MockInterviewScreen() {
   const [difficulty, setDifficulty] = useState<MockInterviewDifficulty>('standard')
   const [questionCount, setQuestionCount] = useState(10)
   const [interviewerId, setInterviewerId] = useState<InterviewerId>('british-woman')
+  const premium = usePremiumRequest()
   const [opError, setOpError] = useState<string | null>(null)
   const [busy, setBusy] = useState<'start' | 'answer' | 'finish' | null>(null)
   const [drafts, setDrafts] = useState<Record<string, string>>({})
@@ -171,12 +174,12 @@ function MockInterviewScreen() {
     setOpError(null)
     setBusy('start')
     try {
-      const res = await fetch(`/api/packages/${encodeURIComponent(packageId)}/mock-interview/start`, {
+      const { response: res, payload, blocked } = await premium.request(`/api/packages/${encodeURIComponent(packageId)}/mock-interview/start`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mode, difficulty, questionCount, inputMode, interviewerId }),
       })
-      const payload = await res.json().catch(() => ({}))
+      if (blocked) return
       if (!res.ok) {
         setOpError((payload?.error as string | undefined) ?? 'Could not start the mock interview.')
         return
@@ -184,7 +187,7 @@ function MockInterviewScreen() {
       applyRun(packageId, payload.run as MockInterviewRun)
       router.replace(`/mock-interview?package=${encodeURIComponent(packageId)}&run=${encodeURIComponent(payload.run.id)}${inputMode === 'voice' ? '&room=1' : ''}`, { scroll: false })
     } catch {
-      setOpError('Could not reach the server. Check your connection and try again — nothing was used.')
+      setOpError('Could not reach the server. Check your connection and retry to recover the result.')
     } finally {
       setBusy(null)
     }
@@ -359,7 +362,7 @@ function MockInterviewScreen() {
             </label>
             {selectedSummary ? <PreparationJourney bare pkg={detail ?? selectedSummary} current={run?.status === 'completed' ? 'report' : 'mock'} /> : null}
 
-            <details ref={practiceSetup} className="group" open={searchParams.get('setup') === '1' || (detail?.mock_interview_runs?.length ?? 0) === 0 || Boolean(opError || detailError || busy)}>
+            <details ref={practiceSetup} className="group" open={searchParams.get('setup') === '1' || (detail?.mock_interview_runs?.length ?? 0) === 0 || Boolean(opError || detailError || busy || premium.shortfall)}>
               <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-teal [&::-webkit-details-marker]:hidden"><span className="flex items-center gap-2"><Mic size={18} aria-hidden="true" />Start a new practice</span><ChevronRight size={18} className="group-open:rotate-90" aria-hidden="true" /></summary>
               <div className="mt-4 flex flex-col gap-5">
             <fieldset className="space-y-3">
@@ -393,6 +396,7 @@ function MockInterviewScreen() {
             </div>
 
             {inputMode === 'voice' && voiceReady === false ? <p className="rounded-ctl bg-canvas p-3 text-sm text-ink-muted type-helper">Recorded interviews are being prepared. Your previous interview reports remain available.</p> : null}
+            {premium.shortfall && <CreditUnlock balance={premium.shortfall} />}
             {opError ? <p role="alert" className="rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-3 type-helper text-alert">{opError}</p> : null}
             {detailError ? (
               <div className="flex flex-col items-start gap-2">

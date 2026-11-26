@@ -1,5 +1,7 @@
 'use client'
 
+import { CreditUnlock } from '@/components/referrals/CreditUnlock'
+import { usePremiumRequest } from '@/lib/credits/usePremiumRequest'
 import { CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileResume'
 import { Suspense, useMemo, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
@@ -68,6 +70,7 @@ function CoverLetterScreen() {
   const [tone, setTone] = useState<CoverLetterTone>('professional')
 
   const [generating, setGenerating] = useState(false)
+  const premium = usePremiumRequest()
   const [genError, setGenError] = useState<string | null>(null)
 
   // Local edits (edit-in-place textarea per letter) — never persisted.
@@ -90,12 +93,12 @@ function CoverLetterScreen() {
     setGenError(null)
     setGenerating(true)
     try {
-      const res = await fetch(`/api/packages/${encodeURIComponent(packageId)}/cover-letter`, {
+      const { response: res, payload, blocked } = await premium.request(`/api/packages/${encodeURIComponent(packageId)}/cover-letter`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tone }),
       })
-      const payload = await res.json().catch(() => ({}))
+      if (blocked) return
       if (!res.ok) {
         setGenError((payload?.error as string | undefined) ?? 'Could not generate your cover letter. Please try again.')
         return
@@ -108,7 +111,7 @@ function CoverLetterScreen() {
         setEdits((e) => ({ ...e, [letter.id]: letter.full_text }))
       }
     } catch {
-      setGenError('Could not reach the server. Check your connection and try again — nothing was used.')
+      setGenError('Could not reach the server. Check your connection and retry to recover the result.')
     } finally {
       setGenerating(false)
     }
@@ -323,7 +326,7 @@ function CoverLetterScreen() {
       {selectedSummary && !detailError && !detailLoading ? (
         <ServiceOptions key={selectedId} title={letters.length ? 'Write another cover letter' : 'Write your first cover letter'}
           description={`Up to ${SAVED_PER_PACKAGE} recent letters saved per ${isRaw ? 'resume' : 'job'}.`}
-          hasSaved={letters.length > 0} busy={generating} hasError={Boolean(genError)}>
+          hasSaved={letters.length > 0} busy={generating} hasError={Boolean(genError || premium.shortfall)}>
             <fieldset className="flex flex-col gap-1.5">
               <legend className="field-label mb-1.5">Tone</legend>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -354,6 +357,7 @@ function CoverLetterScreen() {
               </div>
             </fieldset>
 
+            {premium.shortfall && <CreditUnlock balance={premium.shortfall} />}
             {genError ? (
               <p role="alert" className="rounded-ctl border border-alert/40 bg-alert-soft px-3.5 py-3 type-helper text-alert">
                 {genError}

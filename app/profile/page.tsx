@@ -2118,7 +2118,7 @@ function ProfileScreen() {
         const res = await fetch('/api/profile', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...buildPutBody(saveEditor), expected_updated_at: savedVersionRef.current }),
+          body: JSON.stringify({ ...buildPutBody(saveEditor), expected_updated_at: savedVersionRef.current, confirmed_for_referral: destination === 'review' }),
         })
         if (!res.ok) {
           let msg = 'Saving failed. Please try again.'

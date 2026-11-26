@@ -1,5 +1,7 @@
 import { CTA, NAMES } from '@/lib/serviceLabels'
 import Link from 'next/link'
+import { createServiceRoleClient } from '@/lib/supabase/serviceAdmin'
+import { formatInr, getPrice } from '@/lib/pricing'
 import { createClient } from '@/lib/supabase/server'
 import { listServiceCreditsForUser } from '@/lib/admin/servicePackages'
 import { DeleteDataSection } from '@/components/settings/DeleteDataSection'
@@ -127,6 +129,16 @@ export default async function SettingsPage({
     .limit(25)
 
   const unlocked = paidPackages ?? []
+  let indicativePrice: Awaited<ReturnType<typeof getPrice>> | null = null
+  if (tab === 'payments') {
+    try {
+      const { data } = await createServiceRoleClient({ fresh: true }).from('credit_wallet_settings')
+        .select('pricing_visible').eq('singleton', true).maybeSingle()
+      if (data?.pricing_visible) indicativePrice = await getPrice('resume_optimization')
+    } catch {
+      // Historical payment information remains available during a partial rollout.
+    }
+  }
 
   return (
     <AppShell>
@@ -134,6 +146,7 @@ export default async function SettingsPage({
         <PageHeader
           title="Settings"
           description="Account, services and data controls."
+          actions={<Link href="/settings/referrals" className="type-label text-teal underline">Referral &amp; Credits</Link>}
         />
 
         {/* Tabs — real links, so each section is bookmarkable and keyboard-navigable */}
@@ -235,7 +248,7 @@ export default async function SettingsPage({
                 </ul>
               ) : (
                 <EmptyState>
-                  No credits yet. They arrive when you buy a service or redeem a code.
+                  No service-specific allowances yet. See Referral & Credits for your wallet and referral rewards.
                 </EmptyState>
               )}
 
@@ -296,8 +309,9 @@ export default async function SettingsPage({
                 <EmptyState>You have not unlocked any paid resumes yet.</EmptyState>
               )}
 
+              {indicativePrice && <p className="mt-5 type-helper text-ink-soft">Indicative future price · {indicativePrice.label} · {formatInr(indicativePrice.amountInr)}</p>}
               <p className="mt-5 rounded-ctl border border-alert/30 bg-alert-soft/40 px-4 py-3 type-helper leading-relaxed text-ink-soft">
-                <NotLiveText>Card payment is not switched on yet</NotLiveText>, so there is nothing to show here. Access is granted directly or by redeeming a code.
+                <NotLiveText>Online payments are disabled</NotLiveText>. Visit Referral &amp; Credits to see current ways to unlock premium services.
               </p>
             </SectionCard>
           )}

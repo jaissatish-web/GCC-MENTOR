@@ -11,5 +11,6 @@ export const GUIDE_SERVICES: Record<string, { purpose: string; outputs: string; 
   '/naukrigulf-optimization': { purpose: 'Prepare clearer content for your Gulf job profile.', outputs: 'Headline options, profile summary, employment descriptions and skills to copy.', uses: 'Your real background. Review the content, then paste it into NaukriGulf yourself.' },
   '/linkedin-optimization': { purpose: 'Help recruiters understand your professional background.', outputs: 'Headline options, About text, experience descriptions and skills to copy.', uses: 'Your real background. Review the content, then update LinkedIn yourself.' },
   '/tools': { purpose: 'Use free career utilities without an account.', outputs: 'Browser-based resume checks, date calculations and printable notes.', uses: 'Information you enter directly; no Career Profile is required.' },
+  '/settings/referrals': { purpose: 'Invite professionals and follow your service credits.', outputs: 'Permanent referral link, qualification activity and credit history.', uses: 'Your signed-in account.' },
   '/settings': { purpose: 'Manage your account and data.', outputs: 'Account preferences, plan information and data controls.', uses: 'Your signed-in account.' },
 }

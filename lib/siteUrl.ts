@@ -39,5 +39,9 @@ export function normalizeSiteUrl(raw: string | undefined | null): string | null 
   }
 }
 
+const isolatedPreviewUrl = process.env.VERCEL_ENV === 'preview' && process.env.GCC_MENTOR_PREVIEW_TEST_REF
+  ? normalizeSiteUrl(process.env.VERCEL_BRANCH_URL || process.env.VERCEL_URL)
+  : null
+
 export const SITE_URL: string =
-  normalizeSiteUrl(process.env.NEXT_PUBLIC_APP_URL) ?? FALLBACK_SITE_URL
+  isolatedPreviewUrl ?? normalizeSiteUrl(process.env.NEXT_PUBLIC_APP_URL) ?? FALLBACK_SITE_URL

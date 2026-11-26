@@ -34,6 +34,29 @@ function eventJson(type: PackageServiceEventType, label: string, meta?: Record<s
   return packageEvent(type, label, meta)
 }
 
+
+export async function saveCreditBackedPackageResult(opts: {
+  packageId: string
+  userId: string
+  walletReservationId: string
+  service: 'optimization' | 'cover_letter' | 'interview_qa' | 'mock_interview_start'
+  resultId: string
+  data: Record<string, unknown>
+  event?: ReturnType<typeof eventJson>
+}): Promise<boolean> {
+  const { data, error } = await writer().rpc('save_credit_backed_package_result', {
+    p_owner: opts.userId,
+    p_package: opts.packageId,
+    p_reservation: opts.walletReservationId,
+    p_service: opts.service,
+    p_result: opts.resultId,
+    p_data: opts.data,
+    p_event: opts.event ?? null,
+  })
+  if (error) throw new Error('save_credit_backed_package_result: ' + error.message)
+  return data === true
+}
+
 /** Append one service-history event. `dedupeSeconds` skips a same-type repeat inside that window. */
 export async function appendPackageEventAtomic(opts: {
   packageId: string
@@ -57,13 +80,19 @@ export async function appendCoverLetterAtomic(opts: {
   packageId: string
   userId: string
   letter: CoverLetter
+  walletReservationId?: string | null
   meta?: Record<string, unknown>
 }): Promise<boolean> {
+  const event = eventJson('cover_letter_generated', 'Cover letter generated', opts.meta)
+  if (opts.walletReservationId) return saveCreditBackedPackageResult({
+    ...opts, walletReservationId: opts.walletReservationId, service: 'cover_letter',
+    resultId: opts.letter.id, data: { ...opts.letter }, event,
+  })
   const { data, error } = await writer().rpc('package_append_cover_letter', {
     p_package_id: opts.packageId,
     p_user_id: opts.userId,
     p_letter: opts.letter,
-    p_event: eventJson('cover_letter_generated', 'Cover letter generated', opts.meta),
+    p_event: event,
   })
   if (error) throw new Error('package_append_cover_letter: ' + error.message)
   return data === true
@@ -73,12 +102,18 @@ export async function setInterviewQuestionsAtomic(opts: {
   packageId: string
   userId: string
   questions: InterviewQuestionSet
+  walletReservationId?: string | null
 }): Promise<boolean> {
+  const event = eventJson('qa_generated', 'Interview Q&A generated', { question_count: opts.questions.question_count })
+  if (opts.walletReservationId) return saveCreditBackedPackageResult({
+    ...opts, walletReservationId: opts.walletReservationId, service: 'interview_qa',
+    resultId: opts.questions.id, data: { ...opts.questions }, event,
+  })
   const { data, error } = await writer().rpc('package_set_interview_questions', {
     p_package_id: opts.packageId,
     p_user_id: opts.userId,
     p_questions: opts.questions,
-    p_event: eventJson('qa_generated', 'Interview Q&A generated', { question_count: opts.questions.question_count }),
+    p_event: event,
   })
   if (error) throw new Error('package_set_interview_questions: ' + error.message)
   return data === true
@@ -171,8 +206,22 @@ export async function updatePackageServerFields<T = { id: string }>(opts: {
   packageId: string
   userId: string
   fields: Record<string, unknown>
+  walletReservationId?: string | null
+  matchScores?: { match_before: number | null; match_after: number | null }
   select?: string
 }): Promise<{ row: T | null; error: string | null }> {
+  if (opts.walletReservationId) {
+    try {
+      const saved = await saveCreditBackedPackageResult({
+        ...opts, walletReservationId: opts.walletReservationId, service: 'optimization',
+        resultId: opts.packageId, data: opts.fields,
+        event: eventJson('cv_generated', 'Optimized CV generated', opts.matchScores),
+      })
+      return { row: saved ? { id: opts.packageId } as T : null, error: null }
+    } catch (error) {
+      return { row: null, error: error instanceof Error ? error.message : 'CV write failed' }
+    }
+  }
   const { data, error } = await writer()
     .from('packages')
     .update(opts.fields)
