@@ -72,7 +72,7 @@ export function ProfilePhotoPicker({ photoUrl, disabled, onSelect }: {
     <Dialog.Root open={Boolean(file)} onOpenChange={open => { if (!open && !working) { setFile(null); setError('') } }}>
       <Dialog.Portal>
         <Dialog.Overlay className="profile-overview-overlay" />
-        <Dialog.Content className="app-type internal-ui profile-overview-crop-dialog" onEscapeKeyDown={event => { if (working) event.preventDefault() }} onPointerDownOutside={event => { if (working) event.preventDefault() }}>
+        <Dialog.Content data-workspace-theme className="app-type internal-ui profile-overview-crop-dialog" onEscapeKeyDown={event => { if (working) event.preventDefault() }} onPointerDownOutside={event => { if (working) event.preventDefault() }}>
           <Dialog.Title className="type-section text-ink">Adjust your photo</Dialog.Title>
           <Dialog.Description className="mt-1 type-helper text-ink-soft">Zoom and position your photo. Apply the crop, then save your changes.</Dialog.Description>
           <div className="profile-overview-crop-workspace">

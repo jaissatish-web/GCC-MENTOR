@@ -82,12 +82,12 @@ export function WorkspaceHome(p: Props) {
     </header>
 
     <section className={styles.readiness} aria-label="Readiness overview" aria-busy={!p.profileLoaded} data-dashboard-section="readiness">
-      <Link href="/profile?view=completeness" className={styles.readinessItem}>
+      <Link href="/profile?view=completeness" data-workspace-card="gradient" className={styles.readinessItem}>
         <span className={styles.readinessLabel}><IdentificationIcon aria-hidden="true" /><span className="type-label">Profile completeness</span><ChevronRightIcon aria-hidden="true" /></span>
         <span className={styles.scoreLine}><strong className="type-stat">{available ? p.score : '—'}<span className={`type-caption ${styles.muted}`}> /100</span></strong></span>
         <progress className={styles.readinessBar} data-level={p.score < 50 ? 'low' : p.score < 70 ? 'medium' : 'high'} max={100} value={available ? p.score : undefined} aria-label="Profile completeness" aria-valuetext={available ? undefined : 'Unavailable'} />
       </Link>
-      <Link href="/profile?view=readiness" className={`${styles.readinessItem} ${styles.gulf}`}>
+      <Link href="/profile?view=readiness" data-workspace-card="gradient" className={`${styles.readinessItem} ${styles.gulf}`}>
         <span className={styles.readinessLabel}><GlobeAltIcon aria-hidden="true" /><span className="type-label">Gulf preparation</span><ChevronRightIcon aria-hidden="true" /></span>
         <span className={styles.scoreLine}><strong className="type-stat">{available && p.gulf ? p.gulf.finalScore : '—'}<span className={`type-caption ${styles.muted}`}> /100</span></strong></span>
         <progress className={styles.readinessBar} max={100} value={available && p.gulf ? p.gulf.finalScore : undefined} aria-label="Gulf preparation" aria-valuetext={available && p.gulf ? undefined : 'Unavailable'} />
@@ -95,7 +95,7 @@ export function WorkspaceHome(p: Props) {
       {p.profileError ? <button type="button" onClick={retry} className={styles.readinessRetry}>Readiness unavailable · Try again</button> : null}
     </section>
 
-    <section className={`studio-continue ${styles.continue}`} aria-label="Your next step" aria-busy={!p.ready && !p.error} data-dashboard-section="next-action">
+    <section data-workspace-card="gradient" className={`studio-continue ${styles.continue}`} aria-label="Your next step" aria-busy={!p.ready && !p.error} data-dashboard-section="next-action">
       <div className={styles.continueCopy}>
         <span className={styles.actionIcon}><ArrowRightIcon aria-hidden="true" /></span>
         <div><h2>Continue your journey</h2><p className={`type-card ${styles.actionTitle}`}>{p.error ? 'Saved progress unavailable' : !p.ready ? 'Loading your workspace…' : ongoing ? 'Continue your interview' : p.nextAction.title}</p>{p.ready && ongoing ? <p className="type-helper">{savedInterview?.saved != null ? `${savedInterview.saved} of ${savedInterview.total} answers saved` : 'Saved interview · In progress'}</p> : p.ready && workspace ? <p className="type-helper">{workspace.target_job_title}</p> : null}</div>
@@ -109,16 +109,16 @@ export function WorkspaceHome(p: Props) {
     <section className={`${styles.card} ${styles.activityCard}`} aria-labelledby="dashboard-activity" aria-busy={p.overviewLoading} data-dashboard-section="activity">
       <div className={styles.heading}><div><h2 id="dashboard-activity">Your activity</h2><p className="type-caption">Saved across your account</p></div><Link href="/dashboard/library" className={styles.iconLink} aria-label="View saved work"><ChevronRightIcon aria-hidden="true" /></Link></div>
       {p.overviewError ? <div role="alert" className={styles.notice}>Saved totals unavailable. <button type="button" onClick={p.onRetryOverview}>Try again</button></div> : null}
-      <div className={styles.activity}>{work.map(({label, href: destination, count, Icon}, index) => <Link href={destination} key={destination} className={styles.activityItem} data-tone={index}><span className={styles.serviceIcon}><Icon aria-hidden="true" /></span><strong className="type-stat">{p.overviewLoading || p.overviewError || count === undefined ? '—' : count}</strong><span className={`type-helper ${styles.activityLabel}`}>{label}</span></Link>)}</div>
+      <div className={styles.activity}>{work.map(({label, href: destination, count, Icon}, index) => <Link href={destination} key={destination} data-workspace-card className={styles.activityItem} data-tone={index}><span className={styles.serviceIcon}><Icon aria-hidden="true" /></span><strong className="type-stat">{p.overviewLoading || p.overviewError || count === undefined ? '—' : count}</strong><span className={`type-helper ${styles.activityLabel}`}>{label}</span></Link>)}</div>
       {p.overviewLoading ? <p role="status" className={`type-helper ${styles.muted}`}>Loading activity…</p> : null}
     </section>
 
-    <section className={`${styles.card} ${styles.quickActionsCard}`} aria-labelledby="dashboard-actions" data-dashboard-section="quick-actions">
+    <section data-workspace-card="gradient" className={`${styles.card} ${styles.quickActionsCard}`} aria-labelledby="dashboard-actions" data-dashboard-section="quick-actions">
       <div className={styles.heading}><h2 id="dashboard-actions">Quick actions</h2><span className={`type-caption ${styles.muted}`}>Your tools</span></div>
       <div className={styles.actions}>{actions.map(({label, href: destination, Icon}) => <Link className={styles.quickAction} href={destination} key={label}><span className={styles.serviceIcon}><Icon aria-hidden="true" /></span><span className="type-button">{label}</span></Link>)}</div>
     </section>
 
-    <section className={`${styles.card} ${styles.performanceCard}`} aria-label="My interview performance" data-dashboard-section="interview"><InterviewProgressOverview compact /></section>
+    <section data-workspace-card="gradient" className={`${styles.card} ${styles.performanceCard}`} aria-label="My interview performance" data-dashboard-section="interview"><InterviewProgressOverview compact /></section>
 
     <section className={`${styles.card} ${styles.eventsCard}`} aria-labelledby="dashboard-events" aria-busy={!p.packagesLoaded} data-dashboard-section="events">
       <div className={styles.heading}><h2 id="dashboard-events">Upcoming events</h2><Link href="/dashboard/library" className={styles.textLink}>Tracker<ChevronRightIcon aria-hidden="true" /></Link></div>
@@ -133,14 +133,14 @@ export function WorkspaceHome(p: Props) {
       {reminders.length > 3 ? <Link href="/dashboard/library" className={styles.textLink}>View all {reminders.length} saved dates<ArrowRightIcon aria-hidden="true" /></Link> : null}
     </section>
 
-    <section className={`${styles.card} ${styles.pipelineCard}`} aria-labelledby="dashboard-pipeline" aria-busy={p.overviewLoading} data-dashboard-section="pipeline">
+    <section data-workspace-card="gradient" className={`${styles.card} ${styles.pipelineCard}`} aria-labelledby="dashboard-pipeline" aria-busy={p.overviewLoading} data-dashboard-section="pipeline">
       <div className={styles.heading}><h2 id="dashboard-pipeline">Application pipeline</h2><Link className={styles.iconLink} href="/dashboard/library" aria-label="Manage applications"><ChevronRightIcon aria-hidden="true" /></Link></div>
       {p.overviewError ? <div role="alert" className={styles.notice}>Application counts unavailable. <button type="button" onClick={p.onRetryOverview}>Try again</button></div> : null}
       <dl className={styles.pipeline}>{stages.map(stage => <div key={stage.key} data-stage={stage.key}><dt className="type-helper">{stage.label}</dt><dd className="type-stat">{p.overviewLoading || p.overviewError || p.overview?.stages?.[stage.key] === undefined ? '—' : p.overview.stages[stage.key]}</dd></div>)}</dl>
       <Link href="/dashboard/library" className={styles.textLink}>Manage applications<ArrowRightIcon aria-hidden="true" /></Link>
     </section>
 
-    <section className={`${styles.card} ${styles.documentsCard}`} aria-labelledby="dashboard-documents" aria-busy={!p.profileLoaded} data-dashboard-section="documents">
+    <section data-workspace-card="gradient" className={`${styles.card} ${styles.documentsCard}`} aria-labelledby="dashboard-documents" aria-busy={!p.profileLoaded} data-dashboard-section="documents">
       <div className={styles.heading}><h2 id="dashboard-documents">Documents & availability</h2><Link href="/profile?view=details" className={styles.iconLink} aria-label="Update documents and availability"><PencilSquareIcon aria-hidden="true" /></Link></div>
       <dl className={styles.documents}>{[
         { label: 'Passport validity', value: p.profile?.passport_validity_date ? formatTrackerDate(p.profile.passport_validity_date) : null },

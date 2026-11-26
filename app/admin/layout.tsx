@@ -11,7 +11,7 @@ import { AdminNav } from './AdminNav'
  */
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-canvas font-redesign-sans">
+    <div data-workspace-theme className="min-h-screen bg-canvas font-redesign-sans">
       <AdminNav />
       {children}
     </div>

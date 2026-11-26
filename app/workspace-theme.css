@@ -1,0 +1,132 @@
+/* Authenticated workspace palette. Shared semantic utilities resolve these
+   tokens within the authenticated shell, including its portalled dialogs. */
+[data-workspace-theme] {
+  --workspace-ink: 24 40 61;
+  --workspace-muted: 71 85 105;
+  --workspace-line: 226 232 240;
+  --workspace-field-edge: 106 124 145;
+  --workspace-card: #102b3d;
+  --workspace-card-inset: #19384a;
+  --workspace-card-hover: #244557;
+  --workspace-card-line: 36 69 87;
+  --workspace-card-muted: 203 213 225;
+  --workspace-card-link: 153 246 228;
+  --workspace-gradient-end: #091e2c;
+  --workspace-card-gradient: linear-gradient(135deg, #123448, var(--workspace-gradient-end));
+  --workspace-action-hover: #0d9488;
+  --workspace-link-light: 7 109 102;
+  --ui-canvas-rgb: 255 255 255;
+  --ui-canvas: rgb(var(--ui-canvas-rgb));
+  --ui-brand-rgb: 8 127 118;
+  --ui-brand-hover-rgb: var(--workspace-link-light);
+  --ui-brand-soft-rgb: 231 243 240;
+  --ui-brand: rgb(var(--ui-brand-rgb));
+  --ui-brand-hover: rgb(var(--ui-brand-hover-rgb));
+  --ui-brand-soft: rgb(var(--ui-brand-soft-rgb));
+  color: var(--ui-ink);
+}
+
+/* The same color roles resolve separately on light controls and insets. */
+[data-workspace-theme],
+[data-workspace-theme] :where(
+  input, select, textarea, option, form, [contenteditable], [role="dialog"],
+  [role="menu"], [role="listbox"], [data-workspace-light],
+  .bg-canvas, .bg-alert-soft, .bg-teal-soft, .bg-gold-soft, .bg-ok-soft,
+  .bg-white:not([data-workspace-card], .rounded-card, .rounded-card-lg, .ui-surface)
+) {
+  --ui-ink-rgb: var(--workspace-ink);
+  --ui-ink-soft-rgb: var(--workspace-muted);
+  --ui-ink-muted-rgb: var(--workspace-muted);
+  --ui-line-rgb: var(--workspace-line);
+  --ui-line-strong-rgb: var(--workspace-field-edge);
+  --ui-ink: rgb(var(--ui-ink-rgb));
+  --ui-heading: var(--ui-ink);
+  --ui-ink-soft: rgb(var(--ui-ink-soft-rgb));
+  --ui-muted: rgb(var(--ui-ink-muted-rgb));
+  --ui-line: rgb(var(--ui-line-rgb));
+  --ui-line-strong: rgb(var(--ui-line-strong-rgb));
+  --ui-field-border: rgb(var(--workspace-field-edge));
+  --workspace-link: var(--workspace-link-light);
+  --workspace-accent: var(--ui-accent-ink-rgb);
+  --workspace-success: var(--ui-success-rgb);
+  --workspace-alert: var(--ui-error-rgb);
+  --workspace-inset: var(--ui-canvas);
+}
+
+/* Legacy white cards opt in through their surface classes. Form sections,
+   tables and paper/document content retain their existing light colors. */
+[data-workspace-theme] :is(
+  [data-workspace-card],
+  .professional-panel:not(:where(:has(input, textarea, select, form, [contenteditable], .linkedin-profile-preview))),
+  :is(.ui-surface, .rounded-card, .rounded-card-lg, .workspace-panel).bg-white:not(:where(
+    nav, header, form, input, select, textarea, button, .ui-button,
+    .field, .workspace-heading, .ui-mobile-flat, [role="dialog"], [role="menu"],
+    :has(form, input:not([type="hidden"]), select, textarea, [contenteditable], table,
+      [data-document-preview], [data-typography="document"], #resume-render, .linkedin-profile-preview)
+  ))
+):not(:where(
+  [data-workspace-light], [data-workspace-light] *, form *, [contenteditable] *,
+  [role="dialog"] *, [role="menu"] *, [role="listbox"] *,
+  [data-document-preview], [data-document-preview] *, [data-typography="document"],
+  [data-typography="document"] *, #resume-render, #resume-render *,
+  .actual-template-orbit-face, .actual-template-orbit-face *, .linkedin-profile-preview, .linkedin-profile-preview *
+)) {
+  --ui-ink-rgb: 255 255 255;
+  --ui-ink-soft-rgb: var(--workspace-card-muted);
+  --ui-ink-muted-rgb: var(--workspace-card-muted);
+  --ui-line-rgb: var(--workspace-card-line);
+  --ui-line-strong-rgb: 130 157 174;
+  --ui-ink: rgb(var(--ui-ink-rgb));
+  --ui-heading: var(--ui-ink);
+  --ui-ink-soft: rgb(var(--ui-ink-soft-rgb));
+  --ui-muted: rgb(var(--ui-ink-muted-rgb));
+  --ui-line: rgb(var(--ui-line-rgb));
+  --ui-line-strong: rgb(var(--ui-line-strong-rgb));
+  --workspace-link: var(--workspace-card-link);
+  --workspace-accent: 250 215 144;
+  --workspace-success: 134 239 172;
+  --workspace-alert: 254 171 163;
+  --workspace-meter-warning: #f9cd6a;
+  --workspace-inset: var(--workspace-card-inset);
+  background-color: var(--workspace-card);
+  border-color: var(--ui-line);
+  color: var(--ui-ink);
+}
+
+[data-workspace-theme] [data-workspace-card="gradient"] {
+  background-image: var(--workspace-card-gradient);
+}
+
+/* Use contextual foregrounds while preserving the existing status fills. */
+body [data-workspace-theme] :where(.text-teal, .text-teal-bright, .text-teal-dark, .hover\:text-teal:hover):not(:where(
+  [data-document-preview] *, [data-typography="document"] *, #resume-render *, .linkedin-profile-preview *
+)) { color: rgb(var(--workspace-link)); }
+
+body [data-workspace-theme] :where(.text-ok, .text-alert, .text-gold-ink):not(:where(
+  [data-document-preview] *, [data-typography="document"] *, #resume-render *, .linkedin-profile-preview *
+)) { color: rgb(var(--workspace-status)); }
+[data-workspace-theme] .text-ok { --workspace-status: var(--workspace-success); }
+[data-workspace-theme] .text-alert { --workspace-status: var(--workspace-alert); }
+[data-workspace-theme] .text-gold-ink { --workspace-status: var(--workspace-accent); }
+
+/* White on the idle button is 4.88:1. Dark ink on the brighter hover is 4.55:1. */
+body [data-workspace-theme] :is(a, button).bg-teal:is(.hover\:bg-teal-bright, .hover\:bg-teal-dark):hover {
+  background-color: var(--workspace-action-hover);
+  color: var(--workspace-gradient-end);
+}
+
+.app-type.internal-ui .library-resume-card[data-workspace-card],
+.app-type .interview-qa-page .qa-question-card[data-workspace-card] {
+  background-color: var(--workspace-card);
+  border-color: var(--ui-line);
+}
+.app-type.internal-ui .library-resume-card[data-workspace-card]:is(:hover, :focus-within) {
+  border-color: var(--ui-line-strong);
+}
+.library-resume-card[data-workspace-card] a.hover\:text-navy-deep:hover {
+  color: rgb(var(--workspace-link));
+}
+[data-workspace-theme] [data-workspace-card] :is(a, button):focus-visible {
+  outline: 2px solid rgb(var(--workspace-card-link));
+  outline-offset: 2px;
+}

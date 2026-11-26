@@ -5,7 +5,7 @@ import { AppFooter } from '@/components/layout/AppFooter'
 
 /** Server-owned shell preserves published footer content and document boundaries. */
 export function AppShell({ children, hideNav = false }: { children: React.ReactNode; hideNav?: boolean }) {
-  return <div className="app-type internal-ui career-studio flex min-h-screen bg-canvas">
+  return <div data-workspace-theme className="app-type internal-ui career-studio flex min-h-screen bg-canvas">
     {hideNav ? null : <Sidebar />}
     <div className={hideNav ? 'flex min-h-screen min-w-0 flex-1 flex-col' : 'studio-main-column flex min-h-screen min-w-0 flex-1 flex-col'}>
       {hideNav ? null : <AppHeader />}

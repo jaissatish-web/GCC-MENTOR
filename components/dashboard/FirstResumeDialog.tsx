@@ -18,7 +18,7 @@ export function FirstResumeDialog({ eligible }: { eligible: boolean }) {
   return <Dialog.Root open={eligible && !dismissed} onOpenChange={open => { if (!open) setDismissed(true) }}>
     <Dialog.Portal>
       <Dialog.Overlay className={styles.overlay} />
-      <Dialog.Content className={`app-type internal-ui ${styles.dialog}`}>
+      <Dialog.Content data-workspace-theme className={`app-type internal-ui ${styles.dialog}`}>
         <Dialog.Close className={styles.close} aria-label="Close first resume guidance"><XMarkIcon aria-hidden="true" /></Dialog.Close>
         <p className={styles.eyebrow}>Welcome to GCC Mentor</p>
         <Dialog.Title className={styles.title}>Create your first resume</Dialog.Title>

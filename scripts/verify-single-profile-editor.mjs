@@ -183,7 +183,7 @@ try{
    const color=el=>getComputedStyle(el).backgroundColor
    const visible=el=>el&&getComputedStyle(el).display!=='none'&&el.getBoundingClientRect().width>0
    const header=document.querySelector('[data-mobile-header]'), nav=document.querySelector('[data-mobile-navigation]'), sidebar=document.querySelector('.studio-sidebar')
-   return {header:color(header),nav:visible(nav)?color(nav):null,sidebar:visible(sidebar)?color(sidebar):null,rootSurface:getComputedStyle(document.documentElement).getPropertyValue('--ui-surface-rgb').trim(),contentSurface:getComputedStyle(document.querySelector('main')).getPropertyValue('--ui-surface-rgb').trim(),brandSoft:'rgb('+getComputedStyle(document.documentElement).getPropertyValue('--ui-brand-soft-rgb').trim().split(/\s+/).join(', ')+')'}
+   return {header:color(header),nav:visible(nav)?color(nav):null,sidebar:visible(sidebar)?color(sidebar):null,rootSurface:getComputedStyle(document.documentElement).getPropertyValue('--ui-surface-rgb').trim(),contentSurface:getComputedStyle(document.querySelector('main')).getPropertyValue('--ui-surface-rgb').trim(),brandSoft:'rgb('+getComputedStyle(sidebar).getPropertyValue('--ui-brand-soft-rgb').trim().split(/\s+/).join(', ')+')'}
   })
   assert.equal(measured.header,'rgb(255, 255, 255)',name+' header uses the shared white surface')
   if(measured.nav)assert.equal(measured.nav,'rgb(255, 255, 255)',name+' mobile navigation uses the shared white surface')

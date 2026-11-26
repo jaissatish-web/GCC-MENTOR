@@ -104,7 +104,7 @@ function ShareMenu({ run }: { run: MockInterviewRun }) {
       <Share2 size={16} aria-hidden="true" />
       Share result
     </summary>
-    <div className="absolute left-0 z-20 mt-2 w-[min(260px,calc(100vw-4rem))] sm:left-auto sm:right-0 rounded-card border border-line bg-white p-2 text-ink shadow-m-3">
+    <div data-workspace-light className="absolute left-0 z-20 mt-2 w-[min(260px,calc(100vw-4rem))] sm:left-auto sm:right-0 rounded-card border border-line bg-white p-2 text-ink shadow-m-3">
       <button type="button" onClick={() => void shareAnywhere()} className="flex min-h-11 w-full items-center rounded-ctl px-3 text-left type-helper font-semibold hover:bg-teal-soft">Share card to any app</button>
       <button type="button" onClick={() => openSocial('whatsapp')} className="flex min-h-11 w-full items-center rounded-ctl px-3 text-left type-helper font-semibold hover:bg-teal-soft">WhatsApp</button>
       <button type="button" onClick={() => openSocial('facebook')} className="flex min-h-11 w-full items-center rounded-ctl px-3 text-left type-helper font-semibold hover:bg-teal-soft">Facebook</button>

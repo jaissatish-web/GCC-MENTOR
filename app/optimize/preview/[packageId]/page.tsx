@@ -244,7 +244,7 @@ function PreviewInner({ packageId }: { packageId: string }) {
     setDrafts((d) => ({ ...d, [id]: { ...(d[id] ?? { keep: true, text: '' }), ...patch } }))
 
   return (
-    <main className="min-h-dvh bg-canvas font-redesign-sans" style={{ paddingBottom: saveBarHeight + 24 }}>
+    <main data-workspace-light className="min-h-dvh bg-canvas font-redesign-sans" style={{ paddingBottom: saveBarHeight + 24 }}>
       <div className="mx-auto flex w-full max-w-[900px] flex-col gap-4 px-4 py-6 sm:px-6">
         {/* Reached from the workspace; previously the only exits were the browser button or the save bar. */}
         <Link href={`/package/${packageId}`} className={cn(buttonVariants({ variant: 'secondary', size: 'sm' }), 'min-h-11 w-fit')}>Back to workspace</Link>

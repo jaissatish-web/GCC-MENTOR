@@ -147,9 +147,10 @@ try {
     const walletStyle = await page.$eval('#wallet-heading', node => {
       const wallet = node.closest('section')
       return { heading: getComputedStyle(node).color, label: getComputedStyle(wallet.querySelector('dt')).color,
+        surface: getComputedStyle(wallet).backgroundColor,
         amountSize: Number.parseFloat(getComputedStyle(wallet.querySelector('dd span')).fontSize) }
     })
-    assert.deepEqual(walletStyle, { heading: 'rgb(255, 255, 255)', label: 'rgb(211, 229, 237)', amountSize: 34 })
+    assert.deepEqual(walletStyle, { heading: 'rgb(255, 255, 255)', label: 'rgb(203, 213, 225)', surface: 'rgb(16, 43, 61)', amountSize: 34 })
     assert.match(await page.$eval('h1', node => node.textContent), /Referral & Credits/)
     assert.match(await page.$eval('[aria-labelledby="wallet-heading"]', node => node.textContent), /Available credits12.*Total earned18.*Total used4.*Reserved2/)
     assert.match(await page.$eval('#invite', node => node.textContent), /\+3 credits/)

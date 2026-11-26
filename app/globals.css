@@ -5,6 +5,7 @@
 @import "./career-studio.css";
 @import "./auth-presentation.css";
 @import "./resume-review.css";
+@import "./workspace-theme.css";
 
 @tailwind base;
 @tailwind components;
