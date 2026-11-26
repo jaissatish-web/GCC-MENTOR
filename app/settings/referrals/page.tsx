@@ -90,14 +90,14 @@ export default async function ReferralsPage({ searchParams }: { searchParams: Pr
     </header>
     {data && credits ? <>
       <div className="grid min-w-0 items-start gap-4 lg:grid-cols-[minmax(0,4fr)_minmax(0,5fr)]">
-        <section aria-labelledby="wallet-heading" className="min-w-0 rounded-2xl bg-[#10283e] bg-[radial-gradient(ellipse_at_top_right,#1b5260_0%,transparent_65%)] p-4 text-white [--ui-ink:#d3e5ed] sm:p-5">
+        <section data-workspace-card="gradient" aria-labelledby="wallet-heading" className="min-w-0 rounded-2xl border p-4 sm:p-5">
           <div className="flex items-center justify-between gap-3">
-            <h2 id="wallet-heading" className="[--ui-ink:white]">Credit wallet</h2>
-            <span className="grid size-9 place-items-center rounded-lg border border-white/25 bg-white/10 text-[#b6f4e3]"><Wallet size={18} aria-hidden="true" /></span>
+            <h2 id="wallet-heading">Credit wallet</h2>
+            <span className="grid size-9 place-items-center rounded-lg border border-white/25 bg-white/10 text-teal"><Wallet size={18} aria-hidden="true" /></span>
           </div>
           <dl className="mt-1.5">
             <div>
-              <dt className="text-sm text-[#d3e5ed]">Available credits</dt>
+              <dt className="text-sm text-ink-soft">Available credits</dt>
               <dd><span className="break-words text-[2.125rem] font-semibold leading-tight tabular-nums tracking-tight text-white">{number.format(credits.available)}</span></dd>
             </div>
             <div className={`mt-2.5 grid ${credits.reserved ? 'grid-cols-3' : 'grid-cols-2'} gap-2 border-t border-white/25 pt-2.5 text-sm`}>
@@ -106,21 +106,21 @@ export default async function ReferralsPage({ searchParams }: { searchParams: Pr
                 ['Total used', credits.used],
                 ...(credits.reserved ? [['Reserved', credits.reserved] as const] : []),
               ] as const).map(([label, amount]) => <div key={label}>
-                <dt className="text-[#d3e5ed]">{label}</dt>
+                <dt className="text-ink-soft">{label}</dt>
                 <dd><span className="break-words text-base font-semibold tabular-nums text-white">{number.format(amount)}</span></dd>
               </div>)}
             </div>
           </dl>
           {data.sources.length > 0 && <details className="mt-1">
-            <summary className="flex min-h-11 w-fit cursor-pointer items-center text-sm font-semibold [--ui-ink:#b6f4e3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">Balance by source</summary>
+            <summary className="flex min-h-11 w-fit cursor-pointer items-center text-sm font-semibold text-teal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">Balance by source</summary>
             <dl className="grid gap-2 border-t border-white/25 pt-2 text-sm">
-              {data.sources.map(source => <div key={source.source} className="flex justify-between gap-2 text-[#d3e5ed]">
+              {data.sources.map(source => <div key={source.source} className="flex justify-between gap-2 text-ink-soft">
                 <dt>{SOURCES[source.source] ?? source.source}</dt><dd className="tabular-nums">{number.format(source.available)}</dd>
               </div>)}
             </dl>
           </details>}
-          {Object.keys(data.allowances).length > 0 && <p className="mt-2 text-sm text-[#d3e5ed]">
-            <Link href="/settings?tab=package" className="font-semibold text-[#b6f4e3] underline">Service allowances</Link> can cover eligible runs before wallet credits.
+          {Object.keys(data.allowances).length > 0 && <p className="mt-2 text-sm text-ink-soft">
+            <Link href="/settings?tab=package" className="font-semibold text-teal underline">Service allowances</Link> can cover eligible runs before wallet credits.
           </p>}
         </section>
 

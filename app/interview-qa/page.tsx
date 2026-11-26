@@ -411,8 +411,8 @@ function AnswerText({ text }: { text: string }) {
 function QaCard({ item, number, open, onToggle }: { item: InterviewQuestionAnswer; number: number; open: boolean; onToggle: () => void }) {
   const answerId = `qa-answer-${item.id}`
   return (
-    <article className="qa-question-card" aria-labelledby={`qa-question-${item.id}`}>
-      <div className="qa-question-header">
+    <article data-workspace-card className="qa-question-card" aria-labelledby={`qa-question-${item.id}`}>
+      <div data-workspace-light className="qa-question-header">
         <div className="flex flex-wrap items-center gap-2">
           <span className="qa-question-number">Question {number.toString().padStart(2, '0')}</span>
           <span className="qa-difficulty">{item.difficulty}</span>
@@ -421,7 +421,7 @@ function QaCard({ item, number, open, onToggle }: { item: InterviewQuestionAnswe
         <h4 id={`qa-question-${item.id}`} className="qa-question-title">{item.question}</h4>
       </div>
       <div className="qa-question-body">
-        <div className="qa-why-panel">
+        <div data-workspace-light className="qa-why-panel">
           <h5 className="qa-panel-label"><LightBulbIcon aria-hidden="true" className="size-4 shrink-0" />Why they ask</h5>
           <p>{item.why_asked}</p>
         </div>
@@ -437,17 +437,17 @@ function QaCard({ item, number, open, onToggle }: { item: InterviewQuestionAnswe
         </button>
         {open ? (
           <div id={answerId} className="qa-answer-content">
-            <section className="qa-answer-panel" aria-label={`Sample answer for question ${number}`}>
+            <section data-workspace-light className="qa-answer-panel" aria-label={`Sample answer for question ${number}`}>
               <h5 className="qa-panel-label"><ChatBubbleLeftRightIcon aria-hidden="true" className="size-4 shrink-0" />Sample answer</h5>
               <AnswerText text={item.answer} />
             </section>
             <div className="qa-evidence-grid">
-              <section className="qa-basis-panel">
+              <section data-workspace-light className="qa-basis-panel">
                 <h5 className="qa-panel-label"><DocumentTextIcon aria-hidden="true" className="size-4 shrink-0" />From your resume</h5>
                 <p>{item.resume_basis}</p>
               </section>
               {item.follow_up ? (
-                <section className="qa-followup-panel">
+                <section data-workspace-light className="qa-followup-panel">
                   <h5 className="qa-panel-label"><ArrowUturnRightIcon aria-hidden="true" className="size-4 shrink-0" />Likely follow-up</h5>
                   <p>{item.follow_up}</p>
                 </section>
