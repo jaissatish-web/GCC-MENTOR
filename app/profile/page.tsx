@@ -1,6 +1,7 @@
 'use client'
 
 
+import { ReferralWorkspaceLink } from '@/components/referrals/ReferralWorkspaceLink'
 import { REVIEW_RECOVERY_KEY, reviewSource, reviewStorage, readReviewRecovery, writeReviewRecovery, clearReviewRecovery } from '@/lib/resumeReviewRecovery'
 
 import { validProfileEmail, validProfilePhone, validProfileLinkedIn } from '@/lib/profileFieldValidity'
@@ -2496,6 +2497,7 @@ function ProfileScreen() {
       {loadErrorBlock}
       <ResumeImport initialMode={initialImportMode} collapsible={false} onDraft={ingestDraft} onSourceReady={retainReviewSource} onFillManually={enterManual} onProcessingChange={observeImportProcessing} />
       {hasSavedProfile && !importProcessing ? <Button className="mt-4" variant="secondary" onClick={enterManual}>Cancel import</Button> : null}
+      {!hasSavedProfile && !importProcessing && initialImportMode === 'idle' && <div className="mt-4"><ReferralWorkspaceLink /></div>}
     </main>
   }
 
@@ -2578,6 +2580,7 @@ function ProfileScreen() {
         {hasSavedProfile ? isDirty ? <div><Button variant="secondary" size="sm" disabled>Preview resume</Button><p className="mt-1 type-helper text-ink-muted">Save changes before previewing.</p></div> : <CareerProfileResumeButton label="Preview resume" showHint={false} /> : null}
         <Button size="sm" disabled={submitting} onClick={() => showView('details')}>Edit Career Profile</Button>
       </div>
+      <div className="mt-4"><ReferralWorkspaceLink /></div>
     </main>
   }
 
