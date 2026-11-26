@@ -37,14 +37,14 @@ async function replay(opts: Options, resultId: string) {
   const { column, responseKey } = REPLAY_COLUMNS[opts.action]
   const { data, error } = await createServiceRoleClient({ fresh: true }).from('packages').select(column)
     .eq('id', opts.packageId).eq('user_id', opts.userId).maybeSingle()
-  if (error) return NextResponse.json({ error: 'Could not load the saved result.' }, { status: 503 })
+  if (error) return response(503, 'Could not load the saved result. Try again shortly.', 'operation_replay_unavailable').response
   const rows = (data as Record<string, unknown> | null)?.[column]
   const result = Array.isArray(rows) ? rows.find(row => row?.id === resultId) : undefined
   if (!result) return NextResponse.json({ error: 'This operation already finished. Its saved result is no longer available.' }, { status: 409 })
   return NextResponse.json({ success: true, [responseKey]: result })
 }
 
-function response(status: number, error: string, code: string): PremiumAction {
+function response(status: number, error: string, code: string): Extract<PremiumAction, { ok: false }> {
   return { ok: false, response: NextResponse.json({ error, code }, { status }) }
 }
 
