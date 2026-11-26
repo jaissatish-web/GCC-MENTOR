@@ -1,3 +1,4 @@
+import { ReferralWorkspaceLink } from '@/components/referrals/ReferralWorkspaceLink'
 import { CTA, NAMES } from '@/lib/serviceLabels'
 import Link from 'next/link'
 import { createServiceRoleClient } from '@/lib/supabase/serviceAdmin'
@@ -146,8 +147,9 @@ export default async function SettingsPage({
         <PageHeader
           title="Settings"
           description="Account, services and data controls."
-          actions={<Link href="/settings/referrals" className="type-label text-teal underline">Referral &amp; Credits</Link>}
         />
+
+        <div className="mt-4 max-w-lg"><ReferralWorkspaceLink /></div>
 
         {/* Tabs — real links, so each section is bookmarkable and keyboard-navigable */}
         <nav aria-label="Settings sections" className="mt-6 border-b border-line">

@@ -29,7 +29,7 @@ jobs:
     env:
       NEXT_TELEMETRY_DISABLED: '1'
       PUPPETEER_SKIP_DOWNLOAD: 'true'
-      NEXT_PUBLIC_SUPABASE_URL: https://ci-placeholder.supabase.co
+      NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:3618
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-placeholder-anon-key
       SUPABASE_SERVICE_ROLE_KEY: ci-placeholder-service-role-key
       NEXT_PUBLIC_APP_URL: http://localhost:3000
@@ -88,6 +88,9 @@ jobs:
       - name: Verify desktop and mobile services navigation
         run: |
           CHROME_PATH="$(node --input-type=module -e "import puppeteer from 'puppeteer'; console.log(await puppeteer.executablePath())")" npm run test:workspace-navigation
+      - name: Verify referral and credit wallet in the browser
+        run: |
+          CHROME_PATH="$(node --input-type=module -e "import puppeteer from 'puppeteer'; console.log(await puppeteer.executablePath())")" node scripts/verify-referral-browser.mjs
       - name: Verify shared resume intake with PDF, Word and pasted text
         run: |
           CHROME_PATH="$(node --input-type=module -e "import puppeteer from 'puppeteer'; console.log(await puppeteer.executablePath())")" npm run test:readiness-input
