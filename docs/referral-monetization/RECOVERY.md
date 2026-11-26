@@ -67,3 +67,34 @@ compatibility. It does not certify a production restore point.
   not roll back a database.
 
 [Supabase backup and restore documentation](https://supabase.com/docs/guides/platform/backups)
+
+## Logical backup on the current plan
+
+The 26 November read-only catalogue check confirmed that production is still at the
+073/074 prerequisite stage and that GCC-MENTOR-TEST records migration names 075–080.
+The synthetic restore and migration rollback replay passed again. Vercel confirmed
+the known-good production deployment remains Ready and serves the public alias.
+Actual production archive and restore validation remain open.
+
+1. In [Production Backups](https://supabase.com/dashboard/project/wfdcsdecbnsyvoluuuox/database/backups),
+   confirm whether a usable archive already exists. For a new export, use the
+   production project's **Connect** panel on a trusted workstation and select the
+   session pooler if direct connectivity is unavailable. Keep connection credentials
+   in the operator's approved secret store and supply them only to the local client.
+2. Use the [official CLI backup procedure](https://supabase.com/docs/guides/platform/migrating-within-supabase/backup-restore)
+   to export the project roles, schema and data including Auth records. Run all
+   exports in an access-restricted encrypted location approved for production
+   data. Include the migration history and managed-schema customizations in the
+   recovery inventory. Record completion time, checksum, retention and owner.
+   The production provider configuration contains credentials, so the archive
+   requires the same access controls as other production secrets.
+3. Keep a separate inventory and protected backup for Storage objects and a
+   secure record of Auth, Vercel and external provider configuration. The
+   database archive only covers Storage metadata. Rehearse with synthetic data
+   or restore the real archive to a separately authorized recovery environment.
+   Keep production records out of GCC-MENTOR-TEST.
+4. Verify restored profile and package counts, Auth and Storage references,
+   extensions, grants and profile/package row-level security. Verify that the
+   operator can reach the archived files and decrypt them. Keep the existing
+   deployment available for application rollback and retain any new ledger and
+   audit entries if a post-migration application rollback is needed.

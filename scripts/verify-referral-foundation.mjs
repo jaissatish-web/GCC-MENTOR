@@ -48,7 +48,39 @@ try {
   assert.equal(await linkFor(owner), code, 'suspension preserves permanent link')
   await db.query('update auth.users set email = $1 where id = $2', ['changed@example.test', owner])
   assert.equal(await linkFor(owner), code, 'email changes preserve permanent link')
-  console.log('Referral foundation passed: link ownership, first attribution, token binding, signup and email verification, suspension and role boundaries.')
+
+  await db.exec('update public.referral_program_settings set hourly_visit_threshold = 1')
+  const recentBrowser = randomUUID()
+  const recentClaim = await visit(otherCode, recentBrowser)
+  assert.ok(recentClaim)
+  assert.equal(await visit(otherCode, recentBrowser), undefined, 'the browser rate limit prevents a new visit')
+  assert.equal(await visit(otherCode, recentBrowser, recentClaim), recentClaim, 'the rate limit preserves an existing attribution')
+  assert.ok(await visit(otherCode, randomUUID()), 'an independent browser can still be attributed')
+
+  const expiredIntent = await intent(recentClaim, recentBrowser, 'expired@example.test')
+  const liveIntent = await intent(recentClaim, recentBrowser, 'current@example.test')
+  assert.ok(expiredIntent && liveIntent)
+  await db.query('update public.referral_signup_intents set expires_at = now() - interval \'1 minute\' where id = $1', [expiredIntent])
+  await db.query(`update public.referral_visit_claims
+    set created_at = now() - interval '91 days', expires_at = now() - interval '61 days'
+    where id = $1`, [claim])
+  const oldDigest = 'a'.repeat(64)
+  const newDigest = 'b'.repeat(64)
+  await db.query(`insert into public.referral_reward_identities(identity_digest, awarded_at)
+    values ($1, now() - interval '366 days'), ($2, now())`, [oldDigest, newDigest])
+  const summary = async () => (await asService(db, () =>
+    db.query('select public.referral_summary($1) as stats', [owner]))).rows[0].stats
+  const beforePrune = await summary()
+  await asService(db, () => db.query('select public.prune_referral_tracking()'))
+  assert.deepEqual(await summary(), beforePrune, 'pruning preserves lifetime totals and visible activity')
+  const findClaim = await db.query('select id from public.referral_visit_claims where id = any($1::uuid[])', [[claim, recentClaim]])
+  assert.deepEqual(findClaim.rows.map(row => row.id), [recentClaim])
+  const findIntent = await db.query('select id from public.referral_signup_intents where id = any($1::uuid[])', [[expiredIntent, liveIntent]])
+  assert.deepEqual(findIntent.rows.map(row => row.id), [liveIntent])
+  const findDigest = await db.query('select identity_digest from public.referral_reward_identities order by identity_digest')
+  assert.deepEqual(findDigest.rows.map(row => row.identity_digest), [newDigest])
+  await asUser(db, owner, () => assert.rejects(db.query('select * from public.referral_reward_identities'), /permission denied/))
+  console.log('Referral foundation passed: attribution, rate limits, retention, permanent links and role boundaries.')
 } finally {
   await db.close()
 }
