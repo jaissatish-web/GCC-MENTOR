@@ -1,4 +1,20 @@
-# Employer logo artwork sources
+# Production design system
+
+Production Baseline V1.0 · source `ed06ab8c6c73b63f7be2376e4a90b1e7ab3da342`.
+
+| Scope | Source and behaviour |
+| --- | --- |
+| Base tokens and type | `tailwind.config.ts`, `app/globals.css` and `app/typography.css`. Compact Inter for application typography, with shared semantic text and spacing utilities. Inspect the computed style and breakpoint before changing sizes. |
+| Shared interaction | `app/ui-system.css`, `app/responsive.css`, `lib/design-system/` and shared UI components provide the reusable controls, surface, spacing and responsive rules. Use meaningful labels and preserve keyboard focus, validation, empty, loading and error states. |
+| Workspace | `app/workspace-theme.css` sets a white canvas, navy outer text `#18283D`, card `#102B3D`, gradient `#123448` to `#091E2C`, border `#244557`, white card text and secondary card text `#CBD5E1`. Brand CTA is `#087F76`; the workspace defines action hover `#0D9488` and a separate light-surface link hover. |
+| Light workspace surfaces | Forms, editable regions, tables, menus and document previews use their own scoped light rules. Shared and legacy card classes are both supported; local layouts still vary by service. Check card contrast, portalled elements, button alignment and wrapping at desktop and mobile widths. |
+| Navigation | Workspace navigation uses responsive page and menu presentation. Current route labels and destinations are defined by the shared workspace components and in the pages. |
+| Public | `app/page.tsx` and `components/landing-v3/` own the public story, service calls to action, logos, resume orbit, industry and founder imagery. `app/auth-presentation.css` and auth components own the sign-in/signup globe. Preserve reduced-motion support. |
+| Document boundary | `components/templates/`, `lib/templates.ts`, `lib/resumeStyle.ts` and export-specific rules own document typography, page dimensions, style and photo compatibility. UI-wide token updates must preserve document content and rendering. |
+
+Shared typography uses 15/16 px body, 28/32 px page title, 21/24 px section title and 14/15 px buttons across mobile/desktop. Token overrides begin at 768 px. Local layouts and legacy specificity can yield different computed styles.
+
+## Published artwork provenance
 
 Retrieved 2026-11-11. Logos remain trademarks of their owners. Official artwork used solely for nominative career-preparation reference; no affiliation, endorsement, partnership or hiring guarantee. Source availability is not a blanket trademark license. Original brand colors and geometry are preserved. Official white/reversed variants use a dark slate logo window rather than a recoloring filter. WebP exports only trim empty margins and resize original artwork.
 
@@ -28,4 +44,10 @@ Retrieved 2026-11-11. Logos remain trademarks of their owners. Official artwork 
 
 Current naming: QatarEnergy replaces QP/Qatar Petroleum (2021). QatarEnergy LNG replaces Qatargas (2023): https://www.qatarenergylng.qa/english/Media/News/Article/ArticleID/4/QATARGAS%20CHANGES%20NAME%20TO . Samsung E&A replaces Samsung Engineering (2024): https://www.samsungena.com/en/newsroom/news/view?idx=15571 . AtkinsRéalis replaces SNC-Lavalin branding. No legacy duplicates.
 
-Selection: 21 locally verified logos from the founder’s example sectors, including current QatarEnergy LNG. ADNOC, EGA and Petrofac omitted rather than substituting uncertain/legacy artwork. They can be added when suitable current source artwork is available.
+Hero, industry atlas, closing skyline and decorative resume halo: newly generated brand illustrations, grounded in founder-approved visual references. They are not documentary photographs of customers, employers, projects or the founder. No endorsement implied. Exported as WebP for delivery; imagery contains no functional UI. Resume showcase uses the actual existing animated document component, not an image.
+
+Founder: authentic user-provided Satish Kumar Jaiswal portrait, source Natural founder portrait on light grey.png, retained source ID libfile_c4e0515e066c81918137e8305c648ef8. Export resized to400px; no facial editing.
+
+Country flags: exact SVGs from https://flagcdn.com/{sa,ae,qa,om,kw,bh}.svg, retrieved11November2026. Saudi Arabic lettering retained from source.
+
+Visual specifications: founder-approved19828–19833.png. No invented statistics, endorsements, testimonials or job listings.

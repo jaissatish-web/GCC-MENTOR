@@ -62,10 +62,10 @@ export async function middleware(request: NextRequest) {
     if (isProtected) {
       console.error(
         '[middleware] Supabase env vars missing — refusing access to a protected route. ' +
-          'Copy .env.example to .env.local and fill it in. See docs/SUPABASE_AUTH_SETUP.md.'
+          'Copy .env.example to .env.local and fill it in. See OPERATIONS.md.'
       )
       return new NextResponse(
-        'Supabase is not configured. See docs/SUPABASE_AUTH_SETUP.md.',
+        'Supabase is not configured. See OPERATIONS.md.',
         { status: 503 }
       )
     }
