@@ -14,4 +14,6 @@ Production Baseline V1.0 · source `ed06ab8c6c73b63f7be2376e4a90b1e7ab3da342`. S
 
 Preserve RLS, grants, restrictive function execution and search-path settings. The session owner controls private row access; privileged routes require explicit owner checks and admin records require independent server-side authorization. Package, profile and wallet writes use RPCs for designated atomic operations. Validate referral and credits integrity using a disposable database. Never place storage URLs with credentials, API keys or raw candidate documents in a report.
 
+The retention worker purges eligible expired operational records, reconciles stale wallet holds, prunes referral tracking, expires eligible credits and handles voice cleanup. It records counts and outcomes in `maintenance_runs` for admin monitoring. See `lib/admin/retention.ts` for cutoffs and batching.
+
 The migration directory contains 72 SQL files. Preserve filenames and contents. Fresh database bootstrap applies 020 before 013 because 013 alters `profiles`. Follow `scripts/db/supabaseStub.mjs` for the tested order, including the timestamped import review migration. On an existing project reconcile actual tables, policies, grants and functions with recorded migration history. See [Operations](OPERATIONS.md) for release and recovery.
