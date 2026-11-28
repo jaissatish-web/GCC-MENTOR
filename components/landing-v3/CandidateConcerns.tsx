@@ -82,15 +82,15 @@ export function CandidateConcerns() {
         <ul className={s.concernList} aria-labelledby="concern-choices-title">
           {concerns.map(({ id, Icon, quote, service }) => (
             <li key={id}>
-              <button type="button" data-concern-choice={id} className={s.concernChoice} aria-pressed={selected === id} aria-controls="preparation-response" aria-labelledby={`concern-${id}`} aria-describedby={`concern-service-${id}`} onClick={() => setSelected(id)}>
+              <button type="button" data-concern-choice={id} className={s.concernChoice} aria-pressed={selected === id} aria-controls="preparation-response" onClick={() => setSelected(id)}>
                 <span className={s.concernProblem}>
                   <Image src={`/landing/v3/concern-${id}.webp`} alt="" width={240} height={160} sizes="(min-width: 768px) 116px, 72px" />
-                  <span id={`concern-${id}`}>{quote}</span>
+                  <span>{quote}</span>
                 </span>
                 <span className={s.concernConnector} aria-hidden="true"><ArrowRight size={14} /></span>
                 <span className={s.concernService}>
                   <Icon size={22} strokeWidth={1.7} aria-hidden="true" />
-                  <span id={`concern-service-${id}`}>{service}</span>
+                  <span>{service}</span>
                 </span>
               </button>
             </li>

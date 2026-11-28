@@ -2,7 +2,7 @@
 
 import { CreditUnlock } from '@/components/referrals/CreditUnlock'
 import { usePremiumRequest } from '@/lib/credits/usePremiumRequest'
-import { CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileResume'
+import { isCareerProfileResume } from '@/lib/careerProfileResume'
 import { Suspense, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -19,7 +19,7 @@ import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton'
 import { cn } from '@/lib/utils'
 import { CTA, NAMES } from '@/lib/serviceLabels'
 import { usePackagePicker } from '@/lib/usePackagePicker'
-import { SAVED_PER_PACKAGE, savedQaSets, type PackageSummary } from '@/lib/packageSummary'
+import { SAVED_PER_PACKAGE, savedQaSets } from '@/lib/packageSummary'
 import type { InterviewQuestionAnswer, InterviewQuestionCategory, InterviewQuestionSet } from '@/types/package'
 import { stageEyebrow } from '@/components/journey/stages'
 import { StageGate } from '@/components/journey/StageGate'
@@ -47,11 +47,6 @@ const CATEGORY_ORDER: InterviewQuestionCategory[] = [
   'gulf_readiness',
   'company_role',
 ]
-
-function packageTarget(pkg: Pick<PackageSummary, 'tier' | 'name' | 'target_job_title' | 'target_company'>): string {
-  if (isCareerProfileResume(pkg)) return `${pkg.name || pkg.target_job_title} · ${CAREER_RESUME_BADGE}`
-  return [pkg.target_job_title, pkg.target_company].filter(Boolean).join(' · ')
-}
 
 function qaToText(set: InterviewQuestionSet): string {
   return set.questions
@@ -146,15 +141,17 @@ function InterviewQaScreen({ requestedId }: { requestedId: string | null }) {
     }
   }
 
-  if (listError) {
+  if (listError || picker.requestedJobUnavailable) {
     return (
       <main className="mx-auto flex w-full max-w-[960px] flex-col items-start gap-3 px-3 py-8 font-redesign-sans sm:px-8 lg:px-10">
         <div role="alert" className="rounded-card border border-alert/40 bg-alert-soft px-3.5 py-3 type-helper text-alert">
-          {listError}
+          {listError ?? 'This saved job is unavailable here. Open Resume Library to find your job.'}
         </div>
-        <Button type="button" variant="secondary" onClick={picker.reloadList}>
-          Try again
-        </Button>
+        {listError ? (
+          <Button type="button" variant="secondary" onClick={picker.reloadList}>Try again</Button>
+        ) : (
+          <Link href="/dashboard/library" className={buttonVariants({ variant: 'primary' })}>Open Resume Library</Link>
+        )}
       </main>
     )
   }
@@ -209,9 +206,9 @@ function InterviewQaScreen({ requestedId }: { requestedId: string | null }) {
                 disabled={generating}
                 className="field"
               >
-                {list.map((p) => (
-                  <option key={p.id} value={p.id} className="bg-white text-ink">
-                    {packageTarget(p)}
+                {picker.options.map((option) => (
+                  <option key={option.id} value={option.id} className="bg-white text-ink">
+                    {option.label}
                   </option>
                 ))}
               </select>

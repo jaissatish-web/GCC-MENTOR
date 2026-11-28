@@ -3,7 +3,7 @@
 import { CreditUnlock } from '@/components/referrals/CreditUnlock'
 import { usePremiumRequest } from '@/lib/credits/usePremiumRequest'
 import { CallOrb, JOINING_LINES } from '@/components/mock-interview/CallOrb'
-import { CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileResume'
+import { isCareerProfileResume } from '@/lib/careerProfileResume'
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -21,7 +21,6 @@ import { cn } from '@/lib/utils'
 import { CTA, NAMES } from '@/lib/serviceLabels'
 import { MOCK_ANSWER_MAX_CHARS } from '@/lib/mockInterviewLimits'
 import { usePackagePicker } from '@/lib/usePackagePicker'
-import type { PackageSummary } from '@/lib/packageSummary'
 import type { MockInterviewDifficulty, MockInterviewMode, MockInterviewRun, Package } from '@/types/package'
 import { stageEyebrow } from '@/components/journey/stages'
 import { StageGate } from '@/components/journey/StageGate'
@@ -86,11 +85,6 @@ function writeDraft(key: string, value: string): void {
   } catch {
     /* storage unavailable — the draft still lives in memory */
   }
-}
-
-function packageTarget(pkg: Pick<PackageSummary, 'tier' | 'name' | 'target_job_title' | 'target_company'>): string {
-  if (isCareerProfileResume(pkg)) return `${pkg.name || pkg.target_job_title} · ${CAREER_RESUME_BADGE}`
-  return [pkg.target_job_title, pkg.target_company].filter(Boolean).join(' · ')
 }
 
 function latestRun(pkg: Package | null): MockInterviewRun | null {
@@ -255,13 +249,15 @@ function MockInterviewScreen({ requestedId }: { requestedId: string | null }) {
     }
   }
 
-  if (listError) {
+  if (listError || picker.requestedJobUnavailable) {
     return (
       <main className="mx-auto flex w-full max-w-[980px] flex-col items-start gap-3 px-3 sm:px-5 py-8 font-redesign-sans">
-        <p role="alert" className="type-label text-alert">{listError}</p>
-        <Button type="button" variant="secondary" onClick={picker.reloadList}>
-          Try again
-        </Button>
+        <p role="alert" className="type-label text-alert">{listError ?? 'This saved job is unavailable here. Open Resume Library to find your job.'}</p>
+        {listError ? (
+          <Button type="button" variant="secondary" onClick={picker.reloadList}>Try again</Button>
+        ) : (
+          <Link href="/dashboard/library" className={buttonVariants({ variant: 'primary' })}>Open Resume Library</Link>
+        )}
       </main>
     )
   }
@@ -355,9 +351,9 @@ function MockInterviewScreen({ requestedId }: { requestedId: string | null }) {
                 disabled={busy !== null}
                 className="field"
               >
-                {list.map((p) => (
-                  <option key={p.id} value={p.id} className="bg-white text-ink">
-                    {packageTarget(p)}
+                {picker.options.map((option) => (
+                  <option key={option.id} value={option.id} className="bg-white text-ink">
+                    {option.label}
                   </option>
                 ))}
               </select>

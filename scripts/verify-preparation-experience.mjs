@@ -10,7 +10,7 @@ const letter={id:'letter-a',generated_at:'2026-10-15T09:00:00Z',target_job_title
 const question={id:'question-a',category:'technical',difficulty:'standard',question:'How do you verify a commissioning loop?',answer:'I review the procedure and verify the signal path.',why_asked:'To understand your method.',resume_basis:'Commissioning experience',follow_up:'How do you document the result?',tags:[]}
 const set={id:'set-a',generated_at:'2026-10-15T09:00:00Z',target_job_title:'Commissioning Engineer',target_company:'Example Employer',question_count:1,source:'optimized_resume',questions:[question]}
 const pkg={id:'resume-a',name:'Commissioning Engineer',target_job_title:'Commissioning Engineer',target_company:'Example Employer',target_country:'uae',tier:null,has_resume:true,is_paid:true,optimized_content:{summary:'Practical commissioning experience'},status:'saved',optimization_level:'high',mock_interview_runs:[],cover_letters:[letter,{...letter,id:'letter-b',generated_at:'2026-10-14T09:00:00Z'}],interview_questions:set,interview_question_sets:[set],skills_order:[],field_visibility_snapshot:{}}
-const other={...pkg,id:'resume-b',name:'Maintenance Engineer',target_job_title:'Maintenance Engineer',cover_letters:[{...letter,id:'letter-other',full_text:'Saved maintenance letter.'}],interview_questions:{...set,id:'set-other',questions:[{...question,question:'How do you plan maintenance?'}]},interview_question_sets:[]}
+const other={...pkg,id:'resume-b',name:'Maintenance Engineer',target_job_title:pkg.target_job_title,cover_letters:[{...letter,id:'letter-other',full_text:'Saved maintenance letter.'}],interview_questions:{...set,id:'set-other',questions:[{...question,question:'How do you plan maintenance?'}]},interview_question_sets:[]}
 writeFileSync(dir+'/entry.mjs',`import React from 'react';import {createRoot} from 'react-dom/client';import Password from ${JSON.stringify(root+'/app/auth/update-password/page.tsx')};import Cover from ${JSON.stringify(root+'/app/cover-letter/page.tsx')};import Qa from ${JSON.stringify(root+'/app/interview-qa/page.tsx')};import Generate from ${JSON.stringify(root+'/app/optimize/generate/[packageId]/page.tsx')};import {AuthForm} from ${JSON.stringify(root+'/components/auth/AuthForm.tsx')};import {DocumentOrbit} from ${JSON.stringify(root+'/components/landing-v3/DocumentOrbit.tsx')};import {VoiceInterview} from ${JSON.stringify(root+'/components/mock-interview/VoiceInterview.tsx')};const p=Promise.resolve({packageId:'resume-a'});const run={id:'run-a',input_mode:'voice',interviewer_id:'british-woman',questions:[{id:'question-a',focus:'Technical',question:'Explain how you verify a signal path and document the result during commissioning.'}]};const s=new URLSearchParams(location.search).get('screen');createRoot(document.getElementById('root')).render(React.createElement(React.Suspense,null,s==='password'?React.createElement(Password):s==='letter'?React.createElement(Cover):s==='qa'?React.createElement(Qa):s==='signup'?React.createElement(AuthForm,{mode:'signup',action:async()=>({})}):s==='orbit'?React.createElement(DocumentOrbit):s==='voice'?React.createElement('div',{style:{height:'90vh',display:'flex'}},React.createElement(VoiceInterview,{packageId:'resume-a',run,onUpdated:()=>{},room:true})):React.createElement(Generate,{params:p})));`)
 writeFileSync(dir+'/supabase.js',`export function createClient(){return{auth:{getUser:async()=>({data:{user:{id:'fictional-typography-user'}}})}}}`)
 writeFileSync(dir+'/navigation.js',`import {useSyncExternalStore} from 'react';const subscribe=callback=>{window.addEventListener('popstate',callback);return()=>window.removeEventListener('popstate',callback)};export function useSearchParams(){return new URLSearchParams(useSyncExternalStore(subscribe,()=>location.search))}export function useRouter(){return{replace:u=>{window.fixtureNavigation=u;const target=new URL(u,location.href);if(target.searchParams.has('package')){const current=new URL(location.href);current.searchParams.set('package',target.searchParams.get('package'));history.replaceState(null,'',current);dispatchEvent(new PopStateEvent('popstate'))}},push:u=>{window.fixtureNavigation=u}}}`)
@@ -83,6 +83,8 @@ try{
  for(const [screen,expected] of [['letter','Saved maintenance letter.'],['qa','How do you plan maintenance?']]){
   await goto(screen)
   await page.waitForSelector(screen==='letter'?'[aria-label="Saved cover letters"]':'[aria-label="Saved interview Q&A"]')
+  const jobLabels = await page.$$eval('main select option', (options) => options.map((option) => option.textContent))
+  assert.equal(new Set(jobLabels).size, 2, 'Same-title saved jobs must have distinct option labels')
   const draftText = ' Unsaved draft to keep while switching jobs.'
   if(screen==='letter'){
    await page.$$eval('button',es=>es.find(e=>e.textContent==='Edit letter').click())
@@ -101,6 +103,13 @@ try{
   await page.waitForFunction(text=>document.body.innerText.includes(text),{timeout:4000},expected)
   await page.reload()
   await page.waitForFunction(text=>document.body.innerText.includes(text),{timeout:4000},expected)
+ }
+ for (const screen of ['letter', 'qa']) {
+  await page.goto(`https://preparation.test/?package=missing&screen=${screen}`, { waitUntil: 'networkidle0' })
+  const alert = await page.$eval('[role="alert"]', (el) => el.textContent.trim()).catch(() => null)
+  assert.equal(alert, 'This saved job is unavailable here. Open Resume Library to find your job.')
+  assert.ok(await page.$('main a[href="/dashboard/library"]'))
+  assert.equal(await page.$('main select'), null, 'An unavailable job link must never select another job')
  }
  empty=true;await goto('letter');await page.waitForSelector('main > details');assert.equal(await page.$eval('main > details',e=>e.open),true,'First-time setup opens');empty=false
  await page.setViewport({width:390,height:844});analysisRequest=null;buildRequest=null

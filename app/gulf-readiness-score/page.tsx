@@ -113,7 +113,7 @@ export default function GulfReadinessScorePage() {
     return (
       <Shell>
         <div className="text-center">
-          <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-gold-ink type-caption">Free Gulf readiness score</p>
+          <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-ink-soft type-caption">Free Gulf readiness score</p>
           <h1 className="mt-3 type-title text-ink">How Gulf-ready is your career?</h1>
           <p className="mt-3 type-body text-ink-soft">
             Upload your resume to see your strengths and preparation gaps. See your score before signup.
@@ -178,7 +178,7 @@ export default function GulfReadinessScorePage() {
         <div className="flex flex-col items-center gap-6 py-12 text-center">
           <ProcessingOrbit size={168} />
           <div>
-            <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-gold-ink type-caption">Building your scorecard</p>
+            <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-ink-soft type-caption">Building your scorecard</p>
             <h1 className="mt-3 type-title">Reading your career details</h1>
           </div>
           <div className="w-full max-w-sm text-left">
@@ -194,7 +194,7 @@ export default function GulfReadinessScorePage() {
   return (
     <Shell wide>
       <div className="mb-6 text-center">
-        <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-gold-ink type-caption">Your Gulf readiness</p>
+        <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-ink-soft type-caption">Your Gulf readiness</p>
         <h1 className="mt-3 type-title">Here&rsquo;s where your career stands</h1>
       </div>
       {intake ? <section className="mb-5 rounded-card border border-line bg-white p-5"><div className="flex items-center justify-between gap-3"><div><p className="text-sm font-semibold text-teal">Profile Readiness · initial career draft</p><p className="mt-2 text-sm text-ink-soft">{intake.draft.work_experience.length} {intake.draft.work_experience.length===1?'role':'roles'} · {intake.draft.skills.length} {intake.draft.skills.length===1?'skill':'skills'} · {intake.draft.education.length} {intake.draft.education.length===1?'qualification':'qualifications'}</p></div><span className="font-mono text-3xl font-bold text-teal">{intakeProfileReadiness(intake.draft,intake.context).score}<span className="text-sm text-ink-muted">%</span></span></div><p className="mt-3 text-sm text-ink-soft">Review your extracted details before saving your Career Profile.</p><p className="mt-2 text-sm text-ink-muted">{intakeProfileReadiness(intake.draft,intake.context).missing.length} career sections or details to complete. Full details unlock with your free account.</p><button type="button" className="mt-2 min-h-11 text-sm font-semibold text-teal" onClick={()=>{clearHandoff();setStep('intake')}}>Edit my preparation answers</button></section> : null}

@@ -64,7 +64,7 @@ try{
   if(width < 768) {
     const typography = await page.$eval('#challenges', section => {
       const size = selector => getComputedStyle(section.querySelector(selector)).fontSize;
-      return ['h2', '#preparation-response-title', 'button span[id^="concern-"]', '#preparation-response h3 + p', '#preparation-example-note'].map(size);
+      return ['h2', '#preparation-response-title', 'button[data-concern-choice] > span:first-child > span', '#preparation-response h3 + p', '#preparation-example-note'].map(size);
     });
     assert.deepEqual(typography, ['19px','19px','15px','14px','12px']);
   }

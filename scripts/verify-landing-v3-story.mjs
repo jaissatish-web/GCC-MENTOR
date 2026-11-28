@@ -30,7 +30,19 @@ assert.equal((html.match(/data-concern-choice=/g)||[]).length,4,'All four main c
 for(const copy of ['Job-specific package + Cover Letter','Career Profile + Optimized Resume','ATS Job Match + gap analysis','Interview Q&A + mock interview feedback'])assert.ok(visible.includes(copy),`Missing direct mapping: ${copy}`)
 console.log('PASS approved Option2 headline, four concerns/mappings, example honesty and section sequence')
 
-for(const id of ['applications','experience','fit','interview'])assert.ok(html.includes(`aria-describedby="concern-service-${id}"`),'Each concern exposes its service mapping to assistive technology')
+const concernServices = {
+  applications: 'Job-specific package + Cover Letter',
+  experience: 'Career Profile + Optimized Resume',
+  fit: 'ATS Job Match + gap analysis',
+  interview: 'Interview Q&A + mock interview feedback',
+}
+for (const [id, service] of Object.entries(concernServices)) {
+  const button = [...html.matchAll(/<button([^>]*)>([\s\S]*?)<\/button>/g)].find(([, attrs]) =>
+    attrs.includes(`data-concern-choice="${id}"`))
+  assert.ok(button, `Missing concern button: ${id}`)
+  assert.doesNotMatch(button[1], /aria-label(?:ledby)?=/, 'The accessible name comes from the visible button text')
+  assert.ok(button[2].replaceAll('&amp;', '&').includes(service), 'The visible service mapping is part of the button name')
+}
 
 assert.ok(!html.includes('id="how-it-works"') && !html.includes('data-job-package'), 'Removed landing blocks stay absent')
 for (const copy of ['The GCC Mentor journey', 'From your profile to interview preparation', 'One job. A connected preparation package.', 'Illustrative preparation preview']) assert.ok(!text.includes(copy), `Removed copy stays absent: ${copy}`)

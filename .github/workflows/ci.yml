@@ -88,6 +88,10 @@ jobs:
       - name: Verify desktop and mobile services navigation
         run: |
           CHROME_PATH="$(node --input-type=module -e "import puppeteer from 'puppeteer'; console.log(await puppeteer.executablePath())")" npm run test:workspace-navigation
+      - name: Verify saved-job preparation and recovery
+        run: |
+          CHROME_PATH="$(node --input-type=module -e "import puppeteer from 'puppeteer'; console.log(await puppeteer.executablePath())")" npm run test:preparation
+          CHROME_PATH="$(node --input-type=module -e "import puppeteer from 'puppeteer'; console.log(await puppeteer.executablePath())")" npm run test:interview
       - name: Verify referral and credit wallet in the browser
         run: |
           CHROME_PATH="$(node --input-type=module -e "import puppeteer from 'puppeteer'; console.log(await puppeteer.executablePath())")" node scripts/verify-referral-browser.mjs
