@@ -2,7 +2,7 @@
 
 import { CreditUnlock } from '@/components/referrals/CreditUnlock'
 import { usePremiumRequest } from '@/lib/credits/usePremiumRequest'
-import { CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileResume'
+import { isCareerProfileResume } from '@/lib/careerProfileResume'
 import { Suspense, useMemo, useState, type Dispatch, type SetStateAction } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -18,7 +18,6 @@ import { COVER_LETTER_NOTES } from '@/lib/processingNotes'
 import { cn } from '@/lib/utils'
 import { CTA, NAMES } from '@/lib/serviceLabels'
 import { usePackagePicker } from '@/lib/usePackagePicker'
-import type { PackageSummary } from '@/lib/packageSummary'
 import { SAVED_PER_PACKAGE } from '@/lib/packageSummary'
 import type { CoverLetter, CoverLetterTone } from '@/types/package'
 import { Skeleton, SkeletonGroup } from '@/components/ui/Skeleton'
@@ -46,14 +45,7 @@ import { CoverLetterEmail } from '@/components/service/CoverLetterEmail'
  * its tone; pre-2026-08-18 letters simply show no label — never a guessed one.
  */
 
-function letterTarget(pkg: Pick<PackageSummary, 'tier' | 'name' | 'target_job_title' | 'target_company'>): string {
-  if (isCareerProfileResume(pkg)) return `${pkg.name || pkg.target_job_title} · ${CAREER_RESUME_BADGE}`
-  // The employer only when there is one.
-  const bits = [pkg.target_job_title, pkg.target_company].filter(Boolean)
-  return bits.join(' · ')
-}
-
-const TONE_OPTIONS: ReadonlyArray<{ value: CoverLetterTone; label: string; description: string }> = [
+onst TONE_OPTIONS: ReadonlyArray<{ value: CoverLetterTone; label: string; description: string }> = [
   { value: 'professional', label: 'Professional', description: 'Polished and formal — the standard choice' },
   { value: 'short', label: 'Short', description: 'One brief paragraph, straight to the point' },
   { value: 'technical', label: 'Technical', description: 'Leads with tools, standards and measurable results' },
@@ -240,9 +232,9 @@ function CoverLetterScreen({ requestedId, edits, setEdits }: {
                 disabled={generating}
                 className="field"
               >
-                {list.map((p) => (
-                  <option key={p.id} value={p.id} className="bg-white text-ink">
-                    {letterTarget(p)}
+                {picker.options.map((option) => (
+                  <option key={option.id} value={option.id} className="bg-white text-ink">
+                    {option.label}
                   </option>
                 ))}
               </select>

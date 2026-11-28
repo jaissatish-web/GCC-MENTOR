@@ -1,9 +1,35 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { PackageListPage, PackageSummary } from '@/lib/packageSummary'
+import { CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileResume'
+import { formatTrackerDate } from '@/lib/trackerDates'
 import { fetchCareerProfileResumeSummary } from '@/lib/useCareerProfileResume'
 import type { Package } from '@/types/package'
+
+function packageOptions(rows: PackageSummary[]) {
+  const options = rows.map((row) => ({
+    id: row.id,
+    label: isCareerProfileResume(row)
+      ? `${row.name || row.target_job_title} · ${CAREER_RESUME_BADGE}`
+      : [row.target_job_title, row.target_company].filter(Boolean).join(' · '),
+    savedAt: row.created_at,
+    name: row.name,
+    title: row.target_job_title,
+  }))
+  const counts = new Map<string, number>()
+  for (const { label } of options) counts.set(label, (counts.get(label) ?? 0) + 1)
+
+  const occurrences = new Map<string, number>()
+  return options.map(({ id, label, savedAt, name, title }) => {
+    if (counts.get(label) === 1) return { id, label }
+    const position = (occurrences.get(label) ?? 0) + 1
+    occurrences.set(label, position)
+    const savedDate = savedAt ? formatTrackerDate(savedAt, true) : ''
+    const description = [label, name && name !== title ? name : null, savedDate, `Job ${position}`]
+    return { id, label: description.filter(Boolean).join(' · ') }
+  })
+}
 
 /**
  * A service screen's job picker (audit M08 + M06, 2026-09-15).
@@ -97,11 +123,13 @@ export function usePackagePicker(opts: { requestedId: string | null; onlyWithRes
     setList((rows) => (rows ? rows.map((p) => (p.id === packageId ? { ...p, ...patch } : p)) : rows))
   }, [])
 
+  const options = useMemo(() => packageOptions(list ?? []), [list])
   const selectedSummary = list?.find((p) => p.id === selectedId) ?? null
   const openDetail = detail && detail.id === selectedId ? detail : null
 
   return {
     list,
+    options,
     total,
     listError,
     requestedJobUnavailable: requestedId !== null && list !== null && !list.some((p) => p.id === requestedId),
