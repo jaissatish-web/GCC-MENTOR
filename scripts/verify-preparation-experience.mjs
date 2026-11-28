@@ -83,10 +83,20 @@ try{
  for(const [screen,expected] of [['letter','Saved maintenance letter.'],['qa','How do you plan maintenance?']]){
   await goto(screen)
   await page.waitForSelector(screen==='letter'?'[aria-label="Saved cover letters"]':'[aria-label="Saved interview Q&A"]')
+  const draftText = ' Unsaved draft to keep while switching jobs.'
+  if(screen==='letter'){
+   await page.$$eval('button',es=>es.find(e=>e.textContent==='Edit letter').click())
+   await page.type('[aria-label="Cover letter text (editable)"]',draftText)
+  }
   await page.evaluate(()=>{const url=new URL(location.href);url.searchParams.set('package','resume-b');history.pushState(null,'',url);dispatchEvent(new PopStateEvent('popstate'))})
   await page.waitForFunction(text=>document.body.innerText.includes(text),{timeout:4000},expected)
   await page.goBack()
   await page.waitForFunction(()=>document.querySelector('main select')?.value==='resume-a',{timeout:4000})
+  if(screen==='letter'){
+   await page.waitForSelector('[aria-label="Saved cover letters"]')
+   await page.$$eval('button',es=>es.find(e=>e.textContent==='Edit letter').click())
+   assert.ok(await page.$eval('[aria-label="Cover letter text (editable)"]',(el,text)=>el.value.includes(text),draftText),'The unsaved letter edit survives switching jobs and going back')
+  }
   await page.select('main select','resume-b')
   await page.waitForFunction(text=>document.body.innerText.includes(text),{timeout:4000},expected)
   await page.reload()

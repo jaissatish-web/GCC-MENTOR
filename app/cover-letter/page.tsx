@@ -3,7 +3,7 @@
 import { CreditUnlock } from '@/components/referrals/CreditUnlock'
 import { usePremiumRequest } from '@/lib/credits/usePremiumRequest'
 import { CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileResume'
-import { Suspense, useMemo, useState } from 'react'
+import { Suspense, useMemo, useState, type Dispatch, type SetStateAction } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { EnvelopeIcon } from '@heroicons/react/24/outline'
 import { PreparationJourney } from '@/components/package/PreparationJourney'
@@ -59,12 +59,20 @@ const TONE_OPTIONS: ReadonlyArray<{ value: CoverLetterTone; label: string; descr
   { value: 'explanatory', label: 'Explanatory', description: 'Walks through why the experience fits the role' },
 ]
 
+type LetterEdits = Record<string, string>
+
 function CoverLetterRoute() {
   const requestedId = useSearchParams().get('package')
-  return <CoverLetterScreen key={requestedId} requestedId={requestedId} />
+  // Keep unsaved text by letter while the selected job's screen remounts.
+  const [edits, setEdits] = useState<LetterEdits>({})
+  return <CoverLetterScreen key={requestedId} requestedId={requestedId} edits={edits} setEdits={setEdits} />
 }
 
-function CoverLetterScreen({ requestedId }: { requestedId: string | null }) {
+function CoverLetterScreen({ requestedId, edits, setEdits }: {
+  requestedId: string | null
+  edits: LetterEdits
+  setEdits: Dispatch<SetStateAction<LetterEdits>>
+}) {
   const router = useRouter()
   const picker = usePackagePicker({ requestedId, onlyWithResume: false })
   const { list, listError, selectedId, selectedSummary, detail, detailError, detailLoading } = picker
@@ -75,8 +83,6 @@ function CoverLetterScreen({ requestedId }: { requestedId: string | null }) {
   const premium = usePremiumRequest()
   const [genError, setGenError] = useState<string | null>(null)
 
-  // Local edits (edit-in-place textarea per letter) — never persisted.
-  const [edits, setEdits] = useState<Record<string, string>>({})
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [savingId, setSavingId] = useState<string | null>(null)
   const [savedId, setSavedId] = useState<string | null>(null)
