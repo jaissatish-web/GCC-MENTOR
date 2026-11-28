@@ -20,5 +20,9 @@ export async function confirmReferralProfile(form: FormData) {
       outcome = error || typeof data !== 'string' ? 'error' : data
     }
   }
-  redirect('/settings/referrals?' + new URLSearchParams({ qualification: outcome }).toString() + '#joining')
+  const embedded = form.get('fromSettings') === '1'
+  redirect((embedded ? '/settings?' : '/settings/referrals?') + new URLSearchParams({
+    ...(embedded ? { tab: 'package' } : {}),
+    qualification: outcome,
+  }).toString() + '#joining')
 }
