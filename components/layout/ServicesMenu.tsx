@@ -164,7 +164,7 @@ export function ServicesMenu({ placement = 'header', toolsOnly = false }: { plac
   }, [pathname])
 
   const itemFor = (href: string) => NAV_ITEMS.find((i) => i.href === href)
-  const snap = useCurrentStage()
+  const snap = useCurrentStage(open)
   const states = snap ? snap.states : null
   const bottom = placement === 'bottom'
   const toolHrefs = GROUPS.filter(group => ['cv', 'apply', 'professional'].includes(group.label)).flatMap(group => group.hrefs)

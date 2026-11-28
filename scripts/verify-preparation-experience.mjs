@@ -10,9 +10,10 @@ const letter={id:'letter-a',generated_at:'2026-10-15T09:00:00Z',target_job_title
 const question={id:'question-a',category:'technical',difficulty:'standard',question:'How do you verify a commissioning loop?',answer:'I review the procedure and verify the signal path.',why_asked:'To understand your method.',resume_basis:'Commissioning experience',follow_up:'How do you document the result?',tags:[]}
 const set={id:'set-a',generated_at:'2026-10-15T09:00:00Z',target_job_title:'Commissioning Engineer',target_company:'Example Employer',question_count:1,source:'optimized_resume',questions:[question]}
 const pkg={id:'resume-a',name:'Commissioning Engineer',target_job_title:'Commissioning Engineer',target_company:'Example Employer',target_country:'uae',tier:null,has_resume:true,is_paid:true,optimized_content:{summary:'Practical commissioning experience'},status:'saved',optimization_level:'high',mock_interview_runs:[],cover_letters:[letter,{...letter,id:'letter-b',generated_at:'2026-10-14T09:00:00Z'}],interview_questions:set,interview_question_sets:[set],skills_order:[],field_visibility_snapshot:{}}
+const other={...pkg,id:'resume-b',name:'Maintenance Engineer',target_job_title:'Maintenance Engineer',cover_letters:[{...letter,id:'letter-other',full_text:'Saved maintenance letter.'}],interview_questions:{...set,id:'set-other',questions:[{...question,question:'How do you plan maintenance?'}]},interview_question_sets:[]}
 writeFileSync(dir+'/entry.mjs',`import React from 'react';import {createRoot} from 'react-dom/client';import Password from ${JSON.stringify(root+'/app/auth/update-password/page.tsx')};import Cover from ${JSON.stringify(root+'/app/cover-letter/page.tsx')};import Qa from ${JSON.stringify(root+'/app/interview-qa/page.tsx')};import Generate from ${JSON.stringify(root+'/app/optimize/generate/[packageId]/page.tsx')};import {AuthForm} from ${JSON.stringify(root+'/components/auth/AuthForm.tsx')};import {DocumentOrbit} from ${JSON.stringify(root+'/components/landing-v3/DocumentOrbit.tsx')};import {VoiceInterview} from ${JSON.stringify(root+'/components/mock-interview/VoiceInterview.tsx')};const p=Promise.resolve({packageId:'resume-a'});const run={id:'run-a',input_mode:'voice',interviewer_id:'british-woman',questions:[{id:'question-a',focus:'Technical',question:'Explain how you verify a signal path and document the result during commissioning.'}]};const s=new URLSearchParams(location.search).get('screen');createRoot(document.getElementById('root')).render(React.createElement(React.Suspense,null,s==='password'?React.createElement(Password):s==='letter'?React.createElement(Cover):s==='qa'?React.createElement(Qa):s==='signup'?React.createElement(AuthForm,{mode:'signup',action:async()=>({})}):s==='orbit'?React.createElement(DocumentOrbit):s==='voice'?React.createElement('div',{style:{height:'90vh',display:'flex'}},React.createElement(VoiceInterview,{packageId:'resume-a',run,onUpdated:()=>{},room:true})):React.createElement(Generate,{params:p})));`)
 writeFileSync(dir+'/supabase.js',`export function createClient(){return{auth:{getUser:async()=>({data:{user:{id:'fictional-typography-user'}}})}}}`)
-writeFileSync(dir+'/navigation.js',`export function useSearchParams(){return new URLSearchParams(location.search)}export function useRouter(){return{replace:u=>{window.fixtureNavigation=u},push:u=>{window.fixtureNavigation=u}}}`)
+writeFileSync(dir+'/navigation.js',`import {useSyncExternalStore} from 'react';const subscribe=callback=>{window.addEventListener('popstate',callback);return()=>window.removeEventListener('popstate',callback)};export function useSearchParams(){return new URLSearchParams(useSyncExternalStore(subscribe,()=>location.search))}export function useRouter(){return{replace:u=>{window.fixtureNavigation=u;const target=new URL(u,location.href);if(target.searchParams.has('package')){const current=new URL(location.href);current.searchParams.set('package',target.searchParams.get('package'));history.replaceState(null,'',current);dispatchEvent(new PopStateEvent('popstate'))}},push:u=>{window.fixtureNavigation=u}}}`)
 writeFileSync(dir+'/link.js',`import React from 'react';export default function Link({prefetch,replace,scroll,...p}){return React.createElement('a',p)}`)
 writeFileSync(dir+'/image.js',`import React from 'react';export default function Image({fill,priority,sizes,...p}){return React.createElement('img',{...p,style:fill?{position:'absolute',height:'100%',width:'100%',inset:0,...p.style}:p.style})}`)
 writeFileSync(dir+'/loader.cjs',`module.exports=s=>require(${JSON.stringify(require.resolve('sucrase'))}).transform(s,{transforms:['typescript','jsx'],jsxRuntime:'automatic',production:true}).code`)
@@ -34,7 +35,8 @@ try{
   if(u.pathname==='/api/optimize'){if(JSON.parse(r.postData()).analyzeOnly)analysisRequest=r;else buildRequest=r;return}
   if(r.method()!=='GET')writes.push(u.pathname)
   if(u.pathname==='/api/packages/career-profile')return json({package:null,summary:null})
-  if(u.pathname==='/api/packages')return json({packages:[pkg],total:1,next_cursor:null})
+  if(u.pathname==='/api/packages')return json({packages:[pkg,other],total:2,next_cursor:null})
+  if(u.pathname==='/api/packages/resume-b')return json({package:other})
   if(u.pathname==='/api/packages/resume-a')return json({package:empty?{...pkg,cover_letters:[],interview_questions:null,interview_question_sets:[]}:pkg})
   if(u.pathname.endsWith('/voice'))return json({status:'recording',answers:[]})
   if(r.method()==='PATCH'&&u.pathname.endsWith('/cover-letter/letter-a'))return json({letter:{...letter,full_text:JSON.parse(r.postData()).fullText||JSON.parse(r.postData()).full_text,edited_at:'2026-10-18T04:00:00Z'}})
@@ -77,6 +79,18 @@ try{
   for(const size of await page.$$eval('input',es=>es.map(e=>getComputedStyle(e).fontSize)))assert.equal(size,'16px')
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`Password overflow at ${width}`)
   if(width===390)await page.screenshot({path:'artifacts/preparation-experience/password-390.png',fullPage:true})
+ }
+ for(const [screen,expected] of [['letter','Saved maintenance letter.'],['qa','How do you plan maintenance?']]){
+  await goto(screen)
+  await page.waitForSelector(screen==='letter'?'[aria-label="Saved cover letters"]':'[aria-label="Saved interview Q&A"]')
+  await page.evaluate(()=>{const url=new URL(location.href);url.searchParams.set('package','resume-b');history.pushState(null,'',url);dispatchEvent(new PopStateEvent('popstate'))})
+  await page.waitForFunction(text=>document.body.innerText.includes(text),{timeout:4000},expected)
+  await page.goBack()
+  await page.waitForFunction(()=>document.querySelector('main select')?.value==='resume-a',{timeout:4000})
+  await page.select('main select','resume-b')
+  await page.waitForFunction(text=>document.body.innerText.includes(text),{timeout:4000},expected)
+  await page.reload()
+  await page.waitForFunction(text=>document.body.innerText.includes(text),{timeout:4000},expected)
  }
  empty=true;await goto('letter');await page.waitForSelector('main > details');assert.equal(await page.$eval('main > details',e=>e.open),true,'First-time setup opens');empty=false
  await page.setViewport({width:390,height:844});analysisRequest=null;buildRequest=null

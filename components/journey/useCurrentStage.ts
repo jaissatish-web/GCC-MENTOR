@@ -20,11 +20,12 @@ import { stageSnapshot, type StageSnapshot } from './stages'
 
 let cache: StageSnapshot | null = null
 
-export function useCurrentStage(): StageSnapshot | null {
+export function useCurrentStage(enabled = true): StageSnapshot | null {
   const pathname = usePathname()
   const [snap, setSnap] = useState<StageSnapshot | null>(cache)
 
   useEffect(() => {
+    if (!enabled) return
     let alive = true
     Promise.all([
       fetch('/api/profile', { cache: 'no-store' }).then((r) => (r.status === 404 ? null : r.ok ? r.json() : Promise.reject())),
@@ -43,7 +44,7 @@ export function useCurrentStage(): StageSnapshot | null {
     return () => {
       alive = false
     }
-  }, [pathname])
+  }, [enabled, pathname])
 
   return snap
 }

@@ -16,10 +16,8 @@ const instrumentSerif = Instrument_Serif({
   weight: '400',
   variable: '--font-instrument-serif',
   display: 'swap',
-  // Preloaded (2026-11-04): the Gulf premium pass renders display headings
-  // (hero, section titles) in this serif, so every phone needs the face on
-  // first paint. One weight-400 file — small payload, big identity return.
-  preload: true,
+  // The homepage uses Inter. Load this face on demand on screens that use it.
+  preload: false,
 })
 
 const plexMono = IBM_Plex_Mono({
@@ -27,6 +25,7 @@ const plexMono = IBM_Plex_Mono({
   weight: ['400', '500'],
   variable: '--font-plex-mono',
   display: 'swap',
+  preload: false,
 })
 
 /**
