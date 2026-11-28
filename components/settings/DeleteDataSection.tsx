@@ -33,8 +33,8 @@ export function DeleteDataSection() {
   }
 
   return (
-    <Card tone="light" className="border border-alert/40 p-6">
-      <h2 className="text-lg font-bold text-ink">Delete my data</h2>
+    <Card tone="light" className="border border-alert/40 p-3 sm:p-5">
+      <h2 className="text-base font-semibold text-ink">Delete my data</h2>
       <p className="mt-2 text-sm text-ink-soft type-helper">
         Permanently deletes your Career Profile, work history, skills, certifications, education, saved resume import comparisons,
         and every saved package in your Library. This is a real deletion, not a hide — it cannot
@@ -72,7 +72,7 @@ export function DeleteDataSection() {
             </p>
           ) : null}
 
-          <div className="flex gap-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
             <Button
               type="button"
               variant="secondary"
@@ -89,7 +89,7 @@ export function DeleteDataSection() {
               type="button"
               onClick={handleDelete}
               disabled={!canConfirm || isPending}
-              className="border border-alert bg-alert text-ink hover:bg-alert/90 disabled:cursor-not-allowed disabled:opacity-50"
+              className="border border-alert bg-[#b91c1c] text-white hover:bg-[#991b1b] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isPending ? 'Deleting…' : 'Permanently delete everything'}
             </Button>

@@ -22,6 +22,7 @@ let linkRequests = 0
 let qualificationRequests = 0
 let program = 'active'
 let hasProfile = true
+let walletUnavailable = false
 let incoming = 'incomplete_profile'
 const recordedAt = '2026-11-25T12:00:00Z'
 const profile = { id: accountId, full_name: 'Synthetic Candidate', updated_at: recordedAt,
@@ -39,8 +40,8 @@ const supabase = createServer(async (req, res) => {
   const { pathname: path, searchParams } = new URL(req.url, 'http://localhost')
   databasePaths.push(path)
   const single = req.headers.accept?.includes('vnd.pgrst.object')
-  const reply = (value, status = 200) => {
-    res.writeHead(status, { 'content-type': 'application/json' })
+  const reply = (value, status = 200, headers = {}) => {
+    res.writeHead(status, { 'content-type': 'application/json', ...headers })
     res.end(JSON.stringify(value))
   }
   if (path === '/auth/v1/user') {
@@ -67,7 +68,7 @@ const supabase = createServer(async (req, res) => {
     return reply('qualified')
   }
   if (path.endsWith('/referral_summary')) return reply({ visits: 20, unique_browsers_90d: 17, registrations: 16, qualified: 1, under_review: 15 })
-  if (path.endsWith('/wallet_source_summary')) return reply([
+  if (path.endsWith('/wallet_source_summary')) return walletUnavailable ? reply({ message: 'Fixture unavailable' }, 500) : reply([
     { source: 'referral', available: 9, reserved: 2, earned: 15, used: 4 },
     { source: 'admin_grant', available: 3, reserved: 0, earned: 3, used: 0 },
   ])
@@ -82,6 +83,9 @@ const supabase = createServer(async (req, res) => {
     const offset = Number(searchParams.get('offset'))
     return reply(ledger.slice(offset, offset + Number(searchParams.get('limit'))))
   }
+  if (path.endsWith('/packages') && searchParams.has('is_paid')) return reply([
+    { id: accountId, target_job_title: 'Fixture Engineer', created_at: recordedAt },
+  ], 200, { 'content-range': '0-0/1' })
   if (path.endsWith('/site_content')) return reply(single ? null : [])
   if (path.endsWith('/career_profiles')) return reply(single ? hasProfile ? profile : null : hasProfile ? [profile] : [])
   return reply([])
@@ -159,14 +163,16 @@ try {
     assert.match(await page.$eval('#ledger', node => node.textContent), /Credits addedReferral\+3 credits.*Credits usedReferral−3 credits/)
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'horizontal overflow at ' + width)
     if (!generated) {
-      const button = await page.waitForSelector('button::-p-text(Generate referral link)')
-      await button.click()
+      await page.locator('::-p-aria([name="Generate referral link"][role="button"])').click()
     }
     await page.waitForSelector('input[type="url"]')
     assert.match(await page.$eval('input[type="url"]', node => node.value), new RegExp(code + '$'))
     assert.equal(await page.$$('ul[aria-label="Share invite via"] a svg').then(icons => icons.length), 6)
     assert.equal(await page.$eval('#invite textarea', node => node.closest('details').open), false, 'Editor starts closed')
-    assert.ok(await page.$eval('#invite button[aria-label="Copy referral link"]', node => node.getBoundingClientRect().height >= 44))
+    await page.waitForFunction(() => {
+      const copy = document.querySelector('#invite button[aria-label="Copy referral link"]')
+      return copy && copy.getBoundingClientRect().height >= 44
+    })
     if (screenshots && [390, 1440].includes(width)) await page.screenshot({ path: join(screenshots, `referrals-${width}.png`), fullPage: true })
     if (width === 390 || width === 1440) {
       assert.equal(await page.$('.studio-sidebar a[href="/settings/referrals"]'), null)
@@ -201,9 +207,75 @@ try {
   await page.waitForFunction(() => new URLSearchParams(location.search).get('ledger') === '2' && document.querySelectorAll('#ledger li').length === 1)
   assert.equal(new URL(page.url()).searchParams.get('activity'), '2')
 
-  for (const [path, saved] of [['/settings', true], ['/profile', true], ['/profile', false]]) {
+  for (const width of [320, 360, 390, 430, 768, 1024, 1440]) {
+    await page.setViewport({ width, height: 900, isMobile: width < 768, hasTouch: width < 768 })
+    await page.emulateMediaFeatures([{ name: 'prefers-reduced-motion', value: 'reduce' }])
+    await page.goto(origin + '/settings', { waitUntil: 'domcontentloaded' })
+    const expanded = () => page.$$eval('main h2 button[aria-expanded="true"]', nodes => nodes.map(node => node.id))
+    await page.waitForFunction(desktop => {
+      const count = document.querySelectorAll('main h2 button[aria-expanded="true"]').length
+      return document.querySelectorAll('main button[aria-controls^="settings-panel-"]').length === 9 && count === Number(desktop)
+    }, {}, width >= 768)
+    assert.deepEqual(await expanded(), width >= 768 ? ['settings-trigger-account'] : [])
+    await page.evaluate(() => document.fonts.ready)
+    if (screenshots && [390, 1440].includes(width)) {
+      await page.screenshot({ path: join(screenshots, `settings-${width}.png`) })
+    }
+    const assertFits = () => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)
+    assert.ok(await assertFits(), 'Settings overflow at ' + width)
+    const summaries = await page.$$('main button[aria-controls^="settings-panel-"]:not([aria-expanded])')
+    assert.equal(summaries.length, 4)
+    assert.deepEqual(await Promise.all(summaries.map(button => button.$eval('strong', node => node.textContent))), [
+      '25 Nov 2026', '12 credits', '15 credits', '1 package',
+    ])
+    assert.ok(await page.$$eval('main button[aria-controls^="settings-panel-"]', nodes =>
+      nodes.every(node => node.getBoundingClientRect().height >= 44)))
+    await summaries[0].click()
+    await page.waitForSelector('#settings-panel-account a[href="/profile?view=details"]', { visible: true })
+    await summaries[1].click()
+    await page.waitForSelector('#ledger', { visible: true })
+    assert.deepEqual(await expanded(), ['settings-trigger-credits'])
+    assert.equal(await page.$eval('#invite', node => node.getClientRects().length), 0)
+    await summaries[2].click()
+    await page.waitForSelector('#invite', { visible: true })
+    assert.match(await page.$eval('#activity', node => node.textContent), /Pending referrals15/)
+    await page.click('#invite button[aria-label="Copy referral link"]')
+    await page.waitForFunction(expected => window.lastCopiedInvite?.endsWith(expected), {}, code)
+    assert.ok(await assertFits(), 'Expanded wallet overflow at ' + width)
+    if (screenshots && [390, 1440].includes(width)) {
+      await page.screenshot({ path: join(screenshots, `settings-wallet-${width}.png`), fullPage: true })
+    }
+    await summaries[3].click()
+    await page.waitForSelector('#settings-panel-payments a[href^="/package/"]', { visible: true })
+    await page.focus('#settings-trigger-security')
+    await page.keyboard.press('Enter')
+    await page.waitForSelector('#settings-panel-security a[href="/forgot-password"]', { visible: true })
+    assert.match(await page.$eval('#settings-panel-security', node => node.textContent), /referral-e2e@example.test.*Confirmed/)
+    await page.click('#settings-trigger-privacy')
+    await page.click('#settings-panel-privacy button::-p-text(Delete my data)')
+    await page.waitForSelector('#settings-panel-privacy input')
+    assert.equal(await page.$eval('#settings-panel-privacy button[disabled]', node => node.disabled), true)
+    assert.ok(await assertFits(), 'Deletion confirmation overflow at ' + width)
+    console.log(`PASS unified Settings at ${width}px`)
+  }
+
+  await page.click('#settings-trigger-credits')
+  await page.click('#settings-panel-credits button::-p-text(Credit History)')
+  await page.click('nav[aria-label="Credit transaction pages"] a')
+  await page.waitForFunction(() => location.pathname === '/settings' && new URLSearchParams(location.search).get('ledger') === '2' &&
+    document.querySelectorAll('#ledger li').length === 1 && document.querySelector('#ledger').getClientRects().length > 0)
+  await page.click('nav[aria-label="Credit transaction pages"] a')
+  await page.waitForFunction(() => document.querySelectorAll('#ledger li').length === 15)
+  await page.goto(origin + '/payments', { waitUntil: 'domcontentloaded' })
+  await page.waitForFunction(() => document.querySelector('#settings-trigger-payments')?.getAttribute('aria-expanded') === 'true')
+  walletUnavailable = true
+  await page.goto(origin + '/settings?tab=package', { waitUntil: 'domcontentloaded' })
+  await page.waitForFunction(() => document.querySelector('#settings-panel-credits [role="alert"]')?.textContent.includes('temporarily unavailable'))
+  walletUnavailable = false
+
+  for (const saved of [true, false]) {
     hasProfile = saved
-    await page.goto(origin + path, { waitUntil: 'domcontentloaded' })
+    await page.goto(origin + '/profile', { waitUntil: 'domcontentloaded' })
     const entry = await page.waitForSelector('main a[href="/settings/referrals"]')
     await entry.click()
     await page.waitForSelector('#wallet-heading')

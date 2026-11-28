@@ -1,47 +1,31 @@
-import { ReferralWorkspaceLink } from '@/components/referrals/ReferralWorkspaceLink'
-import { CTA, NAMES } from '@/lib/serviceLabels'
+import Image from 'next/image'
 import Link from 'next/link'
-import { createServiceRoleClient } from '@/lib/supabase/serviceAdmin'
-import { formatInr, getPrice } from '@/lib/pricing'
-import { createClient } from '@/lib/supabase/server'
-import { listServiceCreditsForUser } from '@/lib/admin/servicePackages'
-import { DeleteDataSection } from '@/components/settings/DeleteDataSection'
+import { UserRound } from 'lucide-react'
+import { redirect } from 'next/navigation'
 import { AppShell } from '@/components/layout/AppShell'
+import { pageNumber, ReferralDashboard } from '@/components/referrals/ReferralDashboard'
+import { DeleteDataSection } from '@/components/settings/DeleteDataSection'
+import { SettingsWorkspace } from '@/components/settings/SettingsWorkspace'
+import { buttonVariants } from '@/components/ui/Button'
 import { NotLiveText } from '@/components/ui/NotLive'
-import { PageHeader, PageContainer, SectionCard } from '@/components/layout/PageHeader'
-import { cn } from '@/lib/utils'
+import { listServiceCreditsForUser } from '@/lib/admin/servicePackages'
+import { formatInr, getPrice } from '@/lib/pricing'
+import { loadReferralDashboard } from '@/lib/referrals/dashboard'
+import { CTA, NAMES } from '@/lib/serviceLabels'
+import { signedPhotoUrl } from '@/lib/storage/profilePhoto'
+import { createClient } from '@/lib/supabase/server'
+import { createServiceRoleClient } from '@/lib/supabase/serviceAdmin'
 
-/**
- * Settings — Account · Email · Current Package · Payments · Delete Data.
- *
- * Previously this page contained only the data-deletion block (TASK-037).
- * The four sections above it are new *presentation* of data that already
- * existed; none of them introduces a new table, column or write path.
- *
- * Tabs are plain links driven by ?tab=, not client state, so the page stays
- * a Server Component, every section is linkable/bookmarkable, and it works
- * with JavaScript disabled. `/payments` redirects into ?tab=payments.
- *
- * SERVICE-ROLE NOTE: user_service_credits is service-role-only by design
- * (migration 026 grants no policy to `authenticated`), so the credit read
- * below necessarily uses the admin helper. It is called with `user.id` taken
- * from the verified server session and never from a query param, so a caller
- * cannot address another user's credits.
- */
+const legacySections = {
+  account: 'account',
+  email: 'security',
+  package: 'credits',
+  payments: 'payments',
+  delete: 'privacy',
+} as const
 
-const TABS = [
-  { id: 'account', label: 'Account' },
-  { id: 'email', label: 'Email' },
-  // "Current Package" named a thing the product no longer has — what this tab
-  // shows is service credits. The id stays, so old bookmarks still land here.
-  { id: 'package', label: 'Credits' },
-  { id: 'payments', label: 'Payments' },
-  { id: 'delete', label: 'Delete my data' },
-] as const
+const number = new Intl.NumberFormat('en-GB')
 
-type TabId = (typeof TABS)[number]['id']
-
-/** Friendly names for the service keys that exist today; unknown keys degrade to a readable form. */
 const SERVICE_LABELS: Record<string, string> = {
   cover_letter: NAMES.coverLetter,
   resume_optimization: CTA.addTargetJob,
@@ -77,161 +61,87 @@ function EmptyState({ children }: { children: React.ReactNode }) {
   )
 }
 
-export default async function SettingsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ tab?: string }>
+async function loadIndicativePrice() {
+  try {
+    const { data } = await createServiceRoleClient({ fresh: true }).from('credit_wallet_settings')
+      .select('pricing_visible').eq('singleton', true).maybeSingle()
+    return data?.pricing_visible ? await getPrice('resume_optimization') : null
+  } catch {
+    return null
+  }
+}
+
+export default async function SettingsPage({ searchParams }: {
+  searchParams: Promise<{ tab?: string; activity?: string; ledger?: string; wallet?: string; qualification?: string }>
 }) {
-  const params = await searchParams
-  const requested = params?.tab
-  const tab: TabId = (TABS.find((t) => t.id === requested)?.id ?? 'account') as TabId
-
   const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
+  const params = await searchParams
+  if (!user) redirect('/login?redirectTo=%2Fsettings')
 
-  // middleware already guarantees a session on /settings; this is a type guard.
-  if (!user) {
-    return (
-      <AppShell>
-        <PageContainer>
-          <PageHeader title="Settings" />
-          <div className="mt-6">
-            <EmptyState>Your session has expired. Please log in again.</EmptyState>
+  const initialSection = params.tab && Object.hasOwn(legacySections, params.tab)
+    ? legacySections[params.tab as keyof typeof legacySections]
+    : undefined
+  const initialView = params.wallet === 'history' ? 'history' : 'referrals'
+  const activityPage = pageNumber(params.activity)
+  const ledgerPage = pageNumber(params.ledger)
+  const [profileResult, serviceCredits, packages, wallet, indicativePrice] = await Promise.all([
+    supabase.from('career_profiles').select('full_name, updated_at, photo_url').eq('user_id', user.id).maybeSingle(),
+    listServiceCreditsForUser(user.id, 50).catch(() => null),
+    supabase.from('packages')
+      .select('id, target_job_title, created_at', { count: 'exact' })
+      .eq('user_id', user.id).eq('is_paid', true).order('created_at', { ascending: false }).limit(25),
+    loadReferralDashboard(user.id, activityPage, ledgerPage).catch(() => null),
+    loadIndicativePrice(),
+  ])
+
+  const profile = profileResult.data
+  const photo = await signedPhotoUrl(profile?.photo_url)
+  const name: string | undefined = profile?.full_name?.trim()
+  const initials = name?.split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase()
+  const memberSince = formatDate(user.created_at)
+  const availableByService = (serviceCredits ?? []).filter(credit => !credit.consumedAt)
+    .reduce<Record<string, number>>((totals, credit) => {
+      totals[credit.serviceKey] = (totals[credit.serviceKey] ?? 0) + 1
+      return totals
+    }, {})
+  const used = (serviceCredits ?? []).filter(credit => credit.consumedAt)
+  const unlocked = packages.data ?? []
+
+  return <AppShell>
+    <SettingsWorkspace key={JSON.stringify(params)} initialSection={initialSection} initialView={initialView}
+      memberSince={memberSince} balance={wallet ? number.format(wallet.totals.available) + ' credits' : 'Unavailable'}
+      earned={wallet ? number.format(wallet.referralEarned) + ' credits' : 'Unavailable'}
+      purchases={packages.error || packages.count === null ? 'Unavailable' : number.format(packages.count) + (packages.count === 1 ? ' package' : ' packages')}>
+      {{
+        account: <div className="flex flex-wrap items-center gap-4">
+          <div className="flex min-w-0 flex-1 items-center gap-4">
+            <div className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-full bg-[#087f76] text-xl font-semibold text-white sm:size-16">
+              {photo ? <Image src={photo} alt="" width={64} height={64} unoptimized className="h-full w-full object-cover" />
+                : initials || <UserRound size={26} aria-hidden="true" />}
+            </div>
+            <div className="min-w-0 space-y-1">
+              <p className="break-words text-base font-semibold">{name || (profileResult.error ? 'Profile unavailable' : 'Name not set')}</p>
+              <p className="w-fit rounded-md bg-[#edf3ff] px-2 py-1 text-xs">Member since <strong>{memberSince}</strong></p>
+              <p className="text-xs text-ink-muted">Career Profile last updated {formatDate(profile?.updated_at ?? null)}</p>
+            </div>
           </div>
-        </PageContainer>
-      </AppShell>
-    )
-  }
-
-  const { data: profile } = await supabase
-    .from('career_profiles')
-    .select('full_name, updated_at')
-    .eq('user_id', user.id)
-    .maybeSingle()
-
-  const credits = await listServiceCreditsForUser(user.id, 50)
-  const available = credits.filter((c) => !c.consumedAt)
-  const used = credits.filter((c) => c.consumedAt)
-
-  // Group available credits by service for the "what you currently hold" view.
-  const availableByService = available.reduce<Record<string, number>>((acc, c) => {
-    acc[c.serviceKey] = (acc[c.serviceKey] ?? 0) + 1
-    return acc
-  }, {})
-
-  const { data: paidPackages } = await supabase
-    .from('packages')
-    .select('id, target_job_title, target_country, created_at, is_paid')
-    .eq('user_id', user.id)
-    .eq('is_paid', true)
-    .order('created_at', { ascending: false })
-    .limit(25)
-
-  const unlocked = paidPackages ?? []
-  let indicativePrice: Awaited<ReturnType<typeof getPrice>> | null = null
-  if (tab === 'payments') {
-    try {
-      const { data } = await createServiceRoleClient({ fresh: true }).from('credit_wallet_settings')
-        .select('pricing_visible').eq('singleton', true).maybeSingle()
-      if (data?.pricing_visible) indicativePrice = await getPrice('resume_optimization')
-    } catch {
-      // Historical payment information remains available during a partial rollout.
-    }
-  }
-
-  return (
-    <AppShell>
-      <PageContainer>
-        <PageHeader
-          title="Settings"
-          description="Account, services and data controls."
-        />
-
-        <div className="mt-4 max-w-lg"><ReferralWorkspaceLink /></div>
-
-        {/* Tabs — real links, so each section is bookmarkable and keyboard-navigable */}
-        <nav aria-label="Settings sections" className="mt-6 border-b border-line">
-          {/* One row that scrolls sideways on a phone. It used to wrap, which
-              put "Payments" and "Delete data" on a second line under the first
-              three and left the underline of the active tab floating between
-              the rows. */}
-          <ul className="-mb-px flex gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [&_a]:whitespace-nowrap [&_li]:shrink-0">
-            {TABS.map((t) => {
-              const active = t.id === tab
-              return (
-                <li key={t.id}>
-                  <Link
-                    href={`/settings?tab=${t.id}`}
-                    aria-current={active ? 'page' : undefined}
-                    className={cn(
-                      'flex min-h-11 items-center rounded-t-radius-md px-3.5 type-helper font-redesign-sans transition-colors',
-                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-canvas',
-                      active
-                        ? 'border-b-2 border-teal font-semibold text-teal'
-                        : 'border-b-2 border-transparent font-medium text-ink-muted hover:text-ink'
-                    )}
-                  >
-                    {t.label}
-                  </Link>
-                </li>
-              )
-            })}
-          </ul>
-        </nav>
-
-        <div className="mt-6 flex flex-col gap-5">
-          {tab === 'account' && (
-            <SectionCard
-              title="Account"
-              helper="Update your name in Career Profile."
-              actions={
-                <Link
-                  href="/profile?view=details"
-                  className="flex min-h-11 items-center rounded-ctl border border-line-strong px-4 type-helper font-semibold text-ink transition-colors hover:bg-canvas focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
-                >
-                  Edit Career Profile
-                </Link>
-              }
-            >
-              <div className="flex flex-col">
-                <Row label="Name" value={profile?.full_name?.trim() || 'Not set yet'} />
-                <Row label="Member since" value={formatDate(user.created_at)} />
-                <Row label="Profile last updated" value={formatDate(profile?.updated_at ?? null)} />
-              </div>
-            </SectionCard>
-          )}
-
-          {tab === 'email' && (
-            <SectionCard
-              title="Email"
-              helper="Your sign-in and account email."
-            >
-              <div className="flex flex-col">
-                <Row label="Email address" value={user.email ?? '—'} />
-                <Row
-                  label="Status"
-                  value={
-                    user.email_confirmed_at ? (
-                      <span className="text-teal">Confirmed</span>
-                    ) : (
-                      <span className="font-semibold text-gold-ink">Not confirmed</span>
-                    )
-                  }
-                />
-              </div>
-              <p className="mt-4 type-helper leading-relaxed text-ink-muted">
-                You cannot change your sign-in email here yet. Deleting your data does not delete your login.
-              </p>
-            </SectionCard>
-          )}
-
-          {tab === 'package' && (
-            <SectionCard
-              title="Current Package"
-              helper="Your available service credits. No subscription."
-            >
+          <Link href="/profile?view=details" className={buttonVariants({ variant: 'primary', className: 'w-full sm:w-auto' })}>
+            <UserRound size={17} aria-hidden="true" /> Edit Career Profile
+          </Link>
+        </div>,
+        security: <div>
+          <Row label="Registered email" value={user.email ?? '—'} />
+          <Row label="Email verification" value={user.email_confirmed_at ? <span className="text-teal">Confirmed</span> : 'Pending verification'} />
+          <p className="my-3 text-sm text-ink-muted">Your registered email is used to sign in. Email changes are currently unavailable.</p>
+          <Link href="/forgot-password" className={buttonVariants({ variant: 'secondary', className: 'w-full sm:w-auto' })}>Reset password</Link>
+        </div>,
+        credits: <div className="grid gap-4">
+          <ReferralDashboard data={wallet} activityPage={activityPage} ledgerPage={ledgerPage} qualification={params.qualification} embedded />
+          <details id="service-allowances" className="rounded-xl border border-line px-4">
+            <summary className="flex min-h-11 cursor-pointer items-center font-semibold text-teal">Service allowances</summary>
+            <div className="pb-4">
+              {serviceCredits === null ? <p role="alert">Service allowances are temporarily unavailable.</p> : <>
               {Object.keys(availableByService).length > 0 ? (
                 <ul className="flex flex-col gap-2.5">
                   {Object.entries(availableByService).map(([key, count]) => (
@@ -250,7 +160,7 @@ export default async function SettingsPage({
                 </ul>
               ) : (
                 <EmptyState>
-                  No service-specific allowances yet. See Referral & Credits for your wallet and referral rewards.
+                  No service-specific allowances yet.
                 </EmptyState>
               )}
 
@@ -274,15 +184,14 @@ export default async function SettingsPage({
                   </ul>
                 </div>
               ) : null}
-            </SectionCard>
-          )}
-
-          {tab === 'payments' && (
-            <SectionCard
-              title="Payments"
-              helper="What you have unlocked so far."
-            >
-              {unlocked.length > 0 ? (
+              </>}
+            </div>
+          </details>
+        </div>,
+        payments: <div>
+              {packages.error ? (
+                <p role="alert">Purchase information is temporarily unavailable. Reload to try again.</p>
+              ) : unlocked.length > 0 ? (
                 <ul className="flex flex-col gap-2.5">
                   {unlocked.map((p) => (
                     <li
@@ -299,7 +208,6 @@ export default async function SettingsPage({
                       </span>
                       <Link
                         href={`/package/${p.id as string}`}
-                        // 44px tall — it was a 20px line of text.
                         className="inline-flex min-h-11 shrink-0 items-center rounded-ctl px-2 type-helper font-semibold text-teal hover:bg-teal-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal"
                       >
                         Open
@@ -308,19 +216,16 @@ export default async function SettingsPage({
                   ))}
                 </ul>
               ) : (
-                <EmptyState>You have not unlocked any paid resumes yet.</EmptyState>
+                <EmptyState>No unlocked resumes yet.</EmptyState>
               )}
 
               {indicativePrice && <p className="mt-5 type-helper text-ink-soft">Indicative future price · {indicativePrice.label} · {formatInr(indicativePrice.amountInr)}</p>}
               <p className="mt-5 rounded-ctl border border-alert/30 bg-alert-soft/40 px-4 py-3 type-helper leading-relaxed text-ink-soft">
-                <NotLiveText>Online payments are disabled</NotLiveText>. Visit Referral &amp; Credits to see current ways to unlock premium services.
+                <NotLiveText>Online payments are disabled</NotLiveText>. See Credits &amp; Rewards for current ways to unlock premium services.
               </p>
-            </SectionCard>
-          )}
-
-          {tab === 'delete' && <DeleteDataSection />}
-        </div>
-      </PageContainer>
-    </AppShell>
-  )
+        </div>,
+        privacy: <DeleteDataSection />,
+      }}
+    </SettingsWorkspace>
+  </AppShell>
 }
