@@ -7,7 +7,7 @@ import {join} from 'node:path'
 import {tmpdir} from 'node:os'
 import puppeteer from 'puppeteer-core'
 const root=process.cwd(),require=createRequire(import.meta.url),dir=mkdtempSync(join(tmpdir(),'optimizer-setup-'))
-let server,browser,submitted,failCheck=false
+let server,browser,submitted,failCheck=false,profileFailure=0
 const errors=[]
 const pkg=JSON.parse(readFileSync(root+'/scripts/fixtures/studioFixture.json','utf8')).pkg
 const owner=pkg.document_snapshot.experience[0].entry.id
@@ -18,8 +18,8 @@ pkg.document_snapshot.skills.push({id:'resume-skill-1',profile_id:pkg.profile_id
 pkg.match_report.resume_only_skills=[{id:'resume-skill-1',term:'SAP PM'}]
 let savedPreview=null
 try {
- writeFileSync(dir+'/entry.jsx',`import React from'react';import{createRoot}from'react-dom/client';import Setup from${JSON.stringify(root+'/app/optimize/setup/page.tsx')};import Preview from${JSON.stringify(root+'/app/optimize/preview/[packageId]/page.tsx')};const params=Promise.resolve({packageId:'preview-fixture'});createRoot(document.getElementById('root')).render(location.pathname.includes('/preview/')?<React.Suspense><Preview params={params}/></React.Suspense>:<Setup/>);`)
- writeFileSync(dir+'/navigation.js',`const router={push:u=>history.pushState(null,'',u),replace:u=>history.replaceState(null,'',u)};export function useRouter(){return router}`)
+ writeFileSync(dir+'/entry.jsx',`import React from'react';import{createRoot}from'react-dom/client';import Setup from${JSON.stringify(root+'/app/optimize/setup/page.tsx')};import Target from${JSON.stringify(root+'/app/optimize/target/page.tsx')};import Preview from${JSON.stringify(root+'/app/optimize/preview/[packageId]/page.tsx')};const params=Promise.resolve({packageId:'preview-fixture'});createRoot(document.getElementById('root')).render(location.pathname.includes('/preview/')?<React.Suspense><Preview params={params}/></React.Suspense>:location.pathname.endsWith('/target')?<Target/>:<Setup/>);`)
+ writeFileSync(dir+'/navigation.js',`export function useSearchParams(){return new URLSearchParams(location.search)};const router={push:u=>history.pushState(null,'',u),replace:u=>history.replaceState(null,'',u)};export function useRouter(){return router}`)
  writeFileSync(dir+'/link.js',`import React from'react';export default function Link({prefetch,...props}){return React.createElement('a',props)}`)
  writeFileSync(dir+'/loader.cjs',`module.exports=s=>require(${JSON.stringify(require.resolve('sucrase'))}).transform(s,{transforms:['typescript','jsx'],jsxRuntime:'automatic',production:true}).code`)
  const webpack=require('next/dist/compiled/webpack/webpack');webpack.init()
@@ -30,7 +30,7 @@ try {
  const p=new URL(req.url,'http://fixture').pathname
  const send=(data,status=200)=>{res.writeHead(status,{'Content-Type':'application/json'});res.end(JSON.stringify(data))}
  if(p==='/api/packages/preview-fixture'){if(req.method==='PATCH'){let raw='';for await(const c of req)raw+=c;savedPreview=JSON.parse(raw);return send({success:true})}return send({package:pkg})}
- if(p==='/api/profile')return send({id:'profile-1',work_experience:[{id:'role-1',company:'Fictional Energy',role:'Engineer',highlights:['Maintained controls']}]})
+ if(p==='/api/profile')return profileFailure?send({error:'Unavailable'},profileFailure):send({id:'profile-1',work_experience:[{id:'role-1',company:'Fictional Energy',role:'Engineer',highlights:['Maintained controls']}]})
  if(p==='/api/optimize/check')return failCheck?send({error:'Failed'},503):send({check:{mode:'job_description',fieldMatch:'same',candidateField:'Instrumentation',jobField:'Instrumentation',before:55,expected:{easy:65,moderate:80,high:90},recommendedLevel:'moderate',askCertifications:[],askSkills:[],resumeSkills:[{id:'skill-1',term:'SAP PM',kind:'tool',importance:'must'},{id:'skill-2',term:'AutoCAD',kind:'tool',importance:'nice'}],dutySuggestions:[{id:'duty-1',term:'handover documentation',block:'role-1',quote:'Maintained controls',importance:'must',levels:['moderate','high']},{id:'duty-2',term:'team coordination',block:'role-1',quote:'Maintained controls',importance:'nice',levels:['high']}]},consented:true})
  if(p==='/api/optimize'){let raw='';for await(const c of req)raw+=c;submitted=JSON.parse(raw);return send({success:true,packageId:'fixture-package'})}
  if(p==='/fixture.js'){res.setHeader('Content-Type','text/javascript');return res.end(readFileSync(dir+'/fixture.js'))}
@@ -39,8 +39,24 @@ try {
  })
  await new Promise(r=>server.listen(0,'127.0.0.1',r))
  const chrome=process.env.CHROME_PATH||await (await import('@sparticuz/chromium')).default.executablePath()
- browser=await puppeteer.launch({executablePath:chrome,headless:true,pipe:true,args:(await import('@sparticuz/chromium')).default.args})
+ browser=await puppeteer.launch({executablePath:chrome,headless:true,pipe:true,args:['--no-sandbox','--disable-dev-shm-usage','--disable-gpu','--no-zygote','--single-process']})
  const page=await browser.newPage();page.on('pageerror',e=>{errors.push(e.message);console.error('Fixture page error:',e.message)})
+ profileFailure=503
+ await page.setViewport({width:390,height:950})
+ await page.goto(`http://127.0.0.1:${server.address().port}/optimize/target`)
+ await page.waitForFunction(()=>document.body.innerText.includes('Could not load your profile defaults.'))
+ assert.equal(await page.$eval('#f_target_job_title',e=>e.value),'Instrument Engineer','Returning to the target step must recover the draft when profile defaults are unavailable')
+ assert.equal(await page.$eval('#f_job_description',e=>e.value),'Control maintenance and handover documentation')
+ assert.equal(await page.$eval('#f_job_description',e=>e.labels.length),1)
+ assert.match(await page.$eval('#f_job_description',e=>document.getElementById(e.getAttribute('aria-describedby'))?.textContent ?? ''),/the score is an estimate/)
+ for (const status of [401,403]) {
+   profileFailure=status
+   await page.reload()
+   await page.waitForFunction(()=>document.body.innerText.includes('Could not load your profile defaults.'))
+   assert.equal(await page.$eval('#f_target_job_title',e=>e.value),'')
+   assert.equal(await page.$eval('#f_job_description',e=>e.value),'')
+ }
+ profileFailure=0
  const load=async()=>{await page.goto(`http://127.0.0.1:${server.address().port}/optimize/setup`);await page.waitForFunction(()=>document.querySelector('[role="radio"]:not(:disabled)'))}
  const clickText=async(selector,text)=>page.evaluate((selector,text)=>{const e=[...document.querySelectorAll(selector)].find(e=>e.textContent.includes(text));if(!e)throw Error('Missing '+text);e.click()},selector,text)
  for(const width of [390,1440]){
