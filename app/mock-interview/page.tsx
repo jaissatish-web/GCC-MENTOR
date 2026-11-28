@@ -87,7 +87,7 @@ function writeDraft(key: string, value: string): void {
   }
 }
 
-unction latestRun(pkg: Package | null): MockInterviewRun | null {
+function latestRun(pkg: Package | null): MockInterviewRun | null {
   const runs = pkg?.mock_interview_runs ?? []
   return runs.slice().sort((a, b) => b.generated_at.localeCompare(a.generated_at))[0] ?? null
 }

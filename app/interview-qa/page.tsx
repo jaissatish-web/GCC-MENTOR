@@ -48,7 +48,7 @@ const CATEGORY_ORDER: InterviewQuestionCategory[] = [
   'company_role',
 ]
 
-unction qaToText(set: InterviewQuestionSet): string {
+function qaToText(set: InterviewQuestionSet): string {
   return set.questions
     .map((q, index) =>
       [

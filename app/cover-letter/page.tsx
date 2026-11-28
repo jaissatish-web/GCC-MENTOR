@@ -45,7 +45,7 @@ import { CoverLetterEmail } from '@/components/service/CoverLetterEmail'
  * its tone; pre-2026-08-18 letters simply show no label — never a guessed one.
  */
 
-onst TONE_OPTIONS: ReadonlyArray<{ value: CoverLetterTone; label: string; description: string }> = [
+const TONE_OPTIONS: ReadonlyArray<{ value: CoverLetterTone; label: string; description: string }> = [
   { value: 'professional', label: 'Professional', description: 'Polished and formal — the standard choice' },
   { value: 'short', label: 'Short', description: 'One brief paragraph, straight to the point' },
   { value: 'technical', label: 'Technical', description: 'Leads with tools, standards and measurable results' },
