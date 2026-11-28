@@ -146,6 +146,10 @@ try {
   await page.goto('https://interview.test/mock-interview?package=resume-a&run=deleted', { waitUntil: 'networkidle0' })
   assert.ok(await page.$eval('[role="alert"]', el => el.textContent.includes('no longer available')))
   assert.equal(await page.$$eval('#interview-report', els => els.length), 0, 'Missing run must not open a different report')
+  await page.goto('https://interview.test/mock-interview?package=missing&run=attempt-2', { waitUntil: 'networkidle0' })
+  assert.ok(await page.$eval('[role="alert"]', el => el.textContent.includes('This saved job is unavailable')))
+  assert.ok(await page.$('main a[href="/dashboard/library"]'))
+  assert.equal(await page.$('#interview-report'), null, 'A missing job must never display another job’s report')
   // Return the next day to a partially answered interview, including URLs
   // saved before voice practice required a room query flag.
   const typed = {...runs[0], id:'resume-typed', status:'in_progress', input_mode:'text', final_report:null,

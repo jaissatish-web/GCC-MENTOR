@@ -12,6 +12,6 @@ The scope is career preparation. Hiring outcomes, ATS vendor behaviour, immigrat
 
 ## Implemented journey
 
-The landing page introduces Gulf Readiness, ATS Scan, Free Tools and the signed-in workspace. A visitor can start supported assessments before signup. The candidate can upload or paste a resume, review extracted details, or enter information directly. Saving confirmed data builds the Career Profile. Profile completeness, Gulf preparedness and job fit answer different questions.
+The landing page introduces the public Gulf Readiness Scorecard, Free Tools and the signed-in workspace. A visitor can start Gulf Readiness before signup. Target-job match is part of the signed-in Resume Optimizer flow. The candidate can upload or paste a resume, review extracted details, or enter information directly. Saving confirmed data builds the Career Profile. Profile completeness, Gulf preparedness and job fit answer different questions.
 
 The candidate can create a base resume from the Career Profile or start a separate target by supplying a role and job description. The job package groups the optimized resume, cover letter, interview preparation and tracking for that target. The Resume Library brings saved packages together. Mock Interview supports recurring practice and progress review. LinkedIn and NaukriGulf draft preparation use related profile and job context. See [Functionality](FUNCTIONALITY.md) for entry points and [AI](AI.md) for current factual integrity limits.
