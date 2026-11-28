@@ -96,10 +96,27 @@ function TargetScreen() {
     if (didInit.current) return
     didInit.current = true
 
+    // The target typed in this tab survives a failed profile-defaults request.
+    let kept: TargetDraft | null = null
+    try {
+      const raw = window.sessionStorage.getItem(OPTIMIZATION_TARGET_DRAFT_KEY)
+      const stored = raw ? (JSON.parse(raw) as Partial<TargetDraft> | null) : null
+      if (typeof stored?.target_job_title === 'string') {
+        kept = {
+          target_job_title: stored.target_job_title,
+          target_industry: typeof stored.target_industry === 'string' ? stored.target_industry : '',
+          job_description: typeof stored.job_description === 'string' ? stored.job_description : '',
+        }
+      }
+    } catch {
+      // Unavailable or invalid tab storage leaves profile defaults as the fallback.
+    }
+
     fetch('/api/profile', { cache: 'no-store' })
       .then((res) => {
         if (res.status === 200) return res.json()
         if (res.status === 404) return null
+        if (res.status === 401 || res.status === 403) kept = null
         throw new Error(String(res.status))
       })
       .then((data) => {
@@ -112,32 +129,15 @@ function TargetScreen() {
         const rawIndustry = typeof data?.target_industry === 'string' ? data.target_industry : ''
         const matchedIndustry = PERSONA_INDUSTRIES.some((i) => i.value === rawIndustry) ? rawIndustry : ''
         if (data === null) setNoProfile(true)
-        // Back from step 2: keep what was typed (the draft stays until the
-        // optimization starts).
-        let kept: TargetDraft | null = null
-        try {
-          const raw = window.sessionStorage.getItem(OPTIMIZATION_TARGET_DRAFT_KEY)
-          kept = raw ? (JSON.parse(raw) as TargetDraft) : null
-        } catch {
-          kept = null
-        }
-        setDraft(
-          kept && typeof kept.target_job_title === 'string'
-            ? {
-                target_job_title: kept.target_job_title,
-                target_industry: typeof kept.target_industry === 'string' ? kept.target_industry : '',
-                job_description: typeof kept.job_description === 'string' ? kept.job_description : '',
-              }
-            : {
-                target_job_title: data?.target_job_title ?? '',
-                target_industry: matchedIndustry,
-                job_description: '',
-              },
-        )
+        setDraft(kept ?? {
+          target_job_title: data?.target_job_title ?? '',
+          target_industry: matchedIndustry,
+          job_description: '',
+        })
         setLoaded(true)
       })
       .catch(() => {
-        // Non-fatal: blank fields, surface a notice (pre-Supabase behaviour).
+        if (kept) setDraft(kept)
         setLoadError('Could not load your profile defaults.')
         setLoaded(true)
       })
@@ -346,11 +346,12 @@ function TargetScreen() {
             <div className="type-helper font-medium leading-snug text-ink">
               Paste the job advert
             </div>
-            <p className="type-helper leading-snug text-ink-muted">
+            <p id="job-description-hint" className="type-helper leading-snug text-ink-muted">
               Without an advert, matching uses the job title and the score is an estimate.
             </p>
             <textarea
               id="f_job_description"
+              aria-describedby="job-description-hint"
               rows={8}
               value={draft.job_description}
               onChange={(e) => set('job_description', e.target.value)}
