@@ -146,15 +146,17 @@ function InterviewQaScreen({ requestedId }: { requestedId: string | null }) {
     }
   }
 
-  if (listError) {
+  if (listError || picker.requestedJobUnavailable) {
     return (
       <main className="mx-auto flex w-full max-w-[960px] flex-col items-start gap-3 px-3 py-8 font-redesign-sans sm:px-8 lg:px-10">
         <div role="alert" className="rounded-card border border-alert/40 bg-alert-soft px-3.5 py-3 type-helper text-alert">
-          {listError}
+          {listError ?? 'This saved job is unavailable here. Open Resume Library to find your job.'}
         </div>
-        <Button type="button" variant="secondary" onClick={picker.reloadList}>
-          Try again
-        </Button>
+        {listError ? (
+          <Button type="button" variant="secondary" onClick={picker.reloadList}>Try again</Button>
+        ) : (
+          <Link href="/dashboard/library" className={buttonVariants({ variant: 'primary' })}>Open Resume Library</Link>
+        )}
       </main>
     )
   }

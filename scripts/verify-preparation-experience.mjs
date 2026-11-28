@@ -102,6 +102,13 @@ try{
   await page.reload()
   await page.waitForFunction(text=>document.body.innerText.includes(text),{timeout:4000},expected)
  }
+ for (const screen of ['letter', 'qa']) {
+  await page.goto(`https://preparation.test/?package=missing&screen=${screen}`, { waitUntil: 'networkidle0' })
+  const alert = await page.$eval('[role="alert"]', (el) => el.textContent.trim()).catch(() => null)
+  assert.equal(alert, 'This saved job is unavailable here. Open Resume Library to find your job.')
+  assert.ok(await page.$('main a[href="/dashboard/library"]'))
+  assert.equal(await page.$('main select'), null, 'An unavailable job link must never select another job')
+ }
  empty=true;await goto('letter');await page.waitForSelector('main > details');assert.equal(await page.$eval('main > details',e=>e.open),true,'First-time setup opens');empty=false
  await page.setViewport({width:390,height:844});analysisRequest=null;buildRequest=null
  await page.goto('https://preparation.test/?screen=generate',{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>document.querySelector('[data-processing-steps] [aria-current="step"]')?.textContent.includes('Reviewing'))

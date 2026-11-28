@@ -255,13 +255,15 @@ function MockInterviewScreen({ requestedId }: { requestedId: string | null }) {
     }
   }
 
-  if (listError) {
+  if (listError || picker.requestedJobUnavailable) {
     return (
       <main className="mx-auto flex w-full max-w-[980px] flex-col items-start gap-3 px-3 sm:px-5 py-8 font-redesign-sans">
-        <p role="alert" className="type-label text-alert">{listError}</p>
-        <Button type="button" variant="secondary" onClick={picker.reloadList}>
-          Try again
-        </Button>
+        <p role="alert" className="type-label text-alert">{listError ?? 'This saved job is unavailable here. Open Resume Library to find your job.'}</p>
+        {listError ? (
+          <Button type="button" variant="secondary" onClick={picker.reloadList}>Try again</Button>
+        ) : (
+          <Link href="/dashboard/library" className={buttonVariants({ variant: 'primary' })}>Open Resume Library</Link>
+        )}
       </main>
     )
   }

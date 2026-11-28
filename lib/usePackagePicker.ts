@@ -49,7 +49,7 @@ export function usePackagePicker(opts: { requestedId: string | null; onlyWithRes
         const rows = [...(raw.resume ? [raw.resume] : []), ...(data.packages ?? []).filter((p) => p.id !== raw.resume?.id)]
         setList(rows)
         setTotal(typeof data.total === 'number' ? data.total + Number(Boolean(raw.resume)) : rows.length)
-        setSelectedId((current) => current ?? rows.find((p) => p.id === requestedId)?.id ?? rows[0]?.id ?? null)
+        setSelectedId((current) => current ?? (requestedId === null ? rows[0]?.id : rows.find((p) => p.id === requestedId)?.id) ?? null)
       })
       .catch(() => {
         if (!cancelled) setListError('Could not load your saved jobs. Check your connection and try again.')
@@ -104,6 +104,7 @@ export function usePackagePicker(opts: { requestedId: string | null; onlyWithRes
     list,
     total,
     listError,
+    requestedJobUnavailable: requestedId !== null && list !== null && !list.some((p) => p.id === requestedId),
     selectedId,
     setSelectedId,
     selectedSummary,

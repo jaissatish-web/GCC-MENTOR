@@ -11,7 +11,7 @@ import { PageShell } from '@/components/layout/PageShell'
 import { NextStep } from '@/components/journey/NextStep'
 import { SavedWorkHeading, ServiceOptions } from '@/components/service/SavedWork'
 import { Card } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
+import { Button, buttonVariants } from '@/components/ui/Button'
 import { ProcessingInline } from '@/components/ui/Processing'
 import { COVER_LETTER_NOTES } from '@/lib/processingNotes'
 import { cn } from '@/lib/utils'
@@ -187,15 +187,17 @@ function CoverLetterScreen({ requestedId, edits, setEdits }: {
     a.remove()
   }
 
-  if (listError) {
+  if (listError || picker.requestedJobUnavailable) {
     return (
       <main className="mx-auto flex w-full max-w-[900px] flex-col items-start gap-3 px-3 py-8 font-redesign-sans sm:px-8 lg:px-10">
         <div role="alert" className="rounded-card border border-alert/40 bg-alert-soft px-3.5 py-3 type-helper text-alert">
-          {listError}
+          {listError ?? 'This saved job is unavailable here. Open Resume Library to find your job.'}
         </div>
-        <Button type="button" variant="secondary" onClick={picker.reloadList}>
-          Try again
-        </Button>
+        {listError ? (
+          <Button type="button" variant="secondary" onClick={picker.reloadList}>Try again</Button>
+        ) : (
+          <Link href="/dashboard/library" className={buttonVariants({ variant: 'primary' })}>Open Resume Library</Link>
+        )}
       </main>
     )
   }
