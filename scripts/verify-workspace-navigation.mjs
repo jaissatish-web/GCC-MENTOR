@@ -34,7 +34,7 @@ const css = [...new Set([...landing.matchAll(/href="(\/_next\/static\/css\/[^"]+
 assert.ok(process.env.CHROME_PATH, 'Set CHROME_PATH')
 const browser = await puppeteer.launch({ executablePath: process.env.CHROME_PATH, headless: true, pipe: true, args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--no-zygote', '--single-process'] })
 try {
-  const page = await browser.newPage(), errors = [], writes = []
+  const page = await browser.newPage(), errors = [], writes = [], stageRequests = []
   let voiceRecording = false, scenario = 'saved'
   page.on('pageerror', e => errors.push(e.message))
   await page.setRequestInterception(true)
@@ -47,6 +47,7 @@ try {
       if (u.pathname === '/fixture.js') return r.respond({ status: 200, contentType: 'application/javascript', body: readFileSync(dir + '/fixture.js') })
       if (u.pathname.startsWith('/interviewers/')) return r.respond({ status: 200, contentType: 'image/webp', body: readFileSync(root + '/public' + u.pathname) })
       if (r.method() !== 'GET') writes.push(u.pathname)
+      if (u.pathname === '/api/packages' && u.searchParams.get('limit') === '20') stageRequests.push(u.pathname)
       if (u.pathname.endsWith('/voice') && voiceRecording) return json({status:'recording',answers:[{question_id:'q-0',saved_at:'2026-10-16T07:00:00Z'}]})
       if (u.pathname.endsWith('/voice')) return json({status:'completed',answers:runs[0].questions.map(q=>({question_id:q.id,saved_at:'2026-10-01',transcript:'Saved answer',feedback:{score:7,feedback:'Saved feedback',better_answer:'Use a specific example.',follow_up:'What did you learn?',grammar:[]}}))})
       if (u.pathname === '/api/packages/career-profile') return json({ package: null, summary: null })
@@ -65,7 +66,8 @@ try {
 // never write into the documentation tree (2026-11-17 cleanup).
 mkdirSync('artifacts/workspace-navigation',{recursive:true})
   const required=['/dashboard','/dashboard/library','/optimize/target','/templates','/cover-letter','/interview-qa','/mock-interview','/linkedin-optimization','/naukrigulf-optimization','/profile','/settings']
-  for(const width of [360,390,430,768,1024,1366,1440]){
+  for(const width of [320,360,390,430,768,1024,1366,1440]){
+    const stageRequestsBefore = stageRequests.length
     await page.setViewport({width,height:900})
     await page.goto('https://interview.test/dashboard',{waitUntil:'networkidle0'})
     await page.waitForFunction(()=>document.body.textContent.includes('Engineer'))
@@ -79,7 +81,10 @@ mkdirSync('artifacts/workspace-navigation',{recursive:true})
     assert.equal(title.size,width>=768?'20px':'19px')
     assert.equal(title.weight,'600','Compact candidate identity uses semibold')
     await page.screenshot({path:`artifacts/workspace-navigation/dashboard-${width}.webp`,type:'webp',fullPage:true})
+    assert.equal(stageRequests.length, stageRequestsBefore, 'Closed services menu must not load stage data')
+    const stageResponse = page.waitForResponse(response => new URL(response.url()).searchParams.get('limit') === '20')
     await page.click('[data-mobile-header] button[aria-label="All services"]')
+    await stageResponse
     await page.waitForSelector('[role="dialog"]')
     assert.equal(await page.$eval('body',el=>el.style.overflow),'hidden')
     const hrefs=await page.$$eval('[role="dialog"] a',els=>els.map(el=>el.getAttribute('href')))

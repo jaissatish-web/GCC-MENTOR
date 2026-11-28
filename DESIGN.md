@@ -4,11 +4,11 @@ Production Baseline V1.0 · source `ed06ab8c6c73b63f7be2376e4a90b1e7ab3da342`.
 
 | Scope | Source and behaviour |
 | --- | --- |
-| Base tokens and type | `tailwind.config.ts`, `app/globals.css` and `app/typography.css`. Compact Inter for application typography, with shared semantic text and spacing utilities. Inspect the computed style and breakpoint before changing sizes. |
+| Base tokens and type | `tailwind.config.ts`, `app/globals.css` and `app/typography.css`. Compact Inter for application typography, with shared semantic text and spacing utilities. Inter is the initial font preload. The serif and mono faces load where used. Inspect the computed style and breakpoint before changing sizes. |
 | Shared interaction | `app/ui-system.css`, `app/responsive.css`, `lib/design-system/` and shared UI components provide the reusable controls, surface, spacing and responsive rules. Use meaningful labels and preserve keyboard focus, validation, empty, loading and error states. |
 | Workspace | `app/workspace-theme.css` sets a white canvas, navy outer text `#18283D`, card `#102B3D`, gradient `#123448` to `#091E2C`, border `#244557`, white card text and secondary card text `#CBD5E1`. Brand CTA is `#087F76`; the workspace defines action hover `#0D9488` and a separate light-surface link hover. |
 | Light workspace surfaces | Forms, editable regions, tables, menus and document previews use their own scoped light rules. Shared and legacy card classes are both supported; local layouts still vary by service. Check card contrast, portalled elements, button alignment and wrapping at desktop and mobile widths. |
-| Navigation | Workspace navigation uses responsive page and menu presentation. Current route labels and destinations are defined by the shared workspace components and in the pages. |
+| Navigation | Workspace navigation uses responsive page and menu presentation. Current route labels and destinations are defined by the shared workspace components and in the pages. The services drawer requests its progress badges when opened. |
 | Public | `app/page.tsx` and `components/landing-v3/` own the public story, service calls to action, logos, resume orbit, industry and founder imagery. `app/auth-presentation.css` and auth components own the sign-in/signup globe. Preserve reduced-motion support. |
 | Document boundary | `components/templates/`, `lib/templates.ts`, `lib/resumeStyle.ts` and export-specific rules own document typography, page dimensions, style and photo compatibility. UI-wide token updates must preserve document content and rendering. |
 

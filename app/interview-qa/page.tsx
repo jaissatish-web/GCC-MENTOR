@@ -3,8 +3,8 @@
 import { CreditUnlock } from '@/components/referrals/CreditUnlock'
 import { usePremiumRequest } from '@/lib/credits/usePremiumRequest'
 import { CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileResume'
-import { Suspense, useMemo, useRef, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { Suspense, useMemo, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { QuestionMarkCircleIcon, ChevronDownIcon, ClipboardDocumentIcon, ChatBubbleLeftRightIcon, LightBulbIcon, DocumentTextIcon, ArrowUturnRightIcon } from '@heroicons/react/24/outline'
 import { PreparationJourney } from '@/components/package/PreparationJourney'
@@ -74,11 +74,15 @@ function qaToText(set: InterviewQuestionSet): string {
  * CV is built; only the chosen job's Q&A set is loaded. The picker is locked
  * while a set is being generated, so a reply cannot land on another job.
  */
-function InterviewQaScreen() {
-  const searchParams = useSearchParams()
-  const requestedIdRef = useRef(searchParams.get('package'))
-  const picker = usePackagePicker({ requestedId: requestedIdRef.current, onlyWithResume: true })
-  const { list, total, listError, selectedId, setSelectedId, selectedSummary, detail, detailError, detailLoading } = picker
+function InterviewQaRoute() {
+  const requestedId = useSearchParams().get('package')
+  return <InterviewQaScreen key={requestedId} requestedId={requestedId} />
+}
+
+function InterviewQaScreen({ requestedId }: { requestedId: string | null }) {
+  const router = useRouter()
+  const picker = usePackagePicker({ requestedId, onlyWithResume: true })
+  const { list, total, listError, selectedId, selectedSummary, detail, detailError, detailLoading } = picker
   const isRaw = isCareerProfileResume(selectedSummary ?? {})
   const [generating, setGenerating] = useState(false)
   const premium = usePremiumRequest()
@@ -200,9 +204,7 @@ function InterviewQaScreen() {
               <select
                 value={selectedId ?? ''}
                 onChange={(e) => {
-                  setGenError(null)
-                  setSetId(null)
-                  setSelectedId(e.target.value)
+                  router.replace(`/interview-qa?package=${encodeURIComponent(e.target.value)}`, { scroll: false })
                 }}
                 disabled={generating}
                 className="field"
@@ -386,7 +388,7 @@ function InterviewQaScreen() {
 export default function InterviewQaPage() {
   return (
     <Suspense>
-      <InterviewQaScreen />
+      <InterviewQaRoute />
     </Suspense>
   )
 }

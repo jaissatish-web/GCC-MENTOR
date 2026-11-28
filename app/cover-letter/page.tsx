@@ -3,8 +3,8 @@
 import { CreditUnlock } from '@/components/referrals/CreditUnlock'
 import { usePremiumRequest } from '@/lib/credits/usePremiumRequest'
 import { CAREER_RESUME_BADGE, isCareerProfileResume } from '@/lib/careerProfileResume'
-import { Suspense, useMemo, useRef, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { Suspense, useMemo, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { EnvelopeIcon } from '@heroicons/react/24/outline'
 import { PreparationJourney } from '@/components/package/PreparationJourney'
 import { PageShell } from '@/components/layout/PageShell'
@@ -59,13 +59,15 @@ const TONE_OPTIONS: ReadonlyArray<{ value: CoverLetterTone; label: string; descr
   { value: 'explanatory', label: 'Explanatory', description: 'Walks through why the experience fits the role' },
 ]
 
-function CoverLetterScreen() {
-  // ?package=<id> — arriving from a job's own page or the dashboard's next
-  // step, with that job already chosen. Read once; unknown ids fall back.
-  const searchParams = useSearchParams()
-  const requestedIdRef = useRef(searchParams.get('package'))
-  const picker = usePackagePicker({ requestedId: requestedIdRef.current, onlyWithResume: false })
-  const { list, listError, selectedId, setSelectedId, selectedSummary, detail, detailError, detailLoading } = picker
+function CoverLetterRoute() {
+  const requestedId = useSearchParams().get('package')
+  return <CoverLetterScreen key={requestedId} requestedId={requestedId} />
+}
+
+function CoverLetterScreen({ requestedId }: { requestedId: string | null }) {
+  const router = useRouter()
+  const picker = usePackagePicker({ requestedId, onlyWithResume: false })
+  const { list, listError, selectedId, selectedSummary, detail, detailError, detailLoading } = picker
   const isRaw = isCareerProfileResume(selectedSummary ?? {})
   const [tone, setTone] = useState<CoverLetterTone>('professional')
 
@@ -224,8 +226,7 @@ function CoverLetterScreen() {
               <select
                 value={selectedId ?? ''}
                 onChange={(e) => {
-                  setGenError(null)
-                  setSelectedId(e.target.value)
+                  router.replace(`/cover-letter?package=${encodeURIComponent(e.target.value)}`, { scroll: false })
                 }}
                 disabled={generating}
                 className="field"
@@ -419,7 +420,7 @@ export default function CoverLetterPage() {
   return (
     <>
       <Suspense>
-        <CoverLetterScreen />
+        <CoverLetterRoute />
       </Suspense>
     </>
   )

@@ -98,12 +98,16 @@ function latestRun(pkg: Package | null): MockInterviewRun | null {
   return runs.slice().sort((a, b) => b.generated_at.localeCompare(a.generated_at))[0] ?? null
 }
 
-function MockInterviewScreen() {
+function MockInterviewRoute() {
+  const requestedId = useSearchParams().get('package')
+  return <MockInterviewScreen key={requestedId} requestedId={requestedId} />
+}
+
+function MockInterviewScreen({ requestedId }: { requestedId: string | null }) {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const requestedIdRef = useRef(searchParams.get('package'))
-  const picker = usePackagePicker({ requestedId: requestedIdRef.current, onlyWithResume: true })
-  const { list, total, listError, selectedId, setSelectedId, selectedSummary, detail, detailError, detailLoading } = picker
+  const picker = usePackagePicker({ requestedId, onlyWithResume: true })
+  const { list, total, listError, selectedId, selectedSummary, detail, detailError, detailLoading } = picker
   const isRaw = isCareerProfileResume(selectedSummary ?? {})
   const [voiceReady, setVoiceReady] = useState<boolean | null>(null)
   useEffect(() => {
@@ -346,8 +350,6 @@ function MockInterviewScreen() {
               <select
                 value={selectedId ?? ''}
                 onChange={(e) => {
-                  setOpError(null)
-                  setSelectedId(e.target.value)
                   router.replace(`/mock-interview?package=${encodeURIComponent(e.target.value)}`, { scroll: false })
                 }}
                 disabled={busy !== null}
@@ -481,7 +483,7 @@ function MockInterviewScreen() {
 export default function MockInterviewPage() {
   return (
     <Suspense>
-      <MockInterviewScreen />
+      <MockInterviewRoute />
     </Suspense>
   )
 }
